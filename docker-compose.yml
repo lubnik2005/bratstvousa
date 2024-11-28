@@ -1,7 +1,7 @@
 services:
-    laravel.test:
+    admin:
         build:
-            context: './runtimes/8.4'
+            context: './admin/runtimes/8.4'
             dockerfile: Dockerfile
             args:
                 WWWGROUP: '${WWWGROUP}'
@@ -18,9 +18,19 @@ services:
             XDEBUG_CONFIG: '${SAIL_XDEBUG_CONFIG:-client_host=host.docker.internal}'
             IGNITION_LOCAL_SITES_PATH: '${PWD}'
         volumes:
-            - '.:/var/www/html'
+            - './admin:/var/www/html'
         networks:
             - sail
+    # db:
+    #     image: postgres
+    #     restart: always
+    #     ports:
+    #         - '5432:5432'
+    #     environment:
+    #         POSTGRES_USER: root
+    #         POSTGRES_PASSWORD: mysecretpassword
+    #         POSTGRES_DB: local
 networks:
     sail:
         driver: bridge
+ 
