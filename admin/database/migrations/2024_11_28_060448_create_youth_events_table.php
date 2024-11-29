@@ -13,6 +13,14 @@ return new class extends Migration
     {
         Schema::create('youth_events', function (Blueprint $table) {
             $table->id();
+            $table->string('title');
+            $table->string('slug')->nullable();
+            $table->unsignedInteger('author_id')->nullable();
+            $table->string('description')->nullable();
+            $table->text('content')->nullable();
+            $table->text('thumbnail')->nullable();
+            $table->string('start_at')->nullable();
+            $table->string('end_at')->nullable();
             $table->timestamps();
         });
     }
