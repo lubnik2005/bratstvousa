@@ -40,7 +40,7 @@ return [
         'role_permission' => 'role_permission',
 
         'role_user' => 'role_user',
-        
+
         'users' => 'users',
     ],
 
@@ -97,6 +97,54 @@ return [
             'display_name' => 'Delete roles',
             'description'  => 'Can delete roles',
             'group'        => 'Role',
+        ],
+
+        // YouthEvents Start
+
+        'view youth_events' => [
+            'display_name' => 'View youth events',
+            'description'  => 'Can delete youth events',
+            'group'        => 'Youth Event',
+        ],
+        'create youth_events' => [
+            'display_name' => 'Create youth events',
+            'description'  => 'Can create youth events',
+            'group'        => 'Youth Event',
+        ],
+        'edit youth_events' => [
+            'display_name' => 'Edit youth events',
+            'description'  => 'Can edit youth events',
+            'group'        => 'Youth Event',
+        ],
+        'delete youth_events' => [
+            'display_name' => 'Delete youth events',
+            'description'  => 'Can delete youth events',
+            'group'        => 'Youth Event',
+        ],
+        // YouthEvents End
+        //
+        // YoutNewsArticle
+        'view youth_news_article' => [
+            'display_name' => 'View youth news article',
+            'description'  => 'Can view youth news article',
+            'group'        => 'Youth News Article',
+        ],
+        'create youth_news_article' => [
+            'display_name' => 'Create youth news article',
+            'description'  => 'Can create youth news article',
+            'group'        => 'Youth News Article',
+        ],
+
+        'edit youth_news_article' => [
+            'display_name' => 'Edit youth news article',
+            'description'  => 'Can edit youth news article',
+            'group'        => 'Youth News Article',
+        ],
+
+        'delete youth_news_article' => [
+            'display_name' => 'Delete youth news article',
+            'description'  => 'Can delete youth news article',
+            'group'        => 'Youth News Article',
         ],
     ],
 ];
