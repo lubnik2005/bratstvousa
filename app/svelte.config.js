@@ -1,5 +1,8 @@
 import { mdsvex } from 'mdsvex';
-import adapter from '@sveltejs/adapter-auto';
+// This was the original svelte adapter
+// import adapter from '@sveltejs/adapter-auto';
+
+import adapter from 'amplify-adapter';
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 
 /** @type {import('@sveltejs/kit').Config} */
