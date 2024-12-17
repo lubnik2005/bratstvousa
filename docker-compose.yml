@@ -4,15 +4,21 @@ services:
             context: './admin/runtimes/8.4'
             dockerfile: Dockerfile
             args:
-                WWWGROUP: '${WWWGROUP}'
+                WWWUSER: 1000
+                WWWGROUP: 1000
         image: 'sail-8.4/app'
         extra_hosts:
             - 'host.docker.internal:host-gateway'
         ports:
-            - '${APP_PORT:-80}:80'
+            - '${APP_PORT:-7128}:80'
             - '${VITE_PORT:-5173}:${VITE_PORT:-5173}'
+        env_file:
+            - path: './admin/.env'
         environment:
-            WWWUSER: '${WWWUSER}'
+            # WWWUSER: '${WWWUSER}:1000'
+            # WWWGROUP: '${WWWGROUP}:1000'
+            WWWUSER: 1000
+            WWWGROUP: 1000
             LARAVEL_SAIL: 1
             XDEBUG_MODE: '${SAIL_XDEBUG_MODE:-off}'
             XDEBUG_CONFIG: '${SAIL_XDEBUG_CONFIG:-client_host=host.docker.internal}'
