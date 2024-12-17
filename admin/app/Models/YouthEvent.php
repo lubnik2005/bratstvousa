@@ -7,4 +7,5 @@ use Illuminate\Database\Eloquent\Model;
 class YouthEvent extends Model
 {
     //
+    protected $casts = ['start_at' => 'date', 'end_at' => 'date'];
 }
