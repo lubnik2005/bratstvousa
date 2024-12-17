@@ -167,6 +167,7 @@ cython_debug/
 
 .sass-cache/
 bg.webm
+html_templates/*
 
 # For project.inlang
 project_id
