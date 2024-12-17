@@ -167,6 +167,7 @@ cython_debug/
 
 .sass-cache/
 bg.webm
+bg_compressed_no_audio.webm
 html_templates/*
 
 # For project.inlang
