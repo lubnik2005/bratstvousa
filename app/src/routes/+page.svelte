@@ -9,7 +9,7 @@
 		<div class="carousel-inner">
 			<div class="carousel-item active">
 				<video class="w-100" autoplay muted loop>
-					<source src="/video/bg.webm" type="video/webm" />
+					<source src="/video/bg_compressed_no_audio.webm" type="video/webm" />
 					Your browser does not support the video tag.
 				</video>
 				<div class="carousel-caption">
