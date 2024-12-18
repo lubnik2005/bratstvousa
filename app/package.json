@@ -54,6 +54,7 @@
 		"vitest": "^2.0.4"
 	},
 	"dependencies": {
+		"@aws-amplify/backend": "^1.10.0",
 		"@fullcalendar/core": "^6.1.15",
 		"@fullcalendar/daygrid": "^6.1.15",
 		"@fullcalendar/interaction": "^6.1.15",
@@ -68,6 +69,7 @@
 		"@tailwindcss/forms": "^0.5.9",
 		"@tailwindcss/typography": "^0.5.15",
 		"amplify-adapter": "^0.2.0",
+		"aws-amplify": "^6.10.3",
 		"drizzle-orm": "^0.33.0",
 		"postgres": "^3.4.4",
 		"svelte-carousel": "^1.0.25"
