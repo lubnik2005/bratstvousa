@@ -1,5 +1,6 @@
 <script lang="ts">
-	let { data } = $props();
+  export let data;
+
 	import '@splidejs/svelte-splide/css';
 	import { Splide, SplideSlide } from '@splidejs/svelte-splide';
 </script>
@@ -96,7 +97,7 @@
 					<div class="col-xl-3 col-lg-4 col-md-6">
 						<div class="product-item">
 							<div class="position-relative bg-light overflow-hidden">
-								<img class="img-fluid w-100" src="img/product-1.jpg" alt="" />
+								<img class="img-fluid w-100" src="{data.media_url}img/product-1.jpg" alt="" />
 								<div
 									class="bg-secondary position-absolute start-0 top-0 m-4 rounded px-3 py-1 text-white"
 								>
@@ -125,7 +126,7 @@
 					<div class="col-xl-3 col-lg-4 col-md-6">
 						<div class="product-item">
 							<div class="position-relative bg-light overflow-hidden">
-								<img class="img-fluid w-100" src="img/product-2.jpg" alt="" />
+								<img class="img-fluid w-100" src="{data.media_url}img/product-2.jpg" alt="" />
 								<div
 									class="bg-secondary position-absolute start-0 top-0 m-4 rounded px-3 py-1 text-white"
 								>
@@ -154,7 +155,7 @@
 					<div class="col-xl-3 col-lg-4 col-md-6">
 						<div class="product-item">
 							<div class="position-relative bg-light overflow-hidden">
-								<img class="img-fluid w-100" src="img/product-3.jpg" alt="" />
+								<img class="img-fluid w-100" src="{data.media_url}img/product-3.jpg" alt="" />
 								<div
 									class="bg-secondary position-absolute start-0 top-0 m-4 rounded px-3 py-1 text-white"
 								>
@@ -183,7 +184,7 @@
 					<div class="col-xl-3 col-lg-4 col-md-6">
 						<div class="product-item">
 							<div class="position-relative bg-light overflow-hidden">
-								<img class="img-fluid w-100" src="img/product-4.jpg" alt="" />
+								<img class="img-fluid w-100" src="{data.media_url}img/product-4.jpg" alt="" />
 								<div
 									class="bg-secondary position-absolute start-0 top-0 m-4 rounded px-3 py-1 text-white"
 								>
@@ -212,7 +213,7 @@
 					<div class="col-xl-3 col-lg-4 col-md-6">
 						<div class="product-item">
 							<div class="position-relative bg-light overflow-hidden">
-								<img class="img-fluid w-100" src="img/product-5.jpg" alt="" />
+								<img class="img-fluid w-100" src="{data.media_url}img/product-5.jpg" alt="" />
 								<div
 									class="bg-secondary position-absolute start-0 top-0 m-4 rounded px-3 py-1 text-white"
 								>
@@ -241,7 +242,7 @@
 					<div class="col-xl-3 col-lg-4 col-md-6">
 						<div class="product-item">
 							<div class="position-relative bg-light overflow-hidden">
-								<img class="img-fluid w-100" src="img/product-6.jpg" alt="" />
+								<img class="img-fluid w-100" src="{data.media_url}img/product-6.jpg" alt="" />
 								<div
 									class="bg-secondary position-absolute start-0 top-0 m-4 rounded px-3 py-1 text-white"
 								>
@@ -270,7 +271,7 @@
 					<div class="col-xl-3 col-lg-4 col-md-6">
 						<div class="product-item">
 							<div class="position-relative bg-light overflow-hidden">
-								<img class="img-fluid w-100" src="img/product-7.jpg" alt="" />
+								<img class="img-fluid w-100" src="{data.media_url}img/product-7.jpg" alt="" />
 								<div
 									class="bg-secondary position-absolute start-0 top-0 m-4 rounded px-3 py-1 text-white"
 								>
@@ -299,7 +300,7 @@
 					<div class="col-xl-3 col-lg-4 col-md-6">
 						<div class="product-item">
 							<div class="position-relative bg-light overflow-hidden">
-								<img class="img-fluid w-100" src="img/product-8.jpg" alt="" />
+								<img class="img-fluid w-100" src="{data.media_url}img/product-8.jpg" alt="" />
 								<div
 									class="bg-secondary position-absolute start-0 top-0 m-4 rounded px-3 py-1 text-white"
 								>
@@ -335,7 +336,7 @@
 					<div class="col-xl-3 col-lg-4 col-md-6">
 						<div class="product-item">
 							<div class="position-relative bg-light overflow-hidden">
-								<img class="img-fluid w-100" src="img/product-1.jpg" alt="" />
+								<img class="img-fluid w-100" src="{data.media_url}img/product-1.jpg" alt="" />
 								<div
 									class="bg-secondary position-absolute start-0 top-0 m-4 rounded px-3 py-1 text-white"
 								>
@@ -364,7 +365,7 @@
 					<div class="col-xl-3 col-lg-4 col-md-6">
 						<div class="product-item">
 							<div class="position-relative bg-light overflow-hidden">
-								<img class="img-fluid w-100" src="img/product-2.jpg" alt="" />
+								<img class="img-fluid w-100" src="{data.media_url}img/product-2.jpg" alt="" />
 								<div
 									class="bg-secondary position-absolute start-0 top-0 m-4 rounded px-3 py-1 text-white"
 								>
@@ -393,7 +394,7 @@
 					<div class="col-xl-3 col-lg-4 col-md-6">
 						<div class="product-item">
 							<div class="position-relative bg-light overflow-hidden">
-								<img class="img-fluid w-100" src="img/product-3.jpg" alt="" />
+								<img class="img-fluid w-100" src="{data.media_url}img/product-3.jpg" alt="" />
 								<div
 									class="bg-secondary position-absolute start-0 top-0 m-4 rounded px-3 py-1 text-white"
 								>
@@ -422,7 +423,7 @@
 					<div class="col-xl-3 col-lg-4 col-md-6">
 						<div class="product-item">
 							<div class="position-relative bg-light overflow-hidden">
-								<img class="img-fluid w-100" src="img/product-4.jpg" alt="" />
+								<img class="img-fluid w-100" src="{data.media_url}img/product-4.jpg" alt="" />
 								<div
 									class="bg-secondary position-absolute start-0 top-0 m-4 rounded px-3 py-1 text-white"
 								>
@@ -451,7 +452,7 @@
 					<div class="col-xl-3 col-lg-4 col-md-6">
 						<div class="product-item">
 							<div class="position-relative bg-light overflow-hidden">
-								<img class="img-fluid w-100" src="img/product-5.jpg" alt="" />
+								<img class="img-fluid w-100" src="{data.media_url}img/product-5.jpg" alt="" />
 								<div
 									class="bg-secondary position-absolute start-0 top-0 m-4 rounded px-3 py-1 text-white"
 								>
@@ -480,7 +481,7 @@
 					<div class="col-xl-3 col-lg-4 col-md-6">
 						<div class="product-item">
 							<div class="position-relative bg-light overflow-hidden">
-								<img class="img-fluid w-100" src="img/product-6.jpg" alt="" />
+								<img class="img-fluid w-100" src="{data.media_url}img/product-6.jpg" alt="" />
 								<div
 									class="bg-secondary position-absolute start-0 top-0 m-4 rounded px-3 py-1 text-white"
 								>
@@ -509,7 +510,7 @@
 					<div class="col-xl-3 col-lg-4 col-md-6">
 						<div class="product-item">
 							<div class="position-relative bg-light overflow-hidden">
-								<img class="img-fluid w-100" src="img/product-7.jpg" alt="" />
+								<img class="img-fluid w-100" src="{data.media_url}img/product-7.jpg" alt="" />
 								<div
 									class="bg-secondary position-absolute start-0 top-0 m-4 rounded px-3 py-1 text-white"
 								>
@@ -538,7 +539,7 @@
 					<div class="col-xl-3 col-lg-4 col-md-6">
 						<div class="product-item">
 							<div class="position-relative bg-light overflow-hidden">
-								<img class="img-fluid w-100" src="img/product-8.jpg" alt="" />
+								<img class="img-fluid w-100" src="{data.media_url}img/product-8.jpg" alt="" />
 								<div
 									class="bg-secondary position-absolute start-0 top-0 m-4 rounded px-3 py-1 text-white"
 								>
@@ -579,8 +580,7 @@
 		<div class="row g-0 gx-5 align-items-end">
 			<div class="col-lg-6">
 				<div
-					class="section-header wow fadeInUp mb-5 text-start"
-					data-wow-delay="0.1s"
+					class="section-header mb-5 text-start"
 					style="max-width: 500px;"
 				>
 					<h1 class="display-5 text-light mb-3">Новости</h1>
@@ -721,8 +721,7 @@
 		<div class="row g-0 gx-5 align-items-end">
 			<div class="col-lg-6">
 				<div
-					class="section-header wow fadeInUp mb-5 text-start"
-					data-wow-delay="0.1s"
+					class="section-header mb-5 text-start"
 					style="max-width: 500px;"
 				>
 					<h1 class="display-5 mb-3">Архивы</h1>
@@ -732,7 +731,7 @@
 					</p>
 				</div>
 			</div>
-			<div class="col-lg-6 text-lg-end wow slideInRight text-start" data-wow-delay="0.1s">
+			<div class="col-lg-6 text-lg-end text-start" >
 				<ul class="nav nav-pills d-inline-flex justify-content-end mb-5">
 					<li class="nav-item me-2">
 						<a class="btn btn-outline-primary active border-2" data-bs-toggle="pill" href="#tab-1"
@@ -755,10 +754,10 @@
 			<div id="tab-1" class="tab-pane fade show active p-0">
 				<div class="row g-4">
 					{#each data.youth_events as event}
-						<div class="col-xl-4 col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
+						<div class="col-xl-4 col-lg-4 col-md-6">
 							<div class="product-item">
 								<div class="position-relative bg-light overflow-hidden">
-									<img class="img-fluid w-100" src="img/product-1.jpg" alt="" />
+									<img class="img-fluid w-100" src="{data.media_url}img/product-1.jpg" alt="" />
 									<div
 										class="bg-secondary position-absolute start-0 top-0 m-4 rounded px-3 py-1 text-white"
 									>
@@ -785,10 +784,10 @@
 							</div>
 						</div>
 					{/each}
-					<div class="col-xl-3 col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.3s">
+					<div class="col-xl-3 col-lg-4 col-md-6">
 						<div class="product-item">
 							<div class="position-relative bg-light overflow-hidden">
-								<img class="img-fluid w-100" src="img/product-2.jpg" alt="" />
+								<img class="img-fluid w-100" src="{data.media_url}img/product-2.jpg" alt="" />
 								<div
 									class="bg-secondary position-absolute start-0 top-0 m-4 rounded px-3 py-1 text-white"
 								>
@@ -814,10 +813,10 @@
 							</div>
 						</div>
 					</div>
-					<div class="col-xl-3 col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.5s">
+					<div class="col-xl-3 col-lg-4 col-md-6" >
 						<div class="product-item">
 							<div class="position-relative bg-light overflow-hidden">
-								<img class="img-fluid w-100" src="img/product-3.jpg" alt="" />
+								<img class="img-fluid w-100" src="{data.media_url}img/product-3.jpg" alt="" />
 								<div
 									class="bg-secondary position-absolute start-0 top-0 m-4 rounded px-3 py-1 text-white"
 								>
@@ -844,10 +843,10 @@
 						</div>
 					</div>
 
-					<div class="col-xl-3 col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.7s">
+					<div class="col-xl-3 col-lg-4 col-md-6" >
 						<div class="product-item">
 							<div class="position-relative bg-light overflow-hidden">
-								<img class="img-fluid w-100" src="img/product-8.jpg" alt="" />
+								<img class="img-fluid w-100" src="{data.media_url}img/product-8.jpg" alt="" />
 								<div
 									class="bg-secondary position-absolute start-0 top-0 m-4 rounded px-3 py-1 text-white"
 								>
@@ -880,7 +879,7 @@
 					<div class="col-xl-3 col-lg-4 col-md-6">
 						<div class="product-item">
 							<div class="position-relative bg-light overflow-hidden">
-								<img class="img-fluid w-100" src="img/product-1.jpg" alt="" />
+								<img class="img-fluid w-100" src="{data.media_url}img/product-1.jpg" alt="" />
 								<div
 									class="bg-secondary position-absolute start-0 top-0 m-4 rounded px-3 py-1 text-white"
 								>
@@ -909,7 +908,7 @@
 					<div class="col-xl-3 col-lg-4 col-md-6">
 						<div class="product-item">
 							<div class="position-relative bg-light overflow-hidden">
-								<img class="img-fluid w-100" src="img/product-2.jpg" alt="" />
+								<img class="img-fluid w-100" src="{data.media_url}img/product-2.jpg" alt="" />
 								<div
 									class="bg-secondary position-absolute start-0 top-0 m-4 rounded px-3 py-1 text-white"
 								>
@@ -938,7 +937,7 @@
 					<div class="col-xl-3 col-lg-4 col-md-6">
 						<div class="product-item">
 							<div class="position-relative bg-light overflow-hidden">
-								<img class="img-fluid w-100" src="img/product-3.jpg" alt="" />
+								<img class="img-fluid w-100" src="{data.media_url}img/product-3.jpg" alt="" />
 								<div
 									class="bg-secondary position-absolute start-0 top-0 m-4 rounded px-3 py-1 text-white"
 								>
@@ -967,7 +966,7 @@
 					<div class="col-xl-3 col-lg-4 col-md-6">
 						<div class="product-item">
 							<div class="position-relative bg-light overflow-hidden">
-								<img class="img-fluid w-100" src="img/product-4.jpg" alt="" />
+								<img class="img-fluid w-100" src="{data.media_url}img/product-4.jpg" alt="" />
 								<div
 									class="bg-secondary position-absolute start-0 top-0 m-4 rounded px-3 py-1 text-white"
 								>
@@ -996,7 +995,7 @@
 					<div class="col-xl-3 col-lg-4 col-md-6">
 						<div class="product-item">
 							<div class="position-relative bg-light overflow-hidden">
-								<img class="img-fluid w-100" src="img/product-5.jpg" alt="" />
+								<img class="img-fluid w-100" src="{data.media_url}img/product-5.jpg" alt="" />
 								<div
 									class="bg-secondary position-absolute start-0 top-0 m-4 rounded px-3 py-1 text-white"
 								>
@@ -1025,7 +1024,7 @@
 					<div class="col-xl-3 col-lg-4 col-md-6">
 						<div class="product-item">
 							<div class="position-relative bg-light overflow-hidden">
-								<img class="img-fluid w-100" src="img/product-6.jpg" alt="" />
+								<img class="img-fluid w-100" src="{data.media_url}img/product-6.jpg" alt="" />
 								<div
 									class="bg-secondary position-absolute start-0 top-0 m-4 rounded px-3 py-1 text-white"
 								>
@@ -1054,7 +1053,7 @@
 					<div class="col-xl-3 col-lg-4 col-md-6">
 						<div class="product-item">
 							<div class="position-relative bg-light overflow-hidden">
-								<img class="img-fluid w-100" src="img/product-7.jpg" alt="" />
+								<img class="img-fluid w-100" src="{data.media_url}img/product-7.jpg" alt="" />
 								<div
 									class="bg-secondary position-absolute start-0 top-0 m-4 rounded px-3 py-1 text-white"
 								>
@@ -1083,7 +1082,7 @@
 					<div class="col-xl-3 col-lg-4 col-md-6">
 						<div class="product-item">
 							<div class="position-relative bg-light overflow-hidden">
-								<img class="img-fluid w-100" src="img/product-8.jpg" alt="" />
+								<img class="img-fluid w-100" src="{data.media_url}img/product-8.jpg" alt="" />
 								<div
 									class="bg-secondary position-absolute start-0 top-0 m-4 rounded px-3 py-1 text-white"
 								>
@@ -1119,7 +1118,7 @@
 					<div class="col-xl-3 col-lg-4 col-md-6">
 						<div class="product-item">
 							<div class="position-relative bg-light overflow-hidden">
-								<img class="img-fluid w-100" src="img/product-1.jpg" alt="" />
+								<img class="img-fluid w-100" src="{data.media_url}img/product-1.jpg" alt="" />
 								<div
 									class="bg-secondary position-absolute start-0 top-0 m-4 rounded px-3 py-1 text-white"
 								>
@@ -1148,7 +1147,7 @@
 					<div class="col-xl-3 col-lg-4 col-md-6">
 						<div class="product-item">
 							<div class="position-relative bg-light overflow-hidden">
-								<img class="img-fluid w-100" src="img/product-2.jpg" alt="" />
+								<img class="img-fluid w-100" src="{data.media_url}img/product-2.jpg" alt="" />
 								<div
 									class="bg-secondary position-absolute start-0 top-0 m-4 rounded px-3 py-1 text-white"
 								>
@@ -1177,7 +1176,7 @@
 					<div class="col-xl-3 col-lg-4 col-md-6">
 						<div class="product-item">
 							<div class="position-relative bg-light overflow-hidden">
-								<img class="img-fluid w-100" src="img/product-3.jpg" alt="" />
+								<img class="img-fluid w-100" src="{data.media_url}img/product-3.jpg" alt="" />
 								<div
 									class="bg-secondary position-absolute start-0 top-0 m-4 rounded px-3 py-1 text-white"
 								>
@@ -1206,7 +1205,7 @@
 					<div class="col-xl-3 col-lg-4 col-md-6">
 						<div class="product-item">
 							<div class="position-relative bg-light overflow-hidden">
-								<img class="img-fluid w-100" src="img/product-4.jpg" alt="" />
+								<img class="img-fluid w-100" src="{data.media_url}img/product-4.jpg" alt="" />
 								<div
 									class="bg-secondary position-absolute start-0 top-0 m-4 rounded px-3 py-1 text-white"
 								>
@@ -1235,7 +1234,7 @@
 					<div class="col-xl-3 col-lg-4 col-md-6">
 						<div class="product-item">
 							<div class="position-relative bg-light overflow-hidden">
-								<img class="img-fluid w-100" src="img/product-5.jpg" alt="" />
+								<img class="img-fluid w-100" src="{data.media_url}img/product-5.jpg" alt="" />
 								<div
 									class="bg-secondary position-absolute start-0 top-0 m-4 rounded px-3 py-1 text-white"
 								>
@@ -1264,7 +1263,7 @@
 					<div class="col-xl-3 col-lg-4 col-md-6">
 						<div class="product-item">
 							<div class="position-relative bg-light overflow-hidden">
-								<img class="img-fluid w-100" src="img/product-6.jpg" alt="" />
+								<img class="img-fluid w-100" src="{data.media_url}img/product-6.jpg" alt="" />
 								<div
 									class="bg-secondary position-absolute start-0 top-0 m-4 rounded px-3 py-1 text-white"
 								>
@@ -1293,7 +1292,7 @@
 					<div class="col-xl-3 col-lg-4 col-md-6">
 						<div class="product-item">
 							<div class="position-relative bg-light overflow-hidden">
-								<img class="img-fluid w-100" src="img/product-7.jpg" alt="" />
+								<img class="img-fluid w-100" src="{data.media_url}img/product-7.jpg" alt="" />
 								<div
 									class="bg-secondary position-absolute start-0 top-0 m-4 rounded px-3 py-1 text-white"
 								>
@@ -1322,7 +1321,7 @@
 					<div class="col-xl-3 col-lg-4 col-md-6">
 						<div class="product-item">
 							<div class="position-relative bg-light overflow-hidden">
-								<img class="img-fluid w-100" src="img/product-8.jpg" alt="" />
+								<img class="img-fluid w-100" src="{data.media_url}img/product-8.jpg" alt="" />
 								<div
 									class="bg-secondary position-absolute start-0 top-0 m-4 rounded px-3 py-1 text-white"
 								>

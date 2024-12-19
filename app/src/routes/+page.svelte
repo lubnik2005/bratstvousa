@@ -9,7 +9,7 @@
 		<div class="carousel-inner">
 			<div class="carousel-item active">
 				<video class="w-100" autoplay muted loop>
-					<source src="/video/bg_compressed_no_audio.webm" type="video/webm" />
+					<source src="{data.media_url}/video/bg_compressed_no_audio.webm" type="video/webm" />
 					Your browser does not support the video tag.
 				</video>
 				<div class="carousel-caption">
@@ -27,7 +27,7 @@
 				</div>
 			</div>
 			<div class="carousel-item">
-				<img class="w-100" src="img/carousel-2.jpg" alt="Image" />
+				<img class="w-100" src="{data.media_url}img/carousel-2.jpg" alt="Image" />
 				<div class="carousel-caption">
 					<div class="container">
 						<div class="row justify-content-start">
@@ -77,17 +77,17 @@
 
 		<!-- Event Details -->
 		<div class="event-details flex-grow-1">
-			<span class="badge bg-primary mb-2">Next Upcoming Event</span>
-			<h3 class="mb-2">{data.youth_events[0].title}</h3>
+			<span class="badge bg-primary mb-2">Следующее предстоящее событие</span>
+			<a href="/{data.events[0].slug}"><h3 class="mb-2">{data.events[0].title}</h3></a>
 			<p class="text-muted mb-0">
 				{new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long' }).format(
-					new Date(data.youth_events[0].startAt)
+					new Date(data.events[0].startAt)
 				)}
 
-				{data.youth_events[0].endAt &&
+				{data.events[0].endAt &&
 					' - ' +
 						new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long' }).format(
-							new Date(data.youth_events[0].startAt)
+							new Date(data.events[0].endAt)
 						)}
 			</p>
 			<p class="text-muted">341 Magnetic State, US</p>
@@ -122,18 +122,35 @@
 		<!-- Upcoming Events -->
 		<div class="col-lg-6">
 			<h3 class="mb-4">События</h3>
-			{#each data.youth_events as youth_event}
+			{#each data.events as event}
 				<div class="d-flex align-items-start mb-4">
 					<div class="bg-primary me-3 rounded p-3 text-center text-white" style="width: 70px;">
-						<h5 class="mb-0">14</h5>
-						<small>JAN</small>
+						<h5 class="mb-0">				{new Intl.DateTimeFormat('ru-RU', { day: 'numeric' }).format(
+					new Date(event.startAt)
+				)}
+</h5>
+						<small>{new Intl.DateTimeFormat('ru-RU', { month: 'short' }).format(
+					new Date(event.startAt)
+				)}
+</small>
 					</div>
 					<div>
-						<h5 class="mb-1"><a href="/{youth_event.slug}">{youth_event.title}</a></h5>
-						<small class="text-muted">Thursday, 11:20 AM</small>
-						<p class="text-muted mb-0">
-							Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras sed nunc massa. Quisque
-							tempor dolor sit amet tellus malesuada...
+						<h5 class="mb-1"><a href="/{event.slug}">{event.title}</a></h5>
+						<small class="text-muted">
+
+				{new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' }).format(
+					new Date(event.startAt)
+				)}
+
+				{data.events[0].endAt &&
+					' - ' +
+						new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long' }).format(
+							new Date(event.endAt)
+						)}
+
+
+            </small>
+						<p class="text-muted mb-0">{event.description}
 						</p>
 					</div>
 				</div>
@@ -143,7 +160,7 @@
 		<!-- Latest News -->
 		<div class="col-lg-6">
 			<h3 class="mb-4">Новости</h3>
-			{#each data.youth_news_articles as article}
+			{#each data.news_articles as article}
 				<!-- content here -->
 				<div class="d-flex align-items-start mb-4">
 					<img
@@ -153,11 +170,10 @@
 						style="width: 100px; height: 100px; object-fit: cover;"
 					/>
 					<div>
-						<h5 class="mb-1">{article.title}</h5>
-						<small class="text-muted">Published: {article.date}</small>
+						<a href="/{article.slug}"><h5 class="mb-1">{article.title}</h5></a>
+						<small class="text-muted">Опубликовано: {new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' }).format( new Date(article.date))} </small>
 						<p class="text-muted mb-0">
-							Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut fringilla purus efficitur
-							eget...
+              {article.description}
 						</p>
 					</div>
 				</div>

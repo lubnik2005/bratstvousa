@@ -1,6 +1,9 @@
+<script lang="ts">
+export let data;
+</script>
 <!-- Top Image Section -->
 <div class="container-fluid p-0">
-	<img src="img/gospel-ministry.jpg" class="img-fluid w-100" alt="Top Image" />
+	<img src="{data.media_url}img/gospel-ministry.jpg" class="img-fluid w-100" alt="Top Image" />
 </div>
 
 <div class="container-xxl py-5">
@@ -11,7 +14,7 @@
 				<div class="about-img position-relative overflow-hidden rounded p-5 pe-0">
 					<img
 						class="img-fluid w-100 rounded shadow-sm"
-						src="img/ministry-in-cuba.jpg"
+						src="{data.media_url}img/ministry-in-cuba.jpg"
 						alt="About Us"
 					/>
 				</div>
@@ -96,7 +99,7 @@
 				<div class="about-img position-relative overflow-hidden rounded p-5 pe-0">
 					<img
 						class="img-fluid w-100 rounded shadow-sm"
-						src="img/about-mexico-intro.jpg"
+						src="{data.media_url}img/about-mexico-intro.jpg"
 						alt="Blagovestie in Mexico"
 					/>
 				</div>
@@ -129,7 +132,7 @@
 				<div class="about-img position-relative overflow-hidden rounded p-5 ps-0">
 					<img
 						class="img-fluid w-100 rounded shadow-sm"
-						src="img/about-mexico-early.jpg"
+						src="{data.media_url}img/about-mexico-early.jpg"
 						alt="Challenges in Mexico"
 					/>
 				</div>
@@ -159,7 +162,7 @@
 			<div class="col-lg-4 wow fadeIn" data-wow-delay="0.1s">
 				<div class="card border-0 shadow-sm">
 					<img
-						src="img/missionary-family.jpg"
+						src="{data.media_url}img/missionary-family.jpg"
 						class="card-img-top rounded"
 						alt="Missionary Family"
 					/>
@@ -176,7 +179,7 @@
 			<div class="col-lg-4 wow fadeIn" data-wow-delay="0.3s">
 				<div class="card border-0 shadow-sm">
 					<img
-						src="img/missionary-school.jpg"
+						src="{data.media_url}img/missionary-school.jpg"
 						class="card-img-top rounded"
 						alt="Missionary School"
 					/>
@@ -192,7 +195,7 @@
 			<!-- Card 3 -->
 			<div class="col-lg-4 wow fadeIn" data-wow-delay="0.5s">
 				<div class="card border-0 shadow-sm">
-					<img src="img/missionary-evangelism.jpg" class="card-img-top rounded" alt="Evangelism" />
+					<img src="{data.media_url}img/missionary-evangelism.jpg" class="card-img-top rounded" alt="Evangelism" />
 					<div class="card-body">
 						<h5 class="card-title">Массовая Евангелизация</h5>
 						<p class="card-text">

@@ -1,4 +1,5 @@
 <script lang="ts">
+  export let data;
 	const members = [
 		{
 			name: 'Нейман Константин Андреевич',
@@ -165,7 +166,7 @@
 
 <!-- Page Header Start -->
 <div class="container-fluid p-0">
-	<img src="img/committee.webp" class="img-fluid w-100" alt="Top Image" />
+	<img src="{data.media_url}img/committee.webp" class="img-fluid w-100" alt="Top Image" />
 </div>
 <!-- Page Header End -->
 
