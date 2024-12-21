@@ -1,6 +1,6 @@
 <script lang="ts">
 	// let { data } = $props();
-  export let data;
+	export let data;
 </script>
 
 <!-- Carousel Start -->
@@ -68,7 +68,7 @@
 		<!-- Event Image -->
 		<div class="event-image me-4">
 			<img
-				src="https://via.placeholder.com/150"
+				src="img/p-150.jpg"
 				alt="Event Image"
 				class="rounded"
 				style="width: 150px; height: auto;"
@@ -124,34 +124,33 @@
 			<h3 class="mb-4">События</h3>
 			{#each data.events as event}
 				<div class="d-flex align-items-start mb-4">
-					<div class="bg-primary me-3 rounded p-3 text-center text-white" style="width: 70px;">
-						<h5 class="mb-0">				{new Intl.DateTimeFormat('ru-RU', { day: 'numeric' }).format(
-					new Date(event.startAt)
-				)}
-</h5>
-						<small>{new Intl.DateTimeFormat('ru-RU', { month: 'short' }).format(
-					new Date(event.startAt)
-				)}
-</small>
+					<div class="bg-primary me-3 rounded p-3 text-center text-white" style="min-width: 70px;">
+						<h5 class="mb-0">
+							{new Intl.DateTimeFormat('ru-RU', { day: 'numeric' }).format(new Date(event.startAt))}
+						</h5>
+						<small
+							>{new Intl.DateTimeFormat('ru-RU', { month: 'short' }).format(
+								new Date(event.startAt)
+							)        .toUpperCase()
+        .replace('.', '')}
+						</small>
 					</div>
 					<div>
 						<h5 class="mb-1"><a href="/{event.slug}">{event.title}</a></h5>
 						<small class="text-muted">
+							{new Intl.DateTimeFormat('ru-RU', {
+								day: 'numeric',
+								month: 'long',
+								year: 'numeric'
+							}).format(new Date(event.startAt))}
 
-				{new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' }).format(
-					new Date(event.startAt)
-				)}
-
-				{data.events[0].endAt &&
-					' - ' +
-						new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long' }).format(
-							new Date(event.endAt)
-						)}
-
-
-            </small>
-						<p class="text-muted mb-0">{event.description}
-						</p>
+							{data.events[0].endAt &&
+								' - ' +
+									new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long' }).format(
+										new Date(event.endAt)
+									)}
+						</small>
+						<p class="text-muted mb-0">{event.description}</p>
 					</div>
 				</div>
 			{/each}
@@ -164,16 +163,22 @@
 				<!-- content here -->
 				<div class="d-flex align-items-start mb-4">
 					<img
-						src="https://via.placeholder.com/100"
+						src="img/p-100.jpg"
 						alt="News Image"
 						class="me-3 rounded"
 						style="width: 100px; height: 100px; object-fit: cover;"
 					/>
 					<div>
 						<a href="/{article.slug}"><h5 class="mb-1">{article.title}</h5></a>
-						<small class="text-muted">Опубликовано: {new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' }).format( new Date(article.date))} </small>
+						<small class="text-muted"
+							>Опубликовано: {new Intl.DateTimeFormat('ru-RU', {
+								day: 'numeric',
+								month: 'long',
+								year: 'numeric'
+							}).format(new Date(article.date))}
+						</small>
 						<p class="text-muted mb-0">
-              {article.description}
+							{article.description}
 						</p>
 					</div>
 				</div>
