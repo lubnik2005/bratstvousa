@@ -5,6 +5,7 @@ namespace App\Providers;
 use Illuminate\Support\Facades\Gate;
 use Laravel\Nova\Nova;
 use Laravel\Nova\NovaApplicationServiceProvider;
+use Dniccum\NovaDocumentation\NovaDocumentation;
 
 class NovaServiceProvider extends NovaApplicationServiceProvider
 {
@@ -68,6 +69,7 @@ class NovaServiceProvider extends NovaApplicationServiceProvider
     {
         return [
             new \Pktharindu\NovaPermissions\NovaPermissions,
+            new NovaDocumentation,
         ];
     }
 
