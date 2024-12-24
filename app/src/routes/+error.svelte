@@ -1,9 +1,10 @@
 Error page
-<!-- <script lang="ts"> -->
-<!-- 	import { page } from '$app/state'; -->
-<!-- </script> -->
-<!---->
-<!-- <h1>{page.status}: {page.error.message}</h1> -->
+<script lang="ts">
+	import { page } from '$app/state';
+	import Header from '$lib/components/Header.svelte';
+</script>
+
+<Header title={page.status.toString()} subtitle={page.error?.message} />
 
 
 
