@@ -6,9 +6,10 @@ use Illuminate\Http\Request;
 use Laravel\Nova\Fields\Date;
 use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\Image;
+use Laravel\Nova\Fields\Select;
+use Laravel\Nova\Fields\Slug;
 use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Fields\Trix;
-use Laravel\Nova\Fields\Slug;
 use Laravel\Nova\Http\Requests\NovaRequest;
 
 class YouthEvent extends Resource
@@ -49,6 +50,7 @@ class YouthEvent extends Resource
             Slug::make('Slug')->from('title'),
             Text::make('Description'),
             Date::make('Start At'),
+            Select::make('Region')->options(['all' => 'Все', 'central' => 'Центральный регион', 'east' => 'Восточный регион', 'california' => 'Калифорнийский регион', 'north-east' => 'Северо-Западный регион']),
             Date::make('End At'),
             Image::make('Thumbnail')->disk('public'),
             Trix::make('Content')->withFiles('public'),
