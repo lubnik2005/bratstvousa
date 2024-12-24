@@ -18,14 +18,11 @@ return new class extends Migration
             $table->unsignedInteger('author_id')->nullable();
             $table->string('description')->nullable();
             $table->text('content')->nullable();
-            $table->text('thumbnail')->nullable();
+            $table->string('thumbnail')->nullable();
+            $table->string('featured_image')->nullable();
             $table->string('start_at')->nullable();
             $table->string('end_at')->nullable();
             $table->timestamps();
-
-
-
-
         });
     }
 
