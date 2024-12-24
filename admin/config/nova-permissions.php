@@ -189,6 +189,52 @@ return [
             'group' => 'Childrens News Article',
         ],
         // ChildrensNewsArticle End
+        // ChildrensFiles start
+        'view childrens_files' => [
+            'display_name' => 'View childrens files',
+            'description' => 'Can view childrens files',
+            'group' => 'Childrens Files',
+        ],
+        'create childrens_files' => [
+            'display_name' => 'Create childrens files',
+            'description' => 'Can create childrens files',
+            'group' => 'Childrens Files',
+        ],
+        'edit childrens_files' => [
+            'display_name' => 'Edit childrens files',
+            'description' => 'Can edit childrens files',
+            'group' => 'Childrens Files',
+        ],
+        'delete childrens_files' => [
+            'display_name' => 'Delete childrens files',
+            'description' => 'Can delete childrens files',
+            'group' => 'Childrens Files',
+        ],
+        // ChildrensFiles End
+        // NewsArticles Start
+        'view news_articles' => [
+            'display_name' => 'View news articles',
+            'description' => 'Can view news articles',
+            'group' => 'News Articles',
+        ],
+        'create news_articles' => [
+            'display_name' => 'Create news articles',
+            'description' => 'Can create news articles',
+            'group' => 'News Articles',
+        ],
+        'edit news_articles' => [
+            'display_name' => 'Edit news articles',
+            'description' => 'Can edit news articles',
+            'group' => 'News Articles',
+        ],
+        'delete news_articles' => [
+            'display_name' => 'Delete news articles',
+            'description' => 'Can delete news articles',
+            'group' => 'News Articles',
+        ],
+
+        // NewsArticles End
+
     ],
 
 ];
