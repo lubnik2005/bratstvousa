@@ -2,8 +2,8 @@
 
 namespace App\Policies;
 
-use App\Models\BibleEducationEvent;
 use App\Models\User;
+use App\Models\BibleEducationEvent;
 use Illuminate\Auth\Access\Response;
 
 class BibleEducationEventPolicy
@@ -13,7 +13,7 @@ class BibleEducationEventPolicy
      */
     public function viewAny(User $user): bool
     {
-        return false;
+        return $user->hasPermissionTo('view bible_education_events');
     }
 
     /**
@@ -21,7 +21,7 @@ class BibleEducationEventPolicy
      */
     public function view(User $user, BibleEducationEvent $bibleEducationEvent): bool
     {
-        return false;
+        return $user->hasPermissionTo('view bible_education_events');
     }
 
     /**
@@ -29,7 +29,7 @@ class BibleEducationEventPolicy
      */
     public function create(User $user): bool
     {
-        return false;
+        return $user->hasPermissionTo('create bible_education_events');
     }
 
     /**
@@ -37,7 +37,7 @@ class BibleEducationEventPolicy
      */
     public function update(User $user, BibleEducationEvent $bibleEducationEvent): bool
     {
-        return false;
+        return $user->hasPermissionTo('edit bible_education_events');
     }
 
     /**
@@ -45,7 +45,7 @@ class BibleEducationEventPolicy
      */
     public function delete(User $user, BibleEducationEvent $bibleEducationEvent): bool
     {
-        return false;
+        return $user->hasPermissionTo('delete bible_education_events');
     }
 
     /**
@@ -53,7 +53,8 @@ class BibleEducationEventPolicy
      */
     public function restore(User $user, BibleEducationEvent $bibleEducationEvent): bool
     {
-        return false;
+        // Optionally reuse the 'delete' permission
+        return $user->hasPermissionTo('delete bible_education_events');
     }
 
     /**
@@ -61,6 +62,9 @@ class BibleEducationEventPolicy
      */
     public function forceDelete(User $user, BibleEducationEvent $bibleEducationEvent): bool
     {
-        return false;
+        // Optionally reuse the 'delete' permission
+        return $user->hasPermissionTo('delete bible_education_events');
     }
 }
+
+

@@ -12,14 +12,14 @@ use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Fields\Trix;
 use Laravel\Nova\Http\Requests\NovaRequest;
 
-class ChildrensEvent extends Resource
+class BibleEducationEvent extends Resource
 {
     /**
      * The model the resource corresponds to.
      *
      * @var class-string<\App\Models\ChildrensEvent>
      */
-    public static $model = \App\Models\ChildrensEvent::class;
+    public static $model = \App\Models\BibleEducationEvent::class;
 
     /**
      * The single value that should be used to represent the resource when being displayed.

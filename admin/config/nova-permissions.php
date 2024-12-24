@@ -234,6 +234,29 @@ return [
         ],
 
         // NewsArticles End
+        // BibleEducationEvent Start
+        'view bible_education_events' => [
+    'display_name' => 'View Bible education events',
+    'description' => 'Can view Bible education events',
+    'group' => 'Bible Education Events',
+],
+'create bible_education_events' => [
+    'display_name' => 'Create Bible education events',
+    'description' => 'Can create Bible education events',
+    'group' => 'Bible Education Events',
+],
+'edit bible_education_events' => [
+    'display_name' => 'Edit Bible education events',
+    'description' => 'Can edit Bible education events',
+    'group' => 'Bible Education Events',
+],
+'delete bible_education_events' => [
+    'display_name' => 'Delete Bible education events',
+    'description' => 'Can delete Bible education events',
+    'group' => 'Bible Education Events',
+],
+
+        // BibleEducationEvent End
 
     ],
 
