@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import { Calendar } from '@fullcalendar/core';
 	import dayGridPlugin from '@fullcalendar/daygrid';
-	let { data } = $props();
+	export let upcomingEvents;
 
 	let calendar: Calendar;
 
@@ -29,7 +29,7 @@
 		const calendarEl = document.getElementById('calendar')!;
 		calendar = new Calendar(calendarEl, {
 			plugins: [dayGridPlugin],
-			events: data.youth_events.map((e) => ({
+			events: upcomingEvents.map((e) => ({
 				title: e.title,
 				start: e.startAt,
 				end: e.endAt,
@@ -46,14 +46,16 @@
 
 <div class="container-xxl py-6">
 	<div class="container">
-		<div
-			class="section-header wow fadeInUp mx-auto mb-5 text-center"
-			data-wow-delay="0.1s"
-			style="max-width: 500px;"
-		>
-			<h1 class="display-5 mb-3">Календарь</h1>
+		<div class="row g-0 gx-5 align-items-end">
+			<div class="col-lg-5">
+				<div class="section-header mb-5 text-start" style="max-width: 500px;">
+					<h1 class="display-5 mb-3">Календарь</h1>
+				</div>
+			</div>
+    </div>
+		<div class="row p-6">
+			<div class="p-6" id="calendar"></div>
 		</div>
-		<div id="calendar"></div>
 	</div>
 </div>
 

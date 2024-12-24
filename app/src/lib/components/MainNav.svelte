@@ -1,0 +1,153 @@
+<script lang="ts">
+	const menu_items = [
+		{
+			title: 'HOME',
+			href: ''
+		},
+		{
+			title: 'О НАС',
+			children: [
+				{
+					title: 'Краткий обзор',
+					href: 'short-introduction'
+				},
+				{
+					title: 'Состав совета',
+					href: 'committee'
+				},
+				{
+					title: 'Адреса Домов молитвы',
+					href: 'churches'
+				},
+				{
+					title: 'Вероучение',
+					href: 'beliefs'
+				}
+			]
+		},
+		{
+			title: 'ОТДЕЛЫ',
+			children: [
+				{ title: 'Детский отдел', href: 'childrens-ministry' },
+				{
+					title: 'Молодежный отдел',
+					href: 'youth-ministry'
+				},
+				{
+				  title: 'Семейный отдел',
+          href: 'family-ministry'
+				},
+				{
+					title: 'Отдел Благовестия',
+					href: 'gospel-ministry'
+				},
+				{
+				  title: 'Музыкально хоровой отдел (МХО)',
+          href: 'music-choir-ministry'
+				},
+				{
+					title: 'Отдел библейского образования',
+					href: 'bible-school-ministry'
+				}
+			]
+		},
+		{
+			title: 'КАЛЕНДАРЬ',
+			href: 'calendar'
+		},
+		{
+			title: 'НОВОСТИ',
+			href: 'news'
+		}
+	];
+</script>
+
+<!-- Navbar Start -->
+<div class="container-fluid fixed-top whole-navbar wow fadeIn px-0" data-wow-delay="0.1s">
+	<!-- This is the upper menu bit. Make sure to uncomment the main.js file to move this on scroll. -->
+	<!-- <div class="top-bar row gx-0 align-items-center d-none d-lg-flex"> -->
+	<!-- 	<div class="col-lg-6 px-5 text-start"> -->
+	<!-- 		<small><i class="fa fa-map-marker-alt me-2"></i>123 Street, New York, USA</small> -->
+	<!-- 		<small class="ms-4"><i class="fa fa-envelope me-2"></i>info@bratstvousa.com</small> -->
+	<!-- 	</div> -->
+	<!-- 	<div class="col-lg-6 px-5 text-end"> -->
+	<!-- 		<a class="text-body ms-3" href=""><i class="fab fa-facebook-f"></i></a> -->
+	<!-- 		<a class="text-body ms-3" href=""><i class="fab fa-twitter"></i></a> -->
+	<!-- 		<a class="text-body ms-3" href="https://www.youtube.com/@bratstvousa6465" -->
+	<!-- 			><i class="fab fa-youtube"></i></a -->
+	<!-- 		> -->
+	<!-- 		<a class="text-body ms-3" href=""><i class="fab fa-instagram"></i></a> -->
+	<!-- 	</div> -->
+	<!-- </div> -->
+
+	<nav
+		class="navbar navbar-expand-lg navbar-light py-lg-0 px-lg-5 wow fadeIn"
+		data-wow-delay="0.1s"
+	>
+
+<a href="/" class="navbar-brand ms-lg-0 ms-4 d-flex align-items-center">
+  <img width="100" style="display: inline;" src="https://192.168.7.61/bratstvousa-media/logo.png" alt="" />
+  <span class="ms-2">
+    <h1 class="fw-bold text-primary m-0 text-center" style="font-size: 1.4rem">
+      Американское Объединение <br/> МСЦ ЕХБ
+    </h1>
+  </span>
+</a>
+
+
+		<button
+			type="button"
+			class="navbar-toggler me-4"
+			data-bs-toggle="collapse"
+			data-bs-target="#navbarCollapse"
+		>
+			<span class="navbar-toggler-icon"></span>
+		</button>
+		<div class="navbar-collapse collapse" id="navbarCollapse">
+			<div class="navbar-nav p-lg-0 ms-auto p-4">
+				{#each menu_items as item}
+					{#if item.children}
+						<div class="nav-item dropdown">
+							<a
+								href={item.href}
+								class="nav-item nav-link {item.children && 'dropdown-toggle'} active"
+								>{item.title}</a
+							>
+
+							<div class="dropdown-menu m-0">
+								{#each item.children as child}
+									<a href="/{child.href}" class="dropdown-item">{child.title}</a>
+								{/each}
+							</div>
+						</div>
+					{:else}
+						<a
+							href="/{item.href}"
+							class="nav-item nav-link {item.children && 'dropdown-toggle'} active">{item.title}</a
+						>
+					{/if}
+				{/each}
+			</div>
+			<!-- This is a search icon. Commented out for now. -->
+			<!-- <div class="d-none d-lg-flex ms-2"> -->
+			<!-- 	<a class="btn-sm-square rounded-circle ms-3 bg-white" href=""> -->
+			<!-- 		<small class="fa fa-search text-body"></small> -->
+			<!-- 	</a> -->
+			<!-- </div> -->
+		</div>
+	</nav>
+</div>
+
+<!-- Navbar End -->
+
+<style>
+	.whole-navbar {
+		background: rgb(255, 255, 255);
+		background: linear-gradient(
+			180deg,
+			rgba(255, 255, 255, 1) 0%,
+			rgba(255, 255, 255, 0.7959384437368697) 53%,
+			rgba(255, 255, 255, 0.48501407398897056) 100%
+		);
+	}
+</style>

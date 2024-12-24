@@ -1,12 +1,25 @@
+<script>
+	export let data;
+</script>
+
 <!-- Top Image Section -->
 <div class="container-fluid p-0">
-	<img src="img/short-introduction.jpg" class="img-fluid w-100" alt="Top Image" />
+	<img src="{data.media_url}img/short-introduction.jpg" class="img-fluid w-100" alt="Top Image" />
 </div>
 
 <!-- Content Section -->
 <div class="container py-5">
+
+
+		<div
+			class="section-header mx-auto mb-5 text-center"
+			style="max-width: 500px;"
+		>
+			<h1 class="display-5 mb-3">Краткий Oбзор</h1>
+		</div>
+
+
 	<div class="row">
-		<h2 class="p-4 text-center">Краткий Oбзор</h2>
 		<div class="col-md-10 mx-auto">
 			<p>
 				&nbsp;&nbsp;&nbsp;&nbsp; Дорогие друзья, мир вам! Мы рады приветствовать вас на сайте
@@ -53,33 +66,6 @@
 				всяком благочестии и чистоте, чтобы исполнять волю Божию, и, бодрствуя, ожидать встречи с
 				нашим Спасителем.
 			</p>
-		</div>
-	</div>
-</div>
-
-<!-- Additional Images Section -->
-<div class="container py-5">
-	<div class="row g-4">
-		<div class="col-md-4">
-			<img
-				src="https://via.placeholder.com/400x300"
-				class="img-fluid rounded shadow"
-				alt="Image 1"
-			/>
-		</div>
-		<div class="col-md-4">
-			<img
-				src="https://via.placeholder.com/400x300"
-				class="img-fluid rounded shadow"
-				alt="Image 2"
-			/>
-		</div>
-		<div class="col-md-4">
-			<img
-				src="https://via.placeholder.com/400x300"
-				class="img-fluid rounded shadow"
-				alt="Image 3"
-			/>
 		</div>
 	</div>
 </div>

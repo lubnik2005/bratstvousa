@@ -1,6 +1,7 @@
 <script lang="ts">
-export let data;
+	export let data;
 </script>
+
 <!-- Top Image Section -->
 <div class="container-fluid p-0">
 	<img src="{data.media_url}img/gospel-ministry.jpg" class="img-fluid w-100" alt="Top Image" />
@@ -99,7 +100,7 @@ export let data;
 				<div class="about-img position-relative overflow-hidden rounded p-5 pe-0">
 					<img
 						class="img-fluid w-100 rounded shadow-sm"
-						src="{data.media_url}img/about-mexico-intro.jpg"
+						src="{data.media_url}img/awakening-international-ministry-in-mexico.jpg"
 						alt="Blagovestie in Mexico"
 					/>
 				</div>
@@ -132,7 +133,7 @@ export let data;
 				<div class="about-img position-relative overflow-hidden rounded p-5 ps-0">
 					<img
 						class="img-fluid w-100 rounded shadow-sm"
-						src="{data.media_url}img/about-mexico-early.jpg"
+						src="{data.media_url}img/first-trips-to-mexico.jpg"
 						alt="Challenges in Mexico"
 					/>
 				</div>
@@ -156,13 +157,13 @@ export let data;
 <!-- Section 3: Missionary Impact -->
 <div class="container-fluid bg-secondary bg-icon mt-5 py-6">
 	<div class="container">
-		<h2 class="text-primary mb-5 text-center">Влияние Служения</h2>
+		<h2 class="text-primary mb-5 text-center text-light">Влияние Служения</h2>
 		<div class="row g-4">
 			<!-- Card 1 -->
 			<div class="col-lg-4 wow fadeIn" data-wow-delay="0.1s">
 				<div class="card border-0 shadow-sm">
 					<img
-						src="{data.media_url}img/missionary-family.jpg"
+						src="{data.media_url}img/missionary-moving.jpg"
 						class="card-img-top rounded"
 						alt="Missionary Family"
 					/>
@@ -195,7 +196,11 @@ export let data;
 			<!-- Card 3 -->
 			<div class="col-lg-4 wow fadeIn" data-wow-delay="0.5s">
 				<div class="card border-0 shadow-sm">
-					<img src="{data.media_url}img/missionary-evangelism.jpg" class="card-img-top rounded" alt="Evangelism" />
+					<img
+						src="{data.media_url}img/missionary-evangelism.jpg"
+						class="card-img-top rounded"
+						alt="Evangelism"
+					/>
 					<div class="card-body">
 						<h5 class="card-title">Массовая Евангелизация</h5>
 						<p class="card-text">
