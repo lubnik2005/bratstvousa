@@ -70,7 +70,9 @@
 		"@tailwindcss/typography": "^0.5.15",
 		"amplify-adapter": "^0.2.0",
 		"drizzle-orm": "^0.33.0",
+		"json-schema-to-ts": "^3.1.1",
 		"postgres": "^3.4.4",
-		"svelte-carousel": "^1.0.25"
+		"svelte-carousel": "^1.0.25",
+		"ts-algebra": "^2.0.0"
 	}
 }
