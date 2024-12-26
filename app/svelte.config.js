@@ -2,7 +2,7 @@ import { mdsvex } from 'mdsvex';
 // This was the original svelte adapter
 // import adapter from '@sveltejs/adapter-auto';
 
-import adapter from 'amplify-adapter';
+import adapter from "svelte-kit-sst";
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 
 /** @type {import('@sveltejs/kit').Config} */
