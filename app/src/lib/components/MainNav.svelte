@@ -86,7 +86,7 @@
 	>
 
 <a href="/" class="navbar-brand ms-lg-0 ms-4 d-flex align-items-center">
-  <img width="100" style="display: inline;" src="https://192.168.7.61/bratstvousa-media/logo.png" alt="" />
+  <img width="100" style="display: inline;" src="/bratstvousa-media/logo.png" alt="" />
   <span class="ms-2">
     <h1 class="fw-bold text-primary m-0 text-center" style="font-size: 1.4rem">
       Американское Объединение <br/> МСЦ ЕХБ

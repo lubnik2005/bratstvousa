@@ -27,7 +27,7 @@
 						<div class="col-md-4">
 							<div class="card">
 								<img
-									src="http://192.168.7.61:7128/storage/18Mj3G7xCHfNo884OUmgGRabk1cczVBffbs5a34V.jpg"
+									src="/storage/18Mj3G7xCHfNo884OUmgGRabk1cczVBffbs5a34V.jpg"
 									class="card-img-top"
 									alt="Blog Image"
 								/>
