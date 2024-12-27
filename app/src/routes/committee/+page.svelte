@@ -51,7 +51,7 @@
     {
 			last_name: 'Камке',
 			first_name: 'Фёдор Васильевич',
-			role: 'Ответственный за детский отдел АО',
+			role: 'Ответственный за детский отдел АО, сотрудник Совета церквей МСЦ ЕХБ',
 			phone: '13609311729',
 			whatsapp: 'https://wa.me/13609311729',
 			viber: 'viber://chat?number=13609311729',
@@ -75,6 +75,16 @@
 			viber: 'viber://chat?number=15402094489',
 			image: 'upfiles/page/af3adebccee815dbb6a43bd0456cdb1486008029.jpg'
 		},
+    		{
+			last_name: 'Бальжик',
+			first_name: 'Вениамин Петрович',
+			role: 'Ответственный за молодежный отдел АО, помощник ответственного за КР',
+			phone: '19168012356',
+			whatsapp: 'https://wa.me/19168012356',
+			viber: 'viber://chat?number=19168012356',
+			image: 'upfiles/page/cb31fa8b08e23898656310e1a7e4a95443869999.jpg'
+		},
+
 		{
 			last_name: 'Шуст',
 			first_name: 'Николай Иванович',
@@ -84,6 +94,25 @@
 			viber: 'viber://chat?number=19164705422',
 			image: 'upfiles/page/dc521a6ad4e3461000aa1c116f36613220574103.jpg'
 		},
+  	{
+			last_name: 'Павленко',
+			first_name: 'Юрий Иванович',
+			role: 'Ответственный за МХО АО',
+			phone: '15038055545',
+			whatsapp: 'https://wa.me/15038055545',
+			viber: 'viber://chat?number=15038055545',
+			image: 'upfiles/page/60668a880d8bc70c8bbf16516cf8cd1f99637969.jpg'
+		},
+    		{
+			last_name: 'Озеров',
+			first_name: 'Андрей Иванович',
+			role: 'Ответственный за детский отдел СЗР',
+			phone: '15035100863',
+			whatsapp: 'https://wa.me/15035100863',
+			viber: 'viber://chat?number=15035100863',
+			image: 'upfiles/page/30add9974cbb6503e519404ce01fee9587610745.jpg'
+		},
+
 		{
 			last_name: 'Станиславский',
 			first_name: 'Николай Николаевич',
@@ -93,6 +122,7 @@
 			viber: 'viber://chat?number=19162015033',
 			image: 'upfiles/page/94037540a10632cadf5b8629b0f823d570481879.jpg'
 		},
+
 		{
 			last_name: 'Деркач',
 			first_name: 'Павел Владимирович',
@@ -114,38 +144,11 @@
 		{
 			last_name: 'Кузнецов',
 			first_name: 'Сергей Григорьевич',
-			role: 'Ответственный за молодёжный отдел СЗР',
+			role: 'Пресвитер одной из церквей СЗР',
 			phone: '15092708621',
 			whatsapp: 'https://wa.me/15092708621',
 			viber: 'viber://chat?number=15092708621',
 			image: 'upfiles/page/e0fe0d8d17ccb858a38cf0be9f4b8dda57901834.jpg'
-		},
-		{
-			last_name: 'Бальжик',
-			first_name: 'Вениамин Петрович',
-			role: 'Ответственный за молодежный отдел АО',
-			phone: '19168012356',
-			whatsapp: 'https://wa.me/19168012356',
-			viber: 'viber://chat?number=19168012356',
-			image: 'upfiles/page/cb31fa8b08e23898656310e1a7e4a95443869999.jpg'
-		},
-		{
-			last_name: 'Павленко',
-			first_name: 'Юрий Иванович',
-			role: 'Ответственный за МХО АО',
-			phone: '15038055545',
-			whatsapp: 'https://wa.me/15038055545',
-			viber: 'viber://chat?number=15038055545',
-			image: 'upfiles/page/60668a880d8bc70c8bbf16516cf8cd1f99637969.jpg'
-		},
-		{
-			last_name: 'Озеров',
-			first_name: 'Андрей Иванович',
-			role: 'Ответственный за детский отдел СЗР',
-			phone: '15035100863',
-			whatsapp: 'https://wa.me/15035100863',
-			viber: 'viber://chat?number=15035100863',
-			image: 'upfiles/page/30add9974cbb6503e519404ce01fee9587610745.jpg'
 		},
 		{
 			last_name: 'Чепуренко',
