@@ -55,10 +55,11 @@ export const childrensEvents = pgTable('childrens_events', {
 	authorId: integer('author_id'),
 	description: varchar('description', { length: 255 }),
 	content: text('content'),
-	thumbnail: text('thumbnail'),
+	thumbnail: varchar('thumbnail'),
+	featured_image: varchar('featured_image'),
 	startAt: date('start_at'), // Use `timestamp` if storing as datetime
 	endAt: varchar('end_at', { length: 255 }), // Use `timestamp` if storing as datetime
-	createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+	createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull()
 	// updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull().onUpdateNow()
 });
 
@@ -73,10 +74,8 @@ export const bibleEducationEvents = pgTable('bible_education_events', {
 	startAt: date('start_at'), // Use `timestamp` if storing as datetime
 	endAt: varchar('end_at', { length: 255 }), // Use `timestamp` if storing as datetime
 	createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
-	updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull()//.onUpdateNow()
+	updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull() //.onUpdateNow()
 });
-
-
 
 export const childrensNewsArticles = pgTable('childrens_news_articles', {
 	id: serial('id').primaryKey(),

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Header from '$lib/components/Header.svelte';
-import { onMount } from 'svelte';
+	import { onMount } from 'svelte';
 	export let data;
 
 	const churches = [
@@ -459,17 +459,17 @@ import { onMount } from 'svelte';
 			phone: '+1 (907) 315-7177'
 		}
 	].sort((a, b) => {
-    const stateA = a.city.split(', ')[1];
-    const stateB = b.city.split(', ')[1];
+		const stateA = a.city.split(', ')[1];
+		const stateB = b.city.split(', ')[1];
 
-    if (stateA < stateB) return -1;
-    if (stateA > stateB) return 1;
+		if (stateA < stateB) return -1;
+		if (stateA > stateB) return 1;
 
-    // If states are the same, compare cities
-    const cityA = a.city.split(', ')[0];
-    const cityB = b.city.split(', ')[0];
-    return cityA.localeCompare(cityB);
-});
+		// If states are the same, compare cities
+		const cityA = a.city.split(', ')[0];
+		const cityB = b.city.split(', ')[0];
+		return cityA.localeCompare(cityB);
+	});
 
 	let selectedRegion = 'Центральный регион';
 	let map;
@@ -518,7 +518,6 @@ import { onMount } from 'svelte';
 
 <Header title="Адреса Домов Молитвы" />
 
-
 <div class="container mt-5">
 	<!-- Region Filter -->
 	<div class="filter-buttons d-flex mb-4">
@@ -551,6 +550,21 @@ import { onMount } from 'svelte';
 		{/each}
 	</div>
 
+	<!-- Category Filter -->
+	<div class="row d-flex justify-content-left mb-4 flex-wrap">
+		<ul class="nav nav-pills d-inline-flex">
+			{#each uniqueRegions as category}
+				<li class="nav-item me-2">
+					<button
+						class="btn btn-outline-primary border-2 {category === selectedRegion ? 'active' : ''}"
+						data-bs-toggle="pill"
+						on:click={() => filterByRegion(category)}>{category}</button
+					>
+				</li>
+			{/each}
+		</ul>
+	</div>
+
 	<div class="row">
 		<table class="table-striped table-hover table">
 			<thead class="bg-secondary text-light">
@@ -558,19 +572,20 @@ import { onMount } from 'svelte';
 					<th>Штат</th>
 					<th>Город</th>
 					<th>Адрес</th>
-					<th>Ригион</th>
+					<!-- <th>Ригион</th> -->
 					<th>Контакт</th>
 					<th>Телефон</th>
 				</tr>
 			</thead>
 			<tbody>
-		{#each churches.filter((church) => !selectedRegion || church.region === selectedRegion).sort() as church}
-
+				{#each churches
+					.filter((church) => !selectedRegion || church.region === selectedRegion)
+					.sort() as church}
 					<tr>
 						<td>{church.city.split(',')[1]}</td>
 						<td>{church.city.split(',')[0]}</td>
 						<td>{church.address}</td>
-						<td>{church.region}</td>
+						<!-- <td>{church.region}</td> -->
 						<td>{church.contact}</td>
 						<td><a href={`tel:${church.phone}`}> {church.phone}</a></td>
 					</tr>
@@ -578,8 +593,6 @@ import { onMount } from 'svelte';
 			</tbody>
 		</table>
 	</div>
-
-
 
 	<!-- Map -->
 	<div id="map"></div>

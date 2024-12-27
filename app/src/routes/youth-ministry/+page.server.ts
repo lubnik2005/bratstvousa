@@ -19,7 +19,6 @@ export async function load({ params }) {
 		)
 		.orderBy(youthEvents.startAt, 'desc'); // Order archive descending
 
-
 	const allEvents = await db.select().from(youthEvents).orderBy(youthEvents.startAt, 'desc'); // Order archive descending
 
 	// Upcoming/Ongoing: Events where `startAt` is today or later, or are ongoing (`endAt` is after today)

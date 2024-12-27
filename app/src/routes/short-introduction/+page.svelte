@@ -9,15 +9,9 @@
 
 <!-- Content Section -->
 <div class="container py-5">
-
-
-		<div
-			class="section-header mx-auto mb-5 text-center"
-			style="max-width: 500px;"
-		>
-			<h1 class="display-5 mb-3">Краткий Oбзор</h1>
-		</div>
-
+	<div class="section-header mx-auto mb-5 text-center" style="max-width: 500px;">
+		<h1 class="display-5 mb-3">Краткий Oбзор</h1>
+	</div>
 
 	<div class="row">
 		<div class="col-md-10 mx-auto">

@@ -5,6 +5,6 @@ import { isNull, and, desc, or, gte, lt } from 'drizzle-orm';
 
 export async function load({ params }) {
 	return {
-		media_url: env.MEDIA_URL,
+		media_url: env.MEDIA_URL
 	};
 }

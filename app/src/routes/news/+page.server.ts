@@ -26,6 +26,6 @@ export async function load({ params, url }) {
 		page,
 		perPage,
 		totalArticles,
-    media_url: env.MEDIA_URL
+		media_url: env.MEDIA_URL
 	};
 }

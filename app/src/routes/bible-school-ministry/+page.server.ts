@@ -19,7 +19,10 @@ export async function load({ params }) {
 		)
 		.orderBy(bibleEducationEvents.startAt, 'desc'); // Order archive descending
 
-	const allEvents = await db.select().from(bibleEducationEvents).orderBy(bibleEducationEvents.startAt, 'desc'); // Order archive descending
+	const allEvents = await db
+		.select()
+		.from(bibleEducationEvents)
+		.orderBy(bibleEducationEvents.startAt, 'desc'); // Order archive descending
 
 	// Upcoming/Ongoing: Events where `startAt` is today or later, or are ongoing (`endAt` is after today)
 	const upcomingEvents = await db

@@ -1,6 +1,6 @@
 <script lang="ts">
 	export let data;
-    const totalPages = Math.ceil(data.totalArticles / data.perPage); // Calculate total pages
+	const totalPages = Math.ceil(data.totalArticles / data.perPage); // Calculate total pages
 </script>
 
 <div class="container-xxl py-6">
@@ -15,11 +15,7 @@
 		<div class="row g-4">
 			{#each data.news_articles as article}
 				<div class="col-lg-4 col-md-6">
-					<img
-						class="img-fluid"
-						src="{data.media_url}{article.featured_image}"
-						alt=""
-					/>
+					<img class="img-fluid" src="{data.media_url}{article.featured_image}" alt="" />
 					<div class="bg-light p-4">
 						<a class="d-block h5 lh-base mb-4" href="news/{article.slug}">{article.title}</a>
 						<div class="text-muted border-top pt-4">
@@ -36,55 +32,41 @@
 	</div>
 </div>
 
-
-
-
 <nav aria-label="Page navigation example">
-  <ul class="pagination">
-    <!-- Previous button -->
-    {#if data.page > 1}
-      <li class="page-item">
-        <a
-          class="page-link"
-          href="?page={data.page - 1}"
-          aria-label="Previous"
-        >
-          <span aria-hidden="true">&laquo;</span>
-          <span class="sr-only">Previous</span>
-        </a>
-      </li>
-    {/if}
+	<ul class="pagination">
+		<!-- Previous button -->
+		{#if data.page > 1}
+			<li class="page-item">
+				<a class="page-link" href="?page={data.page - 1}" aria-label="Previous">
+					<span aria-hidden="true">&laquo;</span>
+					<span class="sr-only">Previous</span>
+				</a>
+			</li>
+		{/if}
 
-    <!-- Page numbers -->
-    {#each Array.from({ length: totalPages }, (_, i) => i + 1) as pageNumber}
-      <li
-        class="page-item {pageNumber === data.page ? 'active' : ''}"
-        aria-current={pageNumber === data.page ? 'page' : undefined}
-      >
-        <a class="page-link" href="?page={pageNumber}">
-          {pageNumber}
-        </a>
-      </li>
-    {/each}
+		<!-- Page numbers -->
+		{#each Array.from({ length: totalPages }, (_, i) => i + 1) as pageNumber}
+			<li
+				class="page-item {pageNumber === data.page ? 'active' : ''}"
+				aria-current={pageNumber === data.page ? 'page' : undefined}
+			>
+				<a class="page-link" href="?page={pageNumber}">
+					{pageNumber}
+				</a>
+			</li>
+		{/each}
 
-    <!-- Next button -->
-    {#if data.page < totalPages}
-      <li class="page-item">
-        <a
-          class="page-link"
-          href="?page={data.page + 1}"
-          aria-label="Next"
-        >
-          <span aria-hidden="true">&raquo;</span>
-          <span class="sr-only">Next</span>
-        </a>
-      </li>
-    {/if}
-  </ul>
+		<!-- Next button -->
+		{#if data.page < totalPages}
+			<li class="page-item">
+				<a class="page-link" href="?page={data.page + 1}" aria-label="Next">
+					<span aria-hidden="true">&raquo;</span>
+					<span class="sr-only">Next</span>
+				</a>
+			</li>
+		{/if}
+	</ul>
 </nav>
-
-
-
 
 <style>
 	.pagination {
@@ -105,9 +87,4 @@
 		background-color: #007bff;
 		color: white;
 	}
-
-
-
-
-
 </style>

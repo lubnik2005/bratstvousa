@@ -46,11 +46,7 @@
 
 <div class="container-xxl py-6">
 	<div class="container">
-		<div
-			class="section-header wow fadeInUp mx-auto mb-5 text-center"
-			data-wow-delay="0.1s"
-			style="max-width: 500px;"
-		>
+		<div class="section-header mx-auto mb-5 text-center" style="max-width: 500px;">
 			<h1 class="display-5 mb-3">Календарь</h1>
 		</div>
 		<div id="calendar"></div>

@@ -9,16 +9,18 @@
 			<div class="carousel-item active">
 				<div class="video-wrapper">
 					<video autoplay muted loop loading="lazy">
-						<source poster="{data.media_url}/video/first-frame.webp" src="{data.media_url}video/bg_compressed_no_audio.webm" type="video/webm" />
+						<source
+							poster="{data.media_url}/video/first-frame.webp"
+							src="{data.media_url}video/bg_compressed_no_audio.webm"
+							type="video/webm"
+						/>
 						Your browser does not support the video tag.
 					</video>
-        <!---->
-        <!-- <video muted loop> -->
-        <!--     <source poster="{data.media_url}/video/first-frame.webp" src="{data.media_url}/video/bg_compressed_no_audio.webm" type="video/webm" /> -->
-        <!--     Your browser does not support the video tag. -->
-        <!-- </video> -->
-
-
+					<!---->
+					<!-- <video muted loop> -->
+					<!--     <source poster="{data.media_url}/video/first-frame.webp" src="{data.media_url}/video/bg_compressed_no_audio.webm" type="video/webm" /> -->
+					<!--     Your browser does not support the video tag. -->
+					<!-- </video> -->
 				</div>
 				<div class="carousel-caption">
 					<div class="container">
@@ -32,8 +34,8 @@
 					</div>
 				</div>
 			</div>
-			</div>
-			</div>
+		</div>
+	</div>
 </div>
 
 <!-- Carousel Start -->
@@ -96,41 +98,42 @@
 <!-- </div> -->
 <!-- Carousel End -->
 
-    {#if data.events.length}
-<div class="container my-5">
-	<div class="d-flex align-items-center justify-content-between bg-light rounded p-4 shadow-sm">
-		<!-- Event Image -->
-		<div class="event-image me-4">
-			<img
-				src="{data.media_url}{data.events[0].featured_image}"
-				alt="{data.events[0].title}"
-				class="rounded"
-				style="width: 150px; height: auto;"
-			/>
+{#if data.events.length}
+	<div class="container my-5">
+		<div class="d-flex align-items-center justify-content-between bg-light rounded p-4 shadow-sm">
+			<!-- Event Image -->
+			{#if data.events[0]?.featured_image}
+				<div class="event-image me-4">
+					<img
+						src="{data.media_url}{data.events[0].featured_image}"
+						alt={data.events[0].title}
+						class="rounded"
+						style="width: 150px; height: auto;"
+					/>
+				</div>
+			{/if}
+
+			<!-- Event Details -->
+			<!-- content here -->
+			<div class="event-details flex-grow-1">
+				<span class="badge bg-primary mb-2">Следующее предстоящее событие</span>
+				<a href="/{data.events[0].slug}"><h3 class="mb-2">{data.events[0].title}</h3></a>
+				<p class="text-muted mb-0">
+					<!-- {new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long' }).format( -->
+					<!-- 	new Date(data.events[0].startAt) -->
+					<!-- )} -->
+
+					{data.events[0].endAt &&
+						' - ' +
+							new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long' }).format(
+								new Date(data.events[0].endAt)
+							)}
+				</p>
+				<p class="text-muted">{data.events[0].dates_description}</p>
+			</div>
 		</div>
-
-		<!-- Event Details -->
-       <!-- content here -->
-		<div class="event-details flex-grow-1">
-			<span class="badge bg-primary mb-2">Следующее предстоящее событие</span>
-			<a href="/{data.events[0].slug}"><h3 class="mb-2">{data.events[0].title}</h3></a>
-			<p class="text-muted mb-0">
-				<!-- {new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long' }).format( -->
-				<!-- 	new Date(data.events[0].startAt) -->
-				<!-- )} -->
-
-				{data.events[0].endAt &&
-					' - ' +
-						new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long' }).format(
-							new Date(data.events[0].endAt)
-						)}
-			</p>
-			<p class="text-muted">{data.events[0].dates_description}</p>
-		</div>
-
 	</div>
-</div>
-    {/if}
+{/if}
 
 <div class="container my-5">
 	<div class="row">
@@ -140,8 +143,8 @@
 			{#each data.events as event}
 				<div class="d-flex align-items-start mb-4">
 					<div class="bg-primary me-3 rounded p-3 text-center text-white" style="min-width: 70px;">
-						<h5 class="mb-0 text-light">{event.numerical_date} </h5>
-						<small >{event.month_short}</small>
+						<h5 class="text-light mb-0">{event.numerical_date}</h5>
+						<small>{event.month_short}</small>
 					</div>
 					<div>
 						<h5 class="mb-1"><a href="/{event.slug}">{event.title}</a></h5>
@@ -189,52 +192,49 @@
 		background-color: black; /* Black background for the bars */
 	}
 
+	/* Video wrapper to apply the blue tint */
+	.video-wrapper {
+		position: relative;
+		/* width: 80%; /* Adjust the video width */
+		max-width: 120rem;
+		margin: 0 auto;
+		display: block;
+	}
 
-/* Video wrapper to apply the blue tint */
-.video-wrapper {
-    position: relative;
-    /* width: 80%; /* Adjust the video width */
-    max-width:120rem;
-    margin: 0 auto;
-    display: block;
-}
+	/* Apply blue tint as an overlay */
+	.video-wrapper::before {
+		content: '';
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background-color: rgba(162, 140, 106, 0.3); /* Blue tint with transparency */
+		z-index: 2; /* Overlay above the video */
+		pointer-events: none; /* Allow clicks to pass through to the video */
+	}
 
-/* Apply blue tint as an overlay */
-.video-wrapper::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(162, 140, 106, 0.3); /* Blue tint with transparency */
-    z-index: 2; /* Overlay above the video */
-    pointer-events: none; /* Allow clicks to pass through to the video */
-}
+	.video-wrapper video {
+		display: block;
+		width: 100%; /* Ensure the video fits within the wrapper */
+		z-index: 1; /* Video below the overlay */
+		position: relative;
+	}
 
-.video-wrapper video {
-    display: block;
-    width: 100%; /* Ensure the video fits within the wrapper */
-    z-index: 1; /* Video below the overlay */
-    position: relative;
-}
-
-/* Carousel caption styling */
-.carousel-caption {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 3; /* Ensure text is above the blue overlay */
-    color: white;
-    text-shadow: 1px 1px 2px black, -1px -1px 2px black, 1px -1px 2px black, -1px 1px 2px black;
-}
-
-
-
-
-
-
+	/* Carousel caption styling */
+	.carousel-caption {
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		z-index: 3; /* Ensure text is above the blue overlay */
+		color: white;
+		text-shadow:
+			1px 1px 2px black,
+			-1px -1px 2px black,
+			1px -1px 2px black,
+			-1px 1px 2px black;
+	}
 
 	.text-outline {
 		color: white;

@@ -1,5 +1,5 @@
 <script lang="ts">
-  export let media_url;
+	export let media_url;
 	const menu_items = [
 		{
 			title: 'HOME',
@@ -40,16 +40,16 @@
 					href: 'youth-ministry'
 				},
 				{
-				  title: 'Семейный отдел',
-          href: 'family-ministry'
+					title: 'Семейный отдел',
+					href: 'family-ministry'
 				},
 				{
 					title: 'Отдел Благовестия',
 					href: 'gospel-ministry'
 				},
 				{
-				  title: 'Музыкально хоровой отдел (МХО)',
-          href: 'music-choir-ministry'
+					title: 'Музыкально хоровой отдел (МХО)',
+					href: 'music-choir-ministry'
 				},
 				{
 					title: 'Отдел библейского образования',
@@ -69,7 +69,13 @@
 </script>
 
 <!-- Navbar Start -->
-<div class="container-fluid fixed-top whole-navbar wow fadeIn px-0" data-wow-delay="0.1s">
+<div class="container-fluid fixed-top whole-navbar px-0">
+	<!-- Mobile only -->
+	<div class="d-lg-none text-center">
+		<h1 class="text-primary ms-2 p-2" style="font-size:1.4rem">Американское Объединение МСЦ ЕХБ</h1>
+	</div>
+
+	<!-- <div class="top-bar row gx-0 align-items-center d-none d-lg-flex"> -->
 	<!-- This is the upper menu bit. Make sure to uncomment the main.js file to move this on scroll. -->
 	<!-- <div class="top-bar row gx-0 align-items-center d-none d-lg-flex"> -->
 	<!-- 	<div class="col-lg-6 px-5 text-start"> -->
@@ -85,21 +91,20 @@
 	<!-- 		<a class="text-body ms-3" href=""><i class="fab fa-instagram"></i></a> -->
 	<!-- 	</div> -->
 	<!-- </div> -->
+	<!-- </div> -->
 
-	<nav
-		class="navbar navbar-expand-lg navbar-light py-lg-0 px-lg-5 wow fadeIn"
-		data-wow-delay="0.1s"
-	>
-
-<a href="/" class="navbar-brand ms-lg-0 ms-4 d-flex align-items-center">
-  <img width="100" style="display: inline;" src="{media_url}logo.png" alt="" />
-  <span class="ms-2">
-    <h1 class="fw-bold text-primary m-0 text-center" style="font-size: 1.4rem">
-      Американское Объединение <br/> МСЦ ЕХБ
-    </h1>
-  </span>
-</a>
-
+	<nav class="navbar navbar-expand-lg navbar-light py-lg-0 px-lg-5">
+		<a href="/" class="navbar-brand ms-lg-0 d-flex align-items-center ms-4">
+			<img width="100" style="display: inline;" src="{media_url}logo.png" alt="" />
+			<span class="ms-2">
+				<h1
+					class="fw-bold text-primary d-none d-lg-block m-0 text-center"
+					style="font-size: 1.4rem"
+				>
+					Американское Объединение <br /> МСЦ ЕХБ
+				</h1>
+			</span>
+		</a>
 
 		<button
 			type="button"

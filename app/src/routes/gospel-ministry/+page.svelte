@@ -3,15 +3,59 @@
 </script>
 
 <!-- Top Image Section -->
-<div class="container-fluid p-0">
+<div class="container-fluid p-0 pb-5">
 	<img src="{data.media_url}img/gospel-ministry.jpg" class="img-fluid w-100" alt="Top Image" />
+</div>
+
+<div class="container-fluid py-5">
+	<div class="container">
+		<div class="row g-0 gx-5 align-items-end">
+			<div class="col-lg-8">
+				<div class="section-header mb-5 text-start" style="max-width: 700px;">
+					<h1 class="display-5 mb-3">Приветственное слово</h1>
+				</div>
+			</div>
+		</div>
+
+		<div class="row">
+			<!-- First Column -->
+			<div class="col-lg-9">
+				<p>
+					Бог благословил наше объединение Своим наследием – хорошими семьями, добрыми родителями и
+					прекрасными детьми! Радует, что в каждом регионе Американского Объединения, есть
+					ответственные за детское служение братья, а также детские руководители, которые ревнуют в
+					славном служении с детьми, стараясь быть отрадными сотрудниками для Царствия Божия.
+				</p>
+				<p>
+					Мир вам дорогие друзья! Перед Своим вознесением с этой земли Иисус Христос оставил
+					повеление своим ученикам: Мат 28:19-20: "...Идите, научите все народы..." Благодарю
+					Господа что в нашем Американском объединении отдел Благовестия работает хорошо, слава Богу
+					за братьев и сестёр что активно с желанием трудятся, если Бог позволит, планируем
+					распахивать новые нивы и открыть кафедру для обучения новых миссионеров. Ваши вопросы и
+					предложения можете написать нам. Мы будем рады вместе совершать Богом порученное служение.
+					Да благословит вас Господь! Молитесь о нас с искренней любовью ваш брат
+				</p>
+
+				<footer class="blockquote-footer">Шуст Николай Иванович</footer>
+			</div>
+
+			<!-- Second Column -->
+			<div class="col-lg-3">
+				<img
+					style="width: 100%;"
+					src="{data.media_url}upfiles/page/8663e9a5bd976030e6496270ee704dd849192844.jpg"
+					alt=""
+				/>
+			</div>
+		</div>
+	</div>
 </div>
 
 <div class="container-xxl py-5">
 	<div class="container">
 		<div class="row g-5 align-items-center">
 			<!-- Image Section -->
-			<div class="col-lg-6 wow fadeIn" data-wow-delay="0.1s">
+			<div class="col-lg-6">
 				<div class="about-img position-relative overflow-hidden rounded p-5 pe-0">
 					<img
 						class="img-fluid w-100 rounded shadow-sm"
@@ -21,13 +65,15 @@
 				</div>
 			</div>
 			<!-- Content Section -->
-			<div class="col-lg-6 wow fadeIn" data-wow-delay="0.5s">
+			<div class="col-lg-6">
 				<h1 class="display-5 text-primary mb-4">Благовестие в Кубе</h1>
 				<p class="mb-4">
 					Христианская и благотворительная миссия «Пробуждение» с участием народа Божьего и Божьим
 					благословением совершает благовестие на острове Куба с 2015 года. Основная цель миссии,
 					приводить людей к Богу через евангелизацию и финансовую поддержку миссионеров.
 				</p>
+				<p>Да Благословит нас Бог быть соучастниками в деле Благовестия.</p>
+				<footer class="blockquote-footer">Михаил Брощан, Представитель миссии «Пробуждение»</footer>
 				<blockquote class="blockquote fst-italic text-secondary">
 					"И сказал им: Идите по всему миру и проповедуйте Евангелие всей твари." (Марк 15:16)
 				</blockquote>
@@ -55,10 +101,6 @@
 						>
 					</li>
 				</ul>
-				<p class="text-muted fst-italic">
-					Да Благословит нас Бог быть соучастниками в деле Благовестия.
-				</p>
-				<footer class="blockquote-footer">Михаил Брощан, Представитель миссии «Пробуждение»</footer>
 			</div>
 		</div>
 	</div>
@@ -68,8 +110,7 @@
 	<div class="container">
 		<div class="row g-5 align-items-center">
 			<div
-				class="col-md-7 wow fadeIn"
-				data-wow-delay="0.1s"
+				class="col-md-7"
 				style="visibility: visible; animation-delay: 0.1s; animation-name: fadeIn;"
 			>
 				<p class="mb-0 text-white">
@@ -79,8 +120,7 @@
 				</p>
 			</div>
 			<div
-				class="col-md-5 text-md-end wow fadeIn"
-				data-wow-delay="0.5s"
+				class="col-md-5 text-md-end"
 				style="visibility: visible; animation-delay: 0.5s; animation-name: fadeIn;"
 			>
 				<a
@@ -96,7 +136,7 @@
 	<div class="container">
 		<!-- Section 1: Introduction -->
 		<div class="row g-5 align-items-center">
-			<div class="col-lg-6 wow fadeIn" data-wow-delay="0.1s">
+			<div class="col-lg-6">
 				<div class="about-img position-relative overflow-hidden rounded p-5 pe-0">
 					<img
 						class="img-fluid w-100 rounded shadow-sm"
@@ -105,7 +145,7 @@
 					/>
 				</div>
 			</div>
-			<div class="col-lg-6 wow fadeIn" data-wow-delay="0.5s">
+			<div class="col-lg-6">
 				<h1 class="display-5 text-primary mb-4">Благовестие в Мексике</h1>
 				<p class="mb-4">
 					История нашего знакомства с мексиканским народом началась более пятнадцати лет назад.
@@ -129,7 +169,7 @@
 <div class="container-xxl py-5">
 	<div class="container">
 		<div class="row g-5 align-items-center">
-			<div class="col-lg-6 order-lg-2 wow fadeIn" data-wow-delay="0.1s">
+			<div class="col-lg-6 order-lg-2">
 				<div class="about-img position-relative overflow-hidden rounded p-5 ps-0">
 					<img
 						class="img-fluid w-100 rounded shadow-sm"
@@ -138,7 +178,7 @@
 					/>
 				</div>
 			</div>
-			<div class="col-lg-6 order-lg-1 wow fadeIn" data-wow-delay="0.5s">
+			<div class="col-lg-6 order-lg-1">
 				<h2 class="text-primary mb-4">Первые Поездки</h2>
 				<p class="mb-4">
 					Вспоминаю первую поездку: мобильных телефонов нет, транспорт слабенький, полное отсутствие
@@ -157,10 +197,10 @@
 <!-- Section 3: Missionary Impact -->
 <div class="container-fluid bg-secondary bg-icon mt-5 py-6">
 	<div class="container">
-		<h2 class="text-primary mb-5 text-center text-light">Влияние Служения</h2>
+		<h2 class="text-primary text-light mb-5 text-center">Влияние Служения</h2>
 		<div class="row g-4">
 			<!-- Card 1 -->
-			<div class="col-lg-4 wow fadeIn" data-wow-delay="0.1s">
+			<div class="col-lg-4">
 				<div class="card border-0 shadow-sm">
 					<img
 						src="{data.media_url}img/missionary-moving.jpg"
@@ -177,7 +217,7 @@
 				</div>
 			</div>
 			<!-- Card 2 -->
-			<div class="col-lg-4 wow fadeIn" data-wow-delay="0.3s">
+			<div class="col-lg-4">
 				<div class="card border-0 shadow-sm">
 					<img
 						src="{data.media_url}img/missionary-school.jpg"
@@ -194,7 +234,7 @@
 				</div>
 			</div>
 			<!-- Card 3 -->
-			<div class="col-lg-4 wow fadeIn" data-wow-delay="0.5s">
+			<div class="col-lg-4">
 				<div class="card border-0 shadow-sm">
 					<img
 						src="{data.media_url}img/missionary-evangelism.jpg"

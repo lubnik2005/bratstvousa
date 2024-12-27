@@ -1,6 +1,7 @@
 <script lang="ts">
 	let selectedCategory = 'all';
 	export let files = [];
+	export let media_url;
 
 	interface Category {
 		key: string;
@@ -22,21 +23,20 @@
 		filteredResources =
 			category.key === 'all' ? files : files.filter((file) => file.category === category.key);
 	}
-
 </script>
 
 <div class="container py-5">
-  		<div class="row g-0 gx-5 align-items-end">
-			<div class="col-lg-8">
-				<div class="section-header mb-5 text-start" style="max-width: 800px;">
-					<h1 class="display-5 mb-3">Материалы и Литература</h1>
-				</div>
+	<div class="row g-0 gx-5 align-items-end">
+		<div class="col-lg-8">
+			<div class="section-header mb-5 text-start" style="max-width: 800px;">
+				<h1 class="display-5 mb-3">Материалы и Литература</h1>
 			</div>
 		</div>
+	</div>
 
 	<!-- Category Filter -->
 	<div class="row d-flex justify-content-left mb-4 flex-wrap">
-		<ul class="nav nav-pills d-inline-flex ">
+		<ul class="nav nav-pills d-inline-flex">
 			{#each categories as category}
 				<li class="nav-item me-2">
 					<button
@@ -63,9 +63,12 @@
 				{#each filteredResources as resource}
 					<tr style="cursor: pointer;">
 						<td>{resource.name}</td>
-						<td>{categories.find((c) => resource.category == c.key)?.label ?? resource.category}</td>
+						<td>{categories.find((c) => resource.category == c.key)?.label ?? resource.category}</td
+						>
 						<td>
-							<a href={resource.path} target="_blank" class="text-decoration-none"> Скачать PDF </a>
+							<a href={`${media_url}${resource.path}`} target="_blank" class="text-decoration-none">
+								Скачать PDF
+							</a>
 						</td>
 					</tr>
 				{/each}

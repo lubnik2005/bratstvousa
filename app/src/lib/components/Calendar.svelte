@@ -52,7 +52,7 @@
 					<h1 class="display-5 mb-3">Календарь</h1>
 				</div>
 			</div>
-    </div>
+		</div>
 		<div class="row p-6">
 			<div class="p-6" id="calendar"></div>
 		</div>

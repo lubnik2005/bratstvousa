@@ -1,8 +1,7 @@
 <script lang="ts">
 	import MainNav from '$lib/components/MainNav.svelte';
-  export let data;
-  export let children;
-
+	export let data;
+	export let children;
 </script>
 
 <MainNav media_url={data.media_url} />
@@ -14,7 +13,7 @@
 	<div class="container py-5">
 		<div class="row g-5">
 			<div class="col-lg-3 col-md-6">
-				<h1 class="fw-bold text-primary mb-4 text-light">МСЦ ЕХБ</h1>
+				<h1 class="fw-bold text-primary text-light mb-4">МСЦ ЕХБ</h1>
 				<p>Американское объединение</p>
 				<!-- <div class="d-flex pt-2"> -->
 				<!-- <a class="btn btn-square btn-outline-light rounded-circle me-1" href="" -->
@@ -43,17 +42,34 @@
 				<a class="btn btn-link" href="">PayPal</a>
 				<a class="btn btn-link" href="">Cash App</a>
 			</div>
-      <div class="col-lg-3 col-md-6">
+			<div class="col-lg-3 col-md-6">
 				<h4 class="text-light mb-4">Контакт</h4>
-				<a class="btn btn-link" style="text-transform: lowercase;" href="mailto:info@bratstvousa.com">info@bratstvousa.com</a>
-				<a class="btn btn-link" style="text-transform: lowercase;" href="mailto:kids@bratstvousa.com">kids@bratstvousa.com</a>
-				<a class="btn btn-link" style="text-transform: lowercase;" href="mailto:youth@bratstvousa.com">youth@bratstvousa.com</a>
-				<a class="btn btn-link" style="text-transform: lowercase;" href="mailto:music@bratstvousa.com">music@bratstvousa.com</a>
-				<a class="btn btn-link" style="text-transform: lowercase;" href="mailto:bibleeducatio@bratstvousa.com">bibleeducatio@bratstvousa.com</a>
-
-        
-
-      </div>
+				<a
+					class="btn btn-link"
+					style="text-transform: lowercase;"
+					href="mailto:info@bratstvousa.com">info@bratstvousa.com</a
+				>
+				<a
+					class="btn btn-link"
+					style="text-transform: lowercase;"
+					href="mailto:kids@bratstvousa.com">kids@bratstvousa.com</a
+				>
+				<a
+					class="btn btn-link"
+					style="text-transform: lowercase;"
+					href="mailto:youth@bratstvousa.com">youth@bratstvousa.com</a
+				>
+				<a
+					class="btn btn-link"
+					style="text-transform: lowercase;"
+					href="mailto:music@bratstvousa.com">music@bratstvousa.com</a
+				>
+				<a
+					class="btn btn-link"
+					style="text-transform: lowercase;"
+					href="mailto:bibleeducation@bratstvousa.com">bibleeducation@bratstvousa.com</a
+				>
+			</div>
 
 			<!-- <div class="col-lg-3 col-md-6"> -->
 			<!-- 	<h4 class="text-light mb-4">Рассылка</h4> -->
