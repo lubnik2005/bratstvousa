@@ -2,10 +2,6 @@
 	export let media_url;
 	const menu_items = [
 		{
-			title: 'HOME',
-			href: ''
-		},
-		{
 			title: 'О НАС',
 			children: [
 				{
