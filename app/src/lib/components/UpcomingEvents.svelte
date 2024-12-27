@@ -60,11 +60,9 @@
 					<div class="col-xl-4 col-lg-4 col-md-6">
 						<div class="product-item">
 							<div class="position-relative bg-light overflow-hidden">
-								<img
-									class="img-fluid w-100"
-									src="{media_url}{event.featured_image}"
-									alt=""
-								/>
+								{#if event.featured_image}
+									<img class="img-fluid w-100" src={`${media_url}${event.featured_image}`} alt="" />
+								{/if}
 							</div>
 							<div class="p-4 text-center">
 								<a class="d-block h5 mb-2" href={event.slug}>{event.title}</a>
