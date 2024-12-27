@@ -17,7 +17,7 @@
 				<div class="col-lg-4 col-md-6">
 					<img
 						class="img-fluid"
-						src="/bratstvousa-media/{article.featured_image}"
+						src="{data.media_url}{article.featured_image}"
 						alt=""
 					/>
 					<div class="bg-light p-4">

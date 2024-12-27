@@ -1,6 +1,7 @@
 import { db } from '$lib/server/db';
 import { newsArticles } from '$lib/server/db/schema';
 import { desc, eq, isNotNull, count } from 'drizzle-orm';
+import { env } from '$env/dynamic/private';
 
 export async function load({ params, url }) {
 	// Get the page parameter from the query string, default to page 1
@@ -24,6 +25,7 @@ export async function load({ params, url }) {
 		news_articles,
 		page,
 		perPage,
-		totalArticles
+		totalArticles,
+    media_url: env.MEDIA_URL
 	};
 }
