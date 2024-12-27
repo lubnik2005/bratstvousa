@@ -11,6 +11,34 @@
 			viber: 'viber://chat?number=13609070399',
 			image: 'upfiles/page/ba02c86ed301cc2580bfac08e00286ad66260659.jpg'
 		},
+    {
+			last_name: 'Савченко',
+			first_name: 'Андрей Михайлович',
+			role: 'Ответственный за ВР, член Совета церквей МСЦ ЕХБ',
+			phone: '12153008743',
+			whatsapp: 'https://wa.me/12153008743',
+			viber: 'viber://chat?number=12153008743',
+			image: 'upfiles/page/452f607bccce75a4929d4795a582d5e845931310.jpg'
+		},
+		{
+			last_name: 'Помазнюк',
+			first_name: 'Виктор Владимирович',
+			role: 'Ответственный за КР и семейный отдел АО, сотрудник Совета церквей МСЦ ЕХБ',
+			phone: '19165888057',
+			whatsapp: 'https://wa.me/19165888057',
+			viber: 'viber://chat?number=19165888057',
+			image: 'upfiles/page/f9aed63d5d9b501c5ac83f4cd217f4f151660445.jpg'
+		},
+    {
+			last_name: 'Солохин',
+			first_name: 'Вениамин Иванович',
+			role: 'Ответственный за ЦР',
+			phone: '14028908181',
+			whatsapp: 'https://wa.me/14028908181',
+			viber: 'viber://chat?number=14028908181',
+			image: 'upfiles/page/734719b91a5419650780de028989d19b99232407.jpg'
+		},
+
 		{
 			last_name: 'Власенко',
 			first_name: 'Александр Мефодьевич',
@@ -19,6 +47,15 @@
 			whatsapp: 'https://wa.me/14132423565',
 			viber: 'viber://chat?number=14132423565',
 			image: 'upfiles/page/4bc91f92895f57e7241632fdd1965f9048005157.jpg'
+		},
+    {
+			last_name: 'Камке',
+			first_name: 'Фёдор Васильевич',
+			role: 'Ответственный за детский отдел АО',
+			phone: '13609311729',
+			whatsapp: 'https://wa.me/13609311729',
+			viber: 'viber://chat?number=13609311729',
+			image: 'upfiles/page/ce0256251e1b6b11d241ba750ec9b66037651884.jpg'
 		},
 		{
 			last_name: 'Никита',
@@ -37,15 +74,6 @@
 			whatsapp: 'https://wa.me/15402094489',
 			viber: 'viber://chat?number=15402094489',
 			image: 'upfiles/page/af3adebccee815dbb6a43bd0456cdb1486008029.jpg'
-		},
-		{
-			last_name: 'Помазнюк',
-			first_name: 'Виктор Владимирович',
-			role: 'Ответственный за КР и семейный отдел АО, сотрудник Совета церквей МСЦ ЕХБ',
-			phone: '19165888057',
-			whatsapp: 'https://wa.me/19165888057',
-			viber: 'viber://chat?number=19165888057',
-			image: 'upfiles/page/f9aed63d5d9b501c5ac83f4cd217f4f151660445.jpg'
 		},
 		{
 			last_name: 'Шуст',
@@ -93,15 +121,6 @@
 			image: 'upfiles/page/e0fe0d8d17ccb858a38cf0be9f4b8dda57901834.jpg'
 		},
 		{
-			last_name: 'Камке',
-			first_name: 'Фёдор Васильевич',
-			role: 'Ответственный за детский отдел АО',
-			phone: '13609311729',
-			whatsapp: 'https://wa.me/13609311729',
-			viber: 'viber://chat?number=13609311729',
-			image: 'upfiles/page/ce0256251e1b6b11d241ba750ec9b66037651884.jpg'
-		},
-		{
 			last_name: 'Бальжик',
 			first_name: 'Вениамин Петрович',
 			role: 'Ответственный за молодежный отдел АО',
@@ -129,15 +148,6 @@
 			image: 'upfiles/page/30add9974cbb6503e519404ce01fee9587610745.jpg'
 		},
 		{
-			last_name: 'Савченко',
-			first_name: 'Андрей Михайлович',
-			role: 'Ответственный за ВР, сотрудник Совета церквей МСЦ ЕХБ',
-			phone: '12153008743',
-			whatsapp: 'https://wa.me/12153008743',
-			viber: 'viber://chat?number=12153008743',
-			image: 'upfiles/page/452f607bccce75a4929d4795a582d5e845931310.jpg'
-		},
-		{
 			last_name: 'Чепуренко',
 			first_name: 'Василий Иванович',
 			role: 'Пресвитер одной из церквей ВР',
@@ -163,15 +173,6 @@
 			whatsapp: 'https://wa.me/14139771337',
 			viber: 'viber://chat?number=14139771337',
 			image: 'upfiles/page/f55878cadf26606682f48b9016feb1b091841480.jpg'
-		},
-		{
-			last_name: 'Солохин',
-			first_name: 'Вениамин Иванович',
-			role: 'Ответственный за ЦР',
-			phone: '14028908181',
-			whatsapp: 'https://wa.me/14028908181',
-			viber: 'viber://chat?number=14028908181',
-			image: 'upfiles/page/734719b91a5419650780de028989d19b99232407.jpg'
 		},
 		{
 			last_name: 'Русавук',
@@ -212,17 +213,17 @@
 						<p class="text-muted" style="line-height: 1.5; min-height: calc(1.5em * 3); ">
 							{member.role}
 						</p>
-						<div class="social">
-							<a href="tel:{member.phone}" class="phone" title="Phone" style="width: 20px;"
-								><i class="fas fa-phone"></i></a
-							>
-							<a href={member.whatsapp} class="whatsapp" title="WhatsApp" style="width: 20px;"
-								><i class="fab fa-whatsapp"></i></a
-							>
-							<a href={member.viber} title="Viber">
-								<img src="{data.media_url}img/viber.svg" alt="Viber" style="width: 20px;" />
-							</a>
-						</div>
+						<!-- <div class="social"> -->
+						<!-- 	<a href="tel:{member.phone}" class="phone" title="Phone" style="width: 20px;" -->
+						<!-- 		><i class="fas fa-phone"></i></a -->
+						<!-- 	> -->
+						<!-- 	<a href={member.whatsapp} class="whatsapp" title="WhatsApp" style="width: 20px;" -->
+						<!-- 		><i class="fab fa-whatsapp"></i></a -->
+						<!-- 	> -->
+						<!-- 	<a href={member.viber} title="Viber"> -->
+						<!-- 		<img src="{data.media_url}img/viber.svg" alt="Viber" style="width: 20px;" /> -->
+						<!-- 	</a> -->
+						<!-- </div> -->
 					</div>
 				</div>
 			</div>
