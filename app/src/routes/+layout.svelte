@@ -1,10 +1,11 @@
 <script lang="ts">
 	import MainNav from '$lib/components/MainNav.svelte';
+  export let data;
+  export let children;
 
-	let { data, children } = $props();
 </script>
 
-<MainNav />
+<MainNav media_url={data.media_url} />
 
 {@render children()}
 
