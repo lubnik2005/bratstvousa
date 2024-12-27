@@ -9,9 +9,14 @@
 			title: 'О НАС',
 			children: [
 				{
+					title: 'Приветственное слово',
+					href: 'greeting'
+				},
+				{
 					title: 'Краткий обзор',
 					href: 'short-introduction'
 				},
+
 				{
 					title: 'Состав совета',
 					href: 'committee'
