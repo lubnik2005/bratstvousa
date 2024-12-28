@@ -74,13 +74,13 @@
 								<!-- <span class="text-body text-decoration-line-through">$29.00</span> -->
 							</div>
 							<!-- This would be the registration button -->
-							<!-- <div class="d-flex border-top"> -->
-							<!-- 	<small class="w-100 border-end py-2 text-center"> -->
-							<!-- 		<a class="text-body" href="" -->
-							<!-- 			><i class="fa fa-eye text-primary me-2"></i>Регистрация</a -->
-							<!-- 		> -->
-							<!-- 	</small> -->
-							<!-- </div> -->
+							<div class="d-flex border-top">
+								<small class="w-100 border-end py-2 text-center">
+									<a class="text-body" href=""
+										><i class="fa fa-eye text-primary me-2"></i>Регистрация</a
+									>
+								</small>
+							</div>
 						</div>
 					</div>
 				{/each}

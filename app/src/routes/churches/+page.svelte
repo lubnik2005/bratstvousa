@@ -572,6 +572,7 @@
 					<th>Штат</th>
 					<th>Город</th>
 					<th>Адрес</th>
+					<th>Название</th>
 					<!-- <th>Ригион</th> -->
 					<th>Контакт</th>
 					<th>Телефон</th>
@@ -585,6 +586,7 @@
 						<td>{church.city.split(',')[1]}</td>
 						<td>{church.city.split(',')[0]}</td>
 						<td>{church.address}</td>
+  					<td>Slavic Evangelical Baptist Church of Orange County</td>
 						<!-- <td>{church.region}</td> -->
 						<td>{church.contact}</td>
 						<td><a href={`tel:${church.phone}`}> {church.phone}</a></td>
