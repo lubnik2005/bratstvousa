@@ -113,3 +113,20 @@ export const childrensFiles = pgTable('childrens_files', {
 	createdAt: timestamp('created_at').defaultNow(),
 	updatedAt: timestamp('updated_at').defaultNow()
 });
+
+export const churches = pgTable('churches', {
+	id: serial('id').primaryKey(),
+	state: varchar('state', { length: 255 }),
+	city: varchar('city', { length: 255 }),
+	name_line_1: varchar('name_line_1', { length: 255 }),
+	name_line_2: varchar('name_line_2', { length: 255 }),
+	region: varchar('region', { length: 255 }),
+	address_line_1: varchar('address_line_1', { length: 255 }),
+	address_line_2: varchar('address_line_2', { length: 255 }),
+	contact_first_name: varchar('contact_first_name', { length: 255 }),
+	contact_last_name: varchar('contact_last_name', { length: 255 }),
+	phone: varchar('phone', { length: 255 }),
+	youtube: varchar('youtube', { length: 255 }),
+	createdAt: timestamp('created_at').defaultNow(),
+	updatedAt: timestamp('updated_at').defaultNow()
+});

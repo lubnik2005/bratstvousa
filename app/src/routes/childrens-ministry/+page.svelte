@@ -58,11 +58,33 @@
 
 			<!-- Second Column -->
 			<div class="col-lg-3">
-				<img
-					style="width: 100%;"
-					src="{data.media_url}upfiles/page/2110baeef15c81cd594268c9bffe0af139777496.jpg"
-					alt=""
-				/>
+				<div class="team-wrap rounded border p-3">
+					<div class="team-member text-center">
+						<div class="team-img mb-3">
+							<img
+								style="width: 100%;"
+								src="{data.media_url}upfiles/page/2110baeef15c81cd594268c9bffe0af139777496.jpg"
+								alt=""
+							/>
+						</div>
+
+						<h5 class="team-title">Камке<br /> Фёдор Васильевич</h5>
+						<div class="social">
+							<a href="mailto:kids@bratstvousa.com">kids@bratstvousa.com</a>
+							<!-- <div class="social"> -->
+							<!-- 	<a href="tel:{member.phone}" class="phone" title="Phone" style="width: 20px;" -->
+							<!-- 		><i class="fas fa-phone"></i></a -->
+							<!-- 	> -->
+							<!-- 	<a href={member.whatsapp} class="whatsapp" title="WhatsApp" style="width: 20px;" -->
+							<!-- 		><i class="fab fa-whatsapp"></i></a -->
+							<!-- 	> -->
+							<!-- 	<a href={member.viber} title="Viber"> -->
+							<!-- 		<img src="{data.media_url}img/viber.svg" alt="Viber" style="width: 20px;" /> -->
+							<!-- 	</a> -->
+							<!-- </div> -->
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>

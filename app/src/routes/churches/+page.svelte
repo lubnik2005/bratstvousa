@@ -480,40 +480,7 @@
 		updateMarkers();
 	};
 
-	const uniqueRegions = [...new Set(churches.map((church) => church.region))];
-
-	function updateMarkers() {
-		markers.forEach((marker) => marker.setMap(null));
-		markers = churches
-			.filter((church) => !selectedRegion || church.region === selectedRegion)
-			.map((church) => {
-				const marker = new google.maps.Marker({
-					position: {
-						lat: getRandomLat(), // Dummy placeholder for lat/lng values
-						lng: getRandomLng()
-					},
-					map: map,
-					title: church.city
-				});
-				return marker;
-			});
-	}
-
-	function getRandomLat() {
-		return 37.7749 + Math.random() * 5;
-	}
-
-	function getRandomLng() {
-		return -122.4194 + Math.random() * 5;
-	}
-
-	onMount(() => {
-		map = new google.maps.Map(document.getElementById('map'), {
-			center: { lat: 39.8283, lng: -98.5795 },
-			zoom: 4
-		});
-		updateMarkers();
-	});
+	const uniqueRegions = [...new Set(data.churches.map((church) => church.region))];
 </script>
 
 <Header title="Адреса Домов Молитвы" />
@@ -530,7 +497,7 @@
 
 	<!-- Church Grid -->
 	<div class="row">
-		{#each churches.filter((church) => !selectedRegion || church.region === selectedRegion) as church}
+		{#each data.churches.filter((church) => !selectedRegion || church.region === selectedRegion) as church}
 			<div class="col-md-4 col-sm-6">
 				<div class="church-card">
 					<h4>{church.city}</h4>
@@ -579,17 +546,20 @@
 				</tr>
 			</thead>
 			<tbody>
-				{#each churches
+				{#each data.churches
 					.filter((church) => !selectedRegion || church.region === selectedRegion)
 					.sort() as church}
 					<tr>
-						<td>{church.city.split(',')[1]}</td>
+						<td>{church.state}</td>
 						<td>{church.city.split(',')[0]}</td>
-						<td>{church.address}</td>
-  					<td>Slavic Evangelical Baptist Church of Orange County</td>
-						<!-- <td>{church.region}</td> -->
-						<td>{church.contact}</td>
-						<td><a href={`tel:${church.phone}`}> {church.phone}</a></td>
+						<td>{church.address_line_1}<br />{church.address_line_2}</td>
+						<td>{church.name_line_1}<br />{church.name_line_2}</td>
+						<td>{church.contact_last_name}<br />{church.contact_first_name}</td>
+						<td
+							><a href={`tel:${church.phone}`}> {church.phone}</a><br /><a href={church.youtube}
+								>Youtube Channel</a
+							></td
+						>
 					</tr>
 				{/each}
 			</tbody>

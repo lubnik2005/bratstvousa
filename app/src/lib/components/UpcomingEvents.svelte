@@ -1,8 +1,10 @@
 <script lang="ts">
+	export let region;
 	export let upcomingEvents = [];
 	export let title = 'События';
 	export let subtitle;
 	export let media_url = '/';
+	export let show_filters = true;
 
 	interface Region {
 		key: string;
@@ -35,25 +37,28 @@
 				<div class="section-header mb-5 text-start" style="max-width: 500px;">
 					<h1 class="display-5 mb-3">{title}</h1>
 					<p>{subtitle}</p>
+					{region}
 				</div>
 			</div>
-			<div class="row g-0 gx-5">
-				<div class="col-lg-12">
-					<ul class="nav nav-pills d-inline-flex b-5 mb-5">
-						{#each regions as region}
-							<li class="nav-item me-2">
-								<button
-									class="btn btn-outline-primary border-2 {region.key === selectedRegion
-										? 'active'
-										: ''}"
-									data-bs-toggle="pill"
-									on:click={() => filterResources(region)}>{region.label}</button
-								>
-							</li>
-						{/each}
-					</ul>
+			{#if show_filters}
+				<div class="row g-0 gx-5">
+					<div class="col-lg-12">
+						<ul class="nav nav-pills d-inline-flex b-5 mb-5">
+							{#each regions as region}
+								<li class="nav-item me-2">
+									<button
+										class="btn btn-outline-primary border-2 {region.key === selectedRegion
+											? 'active'
+											: ''}"
+										data-bs-toggle="pill"
+										on:click={() => filterResources(region)}>{region.label}</button
+									>
+								</li>
+							{/each}
+						</ul>
+					</div>
 				</div>
-			</div>
+			{/if}
 		</div>
 		<div class="tab-content">
 			<div class="row g-4">
@@ -74,13 +79,13 @@
 								<!-- <span class="text-body text-decoration-line-through">$29.00</span> -->
 							</div>
 							<!-- This would be the registration button -->
-							<div class="d-flex border-top">
-								<small class="w-100 border-end py-2 text-center">
-									<a class="text-body" href=""
-										><i class="fa fa-eye text-primary me-2"></i>Регистрация</a
-									>
-								</small>
-							</div>
+							<!-- <div class="d-flex border-top"> -->
+							<!-- 	<small class="w-100 border-end py-2 text-center"> -->
+							<!-- 		<a class="text-body" href="" -->
+							<!-- 			><i class="fa fa-eye text-primary me-2"></i>Регистрация</a -->
+							<!-- 		> -->
+							<!-- 	</small> -->
+							<!-- </div> -->
 						</div>
 					</div>
 				{/each}

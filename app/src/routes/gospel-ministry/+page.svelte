@@ -39,13 +39,23 @@
 				<footer class="blockquote-footer">Шуст Николай Иванович</footer>
 			</div>
 
-			<!-- Second Column -->
 			<div class="col-lg-3">
-				<img
-					style="width: 100%;"
-					src="{data.media_url}upfiles/page/8663e9a5bd976030e6496270ee704dd849192844.jpg"
-					alt=""
-				/>
+				<div class="team-wrap rounded border p-3">
+					<div class="team-member text-center">
+						<div class="team-img mb-3">
+							<img
+								style="width: 100%;"
+								src="{data.media_url}upfiles/page/8663e9a5bd976030e6496270ee704dd849192844.jpg"
+								alt=""
+							/>
+						</div>
+
+						<h5 class="team-title">Шуст Николай Иванович</h5>
+						<div class="social">
+							<a href="mailto:info@bratstvousa.com">info@bratstvousa.com</a>
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>

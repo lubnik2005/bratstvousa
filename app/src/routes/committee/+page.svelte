@@ -11,7 +11,7 @@
 			viber: 'viber://chat?number=13609070399',
 			image: 'upfiles/page/ba02c86ed301cc2580bfac08e00286ad66260659.jpg'
 		},
-    {
+		{
 			last_name: 'Савченко',
 			first_name: 'Андрей Михайлович',
 			role: 'Ответственный за ВР, член Совета церквей МСЦ ЕХБ',
@@ -29,7 +29,7 @@
 			viber: 'viber://chat?number=19165888057',
 			image: 'upfiles/page/f9aed63d5d9b501c5ac83f4cd217f4f151660445.jpg'
 		},
-    {
+		{
 			last_name: 'Солохин',
 			first_name: 'Вениамин Иванович',
 			role: 'Ответственный за ЦР',
@@ -48,7 +48,7 @@
 			viber: 'viber://chat?number=14132423565',
 			image: 'upfiles/page/4bc91f92895f57e7241632fdd1965f9048005157.jpg'
 		},
-    {
+		{
 			last_name: 'Камке',
 			first_name: 'Фёдор Васильевич',
 			role: 'Ответственный за детский отдел АО, сотрудник Совета церквей МСЦ ЕХБ',
@@ -75,7 +75,7 @@
 			viber: 'viber://chat?number=15402094489',
 			image: 'upfiles/page/af3adebccee815dbb6a43bd0456cdb1486008029.jpg'
 		},
-    		{
+		{
 			last_name: 'Бальжик',
 			first_name: 'Вениамин Петрович',
 			role: 'Ответственный за молодежный отдел АО, помощник ответственного за КР',
@@ -94,7 +94,7 @@
 			viber: 'viber://chat?number=19164705422',
 			image: 'upfiles/page/dc521a6ad4e3461000aa1c116f36613220574103.jpg'
 		},
-  	{
+		{
 			last_name: 'Павленко',
 			first_name: 'Юрий Иванович',
 			role: 'Ответственный за МХО АО',
@@ -103,7 +103,7 @@
 			viber: 'viber://chat?number=15038055545',
 			image: 'upfiles/page/60668a880d8bc70c8bbf16516cf8cd1f99637969.jpg'
 		},
-    		{
+		{
 			last_name: 'Озеров',
 			first_name: 'Андрей Иванович',
 			role: 'Ответственный за детский отдел СЗР',

@@ -16,27 +16,27 @@
 				<h1 class="fw-bold text-primary text-light mb-4">МСЦ ЕХБ</h1>
 				<p>Американское объединение</p>
 				<div class="d-flex pt-2">
-				<!-- <a class="btn btn-square btn-outline-light rounded-circle me-1" href="" -->
-				<!-- 	><i class="fab fa-twitter"></i></a -->
-				<!-- > -->
-				<a class="btn btn-square btn-outline-light rounded-circle me-1" href=""
-					><i class="fab fa-facebook-f"></i></a
-				>
-				<a class="btn btn-square btn-outline-light rounded-circle me-0" href=""
-					><i class="fab fa-instagram"></i></a
-				>
-				<a class="btn btn-square btn-outline-light rounded-circle me-1" href=""
-					><i class="fab fa-youtube"></i></a
-				>
+					<!-- <a class="btn btn-square btn-outline-light rounded-circle me-1" href="" -->
+					<!-- 	><i class="fab fa-twitter"></i></a -->
+					<!-- > -->
+					<a class="btn btn-square btn-outline-light rounded-circle me-1" href=""
+						><i class="fab fa-facebook-f"></i></a
+					>
+					<a class="btn btn-square btn-outline-light rounded-circle me-0" href=""
+						><i class="fab fa-instagram"></i></a
+					>
+					<a class="btn btn-square btn-outline-light rounded-circle me-1" href=""
+						><i class="fab fa-youtube"></i></a
+					>
 				</div>
 			</div>
 			<div class="col-lg-3 col-md-6">
 				<h4 class="text-light mb-4">Quick Links</h4>
 				<!-- <a class="btn btn-link" href="">Youtube Channel</a> -->
-				<a class="btn btn-link" href="https://mscmusic.org/">MSC Music</a>
-				<a class="btn btn-link" href="https://bibleschooliucecb.org/">Bible School</a>
-				<a class="btn btn-link" href="https://missionrem.org/">Redemption Evangelistic MinistriesSchool</a>
 				<a class="btn btn-link" href="https://awakeningmission.org/">Awakening Mission</a>
+				<a class="btn btn-link" href="https://bibleschooliucecb.org/">Bible School</a>
+				<a class="btn btn-link" href="https://missionrem.org/">Mission REM</a>
+				<a class="btn btn-link" href="https://mscmusic.org/">MSC Music</a>
 			</div>
 			<div class="col-lg-3 col-md-6">
 				<h4 class="text-light mb-4">Donate</h4>
