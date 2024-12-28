@@ -7,5 +7,5 @@ use Illuminate\Database\Eloquent\Model;
 class NewsArticle extends Model
 {
     //
-    protected $casts = ['start_at' => 'date', 'end_at' => 'date'];
+    protected $casts = ['start_at' => 'date', 'end_at' => 'date', 'date' => 'date'];
 }
