@@ -52,8 +52,9 @@ class ChildrensEvent extends Resource
             Date::make('Start At'),
             Select::make('Region')->options(['all' => 'Все', 'central' => 'Центральный регион', 'east' => 'Восточный регион', 'california' => 'Калифорнийский регион', 'north-east' => 'Северо-Западный регион']),
             Date::make('End At'),
-            Image::make('Thumbnail')->disk('public'),
-            Trix::make('Content')->withFiles('public'),
+            Image::make('Thumbnail')->disk('upfiles'),
+            Image::make('Fetured Image')->disk('upfiles'),
+            Trix::make('Content')->withFiles('upfiles'),
         ];
     }
 
