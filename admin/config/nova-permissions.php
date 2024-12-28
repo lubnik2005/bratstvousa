@@ -257,6 +257,29 @@ return [
         ],
         // BibleEducationEvent End
 
+        // Churches Start
+        'view churches' => [
+            'display_name' => 'View churches',
+            'description' => 'Can view churches',
+            'group' => 'Churches',
+        ],
+        'create churches' => [
+            'display_name' => 'Create churches',
+            'description' => 'Can create churches',
+            'group' => 'Churches',
+        ],
+        'edit churches' => [
+            'display_name' => 'Edit churches',
+            'description' => 'Can edit churches',
+            'group' => 'Churches',
+        ],
+        'delete churches' => [
+            'display_name' => 'Delete churches',
+            'description' => 'Can delete churches',
+            'group' => 'Churches',
+        ],
+
+        // Churches End
     ],
 
 ];

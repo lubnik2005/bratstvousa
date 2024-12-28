@@ -11,10 +11,12 @@
     "require": {
         "php": "^8.2",
         "dniccum/nova-documentation": "^3.4",
+        "ebess/advanced-nova-media-library": "^1.0",
         "laravel/framework": "^11.31",
         "laravel/nova": "^5.0",
         "laravel/tinker": "^2.9",
-        "pktharindu/nova-permissions": "^3.0"
+        "pktharindu/nova-permissions": "^3.0",
+        "spatie/laravel-medialibrary": "^11.11"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
@@ -29,7 +31,8 @@
         "psr-4": {
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
-            "Database\\Seeders\\": "database/seeders/"
+            "Database\\Seeders\\": "database/seeders/",
+            "Ebess\\AdvancedNovaMediaLibrary\\": "vendor/ebess/advanced-nova-media-library/src/"
         }
     },
     "autoload-dev": {
@@ -72,12 +75,24 @@
             "php-http/discovery": true
         }
     },
-    "minimum-stability": "stable",
+    "minimum-stability": "dev",
     "prefer-stable": true,
-    "repositories": {
-        "nova": {
+    "repositories": [
+        {
             "type": "composer",
             "url": "https://nova.laravel.com"
+        },
+        {
+            "type": "package",
+            "package": {
+                "name": "ebess/advanced-nova-media-library",
+                "version": "1.0",
+                "source": {
+                    "url": "https://github.com/lubnik2005/advanced-nova-media-library.git",
+                    "type": "git",
+                    "reference": "master"
+                }
+            }
         }
-    }
+    ]
 }
