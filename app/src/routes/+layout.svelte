@@ -51,26 +51,6 @@
 					style="text-transform: lowercase;"
 					href="mailto:info@bratstvousa.com">info@bratstvousa.com</a
 				>
-				<a
-					class="btn btn-link"
-					style="text-transform: lowercase;"
-					href="mailto:kids@bratstvousa.com">kids@bratstvousa.com</a
-				>
-				<a
-					class="btn btn-link"
-					style="text-transform: lowercase;"
-					href="mailto:youth@bratstvousa.com">youth@bratstvousa.com</a
-				>
-				<a
-					class="btn btn-link"
-					style="text-transform: lowercase;"
-					href="mailto:music@bratstvousa.com">music@bratstvousa.com</a
-				>
-				<a
-					class="btn btn-link"
-					style="text-transform: lowercase;"
-					href="mailto:bibleeducation@bratstvousa.com">bibleeducation@bratstvousa.com</a
-				>
 			</div>
 
 			<!-- <div class="col-lg-3 col-md-6"> -->
