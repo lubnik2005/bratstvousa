@@ -65,7 +65,7 @@ class Church extends Resource
                     'central' => 'Central',
                     'east' => 'East',
                     'california' => 'California',
-                    'north-east' => 'North-East',
+                    'north-west' => 'North-West',
                     // Add more regions if necessary
                 ])
                 ->rules('required'),
