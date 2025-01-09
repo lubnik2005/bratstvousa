@@ -6,7 +6,6 @@ import {
 	eventSchemas,
 	youthEvents
 } from '$lib/server/db/schema';
-import { eq } from 'drizzle-orm/expressions';
 import { unionAll } from 'drizzle-orm/mysql-core';
 import { lte, desc, asc, or, sql, eq, gte, isNull, and, lt } from 'drizzle-orm';
 
