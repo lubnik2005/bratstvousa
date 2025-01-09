@@ -25,16 +25,18 @@
 <div class="d-lg-none container mt-5">
 	<!-- Church Grid -->
 	<div class="row">
-    <h3>Выбрать Регион</h3>
-		<select
-			class="form-select m-3"
-			bind:value={selectedRegion}
-			on:change={() => filterByRegion(selectedRegion)}
-		>
-			{#each regions as region}
-				<option value={region.key}>{region.label}</option>
-			{/each}
-		</select>
+		<h3>Выбрать Регион</h3>
+		<div class="col-md-12 col-sm-12 mb-4">
+			<select
+				class="form-select"
+				bind:value={selectedRegion}
+				on:change={() => filterByRegion(selectedRegion)}
+			>
+				{#each regions as region}
+					<option value={region.key}>{region.label}</option>
+				{/each}
+			</select>
+		</div>
 	</div>
 
 	<div class="row">
@@ -99,20 +101,14 @@
 						<td>{church.address_line_1}<br />{church.address_line_2}</td>
 						<td>{church.name_line_1}<br />{church.name_line_2}</td>
 						<td>{church.contact_last_name}<br />{church.contact_first_name}</td>
-						<td
-							>
-              {#if church.phone}
-               <a href={`tel:${church.phone}`}> {church.phone}</a><br />                <!-- content here -->
-              {/if}
-              {#if church.youtube}
-<a href={church.youtube}
-								>Youtube Channel</a
-							>
-
-              {/if}
-
-</td
-						>
+						<td>
+							{#if church.phone}
+								<a href={`tel:${church.phone}`}> {church.phone}</a><br /> <!-- content here -->
+							{/if}
+							{#if church.youtube}
+								<a href={church.youtube}>Youtube Channel</a>
+							{/if}
+						</td>
 					</tr>
 				{/each}
 			</tbody>

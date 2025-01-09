@@ -56,6 +56,16 @@
 	<div class="container">
 		<h1 class="display-3 mb-3">Молодежный отдел</h1>
 
+		<select
+			class="form-select m-3"
+			bind:value={selectedRegion}
+			on:change={() => filterResources(selectedRegion)}
+		>
+			{#each regions as region}
+				<option value={region}>{region.label}</option>
+			{/each}
+		</select>
+
 		<ul class="nav nav-pills d-inline-flex b-5 mt-5">
 			{#each regions as region}
 				<li class="nav-item me-2">
