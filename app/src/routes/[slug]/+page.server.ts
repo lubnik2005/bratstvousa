@@ -26,7 +26,8 @@ export async function load({ params }) {
 					title: eventSchema.title,
 					startAt: eventSchema.startAt,
 					endAt: eventSchema.endAt,
-					slug: eventSchema.slug
+					slug: eventSchema.slug,
+					featured_image: eventSchema.featured_image
 				})
 				.from(eventSchema)
 		)
@@ -38,7 +39,8 @@ export async function load({ params }) {
 			title: sql`result.title`,
 			startAt: sql`result.start_at`,
 			endAt: sql`result.end_at`,
-			slug: sql`result.slug`
+			slug: sql`result.slug`,
+			featured_image: sql`result.featured_image`
 		})
 		.from(unionQuery)
 		.where(eq(sql`result.slug`, slug)) // Correctly reference the aliased column
