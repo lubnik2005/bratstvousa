@@ -3,11 +3,11 @@
 namespace App\Nova;
 
 use Illuminate\Http\Request;
+use Laravel\Nova\Fields\Date;
 use Laravel\Nova\Fields\ID;
-use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Fields\Image;
 use Laravel\Nova\Fields\Slug;
-use Laravel\Nova\Fields\Date;
+use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Fields\Trix;
 use Laravel\Nova\Http\Requests\NovaRequest;
 
@@ -39,19 +39,20 @@ class YouthNewsArticle extends Resource
     /**
      * Get the fields displayed by the resource.
      *
-     * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
      * @return array
      */
     public function fields(NovaRequest $request)
     {
+        $disk = config('filesystems.default');
+
         return [
             ID::make()->sortable(),
             Text::make('Title')->rules('required')->required(),
             Slug::make('Slug')->from('title'),
             Text::make('Description'),
             Date::make('Date'),
-            Image::make('Thumbnail')->disk('upfiles'),
-            Trix::make('Content')->withFiles('upfiles'),
+            Image::make('Thumbnail')->disk($disk),
+            Trix::make('Content')->withFiles($disk),
 
         ];
     }
@@ -59,7 +60,6 @@ class YouthNewsArticle extends Resource
     /**
      * Get the cards available for the request.
      *
-     * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
      * @return array
      */
     public function cards(NovaRequest $request)
@@ -70,7 +70,6 @@ class YouthNewsArticle extends Resource
     /**
      * Get the filters available for the resource.
      *
-     * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
      * @return array
      */
     public function filters(NovaRequest $request)
@@ -81,7 +80,6 @@ class YouthNewsArticle extends Resource
     /**
      * Get the lenses available for the resource.
      *
-     * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
      * @return array
      */
     public function lenses(NovaRequest $request)
@@ -92,7 +90,6 @@ class YouthNewsArticle extends Resource
     /**
      * Get the actions available for the resource.
      *
-     * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
      * @return array
      */
     public function actions(NovaRequest $request)

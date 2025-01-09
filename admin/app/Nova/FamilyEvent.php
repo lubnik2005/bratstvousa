@@ -43,6 +43,7 @@ class FamilyEvent extends Resource
      */
     public function fields(NovaRequest $request): array
     {
+        $disk = config('filesystems.default');
         return [
             ID::make()->sortable(),
             Text::make('Title')->rules('required')->required(),
@@ -51,9 +52,9 @@ class FamilyEvent extends Resource
             Date::make('Start At'),
             Select::make('Region')->options(['all' => 'Все', 'central' => 'Центральный регион', 'east' => 'Восточный регион', 'california' => 'Калифорнийский регион', 'north-east' => 'Северо-Западный регион']),
             Date::make('End At'),
-            Image::make('Featured Event')->disk('upfiles'),
-            Image::make('Thumbnail')->disk('upfiles'),
-            Trix::make('Content')->withFiles('upfiles'),
+            Image::make('Featured Image')->disk($disk),
+            Image::make('Thumbnail')->disk($disk),
+            Trix::make('Content')->withFiles($disk),
 
         ];
     }

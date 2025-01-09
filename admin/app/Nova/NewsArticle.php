@@ -43,14 +43,15 @@ class NewsArticle extends Resource
      */
     public function fields(NovaRequest $request)
     {
+        $disk = config('filesystems.default');
         return [
             ID::make()->sortable(),
             Text::make('Title')->rules('required')->required(),
             Slug::make('Slug')->from('title'),
             Text::make('Description'),
             Date::make('Date'),
-            Image::make('Featured Image', 'featured_image')->disk('upfiles')->path('upfiles/news'),
-            Image::make('Thumbnail')->disk('upfiles'),
+            Image::make('Featured Image', 'featured_image')->disk($disk)->path('upfiles/news'),
+            Image::make('Thumbnail')->disk($disk),
             Trix::make('Content')->withFiles('upfiles'),
 
         ];

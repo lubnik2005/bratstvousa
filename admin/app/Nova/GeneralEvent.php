@@ -44,6 +44,7 @@ class GeneralEvent extends Resource
     public function fields(NovaRequest $request): array
     {
 
+        $disk = config('filesystems.default');
         return [
             ID::make()->sortable(),
             Text::make('Title')->rules('required')->required(),
@@ -57,8 +58,8 @@ class GeneralEvent extends Resource
             // Images::make('Main image', 'main') // second parameter is the media collection name
             // ->conversionOnIndexView('thumb') // conversion used to display the image
             // ->croppingConfigs(['aspectRatio' => 16/9])->mustCrop(), // validation rules
-            Image::make('Featured Event')->disk('upfiles'),
-            Image::make('Thumbnail')->disk('upfiles'),
+            Image::make('Featured Image')->disk($disk),
+            Image::make('Thumbnail')->disk($disk),
             Trix::make('Content')->withFiles('upfiles'),
         ];
     }
