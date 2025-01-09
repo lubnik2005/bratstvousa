@@ -2,9 +2,9 @@ import { db } from '$lib/server/db';
 import { youthEvents } from '$lib/server/db/schema';
 import { env } from '$env/dynamic/private';
 
-import { eq, lt, gte, or, and, isNull } from 'drizzle-orm/expressions';
+import { lt, gte, or, and, isNull } from 'drizzle-orm/expressions';
 
-export async function load({ params }) {
+export async function load() {
 	const today = new Date().toISOString(); // Convert Date to ISO string
 
 	// Archive: Events where `endAt` is before today (or `startAt` if `endAt` is null)
@@ -19,9 +19,6 @@ export async function load({ params }) {
 		)
 		.orderBy(youthEvents.startAt, 'desc'); // Order archive descending
 
-	const allEvents = await db.select().from(youthEvents).orderBy(youthEvents.startAt, 'desc'); // Order archive descending
-
-	// Upcoming/Ongoing: Events where `startAt` is today or later, or are ongoing (`endAt` is after today)
 	const upcomingEvents = await db
 		.select()
 		.from(youthEvents)
@@ -31,7 +28,6 @@ export async function load({ params }) {
 	return {
 		upcomingEvents,
 		archivedEvents,
-		allEvents,
 		media_url: env.MEDIA_URL
 	};
 }
