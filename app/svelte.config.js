@@ -3,7 +3,6 @@ import { mdsvex } from 'mdsvex';
 // import adapter from '@sveltejs/adapter-auto';
 // import adapter from "svelte-kit-sst";
 
-
 import adapter from '@sveltejs/adapter-node';
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 
