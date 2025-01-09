@@ -16,10 +16,9 @@ export const session = pgTable('session', {
 });
 
 export type Session = typeof session.$inferSelect;
-
 export type User = typeof user.$inferSelect;
 
-export const youthEvents = pgTable('youth_events', {
+export const Event = {
 	id: serial('id').primaryKey(),
 	title: varchar('title', { length: 255 }).notNull(),
 	slug: varchar('slug', { length: 255 }),
@@ -31,53 +30,11 @@ export const youthEvents = pgTable('youth_events', {
 	featured_image: varchar('featured_image'),
 	startAt: date('start_at'), // Use `timestamp` if storing as datetime
 	endAt: varchar('end_at', { length: 255 }), // Use `timestamp` if storing as datetime
-	createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull()
-	// updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull().onUpdateNow()
-});
-
-export const youthNewsArticles = pgTable('youth_news_articles', {
-	id: serial('id').primaryKey(),
-	title: varchar('title', { length: 255 }), // Adjust length as needed
-	slug: varchar('slug', { length: 255 }),
-	authorId: integer('author_id'),
-	description: varchar('description', { length: 255 }),
-	content: text('content'),
-	thumbnail: text('thumbnail'),
-	date: varchar('date', { length: 255 }), // Adjust length as needed
-	createdAt: timestamp('created_at').defaultNow(),
-	updatedAt: timestamp('updated_at').defaultNow()
-});
-
-export const childrensEvents = pgTable('childrens_events', {
-	id: serial('id').primaryKey(),
-	title: varchar('title', { length: 255 }).notNull(),
-	slug: varchar('slug', { length: 255 }),
-	authorId: integer('author_id'),
-	description: varchar('description', { length: 255 }),
-	content: text('content'),
-	thumbnail: varchar('thumbnail'),
-	featured_image: varchar('featured_image'),
-	startAt: date('start_at'), // Use `timestamp` if storing as datetime
-	endAt: varchar('end_at', { length: 255 }), // Use `timestamp` if storing as datetime
-	createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull()
-	// updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull().onUpdateNow()
-});
-
-export const bibleEducationEvents = pgTable('bible_education_events', {
-	id: serial('id').primaryKey(),
-	title: varchar('title', { length: 255 }).notNull(),
-	slug: varchar('slug', { length: 255 }),
-	authorId: integer('author_id'),
-	description: varchar('description', { length: 255 }),
-	content: text('content'),
-	thumbnail: text('thumbnail'),
-	startAt: date('start_at'), // Use `timestamp` if storing as datetime
-	endAt: varchar('end_at', { length: 255 }), // Use `timestamp` if storing as datetime
 	createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
-	updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull() //.onUpdateNow()
-});
+	updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull()
+};
 
-export const childrensNewsArticles = pgTable('childrens_news_articles', {
+const Article = {
 	id: serial('id').primaryKey(),
 	title: varchar('title', { length: 255 }), // Adjust length as needed
 	slug: varchar('slug', { length: 255 }),
@@ -88,21 +45,21 @@ export const childrensNewsArticles = pgTable('childrens_news_articles', {
 	date: varchar('date', { length: 255 }), // Adjust length as needed
 	createdAt: timestamp('created_at').defaultNow(),
 	updatedAt: timestamp('updated_at').defaultNow()
+};
+
+export const youthEvents = pgTable('youth_events', Event);
+export const childrensEvents = pgTable('childrens_events', Event);
+export const bibleEducationEvents = pgTable('bible_education_events', Event);
+export const generalEvents = pgTable('general_events', {
+	...Event,
+	comment: varchar('comment', { length: 255 })
 });
 
-export const newsArticles = pgTable('news_articles', {
-	id: serial('id').primaryKey(),
-	title: varchar('title', { length: 255 }),
-	slug: varchar('slug', { length: 255 }),
-	featured_image: varchar('featured_image', { length: 255 }),
-	thumbnail: varchar('thumbnail', { length: 255 }),
-	authorId: integer('author_id'),
-	description: varchar('description', { length: 255 }),
-	content: text('content'),
-	date: date('date'), // Correct type for storing dates
-	createdAt: timestamp('created_at').defaultNow(),
-	updatedAt: timestamp('updated_at').defaultNow()
-});
+// eventSchemas exist for locations where all events are displayed.
+export const eventSchemas = [youthEvents, childrensEvents, bibleEducationEvents, generalEvents];
+export const youthNewsArticles = pgTable('youth_news_articles', Article);
+export const childrensNewsArticles = pgTable('childrens_news_articles', Article);
+export const newsArticles = pgTable('news_articles', Article);
 
 export const childrensFiles = pgTable('childrens_files', {
 	id: serial('id').primaryKey(),
