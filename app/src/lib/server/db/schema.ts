@@ -51,13 +51,16 @@ const Article = {
 export const youthEvents = pgTable('youth_events', Event);
 export const childrensEvents = pgTable('childrens_events', Event);
 export const bibleEducationEvents = pgTable('bible_education_events', Event);
+export const gospelEvents = pgTable('gospel_events', Event);
+export const musicEvents = pgTable('music_events', Event);
+export const familyEvents = pgTable('family_events', Event);
 export const generalEvents = pgTable('general_events', {
 	...Event,
 	comment: varchar('comment', { length: 255 })
 });
 
 // eventSchemas exist for locations where all events are displayed.
-export const eventSchemas = [youthEvents, childrensEvents, bibleEducationEvents, generalEvents];
+export const eventSchemas = [youthEvents, childrensEvents, bibleEducationEvents, generalEvents, gospelEvents, musicEvents, familyEvents];
 export const youthNewsArticles = pgTable('youth_news_articles', Article);
 export const childrensNewsArticles = pgTable('childrens_news_articles', Article);
 export const newsArticles = pgTable('news_articles', Article);
