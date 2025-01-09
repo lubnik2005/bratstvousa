@@ -25,6 +25,7 @@
 <div class="d-lg-none container mt-5">
 	<!-- Church Grid -->
 	<div class="row">
+    <h3>Выбрать Регион</h3>
 		<select
 			class="form-select m-3"
 			bind:value={selectedRegion}
@@ -34,7 +35,9 @@
 				<option value={region.key}>{region.label}</option>
 			{/each}
 		</select>
+	</div>
 
+	<div class="row">
 		{#each data.churches.filter((church) => selectedRegion == 'all' || church.region === selectedRegion) as church}
 			<div class="col-md-4 col-sm-6">
 				<div class="church-card">
@@ -82,9 +85,8 @@
 					<th>Город</th>
 					<th>Адрес</th>
 					<th>Название</th>
-					<!-- <th>Ригион</th> -->
 					<th>Контакт</th>
-					<th>Телефон</th>
+					<th></th>
 				</tr>
 			</thead>
 			<tbody>
@@ -93,14 +95,23 @@
 					.sort() as church}
 					<tr>
 						<td>{church.state}</td>
-						<td>{church.city.split(',')[0]}</td>
+						<td>{church.city?.split(',')[0]}</td>
 						<td>{church.address_line_1}<br />{church.address_line_2}</td>
 						<td>{church.name_line_1}<br />{church.name_line_2}</td>
 						<td>{church.contact_last_name}<br />{church.contact_first_name}</td>
 						<td
-							><a href={`tel:${church.phone}`}> {church.phone}</a><br /><a href={church.youtube}
+							>
+              {#if church.phone}
+               <a href={`tel:${church.phone}`}> {church.phone}</a><br />                <!-- content here -->
+              {/if}
+              {#if church.youtube}
+<a href={church.youtube}
 								>Youtube Channel</a
-							></td
+							>
+
+              {/if}
+
+</td
 						>
 					</tr>
 				{/each}
