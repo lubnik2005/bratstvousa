@@ -35,7 +35,7 @@
 			{/each}
 		</select>
 
-		{#each data.churches.filter((church) => !selectedRegion || church.region === selectedRegion) as church}
+		{#each data.churches.filter((church) => selectedRegion == 'all' || church.region === selectedRegion) as church}
 			<div class="col-md-4 col-sm-6">
 				<div class="church-card">
 					<h4>{church.city}</h4>
@@ -89,7 +89,7 @@
 			</thead>
 			<tbody>
 				{#each data.churches
-					.filter((church) => !selectedRegion || church.region === selectedRegion)
+					.filter((church) => selectedRegion == 'all' || church.region === selectedRegion)
 					.sort() as church}
 					<tr>
 						<td>{church.state}</td>
