@@ -43,11 +43,11 @@
 		{#each data.churches.filter((church) => selectedRegion == 'all' || church.region === selectedRegion) as church}
 			<div class="col-md-4 col-sm-6">
 				<div class="church-card">
-					<h4>{church.city}</h4>
-					<p><strong>Region:</strong> {church.region}</p>
-					<p><strong>Address:</strong> {church.address}</p>
-					<p><strong>Contact:</strong> {church.contact}</p>
-					<p><strong>Phone:</strong> {church.phone}</p>
+					<h4>{church.state}, {church.city}</h4>
+          <p>{church.name_line_1} {church.name_line_2}</p>
+					<p><strong>Address:</strong> {church.address_line_1}, {church.address_line_2}</p>
+					<p><strong>Contact:</strong> {church.contact_first_name} {church.contact_last_name}</p>
+					<p><strong>Phone:</strong> <a href="tel:{church.phone}">{church.phone}</a></p>
 					{#if church.youtube}
 						<p>
 							<a href={church.youtube} target="_blank" rel="noopener noreferrer">
@@ -97,7 +97,7 @@
 					.sort() as church}
 					<tr>
 						<td>{church.state}</td>
-						<td>{church.city?.split(',')[0]}</td>
+						<td>{church.city}</td>
 						<td>{church.address_line_1}<br />{church.address_line_2}</td>
 						<td>{church.name_line_1}<br />{church.name_line_2}</td>
 						<td>{church.contact_last_name}<br />{church.contact_first_name}</td>
