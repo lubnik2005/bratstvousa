@@ -1,6 +1,13 @@
 import { db } from '$lib/server/db';
-import { bibleEducationEvents, childrensEvents, youthEvents } from '$lib/server/db/schema';
+import {
+	Event,
+	bibleEducationEvents,
+	childrensEvents,
+	eventSchemas,
+	youthEvents
+} from '$lib/server/db/schema';
 import { eq } from 'drizzle-orm/expressions';
+import { unionAll } from 'drizzle-orm/mysql-core';
 
 // Array of event table names
 
@@ -10,13 +17,21 @@ export async function load({ params }) {
 	if (!slug) {
 		throw new Error('Slug is required');
 	}
-	const events = (
-		await Promise.all([
-			db.select().from(bibleEducationEvents).where(eq(bibleEducationEvents.slug, params.slug)),
-			db.select().from(childrensEvents).where(eq(childrensEvents.slug, params.slug)),
-			db.select().from(youthEvents).where(eq(youthEvents.slug, params.slug))
-		])
-	).flat();
+	const events = await unionAll(
+		...eventSchemas.map((eventSchema) =>
+			db
+				.select({
+					id: eventSchema.id,
+					title: eventSchema.title,
+					startAt: eventSchema.startAt,
+					endAt: eventSchema.endAt,
+					slug: eventSchema.slug
+				})
+				.from(eventSchema)
+		)
+	)
+		.where(eq(Event.slug, slug))
+		.limit(1);
 
 	return {
 		event: events[0]

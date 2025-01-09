@@ -280,6 +280,101 @@ return [
         ],
 
         // Churches End
+
+        // Gospel Events Start
+        'view gospel_events' => [
+            'display_name' => 'View gospel events',
+            'description' => 'Can view gospel events',
+            'group' => 'Gospel Events',
+        ],
+        'create gospel_events' => [
+            'display_name' => 'Create gospel events',
+            'description' => 'Can create gospel events',
+            'group' => 'Gospel Events',
+        ],
+        'edit gospel_events' => [
+            'display_name' => 'Edit gospel events',
+            'description' => 'Can edit gospel events',
+            'group' => 'Gospel Events',
+        ],
+        'delete gospel_events' => [
+            'display_name' => 'Delete gospel events',
+            'description' => 'Can delete gospel events',
+            'group' => 'Gospel Events',
+        ],
+        // Gospel Events end
+
+        // Family Events start
+        'view family_events' => [
+            'display_name' => 'View family events',
+            'description' => 'Can view family events',
+            'group' => 'Family Events',
+        ],
+        'create family_events' => [
+            'display_name' => 'Create family events',
+            'description' => 'Can create family events',
+            'group' => 'Family Events',
+        ],
+        'edit family_events' => [
+            'display_name' => 'Edit family events',
+            'description' => 'Can edit family events',
+            'group' => 'Family Events',
+        ],
+        'delete family_events' => [
+            'display_name' => 'Delete family events',
+            'description' => 'Can delete family events',
+            'group' => 'Family Events',
+        ],
+
+        // Family Events end
+
+        // Music Events Start
+        'view music_events' => [
+            'display_name' => 'View music events',
+            'description' => 'Can view music events',
+            'group' => 'Music Events',
+        ],
+        'create music_events' => [
+            'display_name' => 'Create music events',
+            'description' => 'Can create music events',
+            'group' => 'Music Events',
+        ],
+        'edit music_events' => [
+            'display_name' => 'Edit music events',
+            'description' => 'Can edit music events',
+            'group' => 'Music Events',
+        ],
+        'delete music_events' => [
+            'display_name' => 'Delete music events',
+            'description' => 'Can delete music events',
+            'group' => 'Music Events',
+        ],
+        // Music Events end
+
+        // General Events start
+        'view general_events' => [
+            'display_name' => 'View general events',
+            'description' => 'Can view general events',
+            'group' => 'General Events',
+        ],
+        'create general_events' => [
+            'display_name' => 'Create general events',
+            'description' => 'Can create general events',
+            'group' => 'General Events',
+        ],
+        'edit general_events' => [
+            'display_name' => 'Edit general events',
+            'description' => 'Can edit general events',
+            'group' => 'General Events',
+        ],
+        'delete general_events' => [
+            'display_name' => 'Delete general events',
+            'description' => 'Can delete general events',
+            'group' => 'General Events',
+        ],
+
+        // General Events end
+
     ],
 
 ];

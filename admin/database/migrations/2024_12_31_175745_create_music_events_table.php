@@ -11,15 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('youth_events', function (Blueprint $table) {
+        Schema::create('music_events', function (Blueprint $table) {
             $table->id();
             $table->string('title');
-            $table->string('title')->nullable();
             $table->string('slug')->nullable();
             $table->unsignedInteger('author_id')->nullable();
             $table->string('description')->nullable();
+            $table->string('region')->nullable();
             $table->text('content')->nullable();
-            $table->text('thumbnail')->nullable();
+            $table->string('thumbnail')->nullable();
+            $table->string('featured_image')->nullable();
             $table->string('start_at')->nullable();
             $table->string('end_at')->nullable();
             $table->timestamps();
@@ -31,6 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('youth_events');
+        Schema::dropIfExists('music_events');
     }
 };

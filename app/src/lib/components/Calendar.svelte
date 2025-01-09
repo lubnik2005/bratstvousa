@@ -6,25 +6,6 @@
 
 	let calendar: Calendar;
 
-	// Define your events
-	const events = [
-		{
-			title: 'Meeting',
-			start: '2024-12-01T10:00:00',
-			end: '2024-12-01T12:00:00',
-			url: 'https://google.com'
-		},
-		{
-			title: 'Lunch',
-			start: '2024-12-02T13:00:00'
-		},
-		{
-			title: 'Conference',
-			start: '2024-12-05',
-			end: '2024-12-07'
-		}
-	];
-
 	onMount(() => {
 		const calendarEl = document.getElementById('calendar')!;
 		calendar = new Calendar(calendarEl, {

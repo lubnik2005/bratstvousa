@@ -1,48 +1,56 @@
 <script lang="ts">
-	import timeGridPlugin from '@fullcalendar/timegrid';
-	import ruLocale from '@fullcalendar/core/locales/ru';
-
-	import { onMount } from 'svelte';
 	import { Calendar } from '@fullcalendar/core';
 	import dayGridPlugin from '@fullcalendar/daygrid';
-	export let data;
+	import timeGridPlugin from '@fullcalendar/timegrid';
+	import ruLocale from '@fullcalendar/core/locales/ru';
+	import { onMount } from 'svelte';
+	import { type Event } from '$lib/server/db/schema';
 
 	let calendar: Calendar;
+	export let events: Event[];
+	// Initialize or update the calendar
+	function updateCalendar() {
+		if (calendar) {
+			calendar.destroy(); // Destroy the existing calendar instance
+		}
 
-	onMount(() => {
-		const calendarEl = document.getElementById('calendar')!;
-		calendar = new Calendar(calendarEl, {
-			plugins: [dayGridPlugin, timeGridPlugin],
-			initialView: 'dayGridMonth',
-			headerToolbar: {
-				left: 'prev,today,next',
-				center: 'title',
-				right: 'dayGridMonth,dayGridWeek,timeGridDay'
-			},
-			locales: [ruLocale],
-			events: data.events.map((e) => ({
-				title: e.title,
-				start: e.startAt,
-				end: e.endAt,
-				url: e.slug
-			})) // Add events here
-		});
-		calendar.render();
-
-		return () => {
-			calendar.destroy(); // Cleanup when the component is unmounted
-		};
-	});
+		const calendarEl = document.getElementById('calendar');
+		console.log({ calendarEl });
+		if (calendarEl) {
+			calendar = new Calendar(calendarEl, {
+				plugins: [dayGridPlugin, timeGridPlugin],
+				initialView: 'dayGridMonth',
+				headerToolbar: {
+					left: 'prev,next',
+					center: 'title',
+					right: 'dayGridMonth,dayGridWeek,timeGridDay'
+				},
+				locales: [ruLocale],
+				events: events.map((e) => ({
+					title: e.title,
+					start: e.startAt,
+					end: e.endAt,
+					url: e.slug
+				}))
+			});
+			calendar.render();
+		}
+	}
+	onMount(() => updateCalendar());
 </script>
-
-}
 
 <div class="container-xxl py-6">
 	<div class="container">
-		<div class="section-header mx-auto mb-5 text-center" style="max-width: 500px;">
-			<h1 class="display-5 mb-3">Календарь</h1>
+		<div class="row g-0 gx-5 align-items-end">
+			<div class="col-lg-5">
+				<div class="section-header mb-5 text-start" style="max-width: 500px;">
+					<h1 class="display-5 mb-3">Календарь</h1>
+				</div>
+			</div>
 		</div>
-		<div id="calendar"></div>
+	</div>
+	<div class="row p-6">
+		<div class="p-6" id="calendar"></div>
 	</div>
 </div>
 

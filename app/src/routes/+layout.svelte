@@ -22,7 +22,7 @@
 					<a class="btn btn-square btn-outline-light rounded-circle me-1" href=""
 						><i class="fab fa-facebook-f"></i></a
 					>
-					<a class="btn btn-square btn-outline-light rounded-circle me-0" href=""
+					<a class="btn btn-square btn-outline-light rounded-circle me-1" href=""
 						><i class="fab fa-instagram"></i></a
 					>
 					<a class="btn btn-square btn-outline-light rounded-circle me-1" href=""

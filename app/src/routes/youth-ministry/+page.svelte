@@ -1,16 +1,12 @@
 <script lang="ts">
 	export let data;
+	import { onMount } from 'svelte';
+	import YouthCalendar from '$lib/components/YouthCalendar.svelte';
 
-	import '@splidejs/svelte-splide/css';
-	import { Splide, SplideSlide } from '@splidejs/svelte-splide';
-	import Header from '$lib/components/Header.svelte';
-	import UpcomingEvents from '$lib/components/UpcomingEvents.svelte';
-	import News from '$lib/components/News.svelte';
-	import Calendar from '$lib/components/Calendar.svelte';
 	const greetings = {
 		all: {
 			greeting:
-				'Юноши... вы сильны, слово Божие в вас пребывает и вы победили лукавого. Это вдохновляющее слово было сказано Апостолом Иоанном. Именно таковой является христианская молодежь проживающая в США. На протяжении вот уже более 20 лет, в объединении совершаются различные служения призывающие молодёжь к следованию за Господом. Моя молитва о том, чтобы Господь благословлял и дальше молодое поколение. Да будет имя Его благословенно вовеки!',
+				'Юноши... вы сильны, слово Божие в вас пребывает и вы победили лукавого. Это вдохновляющее слово было сказано Апостолом Иоанном...',
 			image_url: 'upfiles/page/7ad94a8d166594fb80685eb336010bd455812011.jpg',
 			first_name: 'Вениамин Петрович',
 			last_name: 'Бальжик',
@@ -19,21 +15,19 @@
 		east: {
 			greeting: 'Other greeting',
 			image_url: 'upfiles/page/7ad94a8d166594fb80685eb336010bd455812011.jpg',
-			first_name: 'Fist name ',
+			first_name: 'Fist name',
 			last_name: 'Last Name',
 			email: 'youth@bratstvousa.com'
 		}
 	};
 
-	// Resources data
-	// Filtered resources
 	interface Region {
 		key: string;
 		label: string;
 	}
 
 	const regions: Region[] = [
-		{ key: 'all', label: 'Все Ригионы' },
+		{ key: 'all', label: 'Американское Объединение' },
 		{ key: 'central', label: 'Центральный регион' },
 		{ key: 'east', label: 'Восточный регион' },
 		{ key: 'california', label: 'Калифорнийский регион' },
@@ -42,18 +36,19 @@
 
 	let filteredUpcomingEvents = data.upcomingEvents;
 	let filteredArchivedEvents = data.archivedEvents;
-	let selectedRegion = regions.find((r) => r.key == 'all');
+	let selectedRegion = regions.find((r) => r.key === 'all');
 	let greeting = greetings.all;
 
 	function filterResources(region: Region) {
-		console.log('Filtering resources for region:', region.key);
-		selectedRegion = region.key; // Update the selected region
-
+		selectedRegion = region; // Keep as an object
 		filteredUpcomingEvents = data.upcomingEvents.filter((event) => event.region === region.key);
 		filteredArchivedEvents = data.archivedEvents.filter((event) => event.region === region.key);
-		greeting = greetings[selectedRegion] ?? greetings.all;
+		greeting = greetings[region.key] ?? greetings.all;
 	}
-	filterResources(selectedRegion);
+
+	onMount(() => {
+		if (selectedRegion) filterResources(selectedRegion);
+	});
 </script>
 
 <!-- Page Header Start -->
@@ -65,7 +60,9 @@
 			{#each regions as region}
 				<li class="nav-item me-2">
 					<button
-						class="btn btn-outline-primary border-2 {region.key === selectedRegion ? 'active' : ''}"
+						class="btn btn-outline-primary border-2 {region.key === selectedRegion.key
+							? 'active'
+							: ''}"
 						data-bs-toggle="pill"
 						on:click={() => filterResources(region)}>{region.label}</button
 					>
@@ -175,7 +172,7 @@
 			</div>
 		</div>
 	</div>
-	<Calendar upcomingEvents={data.allEvents} />
+	<YouthCalendar events={filteredUpcomingEvents} />
 {/if}
 
 {#if filteredArchivedEvents.length}

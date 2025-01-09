@@ -116,9 +116,10 @@
 					{#if item.children}
 						<div class="nav-item dropdown">
 							<a
-								href={item.href}
+								href={item?.children.length ? '#' : item.href}
 								class="nav-item nav-link {item.children && 'dropdown-toggle'} active"
-								>{item.title}</a
+								role="button"
+								data-bs-toggle="dropdown">{item.title}</a
 							>
 
 							<div class="dropdown-menu m-0">
