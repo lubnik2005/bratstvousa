@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('youth_events', function (Blueprint $table) {
             $table->id();
             $table->string('title');
+            $table->string('title')->nullable();
             $table->string('slug')->nullable();
             $table->unsignedInteger('author_id')->nullable();
             $table->string('description')->nullable();
