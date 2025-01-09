@@ -60,7 +60,15 @@ export const generalEvents = pgTable('general_events', {
 });
 
 // eventSchemas exist for locations where all events are displayed.
-export const eventSchemas = [youthEvents, childrensEvents, bibleEducationEvents, generalEvents, gospelEvents, musicEvents, familyEvents];
+export const eventSchemas = [
+	youthEvents,
+	childrensEvents,
+	bibleEducationEvents,
+	generalEvents,
+	gospelEvents,
+	musicEvents,
+	familyEvents
+];
 export const youthNewsArticles = pgTable('youth_news_articles', Article);
 export const childrensNewsArticles = pgTable('childrens_news_articles', Article);
 export const newsArticles = pgTable('news_articles', Article);
