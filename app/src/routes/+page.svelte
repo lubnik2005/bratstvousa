@@ -22,7 +22,7 @@
 					<!--     Your browser does not support the video tag. -->
 					<!-- </video> -->
 				</div>
-				<div class="carousel-caption">
+				<div class="d-none d-lg-block carousel-caption">
 					<div class="container">
 						<div class="row justify-content-start">
 							<div class="col-lg-12">
@@ -192,15 +192,6 @@
 		background-color: black; /* Black background for the bars */
 	}
 
-	/* Video wrapper to apply the blue tint */
-	.video-wrapper {
-		position: relative;
-		/* width: 80%; /* Adjust the video width */
-		max-width: 120rem;
-		margin: 0 auto;
-		display: block;
-	}
-
 	/* Apply blue tint as an overlay */
 	.video-wrapper::before {
 		content: '';
@@ -214,12 +205,39 @@
 		pointer-events: none; /* Allow clicks to pass through to the video */
 	}
 
-	.video-wrapper video {
-		display: block;
-		width: 100%; /* Ensure the video fits within the wrapper */
-		z-index: 1; /* Video below the overlay */
-		position: relative;
-	}
+/* General styles for the video wrapper */
+  .video-wrapper {
+        position: relative;
+        max-width: 120rem;
+        margin: 0 auto;
+        display: block;
+        width: 100%;
+        height: auto; /* Default height for larger screens */
+  }
+
+  /* Ensure the video covers the wrapper */
+  .video-wrapper video {
+        display: block;
+        width: 100%; /* Ensure it stretches the width of the wrapper */
+        height: 100%; /* Make it stretch to the full height */
+        object-fit: cover; /* Ensures the video fills the container while cropping edges */
+        z-index: 1; /* Video below the overlay */
+        position: relative;
+  }
+
+  /* Responsive styling for smaller screens */
+  @media (max-width: 768px) {
+        .video-wrapper {
+              height: 80vh; /* Full height of the viewport */
+              width: 100%; /* Full width */
+          }
+  }
+
+
+
+
+
+
 
 	/* Carousel caption styling */
 	.carousel-caption {
