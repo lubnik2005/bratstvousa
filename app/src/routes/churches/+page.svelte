@@ -9,7 +9,6 @@
 
 	const filterByRegion = (region) => {
 		selectedRegion = region;
-		updateMarkers();
 	};
 
 	const regions: Region[] = [
