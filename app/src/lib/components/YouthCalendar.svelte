@@ -21,7 +21,7 @@
 				plugins: [dayGridPlugin, timeGridPlugin],
 				initialView: 'dayGridMonth',
 				headerToolbar: {
-					left: 'prev,next',
+					left: 'prev,today,next',
 					center: 'title',
 					right: 'dayGridMonth,dayGridWeek,timeGridDay'
 				},
