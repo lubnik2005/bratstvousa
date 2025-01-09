@@ -17,7 +17,7 @@
 		{ key: 'central', label: 'Центральный регион' },
 		{ key: 'east', label: 'Восточный регион' },
 		{ key: 'california', label: 'Калифорнийский регион' },
-		{ key: 'north-east', label: 'Северо-Западный регион' }
+		{ key: 'north-west', label: 'Северо-Западный регион' }
 	];
 </script>
 
