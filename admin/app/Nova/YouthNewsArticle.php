@@ -51,8 +51,8 @@ class YouthNewsArticle extends Resource
             Slug::make('Slug')->from('title'),
             Text::make('Description'),
             Date::make('Date'),
-            Image::make('Thumbnail')->disk($disk),
-            Trix::make('Content')->withFiles($disk),
+            Image::make('Thumbnail')->disk($disk)->path('/upfiles/page'),
+            Trix::make('Content')->withFiles($disk)->path('/upfiles/page'),
 
         ];
     }

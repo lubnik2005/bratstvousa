@@ -51,7 +51,7 @@ class NewsArticle extends Resource
             Text::make('Description'),
             Date::make('Date'),
             Image::make('Featured Image', 'featured_image')->disk($disk)->path('upfiles/news'),
-            Image::make('Thumbnail')->disk($disk),
+            Image::make('Thumbnail')->disk($disk)->path('/upfiles/page'),
             Trix::make('Content')->withFiles('upfiles'),
 
         ];

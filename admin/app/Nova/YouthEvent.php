@@ -78,7 +78,7 @@ class YouthEvent extends Resource
             //         }
             //     }),
 
-            Image::make('Thumbnail')->disk($disk),
+            Image::make('Thumbnail')->disk($disk)->path('/upfiles/page'),
             Trix::make('Content')->withFiles($disk),
         ];
     }

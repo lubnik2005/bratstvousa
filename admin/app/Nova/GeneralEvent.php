@@ -58,8 +58,8 @@ class GeneralEvent extends Resource
             // Images::make('Main image', 'main') // second parameter is the media collection name
             // ->conversionOnIndexView('thumb') // conversion used to display the image
             // ->croppingConfigs(['aspectRatio' => 16/9])->mustCrop(), // validation rules
-            Image::make('Featured Image')->disk($disk),
-            Image::make('Thumbnail')->disk($disk),
+            Image::make('Featured Image')->disk($disk)->path('/upfiles/page'),
+            Image::make('Thumbnail')->disk($disk)->path('/upfiles/page'),
             Trix::make('Content')->withFiles('upfiles'),
         ];
     }
