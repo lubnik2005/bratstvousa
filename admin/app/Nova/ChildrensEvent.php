@@ -4,9 +4,9 @@ namespace App\Nova;
 
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\Date;
-use Laravel\Nova\Fields\Select;
 use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\Image;
+use Laravel\Nova\Fields\Select;
 use Laravel\Nova\Fields\Slug;
 use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Fields\Trix;
@@ -45,6 +45,7 @@ class ChildrensEvent extends Resource
     public function fields(NovaRequest $request)
     {
         $disk = config('filesystems.default');
+
         return [
             ID::make()->sortable(),
             Text::make('Title')->rules('required')->required(),

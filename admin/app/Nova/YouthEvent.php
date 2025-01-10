@@ -2,9 +2,9 @@
 
 namespace App\Nova;
 
-use \Ebess\AdvancedNovaMediaLibrary\Fields\Images;
+use Ebess\AdvancedNovaMediaLibrary\Fields\Images;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Laravel\Nova\Fields\Date;
 use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\Image;
@@ -47,6 +47,7 @@ class YouthEvent extends Resource
     public function fields(NovaRequest $request)
     {
         $disk = config('filesystems.default');
+
         return [
             ID::make()->sortable(),
             Text::make('Title')->rules('required')->required(),
@@ -59,7 +60,24 @@ class YouthEvent extends Resource
             // Images::make('Main image', 'main') // second parameter is the media collection name
             // ->conversionOnIndexView('thumb') // conversion used to display the image
             // ->croppingConfigs(['aspectRatio' => 16/9])->mustCrop(), // validation rules
-            Image::make('Featured Image')->disk($disk),
+            // Image::make('Featured Image')->disk($disk),
+            Image::make('Featured Image', 'featured_image')->disk($disk)->path('/upfiles/page'),
+            // Image::make('Featured Image', 'featured_image')
+            //     ->store(function (NovaRequest $request, $model) {
+            //         try {
+            //             Storage::disk('s3')->put('test_file.txt', 'This is a test');
+            //             // dd( $request->file('featured_image')->store('look_here/some_id_thing.png', 's3'));
+            //             $model->featured_image = $request->file('featured_image')->store('/look_here', 's3');
+            //             $model->save(); // Save the model if the upload was successful
+            //
+            //             // Success
+            //             return response()->json(['success' => true, 'message' => 'File uploaded successfully']);
+            //         } catch (\Exception $e) {
+            //             // Failure
+            //             return response()->json(['success' => false, 'message' => 'File upload failed', 'error' => $e->getMessage()], 500);
+            //         }
+            //     }),
+
             Image::make('Thumbnail')->disk($disk),
             Trix::make('Content')->withFiles($disk),
         ];
