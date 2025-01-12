@@ -1,6 +1,7 @@
+import { env } from '$env/dynamic/private';
 import { db } from '$lib/server/db';
-import { newsArticles } from '$lib/server/db/schema';
-import { eq } from 'drizzle-orm';
+import { medias, newsArticles } from '$lib/server/db/schema';
+import { and, eq } from 'drizzle-orm';
 
 export async function load({ params }) {
 	const news_articles = await db
@@ -9,9 +10,36 @@ export async function load({ params }) {
 		.where(eq(newsArticles.slug, params.slug));
 	const news_article = news_articles[0];
 
+	const images = await db
+		.select()
+		.from(medias)
+		.where(
+			and(
+				eq(medias.modelType, 'App\\Models\\NewsArticle'),
+				eq(medias.modelId, news_article.id),
+				eq(medias.collectionName, 'gallery')
+			)
+		);
+
+	const audios = await db
+		.select()
+		.from(medias)
+		.where(
+			and(
+				eq(medias.modelType, 'App\\Models\\NewsArticle'),
+				eq(medias.modelId, news_article.id),
+				eq(medias.collectionName, 'playlist')
+			)
+		);
+
+
+
 	//     ??.where(eq(newsArticles.slug, params.slug)))[0] ??
 	// null;
 	return {
-		news_article
+		media_url: env.MEDIA_URL,
+		news_article,
+		images,
+    audios,
 	};
 }
