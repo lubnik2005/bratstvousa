@@ -1,8 +1,7 @@
 <script>
 	import Header from '$lib/components/Header.svelte';
 	import { onMount } from 'svelte';
-  import 'glightbox/dist/css/glightbox.css';
-
+	import 'glightbox/dist/css/glightbox.css';
 
 	export let data;
 
@@ -15,9 +14,8 @@
 			loop: true,
 			openEffect: 'zoom',
 			closeEffect: 'fade',
-			slideEffect: 'slide',
+			slideEffect: 'slide'
 		});
-    console.log("Lightbox initialized: ", lightbox);
 	});
 </script>
 
@@ -35,7 +33,7 @@
 	{@html data.news_article.content}
 </div>
 
-{#if data?.images?.length}
+{#if data?.images?.length > 0}
 	<div class="container-xxl py-5">
 		<div class="container">
 			<div class="row g-0 gx-5 align-items-end">
@@ -50,10 +48,11 @@
 		<div class="container">
 			<div class="gallightbox">
 				{#each data.images as image}
-					<a 
-            href="{data.media_url}{image.id}/{image.fileName}" 
-            class="glightbox" 
-            data-gallery="gallery">
+					<a
+						href="{data.media_url}{image.id}/{image.fileName}"
+						class="glightbox"
+						data-gallery="gallery"
+					>
 						<img
 							src="{data.media_url}{image.id}/conversions/{image.name}-gallery_thumbnails.jpg"
 							alt={image.fileName}
@@ -65,13 +64,30 @@
 	</div>
 {/if}
 
-{#if data?.audios}
-  {#each data.audios as audio}
-    <audio controls>
-      <source src="{data.media_url}{audio.id}/{audio.fileName}" type="{audio.mime_type}">
-      Your browser does not support the audio element.
-    </audio>
-  {/each}
+{#if data?.audios.length}
+	<div class="container-xxl py-5">
+		<div class="container">
+			<div class="row g-0 gx-5 align-items-end">
+				<div class="col-lg-5">
+					<div class="section-header mb-5 text-start" style="max-width: 500px;">
+						<h1 class="display-5 mb-3">Аудио Галерия</h1>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="row">
+			{#each data.audios as audio}
+				<div class="col-lg-5" style="outline:solid red 1px">
+					<h3>{audio.fileName}</h3>
+					<audio controls style="width:100%">
+						<source src="{data.media_url}{audio.id}/{audio.fileName}" type={audio.mime_type} />
+						Your browser does not support the audio element.
+					</audio>
+				</div>
+			{/each}
+		</div>
+	</div>
 {/if}
 
 <style>
@@ -87,7 +103,9 @@
 		border-radius: 10px;
 		overflow: hidden;
 		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-		transition: transform 0.3s, box-shadow 0.3s;
+		transition:
+			transform 0.3s,
+			box-shadow 0.3s;
 	}
 
 	.gallightbox a:hover {
