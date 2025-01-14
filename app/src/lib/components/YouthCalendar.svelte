@@ -15,7 +15,6 @@
 		}
 
 		const calendarEl = document.getElementById('calendar');
-		console.log({ calendarEl });
 		if (calendarEl) {
 			calendar = new Calendar(calendarEl, {
 				plugins: [dayGridPlugin, timeGridPlugin],

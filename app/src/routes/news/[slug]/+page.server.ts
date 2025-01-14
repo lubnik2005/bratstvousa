@@ -32,14 +32,12 @@ export async function load({ params }) {
 			)
 		);
 
-
-
 	//     ??.where(eq(newsArticles.slug, params.slug)))[0] ??
 	// null;
 	return {
 		media_url: env.MEDIA_URL,
 		news_article,
 		images,
-    audios,
+		audios
 	};
 }
