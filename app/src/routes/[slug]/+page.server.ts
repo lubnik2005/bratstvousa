@@ -12,8 +12,7 @@ import { lte, desc, asc, or, sql, eq, gte, isNull, and, lt } from 'drizzle-orm';
 // Array of event table names
 
 // Load function
-export async function load({ params }) {
-	const slug = params.slug; // Get the slug from params
+export async function load({ params: { slug } }: {params: {slug: 'string'}}) {
 	if (!slug) {
 		throw new Error('Slug is required');
 	}
@@ -27,7 +26,8 @@ export async function load({ params }) {
 					startAt: eventSchema.startAt,
 					endAt: eventSchema.endAt,
 					slug: eventSchema.slug,
-					featured_image: eventSchema.featured_image
+					featured_image: eventSchema.featuredImage,
+					content: eventSchema.content
 				})
 				.from(eventSchema)
 		)
@@ -40,7 +40,8 @@ export async function load({ params }) {
 			startAt: sql`result.start_at`,
 			endAt: sql`result.end_at`,
 			slug: sql`result.slug`,
-			featured_image: sql`result.featured_image`
+			featured_image: sql`result.featured_image`,
+			content: sql`result.content`
 		})
 		.from(unionQuery)
 		.where(eq(sql`result.slug`, slug)) // Correctly reference the aliased column

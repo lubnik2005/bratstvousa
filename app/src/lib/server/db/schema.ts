@@ -1,4 +1,13 @@
-import { pgTable, serial, text, integer, timestamp, varchar, date } from 'drizzle-orm/pg-core';
+import {
+	pgTable,
+	serial,
+	text,
+	integer,
+	timestamp,
+	varchar,
+	date,
+	json
+} from 'drizzle-orm/pg-core';
 
 export const user = pgTable('user', {
 	id: text('id').primaryKey(),
@@ -27,7 +36,7 @@ export const Event = {
 	content: text('content'),
 	region: varchar('region', { length: 255 }).notNull(),
 	thumbnail: varchar('thumbnail'),
-	featured_image: varchar('featured_image'),
+	featuredImage: varchar('featured_image'),
 	startAt: date('start_at'), // Use `timestamp` if storing as datetime
 	endAt: varchar('end_at', { length: 255 }), // Use `timestamp` if storing as datetime
 	createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
@@ -43,10 +52,31 @@ const Article = {
 	content: text('content'),
 	thumbnail: text('thumbnail'),
 	featured_image: varchar('featured_image', { length: 255 }),
-	date: varchar('date', { length: 255 }), // Adjust length as needed
+	date: date('date'), // Adjust length as needed
 	createdAt: timestamp('created_at').defaultNow(),
 	updatedAt: timestamp('updated_at').defaultNow()
 };
+
+export const medias = pgTable('media', {
+	id: serial('id').primaryKey(),
+	modelType: varchar('model_type', { length: 255 }).notNull(),
+	modelId: integer('model_id').notNull(),
+	uuid: varchar('uuid', { length: 255 }).notNull(),
+	collectionName: varchar('collection_name', { length: 255 }).notNull(),
+	name: varchar('name', { length: 255 }).notNull(),
+	fileName: varchar('file_name', { length: 255 }).notNull(),
+	mimeType: varchar('mime_type', { length: 255 }).notNull(),
+	disk: varchar('disk', { length: 255 }).notNull(),
+	conversionsDisk: varchar('conversions_disk', { length: 255 }).notNull(),
+	size: integer('size').notNull(),
+	manipulations: json('manipulations').notNull(),
+	customProperties: json('custom_properties').notNull(),
+	generatedConversions: json('generated_conversions').notNull(),
+	responsiveImages: json('responsive_images').notNull(),
+	orderColumn: integer('order_column'),
+	createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+	updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow()
+});
 
 export const youthEvents = pgTable('youth_events', Event);
 export const childrensEvents = pgTable('childrens_events', Event);
@@ -63,11 +93,11 @@ export const generalEvents = pgTable('general_events', {
 export const eventSchemas = [
 	youthEvents,
 	childrensEvents,
-	bibleEducationEvents,
-	generalEvents,
-	gospelEvents,
-	musicEvents,
-	familyEvents
+	// bibleEducationEvents,
+	// generalEvents,
+	// gospelEvents,
+	// musicEvents,
+	// familyEvents
 ];
 export const youthNewsArticles = pgTable('youth_news_articles', Article);
 export const childrensNewsArticles = pgTable('childrens_news_articles', Article);
