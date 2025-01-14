@@ -21,8 +21,8 @@ return new class extends Migration
             $table->text('content')->nullable();
             $table->string('thumbnail')->nullable();
             $table->string('featured_image')->nullable();
-            $table->string('start_at')->nullable();
-            $table->string('end_at')->nullable();
+            $table->date('start_at')->nullable();
+            $table->date('end_at')->nullable();
             $table->timestamps();
         });
     }
