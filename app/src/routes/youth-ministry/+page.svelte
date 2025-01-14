@@ -13,10 +13,11 @@
 			email: 'youth@bratstvousa.com'
 		},
 		east: {
-			greeting: 'Other greeting',
+			greeting:
+				'Юноши... вы сильны, слово Божие в вас пребывает и вы победили лукавого. Это вдохновляющее слово было сказано Апостолом Иоанном...',
 			image_url: 'upfiles/page/7ad94a8d166594fb80685eb336010bd455812011.jpg',
-			first_name: 'Fist name',
-			last_name: 'Last Name',
+			first_name: 'Вениамин Петрович',
+			last_name: 'Бальжик',
 			email: 'youth@bratstvousa.com'
 		}
 	};
@@ -57,7 +58,7 @@
 		<h1 class="display-3 mb-3">Молодежный отдел</h1>
 
 		<select
-			class="form-select m-3"
+			class="d-lg-none form-select m-3"
 			bind:value={selectedRegion}
 			on:change={() => filterResources(selectedRegion)}
 		>
@@ -66,7 +67,7 @@
 			{/each}
 		</select>
 
-		<ul class="nav nav-pills d-inline-flex b-5 mt-5">
+		<ul class="nav nav-pills d-none d-lg-inline-flex b-5 mt-5">
 			{#each regions as region}
 				<li class="nav-item me-2">
 					<button
