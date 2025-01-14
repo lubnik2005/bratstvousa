@@ -102,10 +102,10 @@
 	<div class="container my-5">
 		<div class="d-flex align-items-center justify-content-between bg-light rounded p-4 shadow-sm">
 			<!-- Event Image -->
-			{#if data.events[0]?.featured_image}
+			{#if data.events[0]?.featuredImage}
 				<div class="event-image me-4">
 					<img
-						src="{data.media_url}{data.events[0].featured_image}"
+						src="{data.media_url}{data.events[0].featuredImage}"
 						alt={data.events[0].title}
 						class="rounded"
 						style="width: 150px; height: auto;"
@@ -205,39 +205,33 @@
 		pointer-events: none; /* Allow clicks to pass through to the video */
 	}
 
-/* General styles for the video wrapper */
-  .video-wrapper {
-        position: relative;
-        max-width: 120rem;
-        margin: 0 auto;
-        display: block;
-        width: 100%;
-        height: auto; /* Default height for larger screens */
-  }
+	/* General styles for the video wrapper */
+	.video-wrapper {
+		position: relative;
+		max-width: 120rem;
+		margin: 0 auto;
+		display: block;
+		width: 100%;
+		height: auto; /* Default height for larger screens */
+	}
 
-  /* Ensure the video covers the wrapper */
-  .video-wrapper video {
-        display: block;
-        width: 100%; /* Ensure it stretches the width of the wrapper */
-        height: 100%; /* Make it stretch to the full height */
-        object-fit: cover; /* Ensures the video fills the container while cropping edges */
-        z-index: 1; /* Video below the overlay */
-        position: relative;
-  }
+	/* Ensure the video covers the wrapper */
+	.video-wrapper video {
+		display: block;
+		width: 100%; /* Ensure it stretches the width of the wrapper */
+		height: 100%; /* Make it stretch to the full height */
+		object-fit: cover; /* Ensures the video fills the container while cropping edges */
+		z-index: 1; /* Video below the overlay */
+		position: relative;
+	}
 
-  /* Responsive styling for smaller screens */
-  @media (max-width: 768px) {
-        .video-wrapper {
-              height: 80vh; /* Full height of the viewport */
-              width: 100%; /* Full width */
-          }
-  }
-
-
-
-
-
-
+	/* Responsive styling for smaller screens */
+	@media (max-width: 768px) {
+		.video-wrapper {
+			height: 80vh; /* Full height of the viewport */
+			width: 100%; /* Full width */
+		}
+	}
 
 	/* Carousel caption styling */
 	.carousel-caption {

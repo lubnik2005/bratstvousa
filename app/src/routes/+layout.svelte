@@ -1,7 +1,30 @@
 <script lang="ts">
 	import MainNav from '$lib/components/MainNav.svelte';
+	import { onMount } from 'svelte';
 	export let data;
 	export let children;
+	onMount(() => {
+		// Fixed Navbar
+		window.addEventListener('scroll', () => {
+			const fixedTop: HTMLElement | null = document.querySelector('.fixed-top');
+			if (!fixedTop) return;
+			if (window.innerWidth < 992) {
+				if (window.scrollY > 45) {
+					fixedTop.classList.add('bg-white', 'shadow');
+				} else {
+					fixedTop.classList.remove('bg-white', 'shadow');
+				}
+			} else {
+				if (window.scrollY > 45) {
+					fixedTop.classList.add('bg-white', 'shadow');
+					fixedTop.style.top = '0';
+				} else {
+					fixedTop.classList.remove('bg-white', 'shadow');
+					fixedTop.style.top = '0';
+				}
+			}
+		});
+	});
 </script>
 
 <MainNav media_url={data.media_url} />
@@ -9,7 +32,7 @@
 {@render children()}
 
 <!-- Footer Start -->
-<div class="container-fluid bg-dark footer mt-5 pt-5">
+<div class="container-fluid bg-dark footer mt-0 pt-5">
 	<div class="container py-5">
 		<div class="row g-5">
 			<div class="col-lg-3 col-md-6">
@@ -19,31 +42,48 @@
 					<!-- <a class="btn btn-square btn-outline-light rounded-circle me-1" href="" -->
 					<!-- 	><i class="fab fa-twitter"></i></a -->
 					<!-- > -->
-					<a class="btn btn-square btn-outline-light rounded-circle me-1" href=""
-						><i class="fab fa-facebook-f"></i></a
-					>
-					<a class="btn btn-square btn-outline-light rounded-circle me-1" href=""
-						><i class="fab fa-instagram"></i></a
-					>
-					<a class="btn btn-square btn-outline-light rounded-circle me-1" href=""
-						><i class="fab fa-youtube"></i></a
+					<!-- <a class="btn btn-square btn-outline-light rounded-circle me-1" href="" -->
+					<!-- 	><i class="fab fa-facebook-f"></i></a -->
+					<!-- > -->
+					<!-- <a class="btn btn-square btn-outline-light rounded-circle me-1" href="" -->
+					<!-- 	><i class="fab fa-instagram"></i></a -->
+					<!-- > -->
+					<a
+						class="btn btn-square btn-outline-light rounded-circle me-1"
+						target="_blank"
+						href="https://www.youtube.com/@bratstvousa"><i class="fab fa-youtube"></i></a
 					>
 				</div>
 			</div>
 			<div class="col-lg-3 col-md-6">
 				<h4 class="text-light mb-4">Quick Links</h4>
 				<!-- <a class="btn btn-link" href="">Youtube Channel</a> -->
-				<a class="btn btn-link" href="https://awakeningmission.org/">Awakening Mission</a>
-				<a class="btn btn-link" href="https://bibleschooliucecb.org/">Bible School</a>
-				<a class="btn btn-link" href="https://missionrem.org/">Mission REM</a>
-				<a class="btn btn-link" href="https://mscmusic.org/">MSC Music</a>
+				<a class="btn btn-link" target="_blank" href="https://awakeningmission.org/"
+					>Awakening Mission</a
+				>
+				<a class="btn btn-link" target="_blank" href="https://bibleschooliucecb.org/"
+					>Bible School</a
+				>
+				<a class="btn btn-link" target="_blank" href="https://missionrem.org/">Mission REM</a>
+				<a class="btn btn-link" target="_blank" href="https://mscmusic.org/">MSC Music</a>
+				<a class="btn btn-link" target="_blank" href="https://archive.bratstvousa.com/"
+					>Archive Site</a
+				>
 			</div>
 			<div class="col-lg-3 col-md-6">
-				<h4 class="text-light mb-4">Donate</h4>
-				<a class="btn btn-link" href="">Venmo</a>
-				<a class="btn btn-link" href="">PayPal</a>
-				<a class="btn btn-link" href="">Cash App</a>
+				<h4 class="text-light mb-4">Privacy Policy</h4>
+				<p class="text-muted">
+					We do not collect, store, or process any personal information or data about our users. Any
+					interaction with our service is entirely anonymous, and no identifiable or
+					non-identifiable data is gathered from your use of our platform.
+				</p>
 			</div>
+			<!-- <div class="col-lg-3 col-md-6"> -->
+			<!-- 	<h4 class="text-light mb-4">Donate</h4> -->
+			<!-- 	<a class="btn btn-link" href="">Venmo</a> -->
+			<!-- 	<a class="btn btn-link" href="">PayPal</a> -->
+			<!-- 	<a class="btn btn-link" href="">Cash App</a> -->
+			<!-- </div> -->
 			<div class="col-lg-3 col-md-6">
 				<h4 class="text-light mb-4">Контакт</h4>
 				<a
@@ -85,6 +125,6 @@
 <!-- Footer End -->
 
 <!-- Back to Top -->
-<a href="#" class="btn btn-lg btn-primary btn-lg-square rounded-circle back-to-top"
+<a href="#" class="btn btn-lg btn-primary rounded-circle back-to-top"
 	><i class="bi bi-arrow-up"></i></a
 >
