@@ -2,6 +2,8 @@
 
 namespace App\Nova;
 
+use Ebess\AdvancedNovaMediaLibrary\Fields\Files;
+use Ebess\AdvancedNovaMediaLibrary\Fields\Images;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\Date;
 use Laravel\Nova\Fields\ID;
@@ -16,7 +18,7 @@ class NewsArticle extends Resource
     /**
      * The model the resource corresponds to.
      *
-     * @var class-string<\App\Models\YouthNewsArticle>
+     * @var class-string<\App\Models\NewsArticle>
      */
     public static $model = \App\Models\NewsArticle::class;
 
@@ -25,7 +27,7 @@ class NewsArticle extends Resource
      *
      * @var string
      */
-    public static $title = 'id';
+    public static $title = 'title';
 
     /**
      * The columns that should be searched.
@@ -34,6 +36,7 @@ class NewsArticle extends Resource
      */
     public static $search = [
         'id',
+        'title',
     ];
 
     /**
@@ -44,6 +47,7 @@ class NewsArticle extends Resource
     public function fields(NovaRequest $request)
     {
         $disk = config('filesystems.default');
+
         return [
             ID::make()->sortable(),
             Text::make('Title')->rules('required')->required(),
@@ -53,7 +57,14 @@ class NewsArticle extends Resource
             Image::make('Featured Image', 'featured_image')->disk($disk)->path('upfiles/news'),
             Image::make('Thumbnail')->disk($disk)->path('/upfiles/page'),
             Trix::make('Content')->withFiles('upfiles'),
-
+            Images::make('Gallery', 'gallery') // Media collection name: 'gallery'
+                ->nullable()
+                ->showDimensions() // Display dimensions directly
+                ->conversionOnDetailView('gallery_thumbnails') // Conversion for detail view
+                ->conversionOnIndexView('gallery_thumbnails') // Conversion for index view
+                ->conversionOnForm('gallery_thumbnails') // Conversion for form view
+                ->fullSize(), // Allow full-size viewing in a column
+            Files::make('Playlist', 'playlist'),
         ];
     }
 
