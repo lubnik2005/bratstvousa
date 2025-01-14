@@ -135,6 +135,7 @@
 			>
 				<a
 					class="btn btn-lg btn-secondary rounded-pill px-5 py-3"
+					target="_blank"
 					href="https://www.awakeningmission.org">Сайт Благовестия в Кубе</a
 				>
 			</div>
@@ -166,10 +167,10 @@
 					Сегодня наша работа сосредоточена на массовой евангелизации и основании новых церквей.
 					Этот труд продолжается с Божьим благословением.
 				</p>
-				<a
-					class="btn btn-primary rounded-pill mt-3 px-5 py-3"
-					href="https://www.awakeningmission.org">Узнать больше</a
-				>
+				<!-- <a -->
+				<!-- 	class="btn btn-primary rounded-pill mt-3 px-5 py-3" -->
+				<!-- 	href="https://www.awakeningmission.org">Узнать больше</a -->
+				<!-- > -->
 			</div>
 		</div>
 	</div>
@@ -205,7 +206,7 @@
 </div>
 
 <!-- Section 3: Missionary Impact -->
-<div class="container-fluid bg-secondary bg-icon mt-5 py-6">
+<div class="container-fluid bg-secondary bg-icon mb-0 mt-5 py-6">
 	<div class="container">
 		<h2 class="text-primary text-light mb-5 text-center">Влияние Служения</h2>
 		<div class="row g-4">
@@ -261,19 +262,5 @@
 				</div>
 			</div>
 		</div>
-	</div>
-</div>
-
-<!-- Section 4: Call to Action -->
-<div class="container-xxl py-5">
-	<div class="container text-center">
-		<h2 class="text-primary mb-4">Присоединяйтесь к Служению</h2>
-		<p class="mb-5">
-			Мы приглашаем вас поддержать служение в Мексике через молитвы, пожертвования и личное участие
-			в евангелизации или строительных работах.
-		</p>
-		<a class="btn btn-primary rounded-pill px-5 py-3" href="https://www.awakeningmission.org/donate"
-			>Сделать Пожертвование</a
-		>
 	</div>
 </div>

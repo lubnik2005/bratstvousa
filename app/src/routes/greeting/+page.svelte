@@ -6,7 +6,7 @@
 <Header title="Приветственное слово" />
 
 <!-- Page Header Start -->
-<div class="container-fluid">
+<div class="container-fluid pb-5">
 	<div class="container">
 		<div class="row">
 			<!-- First Column -->
