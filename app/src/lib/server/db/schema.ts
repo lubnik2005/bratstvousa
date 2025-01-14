@@ -92,7 +92,7 @@ export const generalEvents = pgTable('general_events', {
 // eventSchemas exist for locations where all events are displayed.
 export const eventSchemas = [
 	youthEvents,
-	childrensEvents,
+	childrensEvents
 	// bibleEducationEvents,
 	// generalEvents,
 	// gospelEvents,

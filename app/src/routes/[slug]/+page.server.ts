@@ -12,7 +12,7 @@ import { lte, desc, asc, or, sql, eq, gte, isNull, and, lt } from 'drizzle-orm';
 // Array of event table names
 
 // Load function
-export async function load({ params: { slug } }: {params: {slug: 'string'}}) {
+export async function load({ params: { slug } }: { params: { slug: 'string' } }) {
 	if (!slug) {
 		throw new Error('Slug is required');
 	}

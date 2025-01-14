@@ -44,7 +44,7 @@
 			<div class="col-md-4 col-sm-6">
 				<div class="church-card">
 					<h4>{church.state}, {church.city}</h4>
-          <p>{church.name_line_1} {church.name_line_2}</p>
+					<p>{church.name_line_1} {church.name_line_2}</p>
 					<p><strong>Address:</strong> {church.address_line_1}, {church.address_line_2}</p>
 					<p><strong>Contact:</strong> {church.contact_first_name} {church.contact_last_name}</p>
 					<p><strong>Phone:</strong> <a href="tel:{church.phone}">{church.phone}</a></p>
