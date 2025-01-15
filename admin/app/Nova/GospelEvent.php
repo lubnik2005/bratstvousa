@@ -50,7 +50,7 @@ class GospelEvent extends Resource
             Slug::make('Slug')->from('title'),
             Text::make('Description'),
             Date::make('Start At'),
-            Select::make('Region')->options(['all' => 'Все', 'central' => 'Центральный регион', 'east' => 'Восточный регион', 'california' => 'Калифорнийский регион', 'north-west' => 'Северо-Западный регион']),
+            Select::make('Region')->options(['all' => 'Все', 'central' => 'Центральный регион', 'east' => 'Восточный регион', 'california' => 'Калифорнийский регион', 'north-west' => 'Северо-Западный регион'])->nullable(),
             Date::make('End At'),
             Image::make('Featured Image')->disk($disk)->path('/upfiles/page'),
             Image::make('Thumbnail')->disk($disk)->path('/upfiles/page'),

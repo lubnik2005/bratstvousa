@@ -67,7 +67,7 @@ class Church extends Resource
                     'california' => 'California',
                     'north-west' => 'North-West',
                     // Add more regions if necessary
-                ])
+                ])->nullable()
                 ->rules('required'),
 
             Text::make('Address Line 1')
