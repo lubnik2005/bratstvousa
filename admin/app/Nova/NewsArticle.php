@@ -56,7 +56,7 @@ class NewsArticle extends Resource
             Date::make('Date'),
             Image::make('Featured Image', 'featured_image')->disk($disk)->path('upfiles/news'),
             Image::make('Thumbnail')->disk($disk)->path('/upfiles/page'),
-            Trix::make('Content')->withFiles('upfiles'),
+            Trix::make('Content')->withFiles($disk)->path('/upfiles/page'),
             Images::make('Gallery', 'gallery') // Media collection name: 'gallery'
                 ->nullable()
                 ->showDimensions() // Display dimensions directly

@@ -60,7 +60,7 @@ class GeneralEvent extends Resource
             // ->croppingConfigs(['aspectRatio' => 16/9])->mustCrop(), // validation rules
             Image::make('Featured Image')->disk($disk)->path('/upfiles/page'),
             Image::make('Thumbnail')->disk($disk)->path('/upfiles/page'),
-            Trix::make('Content')->withFiles('upfiles'),
+            Trix::make('Content')->withFiles($disk)->path('/upfiles/page'),
         ];
     }
 

@@ -54,7 +54,7 @@ class BibleEducationEvent extends Resource
             Select::make('Region')->options(['all' => 'Все', 'central' => 'Центральный регион', 'east' => 'Восточный регион', 'california' => 'Калифорнийский регион', 'north-east' => 'Северо-Западный регион']),
             Date::make('End At'),
             Image::make('Thumbnail')->disk($disk)->path('/upfiles/page'),
-            Trix::make('Content')->withFiles('upfiles'),
+            Trix::make('Content')->withFiles($disk)->path('/upfiles/page'),
         ];
     }
 
