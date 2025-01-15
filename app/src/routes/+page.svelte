@@ -118,17 +118,6 @@
 			<div class="event-details flex-grow-1">
 				<span class="badge bg-primary mb-2">Следующее предстоящее событие</span>
 				<a href="/{data.events[0].slug}"><h3 class="mb-2">{data.events[0].title}</h3></a>
-				<p class="text-muted mb-0">
-					<!-- {new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long' }).format( -->
-					<!-- 	new Date(data.events[0].startAt) -->
-					<!-- )} -->
-
-					{data.events[0].endAt &&
-						' - ' +
-							new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long' }).format(
-								new Date(data.events[0].endAt)
-							)}
-				</p>
 				<p class="text-muted">{data.events[0].dates_description}</p>
 			</div>
 		</div>
