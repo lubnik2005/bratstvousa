@@ -48,8 +48,9 @@
 					<!-- <a class="btn btn-square btn-outline-light rounded-circle me-1" href="" -->
 					<!-- 	><i class="fab fa-instagram"></i></a -->
 					<!-- > -->
+					<!-- class="btn btn-square btn-outline-light rounded-circle me-1" -->
 					<a
-						class="btn btn-square btn-outline-light rounded-circle me-1"
+						class="btn btn-outline-light rounded-circle me-1"
 						target="_blank"
 						href="https://www.youtube.com/@bratstvousa"><i class="fab fa-youtube"></i></a
 					>
