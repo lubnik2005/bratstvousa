@@ -26,7 +26,7 @@ export async function load({ params: { slug } }: { params: { slug: 'string' } })
 					startAt: eventSchema.startAt,
 					endAt: eventSchema.endAt,
 					slug: eventSchema.slug,
-					featured_image: eventSchema.featuredImage,
+					featuredImage: eventSchema.featuredImage,
 					content: eventSchema.content
 				})
 				.from(eventSchema)
@@ -40,7 +40,7 @@ export async function load({ params: { slug } }: { params: { slug: 'string' } })
 			startAt: sql`result.start_at`,
 			endAt: sql`result.end_at`,
 			slug: sql`result.slug`,
-			featured_image: sql`result.featured_image`,
+			featuredImage: sql`result.featured_image`,
 			content: sql`result.content`
 		})
 		.from(unionQuery)

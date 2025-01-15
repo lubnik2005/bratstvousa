@@ -1,7 +1,8 @@
 <script lang="ts">
   import type { Event as E} from '$lib/server/db/schema';
+	import { bindIfParam } from 'drizzle-orm';
 	export let region;
-	export let upcomingEvents: typeof E[] = [];
+	export let upcomingEvents: typeof E[] | undefined = [];
 	export let title = 'События';
 	export let subtitle;
 	export let media_url = '/';
@@ -12,7 +13,7 @@
 		label: string;
 	}
 
-	const regions: Region[] = [
+	export const regions: Region[] = [
 		{ key: 'all', label: 'Все Ригионы' },
 		{ key: 'central', label: 'Центральный регион' },
 		{ key: 'east', label: 'Восточный регион' },
@@ -29,6 +30,8 @@
   filterResources(selectedRegion);
 
 </script>
+
+{#if upcomingEvents.some((event) => regions.some((region) => region.key === event.region?.toString()))}
 
 <div class="container-xxl py-5">
 	<div class="container">
@@ -94,6 +97,7 @@
 	</div>
 </div>
 <!-- Product End -->
+{/if}
 
 <!-- This is the button for more -->
 <!-- 			<div class="col-12 text-center pt-4"> -->

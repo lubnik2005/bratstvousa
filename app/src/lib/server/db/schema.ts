@@ -51,7 +51,7 @@ const Article = {
 	description: varchar('description', { length: 255 }),
 	content: text('content'),
 	thumbnail: text('thumbnail'),
-	featured_image: varchar('featured_image', { length: 255 }),
+	featuredImage: varchar('featured_image', { length: 255 }),
 	date: date('date'), // Adjust length as needed
 	createdAt: timestamp('created_at').defaultNow(),
 	updatedAt: timestamp('updated_at').defaultNow()

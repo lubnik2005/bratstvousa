@@ -162,7 +162,7 @@
 				<!-- content here -->
 				<div class="d-flex align-items-start mb-4">
 					<img
-						src="{data.media_url}{article.featured_image}"
+						src="{data.media_url}{article.featuredImage}"
 						alt={article.title}
 						class="me-3 rounded"
 						style="width: 100px; height: 100px; object-fit: cover;"

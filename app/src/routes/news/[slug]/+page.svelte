@@ -21,7 +21,7 @@
 
 <div class="container p-0">
 	<img
-		src="{data.media_url}{data.news_article.featured_image}"
+		src="{data.media_url}{data.news_article.featuredImage}"
 		class="img-fluid w-100"
 		alt="Top Image"
 	/>

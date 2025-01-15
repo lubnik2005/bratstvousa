@@ -1,6 +1,6 @@
 <script lang="ts">
 	export let title = 'Отдел';
-	export let subtitle = undefined;
+	export let subtitle: string | undefined = undefined;
 </script>
 
 <!-- Page Header Start -->

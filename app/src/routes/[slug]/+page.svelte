@@ -5,7 +5,7 @@
 </script>
 
 <div class="container p-0">
-	<img src="{data.media_url}{data.event.featured_image}" class="img-fluid w-100" alt="Top Image" />
+	<img src="{data.media_url}{data.event.featuredImage}" class="img-fluid w-100" alt="Top Image" />
 </div>
 
 <div class="container-xxl pb-6">

@@ -11,7 +11,7 @@
 		<div class="row g-4">
 			{#each data.news_articles as article}
 				<div class="col-lg-4 col-md-6">
-					<img class="img-fluid" src="{data.media_url}{article.featured_image}" alt="" />
+					<img class="img-fluid" src="{data.media_url}{article.featuredImage}" alt="" />
 					<div class="bg-light p-4">
 						<a class="d-block h5 lh-base mb-4" href="news/{article.slug}">{article.title}</a>
 						<div class="text-muted border-top pt-4">
