@@ -1,6 +1,7 @@
 <script lang="ts">
+  import type { Event as E} from '$lib/server/db/schema';
 	export let region;
-	export let upcomingEvents = [];
+	export let upcomingEvents: typeof E[] = [];
 	export let title = 'События';
 	export let subtitle;
 	export let media_url = '/';
@@ -20,14 +21,13 @@
 	];
 
 	let filteredUpcomingEvents = upcomingEvents;
-	let selectedRegion = 'all';
+	let selectedRegion = { key: 'all', label: 'Все Ригионы' };
 
 	function filterResources(region: Region) {
-		filteredUpcomingEvents =
-			region.key === 'all'
-				? upcomingEvents
-				: upcomingEvents.filter((event) => event.region === region.key);
+		filteredUpcomingEvents = upcomingEvents.filter((event) => event.region?.toString() === region.key);
 	}
+  filterResources(selectedRegion);
+
 </script>
 
 <div class="container-xxl py-5">
@@ -47,7 +47,7 @@
 							{#each regions as region}
 								<li class="nav-item me-2">
 									<button
-										class="btn btn-outline-primary border-2 {region.key === selectedRegion
+										class="btn btn-outline-primary border-2 {region.key === selectedRegion.key
 											? 'active'
 											: ''}"
 										data-bs-toggle="pill"
@@ -66,12 +66,12 @@
 					<div class="col-xl-4 col-lg-4 col-md-6">
 						<div class="product-item">
 							<div class="position-relative bg-light overflow-hidden">
-								{#if event.featured_image}
-									<img class="img-fluid w-100" src={`${media_url}${event.featured_image}`} alt="" />
+								{#if event.featuredImage}
+									<img class="img-fluid w-100" src={`${media_url}${event.featuredImage}`} alt="" />
 								{/if}
 							</div>
 							<div class="p-4 text-center">
-								<a class="d-block h5 mb-2" style="min-height: calc(1.5em * 2)" href={event.slug}
+								<a class="d-block h5 mb-2" style="min-height: calc(1.5em * 2)" href={event.slug.toString()}
 									>{event.title}</a
 								>
 								<span class="text-primary me-1">{event.region}</span>
