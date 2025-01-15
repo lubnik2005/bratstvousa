@@ -153,7 +153,7 @@
 						<div class="col-xl-4 col-lg-4 col-md-6">
 							<div class="product-item">
 								<div class="position-relative bg-light overflow-hidden">
-									{#if event.featured_image}
+									{#if event.featuredImage}
 										<img
 											class="img-fluid w-100"
 											src={`${data.media_url}${event.featured_image}`}
