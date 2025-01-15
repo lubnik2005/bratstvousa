@@ -52,7 +52,7 @@ class GeneralEvent extends Resource
             Slug::make('Slug')->from('title'),
             Text::make('Description'),
             Date::make('Start At'),
-            Select::make('Region')->options(['all' => 'Все', 'central' => 'Центральный регион', 'east' => 'Восточный регион', 'california' => 'Калифорнийский регион', 'north-east' => 'Северо-Западный регион']),
+            Select::make('Region')->options(['all' => 'Все', 'central' => 'Центральный регион', 'east' => 'Восточный регион', 'california' => 'Калифорнийский регион', 'north-west' => 'Северо-Западный регион']),
             Date::make('End At'),
             // Images::make('Featured Image', 'featured_image'),//->croppable(true),//->disk('upfiles'),
             // Images::make('Main image', 'main') // second parameter is the media collection name
