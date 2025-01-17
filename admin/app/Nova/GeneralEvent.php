@@ -41,27 +41,10 @@ class GeneralEvent extends Resource
      *
      * @return array<int, \Laravel\Nova\Fields\Field>
      */
-    public function fields(NovaRequest $request): array
+    public function fields(NovaRequest $request)
     {
+        return array_merge(SharedFields::eventFields(), []);
 
-        $disk = config('filesystems.default');
-        return [
-            ID::make()->sortable(),
-            Text::make('Title')->rules('required')->required(),
-            Text::make('Comment')->help('This is a fields for admins. If there are a lot of events with the same type of comment, it may be worth it to crate a seperate resource just for that event type.'),
-            Slug::make('Slug')->from('title'),
-            Text::make('Description'),
-            Date::make('Start At'),
-            Select::make('Region')->options(['all' => 'Все', 'central' => 'Центральный регион', 'east' => 'Восточный регион', 'california' => 'Калифорнийский регион', 'north-west' => 'Северо-Западный регион'])->nullable(),
-            Date::make('End At'),
-            // Images::make('Featured Image', 'featured_image'),//->croppable(true),//->disk('upfiles'),
-            // Images::make('Main image', 'main') // second parameter is the media collection name
-            // ->conversionOnIndexView('thumb') // conversion used to display the image
-            // ->croppingConfigs(['aspectRatio' => 16/9])->mustCrop(), // validation rules
-            Image::make('Featured Image')->disk($disk)->path('/upfiles/page'),
-            Image::make('Thumbnail')->disk($disk)->path('/upfiles/page'),
-            Trix::make('Content')->withFiles($disk)->path('/upfiles/page'),
-        ];
     }
 
     /**

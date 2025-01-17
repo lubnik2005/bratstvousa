@@ -6,6 +6,7 @@ use Ebess\AdvancedNovaMediaLibrary\Fields\Files;
 use Ebess\AdvancedNovaMediaLibrary\Fields\Images;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\Date;
+use Laravel\Nova\Fields\File;
 use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\Image;
 use Laravel\Nova\Fields\Slug;
@@ -65,6 +66,8 @@ class NewsArticle extends Resource
                 ->conversionOnForm('gallery_thumbnails') // Conversion for form view
                 ->fullSize(), // Allow full-size viewing in a column
             Files::make('Playlist', 'playlist'),
+            Files::make('Documents', 'documents'),
+            File::make('Featured Document', 'featured_document')->disk($disk)->path('/upfiles/page')->help('For certain types of resoures, this will appear as the main file to download to get more information about an event.'),
         ];
     }
 

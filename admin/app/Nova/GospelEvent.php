@@ -2,13 +2,6 @@
 
 namespace App\Nova;
 
-use Laravel\Nova\Fields\Date;
-use Laravel\Nova\Fields\ID;
-use Laravel\Nova\Fields\Image;
-use Laravel\Nova\Fields\Select;
-use Laravel\Nova\Fields\Slug;
-use Laravel\Nova\Fields\Text;
-use Laravel\Nova\Fields\Trix;
 use Laravel\Nova\Http\Requests\NovaRequest;
 
 class GospelEvent extends Resource
@@ -41,22 +34,10 @@ class GospelEvent extends Resource
      *
      * @return array<int, \Laravel\Nova\Fields\Field>
      */
-    public function fields(NovaRequest $request): array
+    public function fields(NovaRequest $request)
     {
-        $disk = config('filesystems.default');
-        return [
-            ID::make()->sortable(),
-            Text::make('Title')->rules('required')->required(),
-            Slug::make('Slug')->from('title'),
-            Text::make('Description'),
-            Date::make('Start At'),
-            Select::make('Region')->options(['all' => 'Все', 'central' => 'Центральный регион', 'east' => 'Восточный регион', 'california' => 'Калифорнийский регион', 'north-west' => 'Северо-Западный регион'])->nullable(),
-            Date::make('End At'),
-            Image::make('Featured Image')->disk($disk)->path('/upfiles/page'),
-            Image::make('Thumbnail')->disk($disk)->path('/upfiles/page'),
-            Trix::make('Content')->withFiles($disk)->path('/upfiles/page'),
+        return array_merge(SharedFields::eventFields(), []);
 
-        ];
     }
 
     /**

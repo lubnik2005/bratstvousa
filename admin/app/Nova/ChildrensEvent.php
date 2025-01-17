@@ -44,22 +44,9 @@ class ChildrensEvent extends Resource
      */
     public function fields(NovaRequest $request)
     {
-        $disk = config('filesystems.default');
+        return array_merge(SharedFields::eventFields(), []);
 
-        return [
-            ID::make()->sortable(),
-            Text::make('Title')->rules('required')->required(),
-            Slug::make('Slug')->from('title'),
-            Text::make('Description'),
-            Date::make('Start At'),
-            Select::make('Region')->options(['all' => 'Все', 'central' => 'Центральный регион', 'east' => 'Восточный регион', 'california' => 'Калифорнийский регион', 'north-west' => 'Северо-Западный регион'])->nullable(),
-            Date::make('End At'),
-            Image::make('Thumbnail')->disk($disk)->path('/upfiles/page'),
-            Image::make('Featured Image')->disk($disk)->path('/upfiles/page'),
-            Trix::make('Content')->withFiles($disk)->path('/upfiles/page'),
-        ];
     }
-
     /**
      * Get the cards available for the request.
      *

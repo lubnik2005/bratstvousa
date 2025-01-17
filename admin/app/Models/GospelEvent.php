@@ -2,9 +2,7 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use App\Models\Base\Event;
 
-class GospelEvent extends Model
-{
-    protected $casts = ['start_at' => 'date', 'end_at' => 'date'];
-}
+class GospelEvent extends Event {};
+
