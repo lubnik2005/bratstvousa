@@ -3,6 +3,7 @@
 	import { Calendar } from '@fullcalendar/core';
 	import dayGridPlugin from '@fullcalendar/daygrid';
 	export let upcomingEvents;
+  export let ministry_slug = 'general-ministry'
 
 	let calendar: Calendar;
 
@@ -14,7 +15,7 @@
 				title: e.title,
 				start: e.startAt,
 				end: e.endAt,
-				url: e.slug
+				url: `/${ministry_slug}/${e.slug}`
 			})) // Add events here
 		});
 		calendar.render();
@@ -25,7 +26,7 @@
 	});
 </script>
 
-<div class="container-xxl py-6">
+<div class="d-none d-lg-block container-xxl py-6">
 	<div class="container">
 		<div class="row g-0 gx-5 align-items-end">
 			<div class="col-lg-5">

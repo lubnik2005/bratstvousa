@@ -8,11 +8,12 @@ import {
 } from '$lib/server/db/schema';
 import { unionAll } from 'drizzle-orm/mysql-core';
 import { lte, desc, asc, or, sql, eq, gte, isNull, and, lt } from 'drizzle-orm';
+import { env } from '$env/dynamic/private';
 
 // Array of event table names
 
 // Load function
-export async function load({ params: { slug } }: { params: { slug: 'string' } }) {
+export async function load({ params: { ministry, slug } }: { params: { slug: 'string' } }) {
 	if (!slug) {
 		throw new Error('Slug is required');
 	}
@@ -46,8 +47,15 @@ export async function load({ params: { slug } }: { params: { slug: 'string' } })
 		.from(unionQuery)
 		.where(eq(sql`result.slug`, slug)) // Correctly reference the aliased column
 		.limit(1);
+	const event = events[0];
 
+	//HACK: This is a temporary solution. In reality the url should be changed in the db, probably?
+	// Maybe it should always fix it? Not sure yet.
+	event.content = event.content?.replaceAll(
+		'src="/upfiles/photos/',
+		`src="${env.MEDIA_URL}upfiles/photos/`
+	);
 	return {
-		event: events[0]
+		event: event
 	};
 }

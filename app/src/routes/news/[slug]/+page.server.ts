@@ -9,6 +9,10 @@ export async function load({ params }) {
 		.from(newsArticles)
 		.where(eq(newsArticles.slug, params.slug));
 	const news_article = news_articles[0];
+	news_article.content = news_article.content?.replaceAll(
+		'src="/upfiles/photos/',
+		`src="${env.MEDIA_URL}upfiles/photos/`
+	);
 
 	const images = await db
 		.select()

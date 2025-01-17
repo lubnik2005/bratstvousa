@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { onMount } from "svelte";
+
 	export let media_url;
 	const menu_items = [
 		{
@@ -62,10 +64,35 @@
 			href: 'news'
 		}
 	];
+
+	onMount(() => {
+		// Fixed Navbar
+		window.addEventListener('scroll', () => {
+			const fixedTop: HTMLElement | null = document.querySelector('.responsive-fixed-top');
+			if (!fixedTop) return;
+			if (window.innerWidth < 992) {
+				if (window.scrollY > 45) {
+					fixedTop.classList.add('bg-white', 'shadow');
+				} else {
+					fixedTop.classList.remove('bg-white', 'shadow');
+				}
+			} else {
+				if (window.scrollY > 45) {
+					fixedTop.classList.add('bg-white', 'shadow');
+					fixedTop.style.top = '0';
+				} else {
+					fixedTop.classList.remove('bg-white', 'shadow');
+					fixedTop.style.top = '0';
+				}
+			}
+		});
+	});
+
+  
 </script>
 
 <!-- Navbar Start -->
-<div class="container-fluid fixed-top whole-navbar px-0">
+<div class="container-fluid responsive-fixed-top whole-navbar px-0">
 	<!-- Mobile only -->
 	<div class="d-lg-none text-center">
 		<h1 class="text-primary ms-2 p-2" style="font-size:1.4rem">Американское Объединение МСЦ ЕХБ</h1>
@@ -148,7 +175,7 @@
 
 <!-- Navbar End -->
 
-<style>
+<style >
 	.whole-navbar {
 		background: rgb(255, 255, 255);
 		background: linear-gradient(
@@ -157,5 +184,23 @@
 			rgba(255, 255, 255, 0.7959384437368697) 53%,
 			rgba(255, 255, 255, 0.48501407398897056) 100%
 		);
+	z-index: 1030;
 	}
+
+.responsive-fixed-top {
+    position: fixed; /* Default for larger screens */
+    top: 0;
+    width: 100%;
+    z-index: 1030;
+}
+
+@media (max-width: 768px) {
+    .responsive-fixed-top {
+        position: relative; /* Disable fixed-top for smaller devices */
+    }
+}
+
 </style>
+
+
+

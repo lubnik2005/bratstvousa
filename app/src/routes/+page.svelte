@@ -103,7 +103,7 @@
 		<div class="d-flex align-items-center justify-content-between bg-light rounded p-4 shadow-sm">
 			<!-- Event Image -->
 			{#if data.events[0]?.featuredImage}
-				<div class="event-image me-4">
+				<div class="d-none d-lg-block event-image me-4">
 					<img
 						src="{data.media_url}{data.events[0].featuredImage}"
 						alt={data.events[0].title}
@@ -117,7 +117,7 @@
 			<!-- content here -->
 			<div class="event-details flex-grow-1">
 				<span class="badge bg-primary mb-2">Следующее предстоящее событие</span>
-				<a href="/{data.events[0].slug}"><h3 class="mb-2">{data.events[0].title}</h3></a>
+				<a href="/general-event/{data.events[0].slug}"><h3 class="mb-2">{data.events[0].title}</h3></a>
 				<p class="text-muted">{data.events[0].dates_description}</p>
 			</div>
 		</div>
@@ -136,7 +136,7 @@
 						<small>{event.month_short}</small>
 					</div>
 					<div>
-						<h5 class="mb-1"><a href="/{event.slug}">{event.title}</a></h5>
+						<h5 class="mb-1"><a href="/general-event/{event.slug}">{event.title}</a></h5>
 						<small class="text-muted">{event.dates_description}</small>
 						<p class="text-muted mb-0">{event.description}</p>
 					</div>
