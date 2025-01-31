@@ -4,9 +4,11 @@
 	import { Splide, SplideSlide } from '@splidejs/svelte-splide';
 </script>
 
+{#if data.event?.featuredImage}
 <div class="container p-0">
 	<img src="{data.media_url}{data.event.featuredImage}" class="img-fluid w-100" alt="Top Image" />
 </div>
+{/if}
 
 <div class="container-xxl pb-6">
 	<div class="container">
