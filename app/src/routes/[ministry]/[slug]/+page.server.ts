@@ -27,6 +27,7 @@ export async function load({ params: { ministry, slug } }: { params: { slug: 'st
 					startAt: eventSchema.startAt,
 					endAt: eventSchema.endAt,
 					slug: eventSchema.slug,
+					descripton: eventSchema.description,
 					featuredImage: eventSchema.featuredImage,
 					content: eventSchema.content
 				})
@@ -42,6 +43,7 @@ export async function load({ params: { ministry, slug } }: { params: { slug: 'st
 			endAt: sql`result.end_at`,
 			slug: sql`result.slug`,
 			featuredImage: sql`result.featured_image`,
+			description: sql`result.description`,
 			content: sql`result.content`
 		})
 		.from(unionQuery)
