@@ -3,7 +3,7 @@
 	import { Calendar } from '@fullcalendar/core';
 	import dayGridPlugin from '@fullcalendar/daygrid';
 	export let upcomingEvents;
-  export let ministry_slug = 'general-ministry'
+	export let ministry_slug = 'general-ministry';
 
 	let calendar: Calendar;
 

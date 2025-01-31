@@ -7,7 +7,7 @@
 	<div id="header-carousel" class="carousel slide">
 		<div class="carousel-inner">
 			<div class="carousel-item active">
-				<div class="video-wrapper">
+				<div class="video-wrapper d-none d-lg-block">
 					<video autoplay muted loop loading="lazy">
 						<source
 							poster="{data.media_url}/video/first-frame.webp"
@@ -22,11 +22,16 @@
 					<!--     Your browser does not support the video tag. -->
 					<!-- </video> -->
 				</div>
-				<div class="d-none d-lg-block carousel-caption">
+				<div class="d-lg-none">
+					<div class="image-container">
+						<img src="{data.media_url}img/bratstvo_header.jpg" alt="" />
+					</div>
+				</div>
+				<div class="carousel-caption">
 					<div class="container">
 						<div class="row justify-content-start">
 							<div class="col-lg-12">
-								<h1 class="display-2 animated slideInDown text-outline mb-5 text-center">
+								<h1 class="display-2 text-outline mb-5 text-center">
 									Американское Объединение <br /> МСЦ ЕХБ
 								</h1>
 							</div>
@@ -117,7 +122,9 @@
 			<!-- content here -->
 			<div class="event-details flex-grow-1">
 				<span class="badge bg-primary mb-2">Следующее предстоящее событие</span>
-				<a href="/general-event/{data.events[0].slug}"><h3 class="mb-2">{data.events[0].title}</h3></a>
+				<a href="/general-event/{data.events[0].slug}"
+					><h3 class="mb-2">{data.events[0].title}</h3></a
+				>
 				<p class="text-muted">{data.events[0].dates_description}</p>
 			</div>
 		</div>
@@ -225,16 +232,26 @@
 	/* Carousel caption styling */
 	.carousel-caption {
 		position: absolute;
-		top: 50%;
-		left: 50%;
-		transform: translate(-50%, -50%);
-		z-index: 3; /* Ensure text is above the blue overlay */
-		color: white;
+		top: 50%; /* Centers vertically */
+		left: 50%; /* Centers horizontally */
+		transform: translate(-50%, -50%); /* Ensures both horizontal and vertical centering */
+		z-index: 3; /* Ensure it stays above other elements */
+		color: white; /* Text color */
 		text-shadow:
 			1px 1px 2px black,
 			-1px -1px 2px black,
 			1px -1px 2px black,
-			-1px 1px 2px black;
+			-1px 1px 2px black; /* Adds a text outline for readability */
+		text-align: center; /* Ensures text is horizontally centered */
+		width: 100%; /* Makes it span the full width */
+		max-width: 80%; /* Optional: Limit the width for better readability */
+	}
+
+	@media (max-width: 768px) {
+		.carousel-caption {
+			top: 60%; /* Adjust vertical position for smaller screens */
+			transform: translate(-50%, -60%); /* Re-centers with new top value */
+		}
 	}
 
 	.text-outline {
@@ -244,5 +261,22 @@
 			-1px -1px 2px black,
 			1px -1px 2px black,
 			-1px 1px 2px black;
+	}
+
+	.image-container img {
+		display: block;
+		filter: blur(2px); /* Adjust the blur radius */
+		width: 100%; /* Ensures the image scales properly */
+	}
+
+	.image-container::after {
+		content: '';
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background-color: rgba(0, 0, 0, 0.1); /* Adjust the opacity and color of the overlay */
+		pointer-events: none; /* Ensures the overlay doesn't block interactions */
 	}
 </style>

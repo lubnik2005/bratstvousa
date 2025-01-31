@@ -90,6 +90,15 @@
 	</div>
 </div>
 
-<UpcomingEvents ministry_slug="childrens-ministry" upcomingEvents={data.upcomingEvents} media_url={data.media_url} />
+<UpcomingEvents
+	ministry_slug="childrens-ministry"
+	upcomingEvents={data.upcomingEvents}
+	media_url={data.media_url}
+/>
 <Files files={data.childrens_files} media_url={data.media_url} />
-<UpcomingEvents ministry_slug="childrens-ministry" title="Архив" upcomingEvents={data.archivedEvents} media_url={data.media_url} />
+<UpcomingEvents
+	ministry_slug="childrens-ministry"
+	title="Архив"
+	upcomingEvents={data.archivedEvents}
+	media_url={data.media_url}
+/>

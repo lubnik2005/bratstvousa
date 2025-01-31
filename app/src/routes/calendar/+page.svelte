@@ -60,7 +60,11 @@
 
 	function filterEvents() {
 		console.log(selectedRegion);
-		filteredEvents = data.events.filter((e) => (selectedRegion == 'all' || e.region == selectedRegion) && (selectedMinistry == 'all' || e.schemaName == selectedMinistry));
+		filteredEvents = data.events.filter(
+			(e) =>
+				(selectedRegion == 'all' || e.region == selectedRegion) &&
+				(selectedMinistry == 'all' || e.schemaName == selectedMinistry)
+		);
 		// calendar.destroy();
 		// calendar.render();
 		calendar.removeAllEvents();
@@ -70,7 +74,6 @@
 		// console.log('fiterevents');
 	}
 </script>
-
 
 <div class="container-xxl py-6">
 	<div class="container">
@@ -93,10 +96,12 @@
 				{/each}
 			</select>
 
-      <select class="custom-select" id="region"
-        bind:value={selectedMinistry}
-        on:change={() => filterEvents()}
-      >
+			<select
+				class="custom-select"
+				id="region"
+				bind:value={selectedMinistry}
+				on:change={() => filterEvents()}
+			>
 				{#each ministries as ministry}
 					<option value={ministry.key}>{ministry.label}</option>
 				{/each}

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount } from "svelte";
+	import { onMount } from 'svelte';
 
 	export let media_url;
 	const menu_items = [
@@ -87,8 +87,6 @@
 			}
 		});
 	});
-
-  
 </script>
 
 <!-- Navbar Start -->
@@ -175,7 +173,7 @@
 
 <!-- Navbar End -->
 
-<style >
+<style>
 	.whole-navbar {
 		background: rgb(255, 255, 255);
 		background: linear-gradient(
@@ -184,23 +182,19 @@
 			rgba(255, 255, 255, 0.7959384437368697) 53%,
 			rgba(255, 255, 255, 0.48501407398897056) 100%
 		);
-	z-index: 1030;
+		z-index: 1030;
 	}
 
-.responsive-fixed-top {
-    position: fixed; /* Default for larger screens */
-    top: 0;
-    width: 100%;
-    z-index: 1030;
-}
+	.responsive-fixed-top {
+		position: fixed; /* Default for larger screens */
+		top: 0;
+		width: 100%;
+		z-index: 1030;
+	}
 
-@media (max-width: 768px) {
-    .responsive-fixed-top {
-        position: relative; /* Disable fixed-top for smaller devices */
-    }
-}
-
+	@media (max-width: 768px) {
+		.responsive-fixed-top {
+			position: relative; /* Disable fixed-top for smaller devices */
+		}
+	}
 </style>
-
-
-

@@ -1,9 +1,9 @@
 <script lang="ts">
 	export let data;
 	import { onMount } from 'svelte';
-   import { page } from '$app/stores';
+	import { page } from '$app/stores';
 	import YouthCalendar from '$lib/components/YouthCalendar.svelte';
-  let current_url = $page.url.pathname.split('/').filter(Boolean).pop() || '/';
+	let current_url = $page.url.pathname.split('/').filter(Boolean).pop() || '/';
 
 	const greetings = {
 		all: {
@@ -164,8 +164,10 @@
 									{/if}
 								</div>
 								<div class="p-4 text-center">
-									<a class="d-block h5 mb-2" style="min-height: calc(1.5em * 2)" href={`/youth-ministry/${event.slug}`}
-										>{event.title}</a
+									<a
+										class="d-block h5 mb-2"
+										style="min-height: calc(1.5em * 2)"
+										href={`/youth-ministry/${event.slug}`}>{event.title}</a
 									>
 									<span class="text-primary me-1">{event.startAt}</span>
 									<!-- <span class="text-body text-decoration-line-through">$29.00</span> -->
@@ -213,8 +215,10 @@
 									{/if}
 								</div>
 								<div class="p-4 text-center">
-									<a class="d-block h5 mb-2" style="min-height: calc(1.5em * 2)" href={`/youth-ministry/${event.slug}`}
-										>{event.title}</a
+									<a
+										class="d-block h5 mb-2"
+										style="min-height: calc(1.5em * 2)"
+										href={`/youth-ministry/${event.slug}`}>{event.title}</a
 									>
 									<span class="text-primary me-1">{event.startAt}</span>
 									<!-- <span class="text-body text-decoration-line-through">$29.00</span> -->
