@@ -11,6 +11,7 @@
 		href="{data.media_url}img/bratstvo_header_low.webp"
 		type="image/webp"
 	/>
+  <title>Американское Объединение МСЦ ЕХБ</title>
 </svelte:head>
 
 <div class="container-fluid mb-5 p-0">
