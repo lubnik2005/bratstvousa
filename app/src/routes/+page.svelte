@@ -2,6 +2,10 @@
 	// let { data } = $props();
 	export let data;
 </script>
+<svelte:head>
+  <link fetchpriority="high" rel="preload" as="image" href="{data.media_url}/video/first-frame.webp" type="image/webp">
+
+</svelte:head>
 
 <div class="container-fluid mb-5 p-0">
 	<div id="header-carousel" class="carousel slide">
