@@ -24,7 +24,7 @@
 				</div>
 				<div class="d-lg-none">
 					<div class="image-container">
-						<img src="{data.media_url}img/bratstvo_header.jpg" alt="" />
+						<img src="{data.media_url}img/bratstvo_header.webp" alt="" />
 					</div>
 				</div>
 				<div class="carousel-caption">
