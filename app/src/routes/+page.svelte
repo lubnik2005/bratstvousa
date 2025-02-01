@@ -8,7 +8,7 @@
 		fetchpriority="high"
 		rel="preload"
 		as="image"
-		href="{data.media_url}/img/bratstvo_header.webp"
+		href="{data.media_url}img/bratstvo_header_low.webp"
 		type="image/webp"
 	/>
 </svelte:head>
@@ -37,8 +37,8 @@
 						<img
 							fetchpriority="high"
 							loading="eager"
-							src="{data.media_url}/img/bratstvo_header_low.webp"
-							data-src="{data.media_url}/img/bratstvo_header.webp"
+							src="{data.media_url}img/bratstvo_header_low.webp"
+							data-src="{data.media_url}img/bratstvo_header.webp"
 							class="lazyload"
 							alt=""
 						/>
