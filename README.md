@@ -13,10 +13,12 @@ bratstvousa website and admin
 # DB Schema Choices
 The original site had a bunch of self references in a `pages` table.
 The problem is that: 
+
     1. Permissions are more difficult to maintain in this case
     2. Overly 'modular?' it's hard to customize when all of the pages must have the same columns
     3. It's too easy to accidentally create nested forloops of sql queries.
 Considerations of the new schema
+
     1. Yes, it needs a new table for each new type of page, but that allows for more customizeability.
     2. More information is stored in the DB. It is easier to figure out what is going on by just looking at the db
 
