@@ -6,7 +6,7 @@ bratstvousa website and admin
 1. App: SvelteKit
 - SvelteKit was chosen due to it's ability to easily transition from SSR to CSR. The hope is that development will be faster with SSR.
 2. Admin: Laravel Nova Admin
-- There is no better admin library than nova
+- There is no better admin library than nova (ok maybe [filament](https://filamentphp.com/))
 3. Database: Postgres
 - Good support for JSON formats, which are good for adding translations later on
 
