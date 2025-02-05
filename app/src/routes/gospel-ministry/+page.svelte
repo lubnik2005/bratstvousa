@@ -3,9 +3,17 @@
 </script>
 
 <!-- Top Image Section -->
-<div class="container-fluid p-0 pb-5">
-	<!-- <img src="{data.media_url}img/gospel-ministry.jpg" class="img-fluid w-100" alt="Top Image" /> -->
+<!-- <div class="container-fluid p-0 pb-5"> -->
+<!-- 	<!-- <img src="{data.media_url}img/gospel-ministry.jpg" class="img-fluid w-100" alt="Top Image" /> --> -->
+<!-- </div> -->
+<!---->
+<div class="container-fluid page-header">
+	<div class="container">
+		<h1 class="display-3 mb-3">Отдел Благовестия</h1>
+		<!-- </nav> -->
+	</div>
 </div>
+
 
 <div class="container-fluid py-5">
 	<div class="container">
