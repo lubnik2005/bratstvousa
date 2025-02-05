@@ -20,7 +20,7 @@
 			headerToolbar: {
 				left: 'prev,today,next',
 				center: 'title',
-				right: 'listYear,dayGridMonth,dayGridWeek,timeGridDay'
+				right: 'listYear,dayGridMonth'
 			},
 			locales: [ruLocale],
 			events: filteredEvents,
