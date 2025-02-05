@@ -5,6 +5,7 @@ namespace App\Nova;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\Text;
+use Laravel\Nova\Fields\Number;
 use Laravel\Nova\Fields\URL;
 use Laravel\Nova\Fields\Select;
 use Laravel\Nova\Http\Requests\NovaRequest;
@@ -88,6 +89,10 @@ class Church extends Resource
 
             URL::make('Youtube')
                 ->rules('nullable', 'url'),
+
+            Number::make('Longitude'),
+
+            Number::make('Latitude'),
 
             // Timestamps are automatically handled by Nova, no need to add them manually
         ];
