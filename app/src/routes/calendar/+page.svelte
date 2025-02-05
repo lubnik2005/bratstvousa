@@ -10,18 +10,25 @@
 
 	let calendar: Calendar;
 	let calendarIsLoading = true;
+	const headerToolbar = {
+		left: 'prev,today,next',
+		center: 'title',
+		right: 'listYear,dayGridMonth'
+	};
+
+	const headerToolbarMobile = {
+		left: '',
+		center: 'title',
+		right: 'prev,next,listYear,dayGridMonth'
+	};
 
 	onMount(() => {
 		const calendarEl = document.getElementById('calendar')!;
 		calendar = new Calendar(calendarEl, {
 			plugins: [listPlugin, dayGridPlugin, timeGridPlugin],
-			initialView: 'dayGridMonth',
+			initialView: window.matchMedia('(max-width: 754px)').matches ? 'listYear' : 'dayGridMonth',
 			defaultAllDay: true,
-			headerToolbar: {
-				left: 'prev,today,next',
-				center: 'title',
-				right: 'listYear,dayGridMonth'
-			},
+			headerToolbar,
 			locales: [ruLocale],
 			events: filteredEvents,
 			loading: function (isLoading) {
@@ -30,6 +37,7 @@
 		});
 		console.log(data);
 		calendar.render();
+		calendar.setOption('headerToolbar', headerToolbarMobile);
 
 		return () => {
 			calendar.destroy(); // Cleanup when the component is unmounted
@@ -107,7 +115,7 @@
 				{/each}
 			</select>
 		{/if}
-		<div id="calendar" class="my-4" />
+		<div id="calendar" class="my-4" style="min-height: 700px;" />
 	</div>
 </div>
 
