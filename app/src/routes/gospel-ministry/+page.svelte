@@ -4,7 +4,8 @@
 
 <!-- Top Image Section -->
 <!-- <div class="container-fluid p-0 pb-5"> -->
-<!-- 	<!-- <img src="{data.media_url}img/gospel-ministry.jpg" class="img-fluid w-100" alt="Top Image" /> --> -->
+<!-- 	<!-- <img src="{data.media_url}img/gospel-ministry.jpg" class="img-fluid w-100" alt="Top Image" /> -->
+-->
 <!-- </div> -->
 <!---->
 <div class="container-fluid page-header">
@@ -13,7 +14,6 @@
 		<!-- </nav> -->
 	</div>
 </div>
-
 
 <div class="container-fluid py-5">
 	<div class="container">

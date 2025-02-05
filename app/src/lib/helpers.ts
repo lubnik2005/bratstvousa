@@ -9,4 +9,3 @@ export function formatDate(dateString: string | null) {
 		day: '2-digit'
 	});
 }
-

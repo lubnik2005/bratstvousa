@@ -127,5 +127,7 @@ export const churches = pgTable('churches', {
 	phone: varchar('phone', { length: 255 }),
 	youtube: varchar('youtube', { length: 255 }),
 	createdAt: timestamp('created_at').defaultNow(),
-	updatedAt: timestamp('updated_at').defaultNow()
+	updatedAt: timestamp('updated_at').defaultNow(),
+	longitude: varchar('longitude'),
+	latitude: varchar('latitude')
 });
