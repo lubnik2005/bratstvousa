@@ -62,14 +62,8 @@
 				<a class="btn btn-link" target="_blank" href="https://awakeningmission.org/"
 					>Awakening Mission</a
 				>
-				<a class="btn btn-link" target="_blank" href="https://bibleschooliucecb.org/"
-					>Bible School</a
-				>
 				<a class="btn btn-link" target="_blank" href="https://missionrem.org/">Mission REM</a>
 				<a class="btn btn-link" target="_blank" href="https://mscmusic.org/">MSC Music</a>
-				<a class="btn btn-link" target="_blank" href="https://archive.bratstvousa.com/"
-					>Archive Site</a
-				>
 			</div>
 			<div class="col-lg-3 col-md-6">
 				<h4 class="text-light mb-4">Privacy Policy</h4>
