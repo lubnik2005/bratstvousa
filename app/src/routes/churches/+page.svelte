@@ -106,7 +106,7 @@
 								<a href={`tel:${church.phone}`}> {church.phone}</a><br /> <!-- content here -->
 							{/if}
 							{#if church.youtube}
-								<a href={church.youtube}>Youtube Channel</a>
+								<a target="_blank" href={church.youtube}><i class="fab fa-youtube"></i></a>
 							{/if}
 						</td>
 					</tr>
