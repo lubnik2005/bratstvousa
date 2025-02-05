@@ -2,6 +2,7 @@
 	import Header from '$lib/components/Header.svelte';
 	import { options } from '@fullcalendar/core/preact.js';
 	import { onMount } from 'svelte';
+	import Map from '$lib/components/Map.svelte';
 	export let data;
 	let selectedRegion = 'central';
 	let map;
@@ -115,13 +116,11 @@
 		</table>
 	</div>
 
-	<!-- Map -->
-	<div id="map"></div>
 </div>
-
-<!-- <script -->
-<!--   src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY"> -->
-<!-- </script> -->
+<!-- Map -->
+<div class="container">
+  <Map churches={data.churches} />
+</div>
 
 <style>
 	.church-card {
