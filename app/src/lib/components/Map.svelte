@@ -36,18 +36,19 @@
 				if (!(church.longitude && church.latitude)) continue;
 				L.marker([church.latitude, church.longitude], { icon: customIcon }).addTo(map).bindPopup(`
 				<div class="church-card">
-					<h4>${church.state}, ${church.city}</h4>
-					<p>${church.name_line_1} ${church.name_line_2}</p>
-					<p><strong>Address:</strong> ${church.address_line_1}, ${church.address_line_2}</p>
-					<p><strong>Contact:</strong> ${church.contact_first_name} ${church.contact_last_name}</p>
-					<p><strong>Phone:</strong> <a href="tel:${church.phone}">${church.phone}</a></p>
+					<h4>${church.state ?? ''}, ${church.city ?? ''}</h4>
+					<p>${church.name_line_1 ?? ''} ${church.name_line_2 ?? ''}</p>
+					<p><strong>Address:</strong> ${church.address_line_1 ?? ''}, ${church.address_line_2 ?? ''}</p>
+					<p><strong>Contact:</strong> ${church.contact_first_name ?? ''} ${church.contact_last_name ?? ''}</p>
+					<p><strong>Phone:</strong> <a href="tel:${church.phone ?? ''}">${church.phone ?? ''}</a></p>
 					${
-						church.youtube &&
-						`<p>
+						church.youtube
+							? `<p>
 							<a href="${church.youtube}" target="_blank" rel="noopener noreferrer">
-								YouTube Channel
+                <i class="fab fa-youtube"></i>
 							</a>
 						</p>`
+							: ''
 					}
 				</div> `);
 			}
