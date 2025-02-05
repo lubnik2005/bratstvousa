@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { Event as E } from '$lib/server/db/schema';
+	import { formatDate } from '@fullcalendar/core/index.js';
 	import { bindIfParam } from 'drizzle-orm';
 	export let region;
 	export let upcomingEvents: (typeof E)[] | undefined = [];
@@ -84,7 +85,7 @@
 										style="min-height: calc(1.5em * 2)"
 										href="{`/${ministry_slug}/${event.slug}`}">{event.title}</a
 									>
-									<span class="text-primary me-1">{event.startAt}</span>
+									<span class="text-primary me-1">{event.startAtString}</span>
 									<!-- <span class="text-body text-decoration-line-through">$29.00</span> -->
 								</div>
 								<!-- This would be the registration button -->

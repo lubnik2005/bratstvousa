@@ -18,7 +18,7 @@
 							<!-- I would like for region info to go here -->
 							<!-- <small class="me-3"><i class="fa fa-user text-primary me-2"></i>{article.region}</small> -->
 							<small class="me-3"
-								><i class="fa fa-calendar text-primary me-2"></i>{article.date}</small
+								><i class="fa fa-calendar text-primary me-2"></i>{article.date_string}</small
 							>
 						</div>
 					</div>

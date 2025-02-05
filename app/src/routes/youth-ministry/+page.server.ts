@@ -3,12 +3,13 @@ import { youthEvents } from '$lib/server/db/schema';
 import { env } from '$env/dynamic/private';
 
 import { lt, gte, or, and, isNull } from 'drizzle-orm/expressions';
+import { formatDate } from '$lib/helpers';
 
 export async function load() {
 	const today = new Date().toISOString(); // Convert Date to ISO string
 
 	// Archive: Events where `endAt` is before today (or `startAt` if `endAt` is null)
-	const archivedEvents = await db
+	const archivedEvents = (await db
 		.select()
 		.from(youthEvents)
 		.where(
@@ -17,13 +18,13 @@ export async function load() {
 				and(isNull(youthEvents.endAt), lt(youthEvents.startAt, today))
 			)
 		)
-		.orderBy(youthEvents.startAt, 'desc'); // Order archive descending
+		.orderBy(youthEvents.startAt, 'desc')).map((a) => ({ startAtString: formatDate(a.startAt), ...a })); // Order archive descending
 
-	const upcomingEvents = await db
+	const upcomingEvents = (await db
 		.select()
 		.from(youthEvents)
 		.where(or(gte(youthEvents.startAt, today), gte(youthEvents.endAt, today)))
-		.orderBy(youthEvents.startAt, 'asc'); // Order by soonest start date
+		.orderBy(youthEvents.startAt, 'asc')).map((a) => ({ startAtString: formatDate(a.startAt), ...a })); // Order by soonest start date
 
 	return {
 		upcomingEvents,

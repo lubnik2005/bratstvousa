@@ -169,7 +169,7 @@
 										style="min-height: calc(1.5em * 2)"
 										href={`/youth-ministry/${event.slug}`}>{event.title}</a
 									>
-									<span class="text-primary me-1">{event.startAt}</span>
+									<span class="text-primary me-1">{event.startAtString}</span>
 									<!-- <span class="text-body text-decoration-line-through">$29.00</span> -->
 								</div>
 								<!-- This would be the registration button -->
@@ -220,7 +220,7 @@
 										style="min-height: calc(1.5em * 2)"
 										href={`/youth-ministry/${event.slug}`}>{event.title}</a
 									>
-									<span class="text-primary me-1">{event.startAt}</span>
+									<span class="text-primary me-1">{event.startAtString}</span>
 									<!-- <span class="text-body text-decoration-line-through">$29.00</span> -->
 								</div>
 								<!-- This would be the registration button -->
