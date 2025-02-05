@@ -52,7 +52,7 @@
 					{#if church.youtube}
 						<p>
 							<a href={church.youtube} target="_blank" rel="noopener noreferrer">
-								YouTube Channel
+								<i class="fab fa-youtube"></i>
 							</a>
 						</p>
 					{/if}
@@ -115,11 +115,10 @@
 			</tbody>
 		</table>
 	</div>
-
 </div>
 <!-- Map -->
 <div class="container">
-  <Map churches={data.churches} />
+	<Map churches={data.churches} />
 </div>
 
 <style>
