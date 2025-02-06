@@ -20,21 +20,68 @@
 				maxZoom: 20
 			}).addTo(map);
 
-			// Define a custom icon
-			const customIcon = L.icon({
-				// iconUrl: 'https://leafletjs.com/examples/custom-icons/leaf-red.png', // Your custom icon URL
-				iconUrl: 'https://www.svgrepo.com/show/176337/church-pin.svg',
-				iconSize: [38, 95], // Size of the icon
-				iconAnchor: [19, 65],
-				// iconAnchor: [22, 94], // Point of the icon which corresponds to marker's location
-				popupAnchor: [-3, -76] // Point from which the popup should open
-			});
+			const icons = {
+				// Define a custom icon
+				churchIcon: L.icon({
+					// iconUrl: 'https://leafletjs.com/examples/custom-icons/leaf-red.png', // Your custom icon URL
+					iconUrl: 'https://www.svgrepo.com/show/176337/church-pin.svg',
+					iconSize: [38, 95], // Size of the icon
+					iconAnchor: [19, 65],
+					// iconAnchor: [22, 94], // Point of the icon which corresponds to marker's location
+					popupAnchor: [-3, -76] // Point from which the popup should open
+				}),
+
+				central: new L.Icon({
+					iconUrl:
+						'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png',
+					shadowUrl:
+						'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+					iconSize: [25, 41],
+					iconAnchor: [12, 41],
+					popupAnchor: [1, -34],
+					shadowSize: [41, 41]
+				}),
+
+				east: new L.Icon({
+					iconUrl:
+						'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
+					shadowUrl:
+						'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+					iconSize: [25, 41],
+					iconAnchor: [12, 41],
+					popupAnchor: [1, -34],
+					shadowSize: [41, 41]
+				}),
+
+				california: new L.Icon({
+					iconUrl:
+						'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-gold.png',
+					shadowUrl:
+						'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+					iconSize: [25, 41],
+					iconAnchor: [12, 41],
+					popupAnchor: [1, -34],
+					shadowSize: [41, 41]
+				}),
+
+				'north-west': new L.Icon({
+					iconUrl:
+						'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-violet.png',
+					shadowUrl:
+						'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+					iconSize: [25, 41],
+					iconAnchor: [12, 41],
+					popupAnchor: [1, -34],
+					shadowSize: [41, 41]
+				})
+			};
 
 			// Add a marker at Los Angeles, CA
 			for (let index = 0; index < churches.length; index++) {
 				const church = churches[index];
 				if (!(church.longitude && church.latitude)) continue;
-				L.marker([church.latitude, church.longitude], { icon: customIcon }).addTo(map).bindPopup(`
+				L.marker([church.latitude, church.longitude], { icon: icons[church.region] }).addTo(map)
+					.bindPopup(`
 				<div class="church-card">
 					<h4>${church.state ?? ''}, ${church.city ?? ''}</h4>
 					<p>${church.name_line_1 ?? ''} ${church.name_line_2 ?? ''}</p>
