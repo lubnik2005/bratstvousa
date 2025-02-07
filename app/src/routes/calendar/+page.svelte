@@ -30,6 +30,9 @@
 			defaultAllDay: true,
 			headerToolbar,
 			locales: [ruLocale],
+			buttonText: {
+				list: 'График' 
+			},
 			events: filteredEvents,
 			loading: function (isLoading) {
 				calendarIsLoading = isLoading;
