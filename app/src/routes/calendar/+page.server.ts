@@ -21,7 +21,9 @@ export async function load() {
 					id: eventSchema.id,
 					title: eventSchema.title,
 					start: eventSchema.startAt,
-					end: eventSchema.endAt,
+					// HACK: in the fullcalendar.io, the end date is exclusive, so I need to add a day.
+					end: sql`(${eventSchema.endAt}::TIMESTAMP + INTERVAL '1 day')`,
+					// end: eventSchema.endAt,
 					// TODO: this should link to the ministry slug, not just 'general-event'
 					url: sql`CONCAT('/general-event/', ${eventSchema.slug})`, // Add prefix to the slug
 					region: eventSchema.region,

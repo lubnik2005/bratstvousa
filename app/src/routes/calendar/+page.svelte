@@ -28,10 +28,12 @@
 			plugins: [listPlugin, dayGridPlugin, timeGridPlugin],
 			initialView: window.matchMedia('(max-width: 754px)').matches ? 'listYear' : 'dayGridMonth',
 			defaultAllDay: true,
-			headerToolbar,
+			headerToolbar: window.matchMedia('(max-width: 754px)').matches
+				? headerToolbarMobile
+				: headerToolbar,
 			locales: [ruLocale],
 			buttonText: {
-				list: 'График' 
+				list: 'График'
 			},
 			events: filteredEvents,
 			loading: function (isLoading) {
@@ -40,7 +42,7 @@
 		});
 		console.log(data);
 		calendar.render();
-		calendar.setOption('headerToolbar', headerToolbarMobile);
+		// calendar.setOption('headerToolbar', headerToolbarMobile);
 
 		return () => {
 			calendar.destroy(); // Cleanup when the component is unmounted
