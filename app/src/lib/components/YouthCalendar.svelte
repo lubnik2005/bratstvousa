@@ -18,6 +18,7 @@
 		if (calendarEl) {
 			calendar = new Calendar(calendarEl, {
 				plugins: [dayGridPlugin, timeGridPlugin],
+        firstDay: 0,
 				initialView: 'dayGridMonth',
 				headerToolbar: {
 					left: 'prev,today,next',

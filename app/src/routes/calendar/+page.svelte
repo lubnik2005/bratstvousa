@@ -27,6 +27,7 @@
 		calendar = new Calendar(calendarEl, {
 			plugins: [listPlugin, dayGridPlugin, timeGridPlugin],
 			initialView: window.matchMedia('(max-width: 754px)').matches ? 'listYear' : 'dayGridMonth',
+      firstDay: 0,
 			defaultAllDay: true,
 			headerToolbar: window.matchMedia('(max-width: 754px)').matches
 				? headerToolbarMobile
