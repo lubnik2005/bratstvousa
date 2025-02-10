@@ -3,6 +3,7 @@
 	import { Calendar } from '@fullcalendar/core';
 	import dayGridPlugin from '@fullcalendar/daygrid';
 	export let upcomingEvents;
+	import ruLocale from '@fullcalendar/core/locales/ru';
 	export let ministry_slug = 'general-ministry';
 
 	let calendar: Calendar;
@@ -11,6 +12,7 @@
 		const calendarEl = document.getElementById('calendar')!;
 		calendar = new Calendar(calendarEl, {
 			firstDay: 0,
+			locales: [ruLocale],
 			plugins: [dayGridPlugin],
 			events: upcomingEvents.map((e) => ({
 				title: e.title,
