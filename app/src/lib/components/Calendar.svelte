@@ -10,7 +10,7 @@
 	onMount(() => {
 		const calendarEl = document.getElementById('calendar')!;
 		calendar = new Calendar(calendarEl, {
-      firstDay: 0,
+			firstDay: 0,
 			plugins: [dayGridPlugin],
 			events: upcomingEvents.map((e) => ({
 				title: e.title,
