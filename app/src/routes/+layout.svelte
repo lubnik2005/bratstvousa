@@ -64,7 +64,7 @@
 				>
 				<a class="btn btn-link" target="_blank" href="https://missionrem.org/">Mission REM</a>
 				<a class="btn btn-link" target="_blank" href="https://mscmusic.org/">MSC Music</a>
-				<a class="btn btn-link" target="_blank" href="https://https://iosifnichita.com/"
+				<a class="btn btn-link" target="_blank" href="https://iosifnichita.com/"
 					>Iosif Nichita</a
 				>
 			</div>
