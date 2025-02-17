@@ -4,7 +4,7 @@
 
 <!-- Top Image Section -->
 <div class="container-fluid p-0">
-	<img src="{data.media_url}img/short-introduction.jpg" class="img-fluid w-100" alt="Top Image" />
+	<img src="{data.media_url}img/short-introduction.webp" class="img-fluid w-100" alt="Top Image" />
 </div>
 
 <!-- Content Section -->
