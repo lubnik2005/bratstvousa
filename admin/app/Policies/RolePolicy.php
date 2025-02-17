@@ -4,7 +4,6 @@ namespace App\Policies;
 
 use App\Models\PktharinduNovaPermissionsRole;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class RolePolicy
 {
@@ -13,7 +12,7 @@ class RolePolicy
      */
     public function viewAny(User $user): bool
     {
-        return true;
+        return $user->hasPermissionTo('view roles');
     }
 
     /**
@@ -21,7 +20,7 @@ class RolePolicy
      */
     public function view(User $user, PktharinduNovaPermissionsRole $pktharinduNovaPermissionsRole): bool
     {
-        return true;
+        return $user->hasPermissionTo('view roles');
     }
 
     /**
@@ -29,7 +28,7 @@ class RolePolicy
      */
     public function create(User $user): bool
     {
-        return true;
+        return $user->hasPermissionTo('create roles');
     }
 
     /**
@@ -37,7 +36,7 @@ class RolePolicy
      */
     public function update(User $user, PktharinduNovaPermissionsRole $pktharinduNovaPermissionsRole): bool
     {
-        return true;
+        return $user->hasPermissionTo('update roles');
     }
 
     /**
@@ -45,7 +44,7 @@ class RolePolicy
      */
     public function delete(User $user, PktharinduNovaPermissionsRole $pktharinduNovaPermissionsRole): bool
     {
-        return true;
+        return $user->hasPermissionTo('delete roles');
     }
 
     /**
@@ -53,7 +52,7 @@ class RolePolicy
      */
     public function restore(User $user, PktharinduNovaPermissionsRole $pktharinduNovaPermissionsRole): bool
     {
-        return true;
+        return $user->hasPermissionTo('delete roles');
     }
 
     /**
@@ -61,6 +60,6 @@ class RolePolicy
      */
     public function forceDelete(User $user, PktharinduNovaPermissionsRole $pktharinduNovaPermissionsRole): bool
     {
-        return true;
+        return $user->hasPermissionTo('delete roles');
     }
 }
