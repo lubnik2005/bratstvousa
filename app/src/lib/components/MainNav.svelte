@@ -20,14 +20,23 @@
 					href: 'committee'
 				},
 				{
-					title: 'Адреса Домов молитвы',
-					href: 'churches'
-				},
-				{
 					title: 'Вероучение',
 					href: 'beliefs'
 				}
 			]
+		},
+
+		{
+			title: 'АДРЕСА ДОМОВ МОЛИТВЫ',
+			href: 'churches'
+		},
+		{
+			title: 'КАЛЕНДАРЬ',
+			href: 'calendar'
+		},
+		{
+			title: 'НОВОСТИ',
+			href: 'news'
 		},
 		{
 			title: 'ОТДЕЛЫ',
@@ -54,14 +63,6 @@
 					href: 'bible-school-ministry'
 				}
 			]
-		},
-		{
-			title: 'КАЛЕНДАРЬ',
-			href: 'calendar'
-		},
-		{
-			title: 'НОВОСТИ',
-			href: 'news'
 		}
 	];
 
