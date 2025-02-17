@@ -1,4 +1,5 @@
 import { db } from '$lib/server/db';
+import { error } from '@sveltejs/kit';
 import {
 	Event,
 	bibleEducationEvents,
@@ -50,6 +51,12 @@ export async function load({ params: { ministry, slug } }: { params: { slug: 'st
 		.where(eq(sql`result.slug`, slug)) // Correctly reference the aliased column
 		.limit(1);
 	const event = events[0];
+
+	if (!event) {
+		error(404, {
+			message: 'Страница не найдена'
+		});
+	}
 
 	//HACK: This is a temporary solution. In reality the url should be changed in the db, probably?
 	// Maybe it should always fix it? Not sure yet.
