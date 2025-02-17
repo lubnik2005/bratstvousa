@@ -114,7 +114,7 @@
 		<div class="container">
 			<div class="row">
 				<div class="col-md-6 text-md-start mb-md-0 mb-3 text-center">
-					&copy; <a href="#">Bratsvo USA</a>, All Right Reserved.
+					&copy; <a href="#">Bratstvo USA</a>, All Right Reserved.
 				</div>
 			</div>
 		</div>
