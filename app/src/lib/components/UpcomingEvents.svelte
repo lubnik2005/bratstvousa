@@ -16,7 +16,7 @@
 	}
 
 	export const regions: Region[] = [
-		{ key: 'all', label: 'Все Ригионы' },
+		{ key: 'all', label: 'Все Регионы' },
 		{ key: 'central', label: 'Центральный регион' },
 		{ key: 'east', label: 'Восточный регион' },
 		{ key: 'california', label: 'Калифорнийский регион' },
@@ -24,7 +24,7 @@
 	];
 
 	let filteredUpcomingEvents = upcomingEvents;
-	let selectedRegion = { key: 'all', label: 'Все Ригионы' };
+	let selectedRegion = { key: 'all', label: 'Все Регионы' };
 
 	function filterResources(region: Region) {
 		filteredUpcomingEvents = upcomingEvents.filter(
