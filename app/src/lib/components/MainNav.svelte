@@ -63,7 +63,11 @@
 					href: 'bible-school-ministry'
 				}
 			]
-		}
+		},
+    {
+      title: 'ПРОПОВЕДИ',
+      link: 'https://www.youtube.com/@bratstvousa'
+    }
 	];
 
 	onMount(() => {
@@ -156,7 +160,7 @@
 						</div>
 					{:else}
 						<a
-							href="/{item.href}"
+							href="{item.href ? "/" + item.href : item.link}"
 							class="nav-item nav-link {item.children && 'dropdown-toggle'} active">{item.title}</a
 						>
 					{/if}
