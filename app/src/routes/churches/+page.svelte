@@ -47,6 +47,7 @@
 					<h4>{church.state}, {church.city}</h4>
 					<p>{church.name_line_1} {church.name_line_2}</p>
 					<p><strong>Address:</strong> {church.address_line_1}, {church.address_line_2}</p>
+          <a href="geo:124.028582,-29.201930" target="_blank">Click here for map</a>
 					<p><strong>Contact:</strong> {church.contact_first_name} {church.contact_last_name}</p>
 					<p><strong>Phone:</strong> <a href="tel:{church.phone}">{church.phone}</a></p>
 					{#if church.youtube}
@@ -99,7 +100,8 @@
 					<tr>
 						<td>{church.state}</td>
 						<td>{church.city}</td>
-						<td>{church.address_line_1}<br />{church.address_line_2}</td>
+            <td> <a target="_blank" href={`http://maps.google.com/?q=${church.address_line_1 + church.address_line_1}`}>{church.address_line_1}<br />{church.address_line_2}</a>
+            </td>
 						<td>{church.name_line_1}<br />{church.name_line_2}</td>
 						<td>{church.contact_last_name}<br />{church.contact_first_name}</td>
 						<td>
