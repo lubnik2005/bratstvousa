@@ -2,73 +2,63 @@
 	import { onMount } from 'svelte';
 
 	export let media_url;
-	const menu_items = [
-		{
-			title: 'О НАС',
-			children: [
-				{
-					title: 'Приветственное слово',
-					href: 'greeting'
-				},
-				{
-					title: 'Краткий обзор',
-					href: 'short-introduction'
-				},
+const menu_items = [
+	{
+		title: 'О НАС',
+		children: [
+			{ title: 'Приветственное слово', href: 'greeting' },
+			{ title: 'Краткий обзор', href: 'short-introduction' },
+			{ title: 'Состав совета', href: 'committee' },
+			{ title: 'Вероучение', href: 'beliefs' }
+		]
+	},
+	{ title: 'АДРЕСА ДОМОВ МОЛИТВЫ', href: 'churches' },
+	{ title: 'КАЛЕНДАРЬ', href: 'calendar' },
+	{ title: 'НОВОСТИ', href: 'news' },
 
-				{
-					title: 'Состав совета',
-					href: 'committee'
-				},
-				{
-					title: 'Вероучение',
-					href: 'beliefs'
-				}
-			]
-		},
+	{
+		title: 'ОТДЕЛЫ',
+		children: [
+			{
+				title: 'Детский отдел',
+				href: 'childrens-ministry',
+				description: 'Учение в юности — основа жизни.'
+			},
+			{
+				title: 'Молодежный отдел',
+				href: 'youth-ministry',
+				description: 'Молодежь, исполненная Духа Святого, — надежда церкви.'
+			},
+			{
+				title: 'Семейный отдел',
+				href: 'family-ministry',
+				description: 'Крепкая семья — основа крепкой церкви.'
+			},
+			{
+				title: 'Отдел Благовестия',
+				href: 'gospel-ministry',
+				description: 'Проповедуйте Евангелие всей твари.'
+			},
+			{
+				title: 'Музыкально хоровой отдел (МХО)',
+				href: 'music-choir-ministry',
+				description: 'Пойте Господу новую песнь.'
+			},
+			{
+				title: 'Библейское Образование',
+				subcategory: [
+					{ title: 'Библейская Школа', href: 'bible-school-ministry' },
+					{ title: 'Библейские Курсы', href: 'bible-courses-ministry' },
+					{ title: 'Application', href: 'enroll' }
+				],
+				description: 'Познайте истину, и истина сделает вас свободными.'
+			}
+		]
+	},
 
-		{
-			title: 'АДРЕСА ДОМОВ МОЛИТВЫ',
-			href: 'churches'
-		},
-		{
-			title: 'КАЛЕНДАРЬ',
-			href: 'calendar'
-		},
-		{
-			title: 'НОВОСТИ',
-			href: 'news'
-		},
-		{
-			title: 'ОТДЕЛЫ',
-			children: [
-				{ title: 'Детский отдел', href: 'childrens-ministry' },
-				{
-					title: 'Молодежный отдел',
-					href: 'youth-ministry'
-				},
-				{
-					title: 'Семейный отдел',
-					href: 'family-ministry'
-				},
-				{
-					title: 'Отдел Благовестия',
-					href: 'gospel-ministry'
-				},
-				{
-					title: 'Музыкально хоровой отдел (МХО)',
-					href: 'music-choir-ministry'
-				},
-				{
-					title: 'Отдел библейского образования',
-					href: 'bible-school-ministry'
-				}
-			]
-		},
-    {
-      title: 'ПРОПОВЕДИ',
-      link: 'https://www.youtube.com/@bratstvousa'
-    }
-	];
+	{ title: 'ПРОПОВЕДИ', link: 'https://www.youtube.com/@bratstvousa' }
+];
+
 
 	onMount(() => {
 		// Fixed Navbar
@@ -141,31 +131,68 @@
 			<span class="navbar-toggler-icon"></span>
 		</button>
 		<div class="navbar-collapse collapse" id="navbarCollapse">
-			<div class="navbar-nav p-lg-0 ms-auto p-4">
-				{#each menu_items as item}
-					{#if item.children}
-						<div class="nav-item dropdown">
-							<a
-								href={item?.children.length ? '#' : item.href}
-								class="nav-item nav-link {item.children && 'dropdown-toggle'} active"
-								role="button"
-								data-bs-toggle="dropdown">{item.title}</a
-							>
 
-							<div class="dropdown-menu m-0">
-								{#each item.children as child}
-									<a href="/{child.href}" class="dropdown-item">{child.title}</a>
+
+
+
+
+<div class="navbar-nav p-lg-0 ms-auto p-4">
+	{#each menu_items as item}
+		{#if item.children}
+			{#if item.title === 'ОТДЕЛЫ'}
+				<!-- Mega Menu for Departments -->
+				<div class="nav-item dropdown mega-menu position-static">
+					<a href="#" class="nav-link dropdown-toggle active" data-bs-toggle="dropdown">
+						{item.title}
+					</a>
+					<div class="dropdown-menu mega-content w-100">
+						<div class="container">
+							<div class="row">
+								{#each item.children as department}
+									<div class="col-6">
+										<a href="{department.href ? "/" + department.href : null}" class="dropdown-item title">
+											<strong>{department.title}</strong>
+										</a>
+										{#if department.subcategory}
+											<ul class="list-unstyled">
+												{#each department.subcategory as sub}
+													<li>
+														<a href="/{sub.href}" class="dropdown-item">{sub.title}</a>
+													</li>
+												{/each}
+											</ul>
+										{/if}
+										<p class="desc">{department.description}</p>
+									</div>
 								{/each}
 							</div>
 						</div>
-					{:else}
-						<a
-							href="{item.href ? "/" + item.href : item.link}"
-							class="nav-item nav-link {item.children && 'dropdown-toggle'} active">{item.title}</a
-						>
-					{/if}
-				{/each}
-			</div>
+					</div>
+				</div>
+			{:else}
+				<!-- Regular Dropdown -->
+				<div class="nav-item dropdown">
+					<a href={item?.children.length ? '#' : item.href} class="nav-link dropdown-toggle active" data-bs-toggle="dropdown">
+						{item.title}
+					</a>
+					<div class="dropdown-menu">
+						{#each item.children as child}
+							<a href="/{child.href}" class="dropdown-item">{child.title}</a>
+						{/each}
+					</div>
+				</div>
+			{/if}
+		{:else}
+			<a href="{item.href ? '/' + item.href : item.link}" class="nav-item nav-link active">
+				{item.title}
+			</a>
+		{/if}
+	{/each}
+</div>
+
+
+
+
 			<!-- This is a search icon. Commented out for now. -->
 			<!-- <div class="d-none d-lg-flex ms-2"> -->
 			<!-- 	<a class="btn-sm-square rounded-circle ms-3 bg-white" href=""> -->
@@ -179,27 +206,70 @@
 <!-- Navbar End -->
 
 <style>
-	.whole-navbar {
-		background: rgb(255, 255, 255);
-		background: linear-gradient(
-			180deg,
-			rgba(255, 255, 255, 1) 0%,
-			rgba(255, 255, 255, 0.7959384437368697) 53%,
-			rgba(255, 255, 255, 0.48501407398897056) 100%
-		);
-		z-index: 1030;
-	}
+.mega-menu {
+    position: static !important; /* Ensure correct placement */
+}
 
-	.responsive-fixed-top {
-		position: fixed; /* Default for larger screens */
-		top: 0;
-		width: 100%;
-		z-index: 1030;
-	}
+.mega-content {
+    position: absolute;
+    top: 100%;
+    right: 10px;
+    transform: translateX(-50%); /* Center aligns */
+    width: 80vw; /* Reduce width to keep it visually contained */
+    max-width: 900px; /* Prevents stretching on large screens */
+    padding: 20px;
+    background: white;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    display: none;
+    z-index: 1000;
+    border-radius: 6px; /* Slight rounding for a cleaner look */
+}
 
-	@media (max-width: 768px) {
-		.responsive-fixed-top {
-			position: relative; /* Disable fixed-top for smaller devices */
-		}
-	}
+.mega-menu:hover .mega-content {
+    display: block;
+}
+
+.mega-content .row {
+    display: flex;
+    justify-content: space-between;
+}
+
+.mega-content .col-md-4 {
+    flex: 1;
+    padding: 10px;
+    min-width: 200px; /* Ensures columns don't collapse */
+}
+
+.mega-content .title {
+    font-weight: bold;
+    color: #333;
+    font-size: 1.1rem;
+}
+
+.mega-content .desc {
+    font-size: 0.9rem;
+    color: gray;
+    margin-top: 5px;
+}
+
+/* Mobile Fixes */
+@media (max-width: 992px) {
+    .mega-content {
+        width: 100%;
+        left: 0;
+        transform: none;
+        max-width: 100%;
+    }
+
+    .mega-content .row {
+        flex-wrap: wrap;
+    }
+
+    .mega-content .col-md-4 {
+        width: 100%;
+        text-align: center;
+        margin-bottom: 15px;
+    }
+}
+
 </style>
