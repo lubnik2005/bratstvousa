@@ -7,6 +7,7 @@ use Laravel\Nova\Fields\File;
 use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\Select;
 use Laravel\Nova\Http\Requests\NovaRequest;
+use Laravel\Nova\Actions\ExportAsCsv;
 
 class ChildrensFile extends Resource
 {
@@ -91,6 +92,6 @@ class ChildrensFile extends Resource
      */
     public function actions(NovaRequest $request)
     {
-        return [];
+        return [        ExportAsCsv::make(),];
     }
 }

@@ -78,6 +78,6 @@ class YouthEvent extends Resource
      */
     public function actions(NovaRequest $request)
     {
-        return [];
+        return [        ExportAsCsv::make(),];
     }
 }

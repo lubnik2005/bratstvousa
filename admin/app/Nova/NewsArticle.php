@@ -108,6 +108,6 @@ class NewsArticle extends Resource
      */
     public function actions(NovaRequest $request)
     {
-        return [];
+        return [        ExportAsCsv::make(),];
     }
 }

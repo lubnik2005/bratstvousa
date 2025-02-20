@@ -10,6 +10,7 @@ use Laravel\Nova\Fields\Slug;
 use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Fields\Trix;
 use Laravel\Nova\Http\Requests\NovaRequest;
+use Laravel\Nova\Actions\ExportAsCsv;
 
 class FamilyEvent extends Resource
 {
@@ -85,6 +86,6 @@ class FamilyEvent extends Resource
      */
     public function actions(NovaRequest $request): array
     {
-        return [];
+        return [        ExportAsCsv::make(),];
     }
 }

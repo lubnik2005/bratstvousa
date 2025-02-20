@@ -3,6 +3,7 @@
 namespace App\Nova;
 
 use Laravel\Nova\Http\Requests\NovaRequest;
+use Laravel\Nova\Actions\ExportAsCsv;
 
 class GospelEvent extends Resource
 {
@@ -77,6 +78,6 @@ class GospelEvent extends Resource
      */
     public function actions(NovaRequest $request): array
     {
-        return [];
+        return [        ExportAsCsv::make(),];
     }
 }

@@ -2,12 +2,12 @@
 
 namespace App\Nova;
 
-use Illuminate\Http\Request;
 use Laravel\Nova\Fields\ID;
-use Laravel\Nova\Fields\Text;
+use Laravel\Nova\Actions\ExportAsCsv;
 use Laravel\Nova\Fields\Number;
-use Laravel\Nova\Fields\URL;
 use Laravel\Nova\Fields\Select;
+use Laravel\Nova\Fields\Text;
+use Laravel\Nova\Fields\URL;
 use Laravel\Nova\Http\Requests\NovaRequest;
 
 class Church extends Resource
@@ -24,7 +24,7 @@ class Church extends Resource
      *
      * @var string
      */
-    public static $title = 'id';
+    public static $title = 'name_line_1';
 
     /**
      * The columns that should be searched.
@@ -32,7 +32,7 @@ class Church extends Resource
      * @var array
      */
     public static $search = [
-        'id',
+        'name_line_1', 'state',
     ];
 
     /**
@@ -135,6 +135,6 @@ class Church extends Resource
      */
     public function actions(NovaRequest $request): array
     {
-        return [];
+        return [        ExportAsCsv::make(),];
     }
 }

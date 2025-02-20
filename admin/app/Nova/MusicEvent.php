@@ -77,6 +77,6 @@ class MusicEvent extends Resource
      */
     public function actions(NovaRequest $request): array
     {
-        return [];
+        return [        ExportAsCsv::make(),];
     }
 }

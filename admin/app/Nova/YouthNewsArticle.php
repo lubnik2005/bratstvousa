@@ -3,6 +3,7 @@
 namespace App\Nova;
 
 use Illuminate\Http\Request;
+use Laravel\Nova\Actions\ExportAsCsv;
 use Laravel\Nova\Fields\Date;
 use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\Image;
@@ -84,14 +85,11 @@ class YouthNewsArticle extends Resource
      */
     public function lenses(NovaRequest $request)
     {
-        return [];
+        return [
+            ExportAsCsv::make(),
+        ];
     }
 
-    /**
-     * Get the actions available for the resource.
-     *
-     * @return array
-     */
     public function actions(NovaRequest $request)
     {
         return [];
