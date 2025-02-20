@@ -372,9 +372,29 @@ return [
             'description' => 'Can delete general events',
             'group' => 'General Events',
         ],
-
         // General Events end
-
+        // form submissions Start
+        // form submissions Permissions
+        'view form_submissions' => [
+            'display_name' => 'View form submissions',
+            'description' => 'Can view form submissions',
+            'group' => 'Form Submissions',
+        ],
+        'create form_submissions' => [
+            'display_name' => 'Create form submissions',
+            'description' => 'Can create form submissions',
+            'group' => 'Form Submissions',
+        ],
+        'edit form_submissions' => [
+            'display_name' => 'Edit form submissions',
+            'description' => 'Can edit form submissions',
+            'group' => 'Form Submissions',
+        ],
+        'delete form_submissions' => [
+            'display_name' => 'Delete form submissions',
+            'description' => 'Can delete form submissions',
+            'group' => 'Form Submissions',
+        ],
+        // form submissions End
     ],
-
 ];
