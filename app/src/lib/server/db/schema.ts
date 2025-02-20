@@ -6,7 +6,8 @@ import {
 	timestamp,
 	varchar,
 	date,
-	json
+	json,
+	jsonb
 } from 'drizzle-orm/pg-core';
 
 export const user = pgTable('user', {
@@ -56,6 +57,25 @@ const Article = {
 	createdAt: timestamp('created_at').defaultNow(),
 	updatedAt: timestamp('updated_at').defaultNow()
 };
+
+export const formSubmissions = pgTable('form_submissions', {
+	id: serial('id').primaryKey(),
+	formName: varchar('form_name', { length: 255 }),
+	email: varchar('email', { length: 255 }),
+	phone: varchar('phone', { length: 255 }),
+	firstName: varchar('first_name', { length: 255 }),
+	lastName: varchar('last_name', { length: 255 }),
+	middleName: varchar('middle_name', { length: 255 }),
+	dateOfBirth: date('date_of_birth'),
+	churchId: integer('church_id'),
+	content: jsonb('content'),
+	createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+	updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull()
+});
+
+
+export type FormSubmission = typeof formSubmissions.$inferSelect;
+
 
 export const medias = pgTable('media', {
 	id: serial('id').primaryKey(),
