@@ -2,7 +2,9 @@
 
 namespace App\Nova;
 
+use Laravel\Nova\Actions\ExportAsCsv;
 use Laravel\Nova\Http\Requests\NovaRequest;
+
 
 class MusicEvent extends Resource
 {
@@ -77,6 +79,6 @@ class MusicEvent extends Resource
      */
     public function actions(NovaRequest $request): array
     {
-        return [        ExportAsCsv::make(),];
+        return [ExportAsCsv::make()];
     }
 }
