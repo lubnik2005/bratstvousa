@@ -63,6 +63,7 @@ class NewsArticle extends Resource
                     $content = $request->input($requestAttribute);
                     // Replace any width attribute with width="100%"
                     $content = preg_replace('/width="[^"]*"/', 'width="100%"', $content);
+                    $content = preg_replace('/height="[^"]*"/', '', $content);
                     // Set the modified value
                     $model->{$attribute} = $content;
                 }),
