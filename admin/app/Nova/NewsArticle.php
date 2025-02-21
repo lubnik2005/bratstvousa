@@ -5,6 +5,7 @@ namespace App\Nova;
 use Ebess\AdvancedNovaMediaLibrary\Fields\Files;
 use Ebess\AdvancedNovaMediaLibrary\Fields\Images;
 use Illuminate\Http\Request;
+use Laravel\Nova\Actions\ExportAsCsv;
 use Laravel\Nova\Fields\Date;
 use Laravel\Nova\Fields\File;
 use Laravel\Nova\Fields\ID;
@@ -108,6 +109,6 @@ class NewsArticle extends Resource
      */
     public function actions(NovaRequest $request)
     {
-        return [        ExportAsCsv::make(),];
+        return [ExportAsCsv::make()];
     }
 }
