@@ -58,7 +58,14 @@ class NewsArticle extends Resource
             Date::make('Date'),
             Image::make('Featured Image', 'featured_image')->disk($disk)->path('upfiles/news'),
             Image::make('Thumbnail')->disk($disk)->path('/upfiles/page'),
-            Trix::make('Content')->withFiles($disk)->path('/upfiles/page'),
+            Trix::make('Content')->withFiles($disk)->path('/upfiles/page')
+                ->fillUsing(function ($request, $model, $attribute, $requestAttribute) {
+                    $content = $request->input($requestAttribute);
+                    // Replace any width attribute with width="100%"
+                    $content = preg_replace('/width="[^"]*"/', 'width="100%"', $content);
+                    // Set the modified value
+                    $model->{$attribute} = $content;
+                }),
             Images::make('Gallery', 'gallery') // Media collection name: 'gallery'
                 ->nullable()
                 ->showDimensions() // Display dimensions directly
