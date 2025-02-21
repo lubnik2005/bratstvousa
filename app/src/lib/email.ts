@@ -1,12 +1,12 @@
 // src/lib/email.js
 import nodemailer from 'nodemailer';
 import { google } from 'googleapis';
+import fs from 'fs';
 import { env } from '$env/dynamic/private';
 
 // Load environment variables
 const CLIENT_ID = env.GMAIL_CLIENT_ID;
 const CLIENT_SECRET = env.GMAIL_CLIENT_SECRET;
-const REFRESH_TOKEN = env.GMAIL_REFRESH_TOKEN;
 const EMAIL_USER = env.GMAIL_USER;
 const EMAIL_NAME = env.GMAIL_NAME;
 
@@ -17,22 +17,56 @@ const OAuth2Client = new google.auth.OAuth2(
 	'https://developers.google.com/oauthplayground'
 );
 
-OAuth2Client.setCredentials({ refresh_token: REFRESH_TOKEN });
-const SCOPE = 'https://www.googleapis.com/auth/gmail.send';
+// Load the refresh token from .env
+let currentRefreshToken = env.GMAIL_REFRESH_TOKEN;
+OAuth2Client.setCredentials({ refresh_token: currentRefreshToken });
 
 /**
- * Refreshes the access token and updates the OAuth2Client.
+ * Refreshes the access token and updates the .env file if a new refresh token is obtained.
  */
 async function getAccessToken() {
 	try {
-		const accessToken = await OAuth2Client.getAccessToken();
-		if (!accessToken || !accessToken.token) {
+		const tokenResponse = await OAuth2Client.refreshAccessToken();
+		const { access_token, refresh_token } = tokenResponse.credentials;
+
+		// Save new refresh token if it exists
+		if (refresh_token) {
+			console.log('New refresh token obtained:', refresh_token);
+			await saveNewRefreshToken(refresh_token);
+			currentRefreshToken = refresh_token; // Update in memory
+		}
+
+		if (!access_token) {
 			throw new Error('Failed to obtain access token');
 		}
-		return accessToken.token;
+		return access_token;
 	} catch (error) {
 		console.error('Error refreshing access token:', error);
 		throw new Error('Failed to refresh access token');
+	}
+}
+
+/**
+ * Saves the new refresh token to the .env file.
+ * Replaces the old GMAIL_REFRESH_TOKEN value.
+ */
+async function saveNewRefreshToken(newToken) {
+	try {
+		// Read the current .env file
+		const envFilePath = '.env';
+		let envContent = fs.readFileSync(envFilePath, 'utf-8');
+
+		// Replace the old refresh token with the new one
+		const updatedEnvContent = envContent.replace(
+			/^GMAIL_REFRESH_TOKEN=.*/m,
+			`GMAIL_REFRESH_TOKEN=${newToken}`
+		);
+
+		// Write the updated content back to the .env file
+		fs.writeFileSync(envFilePath, updatedEnvContent);
+		console.log('New refresh token saved to .env file.');
+	} catch (error) {
+		console.error('Failed to save new refresh token:', error);
 	}
 }
 
@@ -55,7 +89,7 @@ export async function sendEmail(to, subject, text) {
 				user: EMAIL_USER,
 				clientId: CLIENT_ID,
 				clientSecret: CLIENT_SECRET,
-				refreshToken: REFRESH_TOKEN,
+				refreshToken: currentRefreshToken,
 				accessToken: accessToken
 			}
 		});
@@ -75,8 +109,9 @@ export async function sendEmail(to, subject, text) {
 	} catch (error) {
 		// Handle specific token errors
 		if (error.response && error.response.data && error.response.data.error === 'invalid_grant') {
-			console.error('Token expired or revoked. Retrying...');
-			// Retry with a new token
+			console.error('Token expired or revoked. Retrying with new token...');
+			
+			// Get a new access token and refresh token
 			const newAccessToken = await getAccessToken();
 
 			// Retry sending email with the new token
@@ -87,7 +122,7 @@ export async function sendEmail(to, subject, text) {
 					user: EMAIL_USER,
 					clientId: CLIENT_ID,
 					clientSecret: CLIENT_SECRET,
-					refreshToken: REFRESH_TOKEN,
+					refreshToken: currentRefreshToken, // Use updated token
 					accessToken: newAccessToken
 				}
 			});
