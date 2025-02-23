@@ -5,6 +5,10 @@
 	export let data;
 </script>
 
+<svelte:head>
+  <title>Библейская Школа АО</title>
+</svelte:head>
+
 <Header title="Библейская Школа" />
 
 <div class="container-fluid">

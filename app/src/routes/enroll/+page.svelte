@@ -53,6 +53,10 @@
 	}
 </script>
 
+<svelte:head>
+  <title>Анкета поступающего в Библейскую школу</title>
+</svelte:head>
+
 <Header title="Анкета поступающего в Библейскую школу" />
 
 <div class="container mt-4">
