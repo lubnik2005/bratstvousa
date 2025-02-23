@@ -1,5 +1,6 @@
 <script lang="ts">
-	import MainNav from '$lib/components/MainNav.svelte';
+	// import MainNav from '$lib/components/MainNav.svelte';
+	import MainNav from '$lib/components/MainNav/Main.svelte';
 	import { onMount } from 'svelte';
 	export let data;
 	export let children;
