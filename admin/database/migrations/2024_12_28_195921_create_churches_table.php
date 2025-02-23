@@ -13,17 +13,17 @@ return new class extends Migration
     {
         Schema::create('churches', function (Blueprint $table) {
             $table->id();
-            $table->string('state');
-            $table->string('city');
-            $table->string('name_line_1');
-            $table->string('name_line_2');
-            $table->string('region');
-            $table->string('address_line_1');
-            $table->string('address_line_2');
-            $table->string('contact_first_name');
-            $table->string('contact_last_name');
-            $table->string('phone');
-            $table->string('youtube');
+            $table->string('state')->nullable();
+            $table->string('city')->nullable();
+            $table->string('name_line_1')->nullable();
+            $table->string('name_line_2')->nullable();
+            $table->string('region')->nullable();
+            $table->string('address_line_1')->nullable();
+            $table->string('address_line_2')->nullable();
+            $table->string('contact_first_name')->nullable();
+            $table->string('contact_last_name')->nullable();
+            $table->string('phone')->nullable();
+            $table->string('youtube')->nullable();
             $table->timestamps();
         });
     }
