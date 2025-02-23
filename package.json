@@ -1,5 +1,8 @@
 {
   "devDependencies": {
     "@sveltejs/adapter-node": "^5.2.11"
+  },
+  "dependencies": {
+    "handlebars": "^4.7.8"
   }
 }

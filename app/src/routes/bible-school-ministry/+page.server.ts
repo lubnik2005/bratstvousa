@@ -1,4 +1,3 @@
-
 import { db } from '$lib/server/db';
 import { bibleEducationEvents } from '$lib/server/db/schema';
 import { env } from '$env/dynamic/private';
