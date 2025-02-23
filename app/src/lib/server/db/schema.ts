@@ -73,9 +73,7 @@ export const formSubmissions = pgTable('form_submissions', {
 	updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull()
 });
 
-
 export type FormSubmission = typeof formSubmissions.$inferSelect;
-
 
 export const medias = pgTable('media', {
 	id: serial('id').primaryKey(),
