@@ -7,6 +7,9 @@
 
 <svelte:head>
   <title>Библейская Школа АО</title>
+  <meta property="og:title" content="Библейская Школа АО" />
+  <meta name="twitter:title" content="Библейская Школа АО" />
+
 </svelte:head>
 
 <Header title="Библейская Школа" />

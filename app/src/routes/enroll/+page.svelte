@@ -55,6 +55,15 @@
 
 <svelte:head>
   <title>Анкета поступающего в Библейскую школу</title>
+  <meta property="og:title" content="Анкета поступающего в Библейскую школу" />
+  <meta name="twitter:title" content="Анкета поступающего в Библейскую школу" />
+  <!-- <meta property="og:description" content="Your site description here." /> -->
+  <!-- <meta property="og:image" content="%sveltekit.assets%/og-image.png" /> -->
+  <!-- <meta property="og:url" content="https://yourdomain.com" /> -->
+  <!-- <meta name="twitter:card" content="summary_large_image" /> -->
+
+
+
 </svelte:head>
 
 <Header title="Анкета поступающего в Библейскую школу" />
