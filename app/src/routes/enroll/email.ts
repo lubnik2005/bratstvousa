@@ -37,7 +37,7 @@ export const email_template = (props) => `
 					<li><strong>Фамилия:</strong> ${props.lastName}</li>
 					<li><strong>Имя:</strong> ${props.firstName}</li>
 					<li><strong>Отчество:</strong> ${props.middleName}</li>
-					<li><strong>Дата рождения:</strong> ${props.birthDate}</li>
+					<li><strong>Дата рождения:</strong> ${props.dateOfBirth}</li>
 					<li><strong>Возраст:</strong> ${props.age}</li>
 					<li><strong>Email:</strong> <a href='mailto:${props.email}'>${props.email}</a></li>
 					<li><strong>Телефон:</strong> ${props.phone}</li>
