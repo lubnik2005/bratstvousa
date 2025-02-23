@@ -1,78 +1,46 @@
-// src/lib/email.js
+// src/routes/api/send-email/+server.ts
 import nodemailer from 'nodemailer';
 import { google } from 'googleapis';
+import { creds } from './auth';
+import fs from 'fs';
+import handlebars from 'handlebars';
+import path from 'path';
 import { env } from '$env/dynamic/private';
 
-// Load environment variables
-const CLIENT_ID = env.GMAIL_CLIENT_ID;
-const CLIENT_SECRET = env.GMAIL_CLIENT_SECRET;
-const EMAIL_USER = env.GMAIL_USER;
-const EMAIL_NAME = env.GMAIL_NAME;
-
-// OAuth2 Setup
-const OAuth2Client = new google.auth.OAuth2(
-	CLIENT_ID,
-	CLIENT_SECRET,
-	'https://developers.google.com/oauthplayground'
-);
-
-/**
- * Gets a new access token using the refresh token.
- */
-async function getAccessToken() {
-	try {
-		// Get a new access token using the refresh token
-		const tokenResponse = await OAuth2Client.getAccessToken();
-		const accessToken = tokenResponse?.token;
-
-		if (!accessToken) {
-			throw new Error('Failed to obtain access token');
-		}
-
-		return accessToken;
-	} catch (error) {
-		console.error('Error getting access token:', error);
-		throw new Error('Failed to get access token');
-	}
-}
-
+// TODO: Cleanup this function
 /**
  * Sends an email using Nodemailer with OAuth2 authentication.
  * @param {string} to - Recipient's email address
  * @param {string} subject - Email subject
  * @param {string} text - Email body (plain text)
  */
-export async function sendEmail(to, subject, text) {
-	try {
-		// Get a new access token
-		const accessToken = await getAccessToken();
+export async function sendEmail(to: string, subject: string, formData) {
+	// Configure Nodemailer with OAuth2
+	const transporter = nodemailer.createTransport({
+		host: env.SMTP_HOST,
+		port: env.SMTP_PORT,
+		secure: env.SMTP_SSL,
+		auth: {
+			user: env.SMTP_USER,
+			pass: env.SMTP_PASSWORD
+		}
+	});
 
-		// Configure Nodemailer with OAuth2
-		const transporter = nodemailer.createTransport({
-			service: 'gmail',
-			auth: {
-				type: 'OAuth2',
-				user: EMAIL_USER,
-				clientId: CLIENT_ID,
-				clientSecret: CLIENT_SECRET,
-				accessToken: accessToken
-			}
-		});
+	const filePath = path.resolve('src/templates/email/bibleSchoolFormNotification.hbs');
+	const source = fs.readFileSync(filePath, 'utf8');
+	const template = handlebars.compile(source);
+	const html = template(formData);
 
-		const mailOptions = {
-			from: `"${EMAIL_NAME}" <${EMAIL_USER}>`,
-			to,
-			subject,
-			text,
-			html: `<p>${text}</p>`
-		};
+	// Email details
+	const mailOptions = {
+		from: env.SMTP_FROM, // Sender Name and Email
+		to, // Recipient Email
+		subject, // Email Subject
+		// TODO: This needs to be actual text
+		text: '', // Plain Text Body
+		html
+	};
 
-		// Send email
-		const result = await transporter.sendMail(mailOptions);
-		console.log('Email sent:', result);
-		return result;
-	} catch (error) {
-		console.error('Error sending email:', error);
-		throw new Error('Email sending failed');
-	}
+	// Send the email
+	return await transporter.sendMail(mailOptions);
 }
