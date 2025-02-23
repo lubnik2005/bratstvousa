@@ -57,6 +57,7 @@
   <title>Анкета поступающего в Библейскую школу</title>
   <meta property="og:title" content="Анкета поступающего в Библейскую школу" />
   <meta name="twitter:title" content="Анкета поступающего в Библейскую школу" />
+  <meta property="og:image" content="https://bratstvo-usa.s3.us-west-2.amazonaws.com/logo_medium.png">
   <!-- <meta property="og:description" content="Your site description here." /> -->
   <!-- <meta property="og:image" content="%sveltekit.assets%/og-image.png" /> -->
   <!-- <meta property="og:url" content="https://yourdomain.com" /> -->
