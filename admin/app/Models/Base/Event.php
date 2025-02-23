@@ -3,14 +3,16 @@
 namespace App\Models\Base;
 
 use Illuminate\Database\Eloquent\Model;
+use OwenIt\Auditing\Contracts\Auditable;
 use Spatie\Image\Image;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
-class Event extends Model implements HasMedia
+class Event extends Model implements Auditable, HasMedia
 {
     use InteractsWithMedia;
+    use \OwenIt\Auditing\Auditable;
 
     protected $casts = [
         'start_at' => 'date',
