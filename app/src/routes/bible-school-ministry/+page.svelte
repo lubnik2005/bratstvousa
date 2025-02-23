@@ -165,33 +165,33 @@
 	<div class="row text-center">
 		<div class="col-md-4">
 			<div class="rounded border p-3">
-				<img
-					src="https://placehold.co/150x150"
-					class="img-fluid rounded-circle mb-3"
-					alt="Диакону Дмитрий"
-				/>
+				<!-- <img -->
+				<!-- 	src="https://placehold.co/150x150" -->
+				<!-- 	class="img-fluid rounded-circle mb-3" -->
+				<!-- 	alt="Диакону Дмитрий" -->
+				<!-- /> -->
 				<h5 class="fw-bold">Ответственный за школу</h5>
 				<p>Диакону Дмитрий</p>
 			</div>
 		</div>
 		<div class="col-md-4">
 			<div class="rounded border p-3">
-				<img
-					src="https://placehold.co/150x150"
-					class="img-fluid rounded-circle mb-3"
-					alt="Щербина Борис"
-				/>
+				<!-- <img -->
+				<!-- 	src="https://placehold.co/150x150" -->
+				<!-- 	class="img-fluid rounded-circle mb-3" -->
+				<!-- 	alt="Щербина Борис" -->
+				<!-- /> -->
 				<h5 class="fw-bold">Помощник по учебной части</h5>
 				<p>Щербина Борис</p>
 			</div>
 		</div>
 		<div class="col-md-4">
 			<div class="rounded border p-3">
-				<img
-					src="https://placehold.co/150x150"
-					class="img-fluid rounded-circle mb-3"
-					alt="Бруяко Андрей"
-				/>
+				<!-- <img -->
+				<!-- 	src="https://placehold.co/150x150" -->
+				<!-- 	class="img-fluid rounded-circle mb-3" -->
+				<!-- 	alt="Бруяко Андрей" -->
+				<!-- /> -->
 				<h5 class="fw-bold">Помощник по технической части</h5>
 				<p>Бруяко Андрей</p>
 			</div>
