@@ -149,7 +149,7 @@
 
 <style>
 	.responsive-fixed-top {
-		background: linear-gradient(to bottom, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0));
+		background: linear-gradient(180deg,#fff,#ffffffcb 53%,#ffffff7c);
 		transition:
 			background 0.3s,
 			box-shadow 0.3s;
