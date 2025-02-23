@@ -4,6 +4,7 @@ import { churches, formSubmissions, FormSubmission } from '$lib/server/db/schema
 import { desc } from 'drizzle-orm';
 import { sendEmail } from '$lib/email';
 import { formatDate } from '$lib/helpers';
+import { email_template } from './email';
 
 export async function load() {
 	return {
@@ -57,7 +58,8 @@ export const actions = {
 		const to = env.MAIL_INFO_USER;
 		const subject = `${formData.firstName} ${formData.lastName} - Анкета Поступающего в Библейскую Школу`;
 		const content = formData.content;
-		const result = await sendEmail(to, subject, { ...formData, ...content });
+    const html = email_template({ ...formData, ...content })
+		const result = await sendEmail(to, subject, html);
 
 		return { success: true };
 	}

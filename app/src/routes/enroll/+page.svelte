@@ -80,10 +80,6 @@
 			<!-- Names on One Line -->
 			<div class="row">
 				<div class="col-md-4">
-					<label class="form-label">Фамилия <span class="text-danger">*</span></label>
-					<input name="last_name" type="text" class="form-control" bind:value={lastName} required />
-				</div>
-				<div class="col-md-4">
 					<label class="form-label">Имя <span class="text-danger">*</span></label>
 					<input
 						name="first_name"
@@ -94,13 +90,16 @@
 					/>
 				</div>
 				<div class="col-md-4">
-					<label class="form-label">Отчество <span class="text-danger">*</span></label>
+					<label class="form-label">Фамилия <span class="text-danger">*</span></label>
+					<input name="last_name" type="text" class="form-control" bind:value={lastName} required />
+				</div>
+				<div class="col-md-4">
+					<label class="form-label">Отчество</label>
 					<input
 						name="middle_name"
 						type="text"
 						class="form-control"
 						bind:value={middleName}
-						required
 					/>
 				</div>
 			</div>
@@ -119,7 +118,7 @@
 					/>
 				</div>
 				<div class="col-md-6">
-					<label class="form-label">Возраст <span class="text-danger">*</span></label>
+					<label class="form-label">Возраст</label>
 					<input name="age" type="text" class="form-control" bind:value={age} readonly />
 				</div>
 			</div>
@@ -148,7 +147,7 @@
 				>
 					<option value="" disabled selected>Выберите церковь</option>
 					{#each data.churches as church}
-						<option value={church.id}>{church.name_line_1 + ' ' + church.name_line_2}</option>
+						<option value={church.id}>{church.name_line_1 + ' ' + church.name_line_2 ?? ''}</option>
 					{/each}
 					<option value="other">Другое (ввести вручную)</option>
 				</select>
@@ -217,17 +216,17 @@
 			</div>
 
 			<!-- Personal Photo -->
-			<div class="mt-3">
-				<label class="form-label">Личная Фотография <span class="text-danger">*</span></label>
-				<input
-					name="personal_photo"
-					type="file"
-					class="form-control"
-					on:change={handlePhotoChange}
-					accept="image/*"
-					required
-				/>
-			</div>
+			<!-- <div class="mt-3"> -->
+			<!-- 	<label class="form-label">Личная Фотография <span class="text-danger">*</span></label> -->
+			<!-- 	<input -->
+			<!-- 		name="personal_photo" -->
+			<!-- 		type="file" -->
+			<!-- 		class="form-control" -->
+			<!-- 		on:change={handlePhotoChange} -->
+			<!-- 		accept="image/*" -->
+			<!-- 		required -->
+			<!-- 	/> -->
+			<!-- </div> -->
 
 			<!-- Agreement to Rules -->
 			<div class="mt-3">

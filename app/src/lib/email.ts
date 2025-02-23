@@ -12,22 +12,22 @@ import { env } from '$env/dynamic/private';
  * @param {string} subject - Email subject
  * @param {string} text - Email body (plain text)
  */
-export async function sendEmail(to: string, subject: string, formData) {
+export async function sendEmail(to: string, subject: string, html) {
 	// Configure Nodemailer with OAuth2
 	const transporter = nodemailer.createTransport({
 		host: env.SMTP_HOST,
 		port: env.SMTP_PORT,
-		secure: env.SMTP_SSL,
+		secure: false,
 		auth: {
 			user: env.SMTP_USER,
 			pass: env.SMTP_PASSWORD
 		}
 	});
 
-	const filePath = path.resolve('static/templates/email/bibleSchoolFormNotification.hbs');
-	const source = fs.readFileSync(filePath, 'utf8');
-	const template = handlebars.compile(source);
-	const html = template(formData);
+	// const filePath = path.resolve('static/templates/email/bibleSchoolFormNotification.hbs');
+	// const source = fs.readFileSync(filePath, 'utf8');
+	// const template = handlebars.compile(source);
+	// const html = template(formData);
 
 	// Email details
 	const mailOptions = {
