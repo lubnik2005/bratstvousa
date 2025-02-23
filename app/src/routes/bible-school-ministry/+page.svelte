@@ -42,10 +42,26 @@
 				</p>
 			</div>
 		</div>
+        <div class="row mt-5">
+            <div class="col-lg-12">
+                <div class="ratio ratio-16x9 shadow-lg rounded-4">
+                    <iframe 
+                        src="https://www.youtube.com/embed/yfNJ40Dm1bI" 
+                        title="YouTube video" 
+                        allowfullscreen
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        class="rounded-4"
+                    ></iframe>
+                </div>
+            </div>
+        </div>
+
 	</div>
+
+
 </div>
 
-VIDEO GOES HERE
+
 
 <div class="container mt-5">
 	<h2 class="mb-4 text-center">Краткая информация о библейской школе</h2>
@@ -152,10 +168,10 @@ VIDEO GOES HERE
 				<img
 					src="https://placehold.co/150x150"
 					class="img-fluid rounded-circle mb-3"
-					alt="Диакон Дмитрий"
+					alt="Диакону Дмитрий"
 				/>
 				<h5 class="fw-bold">Ответственный за школу</h5>
-				<p>Диакон Дмитрий</p>
+				<p>Диакону Дмитрий</p>
 			</div>
 		</div>
 		<div class="col-md-4">

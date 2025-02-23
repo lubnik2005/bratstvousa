@@ -1,5 +1,6 @@
 <script>
 	import { onMount } from 'svelte';
+  import Header from '$lib/components/Header.svelte';
 	import { goto } from '$app/navigation';
 	export let data;
 	export let form;
@@ -52,8 +53,9 @@
 	}
 </script>
 
+<Header title="Анкета поступающего в Библейскую школу" />
+
 <div class="container mt-4">
-	<h2>Анкета поступающего в Библейскую школу</h2>
 
 	{#if form?.success}
 		<div class="alert alert-success mt-4" role="alert">
@@ -240,7 +242,7 @@
 				поступления <span class="text-danger">*</span>
 			</div>
 
-			<button type="submit" class="btn btn-primary mt-4">Отправить</button>
+			<button type="submit" class="btn btn-primary my-4">Отправить</button>
 		</form>
 	{/if}
 </div>

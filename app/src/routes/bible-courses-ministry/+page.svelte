@@ -53,14 +53,14 @@
 						<div class="team-img mb-3">
 							<img
 								style="width: 100%;"
-								src="{data.media_url}upfiles/page/2110baeef15c81cd594268c9bffe0af139777496.jpg"
+								src="{data.media_url}upfiles/photos/Диакон.jpg"
 								alt=""
 							/>
 						</div>
 
-						<h5 class="team-title">Камке<br /> Фёдор Васильевич</h5>
+						<h5 class="team-title">Диакону<br /> Дмитрий </h5>
 						<div class="social">
-							<a href="mailto:kids@bratstvousa.com">kids@bratstvousa.com</a>
+							<a href="mailto:bibleeducation@bratstvousa.com">bibleeducation@bratstvousa.com</a>
 							<!-- <div class="social"> -->
 							<!-- 	<a href="tel:{member.phone}" class="phone" title="Phone" style="width: 20px;" -->
 							<!-- 		><i class="fas fa-phone"></i></a -->
