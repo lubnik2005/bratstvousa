@@ -45,8 +45,7 @@ export const menu_items = [
 				href: 'bible-education-ministry',
 				subcategory: [
 					{ title: 'Библейская Школа', href: 'bible-school-ministry' },
-					{ title: 'Библейские Курсы', href: 'bible-courses-ministry' },
-					{ title: 'Application', href: 'enroll' }
+					{ title: 'Библейские Курсы', href: 'bible-courses-ministry' }
 				],
 				description: 'Познайте истину, и истина сделает вас свободными.'
 			}
