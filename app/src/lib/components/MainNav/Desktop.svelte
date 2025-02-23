@@ -1,64 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-
 	export let media_url;
-	const menu_items = [
-		{
-			title: 'О НАС',
-			children: [
-				{ title: 'Приветственное слово', href: 'greeting' },
-				{ title: 'Краткий обзор', href: 'short-introduction' },
-				{ title: 'Состав совета', href: 'committee' },
-				{ title: 'Вероучение', href: 'beliefs' }
-			]
-		},
-		{ title: 'АДРЕСА ДОМОВ МОЛИТВЫ', href: 'churches' },
-		{ title: 'КАЛЕНДАРЬ', href: 'calendar' },
-		{ title: 'НОВОСТИ', href: 'news' },
-
-		{
-			title: 'ОТДЕЛЫ',
-			children: [
-				{
-					title: 'Детский отдел',
-					href: 'childrens-ministry',
-					description: 'Учение в юности — основа жизни.'
-				},
-				{
-					title: 'Молодежный отдел',
-					href: 'youth-ministry',
-					description: 'Молодежь, исполненная Духа Святого, — надежда церкви.'
-				},
-				{
-					title: 'Семейный отдел',
-					href: 'family-ministry',
-					description: 'Крепкая семья — основа крепкой церкви.'
-				},
-				{
-					title: 'Отдел Благовестия',
-					href: 'gospel-ministry',
-					description: 'Проповедуйте Евангелие всей твари.'
-				},
-				{
-					title: 'Музыкально хоровой отдел (МХО)',
-					href: 'music-choir-ministry',
-					description: 'Пойте Господу новую песнь.'
-				},
-				{
-					title: 'Библейское Образование',
-					href: 'bible-education-ministry',
-					subcategory: [
-						{ title: 'Библейская Школа', href: 'bible-school-ministry' },
-						{ title: 'Библейские Курсы', href: 'bible-courses-ministry' },
-						{ title: 'Application', href: 'enroll' }
-					],
-					description: 'Познайте истину, и истина сделает вас свободными.'
-				}
-			]
-		},
-
-		{ title: 'ПРОПОВЕДИ', link: 'https://www.youtube.com/@bratstvousa' }
-	];
+	export let menu_items;
 
 	onMount(() => {
 		// Fixed Navbar
@@ -85,7 +28,7 @@
 </script>
 
 <!-- Navbar Start -->
-<div class="container-fluid responsive-fixed-top whole-navbar px-0">
+<div class="container-fluid responsive-fixed-top whole-navbar d-none d-lg-block px-0">
 	<!-- Mobile only -->
 	<div class="d-lg-none text-center">
 		<h1 class="text-primary ms-2 p-2" style="font-size:1.4rem">Американское Объединение МСЦ ЕХБ</h1>
