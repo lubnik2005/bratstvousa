@@ -24,7 +24,7 @@ export async function sendEmail(to: string, subject: string, formData) {
 		}
 	});
 
-	const filePath = path.resolve('src/templates/email/bibleSchoolFormNotification.hbs');
+	const filePath = path.resolve('static/templates/email/bibleSchoolFormNotification.hbs');
 	const source = fs.readFileSync(filePath, 'utf8');
 	const template = handlebars.compile(source);
 	const html = template(formData);
