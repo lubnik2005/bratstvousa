@@ -27,9 +27,9 @@
 	let selectedRegion = { key: 'all', label: 'Все Регионы' };
 
 	function filterResources(region: Region) {
-		filteredUpcomingEvents = show_filters ? upcomingEvents.filter(
-			(event) => event.region?.toString() === region.key
-		) : upcomingEvents.filter(event => !!event?.region);
+		filteredUpcomingEvents = show_filters
+			? upcomingEvents.filter((event) => event.region?.toString() === region.key)
+			: upcomingEvents.filter((event) => !!event?.region);
 	}
 	filterResources(selectedRegion);
 </script>
