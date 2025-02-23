@@ -1,151 +1,246 @@
 <script>
-  import { onMount } from 'svelte';
-  import { goto } from '$app/navigation';
-  export let data;
+	import { onMount } from 'svelte';
+	import { goto } from '$app/navigation';
+	export let data;
+	export let form;
 
-  let churches = [];
-  let selectedChurch = '';
-  let newChurch = '';
-  let useNewChurch = false;
+	let churches = [];
+	let selectedChurch = '';
+	let newChurch = '';
+	let useNewChurch = false;
 
-  let lastName = '';
-  let middleName = '';
-  let firstName = '';
-  let birthDate = '';
-  let age = '';
-  let regionalCourses = '';
-  let educationHistory = '';
-  let ministry = '';
-  let recommendation = '';
-  let responsiblePerson = '';
-  let signature = '';
-  let email = '';
-  let phone = '';
-  console.log(data.churches);
+	let lastName = '';
+	let middleName = '';
+	let firstName = '';
+	let birthDate = '';
+	let age = '';
+	let email = '';
+	let phone = '';
+	let educationHistory = '';
+	let regionalCourses = '';
+	let ministry = '';
+	let recommendation = '';
+	let responsiblePerson = '';
+	let signature = '';
+	let personalPhoto = null;
+	let agreeToRules = false;
 
-  function calculateAge() {
-    if (birthDate) {
-      const today = new Date();
-      const birth = new Date(birthDate);
-      let calculatedAge = today.getFullYear() - birth.getFullYear();
-      const monthDifference = today.getMonth() - birth.getMonth();
+	function calculateAge() {
+		if (birthDate) {
+			const today = new Date();
+			const birth = new Date(birthDate);
+			let calculatedAge = today.getFullYear() - birth.getFullYear();
+			const monthDifference = today.getMonth() - birth.getMonth();
+			if (monthDifference < 0 || (monthDifference === 0 && today.getDate() < birth.getDate())) {
+				calculatedAge--;
+			}
+			age = calculatedAge;
+		} else {
+			age = '';
+		}
+	}
 
-      // Adjust age if birthday hasn't occurred this year yet
-      if (
-        monthDifference < 0 ||
-        (monthDifference === 0 && today.getDate() < birth.getDate())
-      ) {
-        calculatedAge--;
-      }
+	function handlePhotoChange(event) {
+		personalPhoto = event.target.files[0];
+	}
 
-      age = calculatedAge;
-    } else {
-      age = '';
-    }
-  }
+	function validateForm(event) {
+		if (!agreeToRules) {
+			alert('Вы должны согласиться с правилами для подачи анкеты.');
+			event.preventDefault();
+		}
+	}
 </script>
 
 <div class="container mt-4">
-  <h2>Анкета поступающего в Библейскую школу</h2>
+	<h2>Анкета поступающего в Библейскую школу</h2>
 
-  <form method="POST" class="needs-validation">
-    <!-- Names on One Line -->
-    <div class="row">
-      <div class="col-md-4">
-        <label class="form-label">Фамилия</label>
-        <input name="last_name" type="text" class="form-control" bind:value={lastName} required />
-      </div>
-      <div class="col-md-4">
-        <label class="form-label">Имя</label>
-        <input name="first_name" type="text" class="form-control" bind:value={firstName} required />
-      </div>
-      <div class="col-md-4">
-        <label class="form-label">Отчество</label>
-        <input name="middle_name" type="text" class="form-control" bind:value={middleName} required />
-      </div>
-    </div>
+	{#if form?.success}
+		<div class="alert alert-success mt-4" role="alert">
+			<h4 class="alert-heading">Спасибо за подачу анкеты!</h4>
+			<p>
+				В ближайшие несколько дней с вами свяжется ответственный служитель для дальнейшего
+				обсуждения.
+			</p>
+			<hr />
+			<p class="mb-0">
+				Если у вас есть вопросы, вы можете связаться с нами по указанным контактным данным.
+			</p>
+			<p class="mb-0">Благословений!</p>
+		</div>
+	{:else}
+		<form
+			method="POST"
+			class="needs-validation"
+			on:submit={validateForm}
+			enctype="multipart/form-data"
+		>
+			<!-- Names on One Line -->
+			<div class="row">
+				<div class="col-md-4">
+					<label class="form-label">Фамилия <span class="text-danger">*</span></label>
+					<input name="last_name" type="text" class="form-control" bind:value={lastName} required />
+				</div>
+				<div class="col-md-4">
+					<label class="form-label">Имя <span class="text-danger">*</span></label>
+					<input
+						name="first_name"
+						type="text"
+						class="form-control"
+						bind:value={firstName}
+						required
+					/>
+				</div>
+				<div class="col-md-4">
+					<label class="form-label">Отчество <span class="text-danger">*</span></label>
+					<input
+						name="middle_name"
+						type="text"
+						class="form-control"
+						bind:value={middleName}
+						required
+					/>
+				</div>
+			</div>
 
-    <!-- Birth Date and Age on One Line -->
-    <div class="row mt-3">
-      <div class="col-md-6">
-        <label class="form-label">Дата рождения</label>
-        <input 
-          name="date_of_birth" 
-          type="date" 
-          class="form-control" 
-          bind:value={birthDate} 
-          on:input={calculateAge} 
-          required 
-        />
-      </div>
-      <div class="col-md-6">
-        <label class="form-label">Возраст</label>
-        <input 
-          name="age" 
-          type="text" 
-          class="form-control" 
-          bind:value={age} 
-          readonly 
-        />
-      </div>
-    </div>
+			<!-- Birth Date and Age on One Line -->
+			<div class="row mt-3">
+				<div class="col-md-6">
+					<label class="form-label">Дата рождения <span class="text-danger">*</span></label>
+					<input
+						name="date_of_birth"
+						type="date"
+						class="form-control"
+						bind:value={birthDate}
+						on:input={calculateAge}
+						required
+					/>
+				</div>
+				<div class="col-md-6">
+					<label class="form-label">Возраст <span class="text-danger">*</span></label>
+					<input name="age" type="text" class="form-control" bind:value={age} readonly />
+				</div>
+			</div>
 
-    <!-- Email and Phone on One Line -->
-    <div class="row mt-3">
-      <div class="col-md-6">
-        <label class="form-label">Email</label>
-        <input name="email" type="email" class="form-control" bind:value={email} required />
-      </div>
-      <div class="col-md-6">
-        <label class="form-label">Телефон</label>
-        <input name="phone" type="tel" class="form-control" bind:value={phone} />
-      </div>
-    </div>
+			<!-- Email and Phone on One Line -->
+			<div class="row mt-3">
+				<div class="col-md-6">
+					<label class="form-label">Email <span class="text-danger">*</span></label>
+					<input name="email" type="email" class="form-control" bind:value={email} required />
+				</div>
+				<div class="col-md-6">
+					<label class="form-label">Телефон</label>
+					<input name="phone" type="tel" class="form-control" bind:value={phone} />
+				</div>
+			</div>
 
-    <!-- Church Selection -->
-    <div class="mt-3">
-      <label class="form-label">Церковь</label>
-      <select name="church" class="form-select" bind:value={selectedChurch} on:change={() => useNewChurch = selectedChurch === 'other'}>
-        <option value="" disabled selected>Выберите церковь</option>
-        {#each data.churches as church}
-          <option value={church.id}>{church.name_line_1 + " " + church.name_line_2}</option>
-        {/each}
-        <option value="other">Другое (ввести вручную)</option>
-      </select>
-    </div>
+			<!-- Church Selection -->
+			<div class="mt-3">
+				<label class="form-label">Церковь <span class="text-danger">*</span></label>
+				<select
+					name="church"
+					class="form-select"
+					bind:value={selectedChurch}
+					on:change={() => (useNewChurch = selectedChurch === 'other')}
+					required
+				>
+					<option value="" disabled selected>Выберите церковь</option>
+					{#each data.churches as church}
+						<option value={church.id}>{church.name_line_1 + ' ' + church.name_line_2}</option>
+					{/each}
+					<option value="other">Другое (ввести вручную)</option>
+				</select>
+			</div>
 
-    <!-- New Church Field (Conditional) -->
-    {#if useNewChurch}
-      <div class="mt-3">
-        <label class="form-label">Введите название церкви</label>
-        <input name="new_church" type="text" class="form-control" bind:value={newChurch} required />
-      </div>
-    {/if}
+			<!-- New Church Field (Conditional) -->
+			{#if useNewChurch}
+				<div class="mt-3">
+					<label class="form-label"
+						>Введите название церкви <span class="text-danger">*</span></label
+					>
+					<input
+						name="new_church"
+						type="text"
+						class="form-control"
+						bind:value={newChurch}
+						required
+					/>
+				</div>
+			{/if}
 
-    <!-- Education History -->
-    <div class="mt-3">
-      <label class="form-label">Где и когда проходил обучение</label>
-      <textarea name="education_history" class="form-control" bind:value={educationHistory}></textarea>
-    </div>
+			<!-- Education History -->
+			<div class="mt-3">
+				<label class="form-label"
+					>Где и когда проходил обучение <span class="text-danger">*</span></label
+				>
+				<textarea
+					rows="10"
+					name="education_history"
+					class="form-control"
+					bind:value={educationHistory}
+					required
+				></textarea>
+			</div>
 
-    <!-- Ministry -->
-    <div class="mt-3">
-      <label class="form-label">Служение в церкви</label>
-      <input name="ministry" type="text" class="form-control" bind:value={ministry} />
-    </div>
+			<!-- Ministry -->
+			<div class="mt-3">
+				<label class="form-label">Служение в церкви <span class="text-danger">*</span></label>
+				<input name="ministry" type="text" class="form-control" bind:value={ministry} required />
+			</div>
 
-    <!-- Recommendation -->
-    <div class="mt-3">
-      <label class="form-label">Рекомендация служителя</label>
-      <textarea name="recommendation" class="form-control" bind:value={recommendation}></textarea>
-    </div>
+			<!-- Recommendation -->
+			<div class="mt-3">
+				<label class="form-label">Рекомендация служителя <span class="text-danger">*</span></label>
+				<textarea
+					name="recommendation"
+					rows="10"
+					class="form-control"
+					bind:value={recommendation}
+					required
+				></textarea>
+			</div>
 
-    <!-- Responsible Minister -->
-    <div class="mt-3">
-      <label class="form-label">Ф.И.О. ответственного служителя</label>
-      <input name="responsible_minister" type="text" class="form-control" bind:value={responsiblePerson} />
-    </div>
+			<!-- Responsible Minister -->
+			<div class="mt-3">
+				<label class="form-label"
+					>Ф.И.О. ответственного служителя <span class="text-danger">*</span></label
+				>
+				<input
+					name="responsible_minister"
+					type="text"
+					class="form-control"
+					bind:value={responsiblePerson}
+					required
+				/>
+			</div>
 
-    <button type="submit" class="btn btn-primary mt-4">Отправить</button>
-  </form>
+			<!-- Personal Photo -->
+			<div class="mt-3">
+				<label class="form-label">Личная Фотография <span class="text-danger">*</span></label>
+				<input
+					name="personal_photo"
+					type="file"
+					class="form-control"
+					on:change={handlePhotoChange}
+					accept="image/*"
+					required
+				/>
+			</div>
+
+			<!-- Agreement to Rules -->
+			<div class="mt-3">
+				<h5>Правила поступления:</h5>
+				<ul>
+					<li>Подтверждаю обучение на региональных Библейских курсах не менее трех лет.</li>
+					<li>Обязуюсь сдать вступительный экзамен.</li>
+					<li>Обязуюсь посещать все очные сессии на протяжении четырех лет.</li>
+					<li>Принимаю на себя финансовые обязательства по обучению и транспортным расходам.</li>
+				</ul>
+				<input type="checkbox" bind:checked={agreeToRules} required /> Я согласен с правилами
+				поступления <span class="text-danger">*</span>
+			</div>
+
+			<button type="submit" class="btn btn-primary mt-4">Отправить</button>
+		</form>
+	{/if}
 </div>

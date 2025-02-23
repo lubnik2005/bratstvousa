@@ -2,6 +2,8 @@ import { db } from '$lib/server/db';
 import { env } from '$env/dynamic/private';
 import { churches, formSubmissions, FormSubmission } from '$lib/server/db/schema';
 import { desc } from 'drizzle-orm';
+import { sendEmail } from '$lib/email';
+import { formatDate } from '$lib/helpers';
 
 export async function load() {
 	return {
@@ -24,36 +26,39 @@ export async function load() {
 export const actions = {
 	default: async ({ cookies, request }) => {
 		const data = await request.formData();
-		console.log('formdata');
-		console.log({ data });
+		const formData = {
+			formName: '2025-bible-school-application',
+			firstName: data.get('first_name'),
+			lastName: data.get('last_name'),
+			middleName: data.get('middle_name'),
+			email: data.get('email'),
+			phone: data.get('phone'),
+			dateOfBirth: data.get('date_of_birth')
+				? new Date(data.get('date_of_birth')).toISOString().split('T')[0]
+				: null,
+			churchId: data.get('church') !== 'other' ? Number(data.get('church')) : null,
+			content: JSON.parse(
+				JSON.stringify({
+					age: data.get('age') ? Number(data.get('age')) : null,
+					educationHistory: data.get('education_history'),
+					newChurch: data.get('church') === 'other' ? data.get('new_church') : null,
+					ministry: data.get('ministry'),
+					recommendation: data.get('recommendation'),
+					responsibleMinister: data.get('responsible_minister')
+				})
+			)
+		};
 
 		const form_submission = await db
 			.insert(formSubmissions)
-			.values({
-				formName: '2025-bible-school-application',
-				firstName: data.get('first_name'),
-				lastName: data.get('last_name'),
-				middleName: data.get('middle_name'),
-				email: data.get('email'),
-				phone: data.get('phone'),
-				dateOfBirth: data.get('date_of_birth')
-					? new Date(data.get('date_of_birth')).toISOString().split('T')[0]
-					: null,
-				churchId: data.get('church') !== 'other' ? Number(data.get('church')) : null,
-				content: JSON.parse(
-					JSON.stringify({
-						age: data.get('age') ? Number(data.get('age')) : null,
-						educationHistory: data.get('education_history'),
-						newChurch: data.get('church') === 'other' ? data.get('new_church') : null,
-						ministry: data.get('ministry'),
-						recommendation: data.get('recommendation'),
-						responsibleMinister: data.get('responsible_minister')
-					})
-				),
-				createdAt: new Date(),
-				updatedAt: new Date()
-			})
+			.values({ ...formData, createdAt: new Date(), updatedAt: new Date() })
 			.returning(); // Returns the inserted row (optional)
 		console.log({ form_submission });
+		const to = env.MAIL_INFO_USER;
+		const subject = `${formData.firstName} ${formData.lastName} - Анкета Поступающего в Библейскую Школу`;
+		const content = formData.content;
+		const result = await sendEmail(to, subject, { ...formData, ...content });
+
+		return { success: true };
 	}
 };
