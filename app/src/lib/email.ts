@@ -1,7 +1,5 @@
 // src/routes/api/send-email/+server.ts
 import nodemailer from 'nodemailer';
-import { google } from 'googleapis';
-import { creds } from './auth';
 import fs from 'fs';
 import handlebars from 'handlebars';
 import path from 'path';
