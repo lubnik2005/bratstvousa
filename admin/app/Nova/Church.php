@@ -2,8 +2,8 @@
 
 namespace App\Nova;
 
-use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Actions\ExportAsCsv;
+use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\Number;
 use Laravel\Nova\Fields\Select;
 use Laravel\Nova\Fields\Text;
@@ -84,11 +84,13 @@ class Church extends Resource
             Text::make('Contact Last Name')
                 ->rules('required', 'max:255'),
 
-            Text::make('Phone')
-                ->rules('required', 'max:15'),
+            Text::make('Phone'),
 
-            URL::make('Youtube')
-                ->rules('nullable', 'url'),
+            URL::make('Website'),
+
+            URL::make('Youtube'),
+
+            URL::make('Flickr'),
 
             Number::make('Longitude'),
 
@@ -135,6 +137,6 @@ class Church extends Resource
      */
     public function actions(NovaRequest $request): array
     {
-        return [        ExportAsCsv::make(),];
+        return [ExportAsCsv::make()];
     }
 }
