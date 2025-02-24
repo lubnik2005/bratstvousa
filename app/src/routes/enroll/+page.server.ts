@@ -3,7 +3,6 @@ import { env } from '$env/dynamic/private';
 import { churches, formSubmissions, FormSubmission } from '$lib/server/db/schema';
 import { desc } from 'drizzle-orm';
 import { sendEmail } from '$lib/email';
-import { formatDate } from '$lib/helpers';
 import { email_template } from './email';
 
 export async function load() {
