@@ -229,18 +229,18 @@
 				/>
 			</div>
 
-			<!-- Personal Photo -->
-			<!-- <div class="mt-3"> -->
-			<!-- 	<label class="form-label">Личная Фотография <span class="text-danger">*</span></label> -->
-			<!-- 	<input -->
-			<!-- 		name="personal_photo" -->
-			<!-- 		type="file" -->
-			<!-- 		class="form-control" -->
-			<!-- 		on:change={handlePhotoChange} -->
-			<!-- 		accept="image/*" -->
-			<!-- 		required -->
-			<!-- 	/> -->
-			<!-- </div> -->
+			Personal Photo
+			<div class="mt-3">
+				<label class="form-label">Личная Фотография <span class="text-danger">*</span></label>
+				<input
+					name="personal_photo"
+					type="file"
+					class="form-control"
+					on:change={handlePhotoChange}
+					accept="image/*"
+					required
+				/>
+			</div>
 
 			<!-- Agreement to Rules -->
 			<div class="mt-3">

@@ -57,6 +57,7 @@
 	},
 	"dependencies": {
 		"@aws-amplify/backend": "^1.10.0",
+		"@aws-sdk/client-s3": "^3.750.0",
 		"@fullcalendar/bootstrap5": "^6.1.15",
 		"@fullcalendar/core": "^6.1.15",
 		"@fullcalendar/daygrid": "^6.1.15",

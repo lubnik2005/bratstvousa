@@ -4,6 +4,8 @@ import { churches, formSubmissions, FormSubmission } from '$lib/server/db/schema
 import { desc } from 'drizzle-orm';
 import { sendEmail } from '$lib/email';
 import { email_template } from './email';
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { v4 as uuidv4 } from 'uuid';
 
 export async function load() {
 	return {
@@ -25,7 +27,43 @@ export async function load() {
 
 export const actions = {
 	default: async ({ cookies, request }) => {
+		const aws_creds = {
+			region: env.AWS_DEFAULT_REGION,
+			credentials: {
+				accessKeyId: env.AWS_ACCESS_KEY_ID,
+				secretAccessKey: env.AWS_SECRET_ACCESS_KEY
+			}
+		};
+		const s3Client = new S3Client(aws_creds);
+
 		const data = await request.formData();
+		const personalPhoto = data.get('personal_photo');
+		let photoUrl = null;
+
+		const fileExtension = personalPhoto.name.split('.').pop();
+		const fileName = `${uuidv4()}.${fileExtension}`;
+		const prefix = 'upfiles/photos/form/';
+		const Key = `${prefix}${fileName}`;
+		const s3Params = {
+			Bucket: env.AWS_BUCKET_NAME,
+			Key,
+			Body: await personalPhoto.arrayBuffer(),
+			ContentType: personalPhoto.type
+			// ACL: 'public-read'
+		};
+
+		if (personalPhoto && personalPhoto.size > 0) {
+			// Generate unique filename using UUID
+			try {
+				// Upload to S3
+				await s3Client.send(new PutObjectCommand(s3Params));
+				photoUrl = `${env.MEDIA_URL}${Key}`;
+			} catch (err) {
+				console.error('Error uploading to S3:', err);
+				return { success: false, error: 'Photo upload failed' };
+			}
+		}
+
 		const formData = {
 			formName: '2025-bible-school-application',
 			firstName: data.get('first_name'),
@@ -44,7 +82,8 @@ export const actions = {
 					newChurch: data.get('church') === 'other' ? data.get('new_church') : null,
 					ministry: data.get('ministry'),
 					recommendation: data.get('recommendation'),
-					responsibleMinister: data.get('responsible_minister')
+					responsibleMinister: data.get('responsible_minister'),
+					photoUrl
 				})
 			)
 		};
@@ -53,11 +92,10 @@ export const actions = {
 			.insert(formSubmissions)
 			.values({ ...formData, createdAt: new Date(), updatedAt: new Date() })
 			.returning(); // Returns the inserted row (optional)
-		console.log({ form_submission });
 		const to = env.MAIL_INFO_USER;
 		const subject = `${formData.firstName} ${formData.lastName} - Анкета Поступающего в Библейскую Школу`;
 		const content = formData.content;
-    const html = email_template({ ...formData, ...content })
+		const html = email_template({ ...formData, ...content });
 		const result = await sendEmail(to, subject, html);
 
 		return { success: true };
