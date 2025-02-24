@@ -7,7 +7,7 @@
 	export let data;
 </script>
 
-<Header title="Отел библейского образования" />
+<Header title="Отдел библейского образования" />
 
 <div class="container-fluid">
 	<div class="container">

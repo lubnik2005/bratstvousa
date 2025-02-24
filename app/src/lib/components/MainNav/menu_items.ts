@@ -41,7 +41,7 @@ export const menu_items = [
 				description: 'Пойте Господу новую песнь.'
 			},
 			{
-				title: 'Отел библейского образования',
+				title: 'Отдел библейского образования',
 				href: 'bible-education-ministry',
 				subcategory: [
 					{ title: 'Библейская Школа', href: 'bible-school-ministry' },
