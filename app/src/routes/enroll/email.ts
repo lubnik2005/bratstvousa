@@ -24,6 +24,8 @@ export const email_template = (props) => `
 			.textarea { background-color: #f9f9f9; border: 1px solid #e0e0e0; border-radius: 5px; padding: 10px; 
 				color: #333; font-size: 14px; line-height: 1.4; white-space: pre-wrap; overflow-wrap: break-word; 
 				max-height: 400px; overflow-y: auto; }
+			.photo { display: block; margin: 20px auto; max-width: 200px; border-radius: 10px; 
+				box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); }
 		</style>
 	</head>
 	<body>
@@ -32,6 +34,8 @@ export const email_template = (props) => `
 				<h2>Новая анкета в Библейскую школу</h2>
 			</div>
 			<div class='content'>
+				<h3>Фото заявителя:</h3>
+				<img src="${props.photoUrl}" alt="Фото заявителя" class="photo" />
 				<h3>Данные заявителя:</h3>
 				<ul>
 					<li><strong>Фамилия:</strong> ${props.lastName}</li>
@@ -41,7 +45,7 @@ export const email_template = (props) => `
 					<li><strong>Возраст:</strong> ${props.age}</li>
 					<li><strong>Email:</strong> <a href='mailto:${props.email}'>${props.email}</a></li>
 					<li><strong>Телефон:</strong> ${props.phone}</li>
-					<li><strong>Церковь:</strong> ${props.churchId ?? props.newChurch}</li>
+					<li><strong>Церковь:</strong> ${props.church_name}</li>
 				</ul>
 				<h3>История обучения:</h3>
 				<div class='textarea'>
