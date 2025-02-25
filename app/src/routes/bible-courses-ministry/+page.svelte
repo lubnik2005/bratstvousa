@@ -53,7 +53,7 @@
 						<div class="team-img mb-3">
 							<img
 								style="width: 100%;"
-								src="{data.media_url}upfiles/photos/Диакон.jpg"
+								src="{data.media_url}upfiles/photos/Диакону.jpg"
 								alt=""
 							/>
 						</div>
