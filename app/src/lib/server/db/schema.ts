@@ -144,6 +144,8 @@ export const churches = pgTable('churches', {
 	contact_last_name: varchar('contact_last_name', { length: 255 }),
 	phone: varchar('phone', { length: 255 }),
 	youtube: varchar('youtube', { length: 255 }),
+	website: varchar('website', { length: 255 }),
+	flickr: varchar('flickr', { length: 255 }),
 	createdAt: timestamp('created_at').defaultNow(),
 	updatedAt: timestamp('updated_at').defaultNow(),
 	longitude: varchar('longitude'),

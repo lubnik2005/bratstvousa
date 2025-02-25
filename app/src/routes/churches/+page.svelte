@@ -50,6 +50,13 @@
 					<a href="geo:124.028582,-29.201930" target="_blank">Click here for map</a>
 					<p><strong>Contact:</strong> {church.contact_first_name} {church.contact_last_name}</p>
 					<p><strong>Phone:</strong> <a href="tel:{church.phone}">{church.phone}</a></p>
+					{#if church.website}
+						<p>
+							<a href={church.website} target="_blank" rel="noopener noreferrer">
+								<i class="fab fa-globe"></i>
+							</a>
+						</p>
+					{/if}
 					{#if church.youtube}
 						<p>
 							<a href={church.youtube} target="_blank" rel="noopener noreferrer">
@@ -57,6 +64,14 @@
 							</a>
 						</p>
 					{/if}
+					{#if church.flickr}
+						<p>
+							<a href={church.flickr} target="_blank" rel="noopener noreferrer">
+                  <i class="fa-brands fa-flickr"></i>
+							</a>
+						</p>
+					{/if}
+
 				</div>
 			</div>
 		{/each}
@@ -113,8 +128,18 @@
 							{#if church.phone}
 								<a href={`tel:${church.phone}`}> {church.phone}</a><br /> <!-- content here -->
 							{/if}
+							{#if church.website}
+								<a target="_blank" href={church.website}><i class="fa fa-globe"></i></a>
+							{/if}
 							{#if church.youtube}
 								<a target="_blank" href={church.youtube}><i class="fab fa-youtube"></i></a>
+							{/if}
+							{#if church.flickr}
+								<a target="_blank" href={church.flickr}>
+
+                  <i class="fab fa-flickr"></i>
+
+                  </a>
 							{/if}
 						</td>
 					</tr>
