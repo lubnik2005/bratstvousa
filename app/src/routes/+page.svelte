@@ -12,12 +12,12 @@
 		type="image/webp"
 	/>
 	<title>Американское Объединение МСЦ ЕХБ</title>
-		<!-- Open Graph Meta Tags -->
-		<meta property="og:title" content="Братство США" />
-		<!-- <meta property="og:description" content="Your site description here." /> -->
-		<!-- <meta property="og:image" content="%sveltekit.assets%/og-image.png" /> -->
-		<!-- <meta property="og:url" content="https://yourdomain.com" /> -->
-		<!-- <meta name="twitter:card" content="summary_large_image" /> -->
+	<!-- Open Graph Meta Tags -->
+	<meta property="og:title" content="Братство США" />
+	<!-- <meta property="og:description" content="Your site description here." /> -->
+	<!-- <meta property="og:image" content="%sveltekit.assets%/og-image.png" /> -->
+	<!-- <meta property="og:url" content="https://yourdomain.com" /> -->
+	<!-- <meta name="twitter:card" content="summary_large_image" /> -->
 </svelte:head>
 
 <div class="container-fluid mb-5 p-0">

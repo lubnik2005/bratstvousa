@@ -6,11 +6,13 @@
 </script>
 
 <svelte:head>
-  <title>Библейская Школа АО</title>
-  <meta property="og:title" content="Библейская Школа АО" />
-  <meta name="twitter:title" content="Библейская Школа АО" />
-  <meta property="og:image" content="https://bratstvo-usa.s3.us-west-2.amazonaws.com/logo_medium.png">
-
+	<title>Библейская Школа АО</title>
+	<meta property="og:title" content="Библейская Школа АО" />
+	<meta name="twitter:title" content="Библейская Школа АО" />
+	<meta
+		property="og:image"
+		content="https://bratstvo-usa.s3.us-west-2.amazonaws.com/logo_medium.png"
+	/>
 </svelte:head>
 
 <Header title="Библейская Школа" />
@@ -50,26 +52,21 @@
 				</p>
 			</div>
 		</div>
-        <div class="row mt-5">
-            <div class="col-lg-12">
-                <div class="ratio ratio-16x9 shadow-lg rounded-4">
-                    <iframe 
-                        src="https://www.youtube.com/embed/yfNJ40Dm1bI" 
-                        title="YouTube video" 
-                        allowfullscreen
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        class="rounded-4"
-                    ></iframe>
-                </div>
-            </div>
-        </div>
-
+		<div class="row mt-5">
+			<div class="col-lg-12">
+				<div class="ratio ratio-16x9 rounded-4 shadow-lg">
+					<iframe
+						src="https://www.youtube.com/embed/yfNJ40Dm1bI"
+						title="YouTube video"
+						allowfullscreen
+						allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+						class="rounded-4"
+					></iframe>
+				</div>
+			</div>
+		</div>
 	</div>
-
-
 </div>
-
-
 
 <div class="container mt-5">
 	<h2 class="mb-4 text-center">Краткая информация о библейской школе</h2>

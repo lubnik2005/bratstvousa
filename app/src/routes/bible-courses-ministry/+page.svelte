@@ -51,14 +51,10 @@
 				<div class="team-wrap rounded border p-3">
 					<div class="team-member text-center">
 						<div class="team-img mb-3">
-							<img
-								style="width: 100%;"
-								src="{data.media_url}upfiles/photos/Диакону.jpg"
-								alt=""
-							/>
+							<img style="width: 100%;" src="{data.media_url}upfiles/photos/Диакону.jpg" alt="" />
 						</div>
 
-						<h5 class="team-title">Диакону<br /> Дмитрий </h5>
+						<h5 class="team-title">Диакону<br /> Дмитрий</h5>
 						<div class="social">
 							<a href="mailto:bibleeducation@bratstvousa.com">bibleeducation@bratstvousa.com</a>
 							<!-- <div class="social"> -->

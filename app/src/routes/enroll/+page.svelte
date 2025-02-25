@@ -1,6 +1,6 @@
 <script>
 	import { onMount } from 'svelte';
-  import Header from '$lib/components/Header.svelte';
+	import Header from '$lib/components/Header.svelte';
 	import { goto } from '$app/navigation';
 	export let data;
 	export let form;
@@ -54,23 +54,22 @@
 </script>
 
 <svelte:head>
-  <title>Анкета поступающего в Библейскую школу</title>
-  <meta property="og:title" content="Анкета поступающего в Библейскую школу" />
-  <meta name="twitter:title" content="Анкета поступающего в Библейскую школу" />
-  <meta property="og:image" content="https://bratstvo-usa.s3.us-west-2.amazonaws.com/logo_medium.png">
-  <!-- <meta property="og:description" content="Your site description here." /> -->
-  <!-- <meta property="og:image" content="%sveltekit.assets%/og-image.png" /> -->
-  <!-- <meta property="og:url" content="https://yourdomain.com" /> -->
-  <!-- <meta name="twitter:card" content="summary_large_image" /> -->
-
-
-
+	<title>Анкета поступающего в Библейскую школу</title>
+	<meta property="og:title" content="Анкета поступающего в Библейскую школу" />
+	<meta name="twitter:title" content="Анкета поступающего в Библейскую школу" />
+	<meta
+		property="og:image"
+		content="https://bratstvo-usa.s3.us-west-2.amazonaws.com/logo_medium.png"
+	/>
+	<!-- <meta property="og:description" content="Your site description here." /> -->
+	<!-- <meta property="og:image" content="%sveltekit.assets%/og-image.png" /> -->
+	<!-- <meta property="og:url" content="https://yourdomain.com" /> -->
+	<!-- <meta name="twitter:card" content="summary_large_image" /> -->
 </svelte:head>
 
 <Header title="Анкета поступающего в Библейскую школу" />
 
 <div class="container mt-4">
-
 	{#if form?.success}
 		<div class="alert alert-success mt-4" role="alert">
 			<h4 class="alert-heading">Спасибо за подачу анкеты!</h4>
@@ -109,12 +108,7 @@
 				</div>
 				<div class="col-md-4">
 					<label class="form-label">Отчество</label>
-					<input
-						name="middle_name"
-						type="text"
-						class="form-control"
-						bind:value={middleName}
-					/>
+					<input name="middle_name" type="text" class="form-control" bind:value={middleName} />
 				</div>
 			</div>
 
@@ -161,7 +155,16 @@
 				>
 					<option value="" disabled selected>Выберите церковь</option>
 					{#each data.churches as church}
-						<option value={church.id}>{church.name_line_1 + ' ' + (church.name_line_2 ?? '') + ' (' + church.address_line_1 + ' ' + (church.address_line_2 ?? '') + ')'}</option>
+						<option value={church.id}
+							>{church.name_line_1 +
+								' ' +
+								(church.name_line_2 ?? '') +
+								' (' +
+								church.address_line_1 +
+								' ' +
+								(church.address_line_2 ?? '') +
+								')'}</option
+						>
 					{/each}
 					<option value="other">Другое (ввести вручную)</option>
 				</select>
