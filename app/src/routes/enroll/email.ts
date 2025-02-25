@@ -48,17 +48,11 @@ export const email_template = (props) => `
 					<li><strong>Церковь:</strong> ${props.church_name}</li>
 				</ul>
 				<h3>История обучения:</h3>
-				<div class='textarea'>
-					${props.educationHistory}
-				</div>
+				<div class='textarea'>${props.educationHistory}</div>
 				<h3>Служение в церкви:</h3>
-				<div class='textarea'>
-					${props.ministry}
-				</div>
+				<div class='textarea'>${props.ministry}</div>
 				<h3>Рекомендация служителя:</h3>
-				<div class='textarea'>
-					${props.recommendation}
-				</div>
+				<div class='textarea'>${props.recommendation}</div>
 				<h3>Ответственный служитель:</h3>
 				<p>${props.responsibleMinister}</p>
 				<a href='mailto:${props.email}' class='button'>Ответить заявителю</a>
