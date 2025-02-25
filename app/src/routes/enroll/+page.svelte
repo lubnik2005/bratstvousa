@@ -161,7 +161,7 @@
 				>
 					<option value="" disabled selected>Выберите церковь</option>
 					{#each data.churches as church}
-						<option value={church.id}>{church.name_line_1 + ' ' + church.name_line_2 ?? ''}</option>
+						<option value={church.id}>{church.name_line_1 + ' ' + (church.name_line_2 ?? '') + ' (' + church.address_line_1 + ' ' + (church.address_line_2 ?? '') + ')'}</option>
 					{/each}
 					<option value="other">Другое (ввести вручную)</option>
 				</select>
