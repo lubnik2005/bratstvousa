@@ -118,7 +118,7 @@
 						<td>
 							<a
 								target="_blank"
-								href={`http://maps.google.com/?q=${church.address_line_1 + church.address_line_1}`}
+								href={`http://maps.google.com/?q=${church.address_line_1 + ' ' +(church.address_line_2 ?? '')}`}
 								>{church.address_line_1}<br />{church.address_line_2}</a
 							>
 						</td>
