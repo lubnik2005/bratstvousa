@@ -70,9 +70,12 @@
 			<div class="col-lg-3 col-md-6">
 				<h4 class="text-light mb-4">Privacy Policy</h4>
 				<p class="text-muted">
-					We do not collect, store, or process any personal information or data about our users. Any
+					We are committed to protecting your privacy. We do not collect, store, or process any
+					personal information or data about our users during general use of our platform. Any
 					interaction with our service is entirely anonymous, and no identifiable or
-					non-identifiable data is gathered from your use of our platform.
+					non-identifiable data is gathered from your use of our platform. <a href="/privacy-policy"
+						>Learn More</a
+					>
 				</p>
 			</div>
 			<!-- <div class="col-lg-3 col-md-6"> -->
