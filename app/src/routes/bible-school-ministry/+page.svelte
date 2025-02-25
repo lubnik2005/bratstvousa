@@ -1,7 +1,6 @@
 <script>
 	import Calendar from '$lib/components/Calendar.svelte';
 	import Header from '$lib/components/Header.svelte';
-	import UpcomingEvents from '$lib/components/UpcomingEvents.svelte';
 	export let data;
 </script>
 
@@ -68,7 +67,7 @@
 	</div>
 </div>
 
-<div class="container mt-5">
+<div class="container my-5">
 	<h2 class="mb-4 text-center">Краткая информация о библейской школе</h2>
 
 	<p class="text-center">
@@ -212,18 +211,3 @@
 	</div>
 </div>
 
-<!-- Form Recommendation Section -->
-
-<UpcomingEvents
-	ministry_slug="bible-courses-ministry"
-	show_filters={false}
-	upcomingEvents={data.upcomingEvents}
-	media_url={data.media_url}
-/>
-<UpcomingEvents
-	ministry_slug="bible-courses-ministry"
-	title="Архив"
-	show_filters={false}
-	upcomingEvents={data.archivedEvents}
-	media_url={data.media_url}
-/>
