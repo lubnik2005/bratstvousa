@@ -1,7 +1,7 @@
 import { db } from '$lib/server/db';
 import { env } from '$env/dynamic/private';
 import { churches, formSubmissions, FormSubmission } from '$lib/server/db/schema';
-import { desc } from 'drizzle-orm';
+import { desc, eq } from 'drizzle-orm';
 import { sendEmail } from '$lib/email';
 import { email_template } from './email';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
@@ -64,6 +64,15 @@ export const actions = {
 			}
 		}
 
+		const churchId = data.get('church') !== 'other' ? Number(data.get('church')) : null;
+		let church_name = null;
+		if (churchId) {
+			const cs = (await db.select().from(churches).where(eq(churches.id, churchId)).limit(1))[0];
+			church_name = `${cs.id} - ${cs.name_line_1} ${cs.name_line_2 ?? ''}`;
+		}
+		const newChurch = data.get('church') === 'other' ? data.get('new_church') : null;
+		church_name = church_name ?? newChurch;
+
 		const formData = {
 			formName: '2025-bible-school-application',
 			firstName: data.get('first_name'),
@@ -74,12 +83,13 @@ export const actions = {
 			dateOfBirth: data.get('date_of_birth')
 				? new Date(data.get('date_of_birth')).toISOString().split('T')[0]
 				: null,
-			churchId: data.get('church') !== 'other' ? Number(data.get('church')) : null,
+			church_name,
+			churchId,
 			content: JSON.parse(
 				JSON.stringify({
 					age: data.get('age') ? Number(data.get('age')) : null,
 					educationHistory: data.get('education_history'),
-					newChurch: data.get('church') === 'other' ? data.get('new_church') : null,
+					newChurch,
 					ministry: data.get('ministry'),
 					recommendation: data.get('recommendation'),
 					responsibleMinister: data.get('responsible_minister'),
@@ -95,7 +105,11 @@ export const actions = {
 		const to = env.MAIL_INFO_USER;
 		const subject = `${formData.firstName} ${formData.lastName} - Анкета Поступающего в Библейскую Школу`;
 		const content = formData.content;
-		const html = email_template({ ...formData, ...content });
+		const html = email_template({
+			...formData,
+			...content,
+			church_name
+		});
 		const result = await sendEmail(to, subject, html);
 
 		return { success: true };
