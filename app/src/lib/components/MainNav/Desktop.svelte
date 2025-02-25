@@ -171,16 +171,16 @@
 	.mega-content {
 		position: absolute;
 		top: 100%;
-		right: 10px;
-		transform: translateX(-50%); /* Center aligns */
-		width: 80vw; /* Reduce width to keep it visually contained */
-		max-width: 900px; /* Prevents stretching on large screens */
+		left: 50%;
+		transform: translateX(-50%);
+		width: 80vw;
+		max-width: 900px;
 		padding: 20px;
 		background: white;
 		box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 		display: none;
 		z-index: 1000;
-		border-radius: 6px; /* Slight rounding for a cleaner look */
+		border-radius: 6px;
 	}
 
 	.mega-menu:hover .mega-content {
