@@ -46,8 +46,14 @@
 				<div class="church-card">
 					<h4>{church.state}, {church.city}</h4>
 					<p>{church.name_line_1} {church.name_line_2}</p>
-					<p><strong>Address:</strong> {church.address_line_1}, {church.address_line_2}</p>
-					<a href="geo:124.028582,-29.201930" target="_blank">Click here for map</a>
+					<p>
+						<strong>Address:</strong>
+						<a
+							target="_blank"
+							href={`http://maps.google.com/?q=${church.address_line_1 + ' ' + (church.address_line_2 ?? '')}`}
+							>{church.address_line_1}<br />{church.address_line_2}</a
+						>
+					</p>
 					<p><strong>Contact:</strong> {church.contact_first_name} {church.contact_last_name}</p>
 					<p><strong>Phone:</strong> <a href="tel:{church.phone}">{church.phone}</a></p>
 					{#if church.website}
@@ -67,11 +73,10 @@
 					{#if church.flickr}
 						<p>
 							<a href={church.flickr} target="_blank" rel="noopener noreferrer">
-                  <i class="fa-brands fa-flickr"></i>
+								<i class="fa-brands fa-flickr"></i>
 							</a>
 						</p>
 					{/if}
-
 				</div>
 			</div>
 		{/each}
@@ -118,7 +123,7 @@
 						<td>
 							<a
 								target="_blank"
-								href={`http://maps.google.com/?q=${church.address_line_1 + ' ' +(church.address_line_2 ?? '')}`}
+								href={`http://maps.google.com/?q=${church.address_line_1 + ' ' + (church.address_line_2 ?? '')}`}
 								>{church.address_line_1}<br />{church.address_line_2}</a
 							>
 						</td>
@@ -136,10 +141,8 @@
 							{/if}
 							{#if church.flickr}
 								<a target="_blank" href={church.flickr}>
-
-                  <i class="fab fa-flickr"></i>
-
-                  </a>
+									<i class="fab fa-flickr"></i>
+								</a>
 							{/if}
 						</td>
 					</tr>
