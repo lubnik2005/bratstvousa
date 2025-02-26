@@ -26,7 +26,7 @@ class SharedFields
             Date::make('Start At'),
             Select::make('Region')->options(['all' => 'Все', 'central' => 'Центральный регион', 'east' => 'Восточный регион', 'california' => 'Калифорнийский регион', 'north-west' => 'Северо-Западный регион'])->nullable(),
             Date::make('End At'),
-            Image::make('Featured Image')->disk($disk)->path('/upfiles/page'),
+            Image::make('Featured Image', 'featured_image', $disk)->deletable(true)->prunable(),
             Image::make('Thumbnail')->disk($disk)->path('/upfiles/page'),
             Trix::make('Content')->withFiles($disk)->path('/upfiles/page'),
             Images::make('Gallery', 'gallery') // Media collection name: 'gallery'

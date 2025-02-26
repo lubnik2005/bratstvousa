@@ -56,7 +56,7 @@ class NewsArticle extends Resource
             Slug::make('Slug')->from('title'),
             Text::make('Description'),
             Date::make('Date'),
-            Image::make('Featured Image', 'featured_image')->disk($disk)->path('upfiles/news'),
+            Image::make('Featured Image', 'featured_image', $disk)->path('upfiles/news'),
             Image::make('Thumbnail')->disk($disk)->path('/upfiles/page'),
             Trix::make('Content')->withFiles($disk)->path('/upfiles/page')
                 ->fillUsing(function ($request, $model, $attribute, $requestAttribute) {
