@@ -210,4 +210,3 @@
 		<a href="/enroll" class="btn btn-primary">Заполнить Анкету</a>
 	</div>
 </div>
-
