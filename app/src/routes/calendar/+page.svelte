@@ -65,7 +65,7 @@
 		{ key: 'childrensEvents', label: 'Детский отдел', color: '#F2C572' },
 		{ key: 'gospelEvents', label: 'Отдел Благовестия', color: '#397367' },
 		{ key: 'musicEvents', label: 'Музыкально хоровой отдел', color: '#6C4A79' },
-		{ key: 'youthEvents', label: 'Молодежный отделй', color: '#2176AE' }
+		{ key: 'youthEvents', label: 'Молодежный отдел', color: '#2176AE' }
 	];
 
 	let selectedRegion = regions[0].key;
