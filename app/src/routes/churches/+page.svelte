@@ -4,7 +4,7 @@
 	import { onMount } from 'svelte';
 	import Map from '$lib/components/Map.svelte';
 	export let data;
-	let selectedRegion = 'central';
+	let selectedRegion = 'all';
 	let map;
 	let markers = [];
 
