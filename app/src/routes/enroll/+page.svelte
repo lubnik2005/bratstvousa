@@ -32,7 +32,7 @@
 
 	function checkFileSize(file) {
 		if (file.size > MAX_FILE_SIZE) {
-			photoErrorMessage = `Файл превышает 5MB. Пожалуйста, выберите файл меньшего размера.`;
+			photoErrorMessage = `Файл превышает 1MB. Пожалуйста, выберите файл меньшего размера.`;
 			return false;
 		}
 		photoErrorMessage = '';
