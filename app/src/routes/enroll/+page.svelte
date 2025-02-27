@@ -26,6 +26,30 @@
 	let personalPhoto = null;
 	let agreeToRules = false;
 
+	// New: Error Message and Maximum File Size (5MB)
+	let photoErrorMessage = '';
+	const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
+
+	function checkFileSize(file) {
+		if (file.size > MAX_FILE_SIZE) {
+			photoErrorMessage = `Файл превышает 5MB. Пожалуйста, выберите файл меньшего размера.`;
+			return false;
+		}
+		photoErrorMessage = '';
+		return true;
+	}
+
+	function handlePhotoChange(event) {
+		const file = event.target.files[0];
+		if (file && checkFileSize(file)) {
+			personalPhoto = file;
+		} else {
+			// Reset the input if file is too large
+			event.target.value = '';
+			personalPhoto = null;
+		}
+	}
+
 	function calculateAge() {
 		if (birthDate) {
 			const today = new Date();
@@ -39,10 +63,6 @@
 		} else {
 			age = '';
 		}
-	}
-
-	function handlePhotoChange(event) {
-		personalPhoto = event.target.files[0];
 	}
 
 	function validateForm(event) {
@@ -243,6 +263,9 @@
 					accept="image/*"
 					required
 				/>
+				{#if photoErrorMessage}
+					<p class="text-danger">{photoErrorMessage}</p>
+				{/if}
 			</div>
 
 			<!-- Agreement to Rules -->
