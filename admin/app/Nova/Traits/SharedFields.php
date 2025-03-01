@@ -24,7 +24,7 @@ class SharedFields
             Slug::make('Slug')->from('title'),
             Text::make('Description'),
             Date::make('Start At'),
-            Select::make('Region')->options(['all' => 'Все', 'central' => 'Центральный регион', 'east' => 'Восточный регион', 'california' => 'Калифорнийский регион', 'north-west' => 'Северо-Западный регион'])->nullable(),
+            Select::make('Region')->options(['all' => 'Все', 'central' => 'Центральный регион', 'east' => 'Восточный регион', 'california' => 'Калифорнийский регион', 'north-west' => 'Северо-Западный регион'])->nullable()->displayUsingLabels(),
             Date::make('End At'),
             Image::make('Featured Image', 'featured_image', $disk)->deletable(true)->prunable(),
             Image::make('Thumbnail')->disk($disk)->path('/upfiles/page'),

@@ -14,9 +14,12 @@ export async function load({ params }) {
 			.select()
 			.from(bibleEducationEvents)
 			.where(
-				or(
-					lt(bibleEducationEvents.endAt, today),
-					and(isNull(bibleEducationEvents.endAt), lt(bibleEducationEvents.startAt, today))
+				and(
+					or(
+						lt(bibleEducationEvents.endAt, today),
+						and(isNull(bibleEducationEvents.endAt), lt(bibleEducationEvents.startAt, today))
+					),
+					eq(bibleEducationEvents.category, 'courses')
 				)
 			)
 			.orderBy(bibleEducationEvents.startAt, 'desc')

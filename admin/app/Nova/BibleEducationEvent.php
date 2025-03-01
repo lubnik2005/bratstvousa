@@ -4,6 +4,7 @@ namespace App\Nova;
 
 use Illuminate\Http\Request;
 use Laravel\Nova\Actions\ExportAsCsv;
+use Laravel\Nova\Fields\Select;
 use Laravel\Nova\Http\Requests\NovaRequest;
 
 class BibleEducationEvent extends Resource
@@ -39,7 +40,8 @@ class BibleEducationEvent extends Resource
     public function fields(NovaRequest $request)
     {
         return array_merge(SharedFields::eventFields(), [
-            // Add resource-specific fields here
+            Select::make('Category')->options(['courses' => 'Курсы', 'school' => 'Школа'])
+                ->nullable(true)->help('If this value is not selected, the event will not appear anywhere.'),
         ]);
 
     }

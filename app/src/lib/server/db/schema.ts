@@ -98,7 +98,10 @@ export const medias = pgTable('media', {
 
 export const youthEvents = pgTable('youth_events', Event);
 export const childrensEvents = pgTable('childrens_events', Event);
-export const bibleEducationEvents = pgTable('bible_education_events', Event);
+export const bibleEducationEvents = pgTable('bible_education_events', {
+	...Event,
+	category: varchar('category')
+});
 export const gospelEvents = pgTable('gospel_events', Event);
 export const musicEvents = pgTable('music_events', Event);
 export const familyEvents = pgTable('family_events', Event);
