@@ -28,11 +28,11 @@
 
 	// New: Error Message and Maximum File Size (5MB)
 	let photoErrorMessage = '';
-	const MAX_FILE_SIZE = 1 * 1024 * 1024; // 1 MB
+	const MAX_FILE_SIZE = 0.5 * 1024 * 1024; // 1 MB
 
 	function checkFileSize(file) {
 		if (file.size > MAX_FILE_SIZE) {
-			photoErrorMessage = `Файл превышает 1MB. Пожалуйста, выберите файл меньшего размера.`;
+			photoErrorMessage = `Файл превышает 0.5MB. Пожалуйста, выберите файл меньшего размера.`;
 			return false;
 		}
 		photoErrorMessage = '';
