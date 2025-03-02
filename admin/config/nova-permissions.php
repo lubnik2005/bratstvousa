@@ -211,6 +211,28 @@ return [
             'group' => 'Childrens Files',
         ],
         // ChildrensFiles End
+        // ChildrensFileCategory Start
+        'view childrens_file_category' => [
+            'display_name' => 'View childrens file category',
+            'description' => 'Can view childrens file category',
+            'group' => 'Childrens File Category',
+        ],
+        'create childrens_file_category' => [
+            'display_name' => 'Create childrens file category',
+            'description' => 'Can create childrens file category',
+            'group' => 'Childrens File Category',
+        ],
+        'edit childrens_file_category' => [
+            'display_name' => 'Edit childrens file category',
+            'description' => 'Can edit childrens file category',
+            'group' => 'Childrens File Category',
+        ],
+        'delete childrens_file_category' => [
+            'display_name' => 'Delete childrens file category',
+            'description' => 'Can delete childrens file category',
+            'group' => 'Childrens File Category',
+        ],
+        // ChildrensFileCategory End
         // NewsArticles Start
         'view news_articles' => [
             'display_name' => 'View news articles',

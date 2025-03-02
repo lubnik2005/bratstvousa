@@ -3,11 +3,13 @@
 namespace App\Nova;
 
 use Illuminate\Http\Request;
+use Laravel\Nova\Actions\ExportAsCsv;
 use Laravel\Nova\Fields\File;
 use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\Select;
+use Laravel\Nova\Fields\Tag;
+use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Http\Requests\NovaRequest;
-use Laravel\Nova\Actions\ExportAsCsv;
 
 class ChildrensFile extends Resource
 {
@@ -43,6 +45,8 @@ class ChildrensFile extends Resource
     {
         return [
             ID::make()->sortable(),
+            Text::make('Name'),
+            Tag::make('Categories', 'categories', ChildrensFileCategory::class),
             Select::make('Category')->options([
                 'all' => 'Все',
                 'preteen-homework' => 'Для занятий с детьми и подростками',
@@ -92,6 +96,6 @@ class ChildrensFile extends Resource
      */
     public function actions(NovaRequest $request)
     {
-        return [        ExportAsCsv::make(),];
+        return [ExportAsCsv::make()];
     }
 }
