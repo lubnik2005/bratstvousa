@@ -27,7 +27,7 @@
 				<div class="video-wrapper d-none d-lg-block">
 					<video autoplay muted loop loading="lazy">
 						<source
-							poster="{data.media_url}/video/first-frame.webp"
+							poster="{data.media_url}video/first-frame.webp"
 							src="{data.media_url}video/bg_compressed_no_audio.webm"
 							type="video/webm"
 						/>
