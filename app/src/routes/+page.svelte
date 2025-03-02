@@ -25,8 +25,18 @@
 		<div class="carousel-inner">
 			<div class="carousel-item active">
 				<div class="video-wrapper d-none d-lg-block">
-					<video poster="{data.media_url}video/first-frame.webp" controls>
-						<source src="{data.media_url}video/bg_compressed_no_audio.webm" type="video/webm" />
+					<video
+						poster="https://bratstvo-usa.s3.us-west-2.amazonaws.com/video/first-frame.webp"
+						autoplay
+						muted
+						loop
+						playsinline
+						style="position: absolute; width: 100%; height: 100%; object-fit: cover; z-index: -1;"
+					>
+						<source
+							src="https://bratstvo-usa.s3.us-west-2.amazonaws.com/video/bg_compressed_no_audio.webm"
+							type="video/webm"
+						/>
 						Your browser does not support the video tag.
 					</video>
 					<!---->
