@@ -183,7 +183,7 @@
 						alt={article.title}
 						class="me-3 rounded"
 						style="width: 100px; height: 100px; object-fit: cover;"
-						defer
+						loading="lazy"
 					/>
 					<div>
 						<a href="/news/{article.slug}"><h5 class="mb-1">{article.title}</h5></a>
