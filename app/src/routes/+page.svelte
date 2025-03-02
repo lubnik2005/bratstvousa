@@ -187,8 +187,8 @@
 					/>
 					<div>
 						<a href="/news/{article.slug}"><h5 class="mb-1">{article.title}</h5></a>
-						<small class="text-muted"
-							>Опубликовано: {new Intl.DateTimeFormat('ru-RU', {
+						<small class="text-muted">
+							Опубликовано: {new Intl.DateTimeFormat('ru-RU', {
 								day: 'numeric',
 								month: 'long',
 								year: 'numeric'
