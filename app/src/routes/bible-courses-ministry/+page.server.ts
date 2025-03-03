@@ -26,7 +26,11 @@ export async function load({ params }) {
 	).map((a) => ({ startAtString: formatDate(a.startAt), ...a })); // Order archive descending
 
 	const allEvents = (
-		await db.select().from(bibleEducationEvents).orderBy(bibleEducationEvents.startAt, 'desc')
+		await db
+			.select()
+			.from(bibleEducationEvents)
+			.where(eq(bibleEducationEvents.category, 'courses'))
+			.orderBy(bibleEducationEvents.startAt, 'desc')
 	).map((a) => ({ startAtString: formatDate(a.startAt), ...a })); // Order archive descending
 
 	// Upcoming/Ongoing: Events where `startAt` is today or later, or are ongoing (`endAt` is after today)
@@ -34,7 +38,12 @@ export async function load({ params }) {
 		await db
 			.select()
 			.from(bibleEducationEvents)
-			.where(or(gte(bibleEducationEvents.startAt, today), gte(bibleEducationEvents.endAt, today)))
+			.where(
+				and(
+					or(gte(bibleEducationEvents.startAt, today), gte(bibleEducationEvents.endAt, today)),
+					eq(bibleEducationEvents.category, 'courses')
+				)
+			)
 			.orderBy(bibleEducationEvents.startAt, 'asc')
 	).map((a) => ({ startAtString: formatDate(a.startAt), ...a })); // Order by soonest start date
 
