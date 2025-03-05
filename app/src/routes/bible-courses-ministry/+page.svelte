@@ -1,5 +1,4 @@
 <script>
-	import Calendar from '$lib/components/Calendar.svelte';
 	import Header from '$lib/components/Header.svelte';
 	import UpcomingEvents from '$lib/components/UpcomingEvents.svelte';
 	export let data;
@@ -80,11 +79,6 @@
 	ministry_slug="bible-courses-ministry"
 	show_filters={false}
 	upcomingEvents={data.upcomingEvents}
-	media_url={data.media_url}
-/>
-<Calendar
-	ministry_slug="bible-courses-ministry"
-	upcomingEvents={data.allEvents}
 	media_url={data.media_url}
 />
 <UpcomingEvents

@@ -2,7 +2,6 @@
 	export let data;
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
-	import YouthCalendar from '$lib/components/YouthCalendar.svelte';
 	let current_url = $page.url.pathname.split('/').filter(Boolean).pop() || '/';
 
 	const greetings = {
@@ -187,7 +186,6 @@
 			</div>
 		</div>
 	</div>
-	<YouthCalendar events={filteredUpcomingEvents} />
 {/if}
 
 {#if filteredArchivedEvents.length}

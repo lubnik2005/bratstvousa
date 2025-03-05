@@ -1,5 +1,4 @@
 <script>
-	import Calendar from '$lib/components/Calendar.svelte';
 	import Header from '$lib/components/Header.svelte';
 	import UpcomingEvents from '$lib/components/UpcomingEvents.svelte';
 	export let data;
