@@ -72,6 +72,6 @@ class SharedFields
             Files::make('Documents', 'documents'),
             File::make('Featured Document', 'featured_document', $disk)->path('/upfiles/page')->help('For certain types of resoures, this will appear as the main file to download to get more information about an event.'),
 
-        ]
+        ];
     }
 }
