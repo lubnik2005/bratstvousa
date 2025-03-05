@@ -27,7 +27,7 @@ class SharedFields
             Select::make('Region')->options(['all' => 'Все', 'central' => 'Центральный регион', 'east' => 'Восточный регион', 'california' => 'Калифорнийский регион', 'north-west' => 'Северо-Западный регион'])->nullable()->displayUsingLabels(),
             Date::make('End At'),
             Image::make('Featured Image', 'featured_image', $disk)->deletable(true)->prunable(),
-            Image::make('Thumbnail')->disk($disk)->path('/upfiles/page'),
+            // Image::make('Thumbnail')->disk($disk)->path('/upfiles/page'),
             Trix::make('Content')->withFiles($disk)->path('/upfiles/page'),
             Images::make('Gallery', 'gallery') // Media collection name: 'gallery'
                 ->nullable()
@@ -51,7 +51,7 @@ class SharedFields
             Text::make('Description'),
             Date::make('Date'),
             Image::make('Featured Image', 'featured_image', $disk)->path('upfiles/news'),
-            Image::make('Thumbnail', 'thumbnail', $disk)->path('/upfiles/page'),
+            // Image::make('Thumbnail', 'thumbnail', $disk)->path('/upfiles/page'),
             Trix::make('Content')->withFiles($disk)->path('/upfiles/page')
                 ->fillUsing(function ($request, $model, $attribute, $requestAttribute) {
                     $content = $request->input($requestAttribute);
