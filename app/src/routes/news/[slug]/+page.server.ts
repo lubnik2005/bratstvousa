@@ -1,6 +1,7 @@
 import { env } from '$env/dynamic/private';
 import { db } from '$lib/server/db';
 import { medias, newsArticles } from '$lib/server/db/schema';
+import { error } from '@sveltejs/kit';
 import { and, eq } from 'drizzle-orm';
 
 export async function load({ params }) {
@@ -9,6 +10,13 @@ export async function load({ params }) {
 		.from(newsArticles)
 		.where(eq(newsArticles.slug, params.slug));
 	const news_article = news_articles[0];
+
+	if (!news_article) {
+		error(404, {
+			message: 'Страница не найдена'
+		});
+	}
+
 	news_article.content = news_article.content?.replaceAll(
 		'src="/upfiles/photos/',
 		`src="${env.MEDIA_URL}upfiles/photos/`
