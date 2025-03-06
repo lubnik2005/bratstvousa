@@ -6,6 +6,8 @@
 	import { Calendar } from '@fullcalendar/core';
 	import dayGridPlugin from '@fullcalendar/daygrid';
 	import listPlugin from '@fullcalendar/list';
+	import { page } from '$app/stores';
+
 	export let data;
 
 	let calendar: Calendar;
@@ -22,7 +24,65 @@
 		right: 'prev,next,listYear,dayGridMonth'
 	};
 
+	// Define available regions and ministries
+	const regions = [
+		{ key: 'all', label: 'Все Регионы' },
+		{ key: 'central', label: 'Центральный регион' },
+		{ key: 'east', label: 'Восточный регион' },
+		{ key: 'california', label: 'Калифорнийский регион' },
+		{ key: 'north-west', label: 'Северо-Западный регион' }
+	];
+
+	const ministries = [
+		{ key: 'all', label: 'Все Отделы' },
+		{ key: 'bibleEducationEvents', label: 'Отдел библейского образования', color: '#5A4A42' },
+		{ key: 'familyEvents', label: 'Семейный отдел', color: '#8D230F' },
+		{ key: 'childrensEvents', label: 'Детский отдел', color: '#F2C572' },
+		{ key: 'gospelEvents', label: 'Отдел Благовестия', color: '#397367' },
+		{ key: 'musicEvents', label: 'Музыкально хоровой отдел', color: '#6C4A79' },
+		{ key: 'youthEvents', label: 'Молодежный отдел', color: '#2176AE' }
+	];
+
+	// Default selected values (will be overridden by URL if present)
+	let selectedRegion = 'all';
+	let selectedMinistry = 'all';
+	let filteredEvents = data.events;
+
+	// Function to update the URL parameters
+	function updateURLParams() {
+		const params = new URLSearchParams(window.location.search);
+		params.set('region', selectedRegion);
+		params.set('ministry', selectedMinistry);
+		window.history.replaceState({}, '', `${window.location.pathname}?${params.toString()}`);
+	}
+
+	// Function to filter events
+	function filterEvents() {
+		filteredEvents = data.events.filter(
+			(e) =>
+				(selectedRegion === 'all' || e.region === selectedRegion) &&
+				(selectedMinistry === 'all' || e.schemaName === selectedMinistry)
+		);
+
+		calendar.removeAllEvents();
+		filteredEvents.forEach((e) => calendar.addEvent(e));
+
+		updateURLParams();
+	}
+
+	// Read URL parameters on component mount
 	onMount(() => {
+		const params = new URLSearchParams(window.location.search);
+
+		// If URL contains filter values, use them
+		if (params.has('region')) {
+			selectedRegion = params.get('region') || 'all';
+		}
+
+		if (params.has('ministry')) {
+			selectedMinistry = params.get('ministry') || 'all';
+		}
+
 		const calendarEl = document.getElementById('calendar')!;
 		calendar = new Calendar(calendarEl, {
 			plugins: [listPlugin, dayGridPlugin, timeGridPlugin],
@@ -41,52 +101,13 @@
 				calendarIsLoading = isLoading;
 			}
 		});
-		console.log(data);
 		calendar.render();
-		// calendar.setOption('headerToolbar', headerToolbarMobile);
+		filterEvents(); // Apply filtering on mount
 
 		return () => {
-			calendar.destroy(); // Cleanup when the component is unmounted
+			calendar.destroy();
 		};
 	});
-
-	const regions: Region[] = [
-		{ key: 'all', label: 'Все Регионы' },
-		{ key: 'central', label: 'Центральный регион' },
-		{ key: 'east', label: 'Восточный регион' },
-		{ key: 'california', label: 'Калифорнийский регион' },
-		{ key: 'north-west', label: 'Северо-Западный регион' }
-	];
-
-	const ministries: { key: string; label: string; color?: string }[] = [
-		{ key: 'all', label: 'Все Отделы' },
-		{ key: 'bibleEducationEvents', label: 'Отдел библейского образования', color: '#5A4A42' },
-		{ key: 'familyEvents', label: 'Семейный отдел', color: '#8D230F' },
-		{ key: 'childrensEvents', label: 'Детский отдел', color: '#F2C572' },
-		{ key: 'gospelEvents', label: 'Отдел Благовестия', color: '#397367' },
-		{ key: 'musicEvents', label: 'Музыкально хоровой отдел', color: '#6C4A79' },
-		{ key: 'youthEvents', label: 'Молодежный отдел', color: '#2176AE' }
-	];
-
-	let selectedRegion = regions[0].key;
-	let selectedMinistry = ministries[0].key;
-	let filteredEvents = data.events;
-
-	function filterEvents() {
-		console.log(selectedRegion);
-		filteredEvents = data.events.filter(
-			(e) =>
-				(selectedRegion == 'all' || e.region == selectedRegion) &&
-				(selectedMinistry == 'all' || e.schemaName == selectedMinistry)
-		);
-		// calendar.destroy();
-		// calendar.render();
-		calendar.removeAllEvents();
-		filteredEvents.forEach((e) => calendar.addEvent(e));
-		// calendar.addEvent(data.events[0]);
-		// calendar.removeAllEvents();
-		// console.log('fiterevents');
-	}
 </script>
 
 <div class="container-xxl py-6">
