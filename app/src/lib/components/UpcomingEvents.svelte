@@ -10,6 +10,8 @@
 	export let show_filters = true;
 	export let ministry_slug = 'general-event';
 
+	show_filters = show_filters && upcomingEvents?.length > 6;
+
 	interface Region {
 		key: string;
 		label: string;
