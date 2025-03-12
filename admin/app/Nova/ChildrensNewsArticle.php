@@ -40,9 +40,7 @@ class ChildrensNewsArticle extends Resource
      */
     public function fields(NovaRequest $request)
     {
-        return [
-            ID::make()->sortable(),
-        ];
+        return [...SharedFields::articleFields()];
     }
 
     /**
