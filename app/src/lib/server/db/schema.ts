@@ -44,7 +44,7 @@ export const Event = {
 	updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull()
 };
 
-const Article = {
+export const Article = {
 	id: serial('id').primaryKey(),
 	title: varchar('title', { length: 255 }), // Adjust length as needed
 	slug: varchar('slug', { length: 255 }),
@@ -120,9 +120,21 @@ export const eventSchemas = [
 	musicEvents,
 	familyEvents
 ];
+
 export const youthNewsArticles = pgTable('youth_news_articles', Article);
 export const childrensNewsArticles = pgTable('childrens_news_articles', Article);
+export const familyNewsArticles = pgTable('family_news_articles', Article);
+export const bibleEducationNewsArticles = pgTable('bible_education_news_articles', Article);
+export const musicNewsArticles = pgTable('music_news_articles', Article);
 export const newsArticles = pgTable('news_articles', Article);
+
+export const newsArticleSchemas = [
+	newsArticles,
+	youthNewsArticles,
+	familyNewsArticles,
+	bibleEducationNewsArticles,
+	musicNewsArticles
+];
 
 export const childrensFiles = pgTable('childrens_files', {
 	id: serial('id').primaryKey(),
