@@ -1,6 +1,6 @@
 <script>
-	import Calendar from '$lib/components/Calendar.svelte';
 	import Header from '$lib/components/Header.svelte';
+	import News from '$lib/components/News.svelte';
 	import UpcomingEvents from '$lib/components/UpcomingEvents.svelte';
 	export let data;
 </script>
@@ -104,3 +104,11 @@
 		</div>
 	</div>
 </div>
+
+<UpcomingEvents
+	ministry_slug="bible-courses-ministry"
+	show_filters={false}
+	upcomingEvents={data.events}
+	media_url={data.media_url}
+/>
+<News articles={data.articles} media_url={data.media_url} />

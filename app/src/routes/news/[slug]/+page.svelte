@@ -19,6 +19,27 @@
 	});
 </script>
 
+<svelte:head>
+	<meta property="og:title" content={data.news_article.title} />
+	<meta property="og:image" content="{data.media_url}/{data.news_article.featuredImage}" />
+	<meta property="og:description" content="Американское Объединение МСЦ ЕХБ" />
+	<meta property="og:type" content="article" />
+	<meta property="article:published_time" content={data.news_article.date} />
+	<!-- <meta property="article:author" content="{data.news_article.author}" /> -->
+
+	<!-- Twitter Card for better sharing -->
+	<meta name="twitter:card" content="summary_large_image" />
+	<meta name="twitter:title" content={data.news_article.title} />
+	<meta name="twitter:description" content="Американское Объединение МСЦ ЕХБ" />
+	<meta name="twitter:image" content="{data.media_url}/{data.news_article.featuredImage}" />
+	<!-- <meta name="twitter:url" content="https://www.bratstvousa.com/news/{data.news_article.slug}" /> -->
+
+	<!-- LinkedIn Support -->
+	<meta property="og:site_name" content="Bratstvo USA" />
+	<!-- <meta name="author" content="{data.news_article.author}" /> -->
+	<meta name="linkedin:owner" content="Bratstvo USA" />
+</svelte:head>
+
 <div class="container p-0">
 	<img
 		src="{data.media_url}{data.news_article.featuredImage}"

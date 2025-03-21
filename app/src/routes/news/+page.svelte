@@ -1,6 +1,6 @@
 <script lang="ts">
 	export let data;
-	const totalPages = Math.ceil(data.totalArticles / data.perPage); // Calculate total pages
+	const totalPages = Math.ceil(data.news_articles_count / data.perPage); // Calculate total pages
 </script>
 
 <div class="container-xxl py-6">

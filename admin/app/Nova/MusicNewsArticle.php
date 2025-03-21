@@ -2,25 +2,23 @@
 
 namespace App\Nova;
 
-use Illuminate\Http\Request;
-use Laravel\Nova\Actions\ExportAsCsv;
 use Laravel\Nova\Http\Requests\NovaRequest;
 
-class NewsArticle extends Resource
+class MusicNewsArticle extends Resource
 {
     /**
      * The model the resource corresponds to.
      *
-     * @var class-string<\App\Models\NewsArticle>
+     * @var class-string<\App\Models\MusicNewsArticle>
      */
-    public static $model = \App\Models\NewsArticle::class;
+    public static $model = \App\Models\MusicNewsArticle::class;
 
     /**
      * The single value that should be used to represent the resource when being displayed.
      *
      * @var string
      */
-    public static $title = 'title';
+    public static $title = 'id';
 
     /**
      * The columns that should be searched.
@@ -29,27 +27,24 @@ class NewsArticle extends Resource
      */
     public static $search = [
         'id',
-        'title',
     ];
 
     /**
      * Get the fields displayed by the resource.
      *
-     * @return array
+     * @return array<int, \Laravel\Nova\Fields\Field>
      */
-    public function fields(NovaRequest $request)
+    public function fields(NovaRequest $request): array
     {
-        $disk = config('filesystems.default');
-
         return [...SharedFields::articleFields()];
     }
 
     /**
-     * Get the cards available for the request.
+     * Get the cards available for the resource.
      *
-     * @return array
+     * @return array<int, \Laravel\Nova\Card>
      */
-    public function cards(NovaRequest $request)
+    public function cards(NovaRequest $request): array
     {
         return [];
     }
@@ -57,9 +52,9 @@ class NewsArticle extends Resource
     /**
      * Get the filters available for the resource.
      *
-     * @return array
+     * @return array<int, \Laravel\Nova\Filters\Filter>
      */
-    public function filters(NovaRequest $request)
+    public function filters(NovaRequest $request): array
     {
         return [];
     }
@@ -67,9 +62,9 @@ class NewsArticle extends Resource
     /**
      * Get the lenses available for the resource.
      *
-     * @return array
+     * @return array<int, \Laravel\Nova\Lenses\Lens>
      */
-    public function lenses(NovaRequest $request)
+    public function lenses(NovaRequest $request): array
     {
         return [];
     }
@@ -77,10 +72,10 @@ class NewsArticle extends Resource
     /**
      * Get the actions available for the resource.
      *
-     * @return array
+     * @return array<int, \Laravel\Nova\Actions\Action>
      */
-    public function actions(NovaRequest $request)
+    public function actions(NovaRequest $request): array
     {
-        return [ExportAsCsv::make()];
+        return [];
     }
 }
