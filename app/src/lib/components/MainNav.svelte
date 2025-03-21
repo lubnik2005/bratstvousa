@@ -171,7 +171,7 @@
 							<!-- Regular Dropdown -->
 							<div class="nav-item dropdown">
 								<a
-									href={item?.children.length ? '#' : item.href}
+									href={item?.children.length ? '#' : '/' + item.href}
 									class="nav-link dropdown-toggle active"
 									data-bs-toggle="dropdown"
 								>

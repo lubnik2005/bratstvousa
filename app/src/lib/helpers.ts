@@ -9,3 +9,13 @@ export function formatDate(dateString: string | null) {
 		day: '2-digit'
 	});
 }
+
+export function regionToLabel(key: string) {
+	return [
+		{ key: 'all', label: 'Американское Объединение' },
+		{ key: 'central', label: 'Центральный регион' },
+		{ key: 'east', label: 'Восточный регион' },
+		{ key: 'california', label: 'Калифорнийский регион' },
+		{ key: 'north-west', label: 'Северо-Западный регион' }
+	].find((r) => r.key === key)?.label;
+}

@@ -418,5 +418,27 @@ return [
             'group' => 'Form Submissions',
         ],
         // form submissions End
+
+        // Family News Articles Permissions
+        'view family_news_articles' => [
+            'display_name' => 'View family news articles',
+            'description' => 'Can view family news articles',
+            'group' => 'Family News Articles',
+        ],
+        'create family_news_articles' => [
+            'display_name' => 'Create family news articles',
+            'description' => 'Can create family news articles',
+            'group' => 'Family News Articles',
+        ],
+        'edit family_news_articles' => [
+            'display_name' => 'Edit family news articles',
+            'description' => 'Can edit family news articles',
+            'group' => 'Family News Articles',
+        ],
+        'delete family_news_articles' => [
+            'display_name' => 'Delete family news articles',
+            'description' => 'Can delete family news articles',
+            'group' => 'Family News Articles',
+        ],
     ],
 ];
