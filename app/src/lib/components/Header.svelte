@@ -4,7 +4,7 @@
 </script>
 
 <!-- Page Header Start -->
-<div class="container-fluid page-header">
+<div class="container-fluid page-header text-center">
 	<div class="container">
 		<h1 class="display-3 mb-3">{title}</h1>
 		{#if subtitle}

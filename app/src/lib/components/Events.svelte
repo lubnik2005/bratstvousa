@@ -174,4 +174,3 @@
 		-webkit-text-stroke: 1px black; /* Black outline */
 	}
 </style>
-

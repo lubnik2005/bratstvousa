@@ -40,18 +40,19 @@
 	<meta name="linkedin:owner" content="Bratstvo USA" />
 </svelte:head>
 
-<div class="container p-0">
-	<img
-		src="{data.media_url}{data.news_article.featuredImage}"
-		class="img-fluid w-100"
-		alt="Top Image"
-	/>
-</div>
+<!-- <div class="container p-0"> -->
+<!-- 	<img -->
+<!-- 		src="{data.media_url}{data.news_article.featuredImage}" -->
+<!-- 		class="img-fluid w-100" -->
+<!-- 		alt="Top Image" -->
+<!-- 	/> -->
+<!-- </div> -->
 
 <Header title={data.news_article.title} />
-
-<div class="container">
-	{@html data.news_article.content}
+<div class="blog-container mx-auto px-3">
+	<div class="blog-content">
+		{@html data.news_article.content}
+	</div>
 </div>
 
 {#if data?.images?.length > 0}
@@ -66,7 +67,7 @@
 			</div>
 		</div>
 
-		<div class="container">
+		<div class="blog-container py-5">
 			<div class="gallightbox">
 				{#each data.images as image}
 					<a
@@ -157,5 +158,30 @@
 		width: auto !important;
 		height: auto !important;
 		max-width: 100%; /* Make the image responsive */
+	}
+
+	.blog-container {
+		max-width: 760px;
+		margin: 0 auto;
+		padding: 2rem 1rem;
+	}
+
+	.blog-content {
+		line-height: 1.7;
+		font-size: 1.1rem;
+	}
+
+	.blog-content h1,
+	.blog-content h2,
+	.blog-content h3 {
+		margin-top: 2rem;
+		margin-bottom: 1rem;
+	}
+
+	.blog-content img {
+		max-width: 100%;
+		height: auto;
+		border-radius: 8px;
+		margin: 1.5rem 0;
 	}
 </style>
