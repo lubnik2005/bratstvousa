@@ -66,6 +66,21 @@
 				<a class="btn btn-link" target="_blank" href="https://missionrem.org/">Mission REM</a>
 				<a class="btn btn-link" target="_blank" href="https://mscmusic.org/">MSC Music</a>
 				<a class="btn btn-link" target="_blank" href="https://iosifnichita.com/">Iosif Nichita</a>
+				<form
+					action="https://hostedpaynow.com/v2/paynowapp/processpayment"
+					method="post"
+					target="_blank"
+				>
+					<input type="hidden" name="cmd" value="_xclick" />
+					<input
+						type="hidden"
+						name="tokenuid"
+						value="0e95374d163a47baa79d4d7adb8cd906@=e7ccafe5451892198193798ada331896d651ced2a2d7127d469cb2eef19c7605"
+					/>
+
+					<button name="submit" type="submit" class="btn btn-link">Пожертвовать</button>
+				</form>
+				<a class="btn btn-link" target="_blank" href="/participation">Participating in Webdev</a>
 			</div>
 			<div class="col-lg-3 col-md-6">
 				<h4 class="text-light mb-4">Privacy Policy</h4>
