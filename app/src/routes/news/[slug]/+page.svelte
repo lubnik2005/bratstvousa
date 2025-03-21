@@ -21,7 +21,7 @@
 
 <svelte:head>
 	<meta property="og:title" content={data.news_article.title} />
-	<meta property="og:image" content="{data.media_url}/{data.news_article.featuredImage}" />
+	<meta property="og:image" content="{data.media_url}{data.news_article.featuredImage}" />
 	<meta property="og:description" content="Американское Объединение МСЦ ЕХБ" />
 	<meta property="og:type" content="article" />
 	<meta property="article:published_time" content={data.news_article.date} />
