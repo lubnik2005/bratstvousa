@@ -1,5 +1,6 @@
 <script lang="ts">
 	import Files from '$lib/components/Files.svelte';
+	import News from '$lib/components/News.svelte';
 	import UpcomingEvents from '$lib/components/UpcomingEvents.svelte';
 	import { onMount } from 'svelte';
 	export let data;
@@ -92,13 +93,8 @@
 
 <UpcomingEvents
 	ministry_slug="childrens-ministry"
-	upcomingEvents={data.upcomingEvents}
+	upcomingEvents={data.events}
 	media_url={data.media_url}
 />
 <Files files={data.childrens_files} media_url={data.media_url} />
-<UpcomingEvents
-	ministry_slug="childrens-ministry"
-	title="Архив"
-	upcomingEvents={data.archivedEvents}
-	media_url={data.media_url}
-/>
+<News articles={data.articles} media_url={data.media_url} />
