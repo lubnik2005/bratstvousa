@@ -1,7 +1,5 @@
 import { env } from '$env/dynamic/private';
 
-export async function load({ params }) {
-	return {
-		media_url: env.MEDIA_URL
-	};
+export async function load() {
+	return { media_url: env.MEDIA_URL };
 }

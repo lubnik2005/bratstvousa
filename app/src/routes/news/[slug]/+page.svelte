@@ -153,9 +153,9 @@
 		max-height: 100%;
 		object-fit: contain;
 	}
-img {
-    width: auto !important;
-    height: auto !important;
-    max-width: 100%; /* Make the image responsive */
-}
+	img {
+		width: auto !important;
+		height: auto !important;
+		max-width: 100%; /* Make the image responsive */
+	}
 </style>

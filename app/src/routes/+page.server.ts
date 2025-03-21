@@ -8,6 +8,7 @@ import {
 	eventsSchemaOrdered,
 	newsArticlesSchemaOrdered
 } from '$lib/server/db/queries';
+
 export async function load() {
 	const today = new Date().toISOString(); // Convert Date to ISO string
 	const events = await eventsSchemaOrdered().limit(5);
