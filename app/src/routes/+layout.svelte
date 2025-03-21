@@ -80,7 +80,7 @@
 
 					<button name="submit" type="submit" class="btn btn-link">Пожертвовать</button>
 				</form>
-				<a class="btn btn-link" target="_blank" href="/participation">Participating in Webdev</a>
+				<!-- <a class="btn btn-link" target="_blank" href="/participation">Participating in Webdev</a> -->
 			</div>
 			<div class="col-lg-3 col-md-6">
 				<h4 class="text-light mb-4">Privacy Policy</h4>
