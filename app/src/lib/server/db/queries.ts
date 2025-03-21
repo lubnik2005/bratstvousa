@@ -76,10 +76,14 @@ export function newsArticlesSchema() {
 		);
 }
 
-export const eventsSchemaOrdered = eventsSchema()
-	.where(sql`events_union.start_at > NOW()`)
-	.orderBy(sql`events_union.start_at`);
+export function eventsSchemaOrdered() {
+	return eventsSchema()
+		.where(sql`events_union.start_at > NOW()`)
+		.orderBy(sql`events_union.start_at`);
+}
 
-export const newsArticlesSchemaOrdered = newsArticlesSchema()
-	.where(sql`news_articles_union.date IS NOT NULL`)
-	.orderBy(sql`news_articles_union.date DESC`);
+export function newsArticlesSchemaOrdered() {
+	return newsArticlesSchema()
+		.where(sql`news_articles_union.date IS NOT NULL`)
+		.orderBy(sql`news_articles_union.date DESC`);
+}

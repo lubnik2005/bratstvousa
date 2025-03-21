@@ -14,10 +14,10 @@ export async function load({ params, url }) {
 
 	// Query the total count for pagination controls
 	const news_articles_count = (
-		await db.select({ count: count() }).from(newsArticlesSchemaOrdered)
+		await db.select({ count: count() }).from(newsArticlesSchemaOrdered())
 	)[0].count;
 	// Query the database for the current page
-	const news_articles = (await newsArticlesSchemaOrdered.limit(perPage).offset(offset)).map(
+	const news_articles = (await newsArticlesSchemaOrdered().limit(perPage).offset(offset)).map(
 		(a) => ({
 			date_string: formatDate(a.date),
 			...a

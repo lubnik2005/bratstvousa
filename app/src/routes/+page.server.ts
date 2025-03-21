@@ -10,8 +10,8 @@ import {
 } from '$lib/server/db/queries';
 export async function load() {
 	const today = new Date().toISOString(); // Convert Date to ISO string
-	const events = await eventsSchemaOrdered.limit(5);
-	const news_articles = await newsArticlesSchemaOrdered.limit(4);
+	const events = await eventsSchemaOrdered().limit(5);
+	const news_articles = await newsArticlesSchemaOrdered().limit(4);
 
 	events.map((event: Event) => {
 		event.month_short = new Intl.DateTimeFormat('ru-RU', { month: 'short' })
