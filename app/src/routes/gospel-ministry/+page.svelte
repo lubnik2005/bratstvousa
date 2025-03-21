@@ -1,7 +1,9 @@
 <script lang="ts">
+	import Events from '$lib/components/Events.svelte';
 	import News from '$lib/components/News.svelte';
 	import UpcomingEvents from '$lib/components/UpcomingEvents.svelte';
 	export let data;
+	export let ministry_slug = 'gospel-ministry';
 </script>
 
 <!-- Top Image Section -->
@@ -64,7 +66,7 @@
 	</div>
 </div>
 
-<UpcomingEvents upcomingEvents={data.events} media_url={data.media_url} />
+<Events events={data.events} {ministry_slug} />
 <div class="container-xxl py-5">
 	<div class="container">
 		<div class="row g-5 align-items-center">
