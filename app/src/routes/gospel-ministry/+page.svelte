@@ -1,4 +1,6 @@
 <script lang="ts">
+	import News from '$lib/components/News.svelte';
+	import UpcomingEvents from '$lib/components/UpcomingEvents.svelte';
 	export let data;
 </script>
 
@@ -62,6 +64,7 @@
 	</div>
 </div>
 
+<UpcomingEvents upcomingEvents={data.events} media_url={data.media_url} />
 <div class="container-xxl py-5">
 	<div class="container">
 		<div class="row g-5 align-items-center">
@@ -265,3 +268,4 @@
 		</div>
 	</div>
 </div>
+<News articles={data.articles} media_url={data.media_url} />
