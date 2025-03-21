@@ -66,9 +66,11 @@
 	</div>
 </div>
 
-<Events events={data.events} {ministry_slug} />
 <div class="container-xxl py-5">
 	<div class="container">
+
+    <Events events={data.events} {ministry_slug} />
+
 		<div class="row g-5 align-items-center">
 			<!-- Image Section -->
 			<div class="col-lg-6">
