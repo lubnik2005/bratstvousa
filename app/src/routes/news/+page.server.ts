@@ -13,8 +13,6 @@ export async function load({ params, url }) {
 	const offset = (page - 1) * perPage;
 
 	// Query the total count for pagination controls
-	const b = await db.select().from(newsArticlesSchemaOrdered);
-	const a = await db.select({ count: count() }).from(newsArticlesSchemaOrdered);
 	const news_articles_count = (
 		await db.select({ count: count() }).from(newsArticlesSchemaOrdered)
 	)[0].count;

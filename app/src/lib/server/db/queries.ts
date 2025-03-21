@@ -34,45 +34,52 @@ export async function getMinistryNewsArticles(article: Article) {
 	).map((e) => ({ dateString: formatDate(e.date), ...e })); // Order archive descending
 }
 
-export const eventsSchema = db
-	.select({
-		title: sql`events_union.title`,
-		startAt: sql`events_union.start_at`,
-		endAt: sql`events_union.end_at`,
-		slug: sql`events_union.slug`,
-		featuredImage: sql`events_union.featured_image`
-	})
-	.from(
-		unionAll(
-			...eventSchemas.map((eventSchema) =>
-				db
-					.select({
-						id: eventSchema.id,
-						title: eventSchema.title,
-						startAt: eventSchema.startAt,
-						endAt: eventSchema.endAt,
-						slug: eventSchema.slug,
-						featuredImage: eventSchema.featuredImage
-					})
-					.from(eventSchema)
-			)
-		).as('events_union')
-	);
+export function eventsSchema() {
+	return db
+		.select({
+			title: sql`events_union.title`,
+			startAt: sql`events_union.start_at`,
+			endAt: sql`events_union.end_at`,
+			slug: sql`events_union.slug`,
+			featuredImage: sql`events_union.featured_image`
+		})
+		.from(
+			unionAll(
+				...eventSchemas.map((eventSchema) =>
+					db
+						.select({
+							id: eventSchema.id,
+							title: eventSchema.title,
+							startAt: eventSchema.startAt,
+							endAt: eventSchema.endAt,
+							slug: eventSchema.slug,
+							featuredImage: eventSchema.featuredImage
+						})
+						.from(eventSchema)
+				)
+			).as('events_union')
+		);
+}
 
-export const newsArticlesSchema = db
-	.select({
-		id: sql<Pick<typeof Article, 'id'>['id']>`ROW_NUMBER() OVER ()`, // Dynamically gets Article.id type
-		title: sql<(typeof Article)['title']>`news_articles_union.title`,
-		date: sql<(typeof Article)['date']>`news_articles_union.date`,
-		slug: sql<(typeof Article)['slug']>`news_articles_union.slug`,
-		content: sql<(typeof Article)['content']>`news_articles_union.content`,
-		featuredImage: sql<(typeof Article)['featuredImage']>`news_articles_union.featured_image`
-	})
-	.from(unionAll(...newsArticleSchemas.map((a) => db.select().from(a))).as('news_articles_union'));
-export const eventsSchemaOrdered = eventsSchema
+export function newsArticlesSchema() {
+	return db
+		.select({
+			id: sql<Pick<typeof Article, 'id'>['id']>`ROW_NUMBER() OVER ()`, // Dynamically gets Article.id type
+			title: sql<(typeof Article)['title']>`news_articles_union.title`,
+			date: sql<(typeof Article)['date']>`news_articles_union.date`,
+			slug: sql<(typeof Article)['slug']>`news_articles_union.slug`,
+			content: sql<(typeof Article)['content']>`news_articles_union.content`,
+			featuredImage: sql<(typeof Article)['featuredImage']>`news_articles_union.featured_image`
+		})
+		.from(
+			unionAll(...newsArticleSchemas.map((a) => db.select().from(a))).as('news_articles_union')
+		);
+}
+
+export const eventsSchemaOrdered = eventsSchema()
 	.where(sql`events_union.start_at > NOW()`)
 	.orderBy(sql`events_union.start_at`);
 
-export const newsArticlesSchemaOrdered = newsArticlesSchema
+export const newsArticlesSchemaOrdered = newsArticlesSchema()
 	.where(sql`news_articles_union.date IS NOT NULL`)
 	.orderBy(sql`news_articles_union.date DESC`);

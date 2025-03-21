@@ -6,7 +6,7 @@ import { error } from '@sveltejs/kit';
 import { and, eq, sql } from 'drizzle-orm';
 
 export async function load({ params }) {
-	const news_articles = await newsArticlesSchema.where(
+	const news_articles = await newsArticlesSchema().where(
 		sql`news_articles_union.slug = ${params.slug}`
 	);
 	const news_article = news_articles[0];
