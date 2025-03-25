@@ -133,7 +133,8 @@ export const newsArticleSchemas = [
 	youthNewsArticles,
 	familyNewsArticles,
 	bibleEducationNewsArticles,
-	musicNewsArticles
+	musicNewsArticles,
+	childrensNewsArticles
 ];
 
 export const childrensFiles = pgTable('childrens_files', {
