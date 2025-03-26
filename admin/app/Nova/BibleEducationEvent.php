@@ -39,7 +39,7 @@ class BibleEducationEvent extends Resource
      */
     public function fields(NovaRequest $request)
     {
-        return array_merge(SharedFields::eventFields(), [
+        return array_merge(Traits\SharedFields::eventFields(), [
             Select::make('Category')->options(['courses' => 'Курсы', 'school' => 'Школа'])
                 ->nullable(true)->help('If this value is not selected, the event will not appear anywhere.'),
         ]);

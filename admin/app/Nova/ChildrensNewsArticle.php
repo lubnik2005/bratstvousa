@@ -40,7 +40,7 @@ class ChildrensNewsArticle extends Resource
      */
     public function fields(NovaRequest $request)
     {
-        return [...SharedFields::articleFields()];
+        return [...Traits\SharedFields::articleFields()];
     }
 
     /**

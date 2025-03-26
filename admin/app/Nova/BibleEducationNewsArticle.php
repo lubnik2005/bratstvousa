@@ -38,7 +38,7 @@ class BibleEducationNewsArticle extends Resource
      */
     public function fields(NovaRequest $request): array
     {
-        return [...SharedFields::articleFields() ];
+        return [...Traits\SharedFields::articleFields() ];
     }
 
     /**

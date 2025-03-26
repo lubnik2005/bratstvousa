@@ -38,7 +38,7 @@ class ChildrensEvent extends Resource
      */
     public function fields(NovaRequest $request)
     {
-        return array_merge(SharedFields::eventFields(), []);
+        return array_merge(Traits\SharedFields::eventFields(), []);
 
     }
 

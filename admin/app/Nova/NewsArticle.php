@@ -41,7 +41,7 @@ class NewsArticle extends Resource
     {
         $disk = config('filesystems.default');
 
-        return [...SharedFields::articleFields()];
+        return [...Traits\SharedFields::articleFields()];
     }
 
     /**
