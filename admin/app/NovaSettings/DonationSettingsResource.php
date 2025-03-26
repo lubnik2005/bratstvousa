@@ -2,12 +2,12 @@
 
 namespace App\NovaSettings;
 
-use App\Settings\GeneralSettings;
+use App\Settings\DonationSettings;
 use Ferdiunal\NovaSettings\SettingResource;
 use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Fields\URL;
 
-class GeneralSettingsResource extends SettingResource
+class DonationSettingsResource extends SettingResource
 {
     /**
      * The settings class that this resource corresponds to.
@@ -16,7 +16,7 @@ class GeneralSettingsResource extends SettingResource
      */
     public static function settings(): string
     {
-        return GeneralSettings::class;
+        return DonationSettings::class;
     }
 
     /**
@@ -24,7 +24,7 @@ class GeneralSettingsResource extends SettingResource
      */
     public static function title(): string
     {
-        return 'General Settings';
+        return 'Donation Settings';
     }
 
     /**

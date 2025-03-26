@@ -25,7 +25,7 @@ class PageContentResource extends SettingResource
      */
     public static function title(): string
     {
-        return 'PageContentResource';
+        return 'Page Content';
     }
 
     /**

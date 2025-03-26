@@ -11,6 +11,6 @@ class PageContentSettings extends Settings
 
     public static function group(): string
     {
-        return 'Pages';
+        return 'general';
     }
 }
