@@ -7,7 +7,8 @@ import {
 	varchar,
 	date,
 	json,
-	jsonb
+	jsonb,
+	boolean
 } from 'drizzle-orm/pg-core';
 
 export const user = pgTable('user', {
@@ -74,6 +75,14 @@ export const formSubmissions = pgTable('form_submissions', {
 });
 
 export type FormSubmission = typeof formSubmissions.$inferSelect;
+
+export const settings = pgTable('settings', {
+	id: serial('id').primaryKey(),
+	group: varchar('group'),
+	name: varchar('name'),
+	payload: varchar('payload'),
+	locked: boolean('locked')
+});
 
 export const medias = pgTable('media', {
 	id: serial('id').primaryKey(),
