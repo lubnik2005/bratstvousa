@@ -5,7 +5,7 @@ namespace App\NovaSettings;
 use App\Settings\PageContentSettings;
 use Ferdiunal\NovaSettings\SettingResource;
 use Laravel\Nova\Fields\Text;
-use Laravel\Nova\Fields\Trix;
+use Laravel\Nova\Fields\Textarea;
 
 class PageContentResource extends SettingResource
 {
@@ -56,7 +56,7 @@ class PageContentResource extends SettingResource
     public static function fields(): array
     {
         return [
-            Trix::make('Short Introduction Content', 'short_introduction_content'),
+            Textarea::make('Short Introduction Content', 'short_introduction_content'),
         ];
     }
 }
