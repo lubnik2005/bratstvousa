@@ -1,4 +1,4 @@
-import { and, desc, gte, isNotNull, or, sql } from 'drizzle-orm';
+import { and, desc, eq, gte, isNotNull, or, sql } from 'drizzle-orm';
 import { db } from '.';
 import {
 	eventSchemas,
@@ -8,7 +8,8 @@ import {
 	Article,
 	childrensNewsArticles,
 	newsArticles,
-	bibleEducationNewsArticles
+	bibleEducationNewsArticles,
+	settings
 } from './schema';
 import { formatDate } from '$lib/helpers';
 import { unionAll } from 'drizzle-orm/mysql-core';
@@ -86,4 +87,8 @@ export function newsArticlesSchemaOrdered() {
 	return newsArticlesSchema()
 		.where(sql`news_articles_union.date IS NOT NULL`)
 		.orderBy(sql`news_articles_union.date DESC`);
+}
+
+export async function setting(name: string) {
+	return (await db.select().from(settings).where(eq(settings.name, name)))?.[0].payload;
 }
