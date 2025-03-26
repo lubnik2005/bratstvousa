@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ae5c824168feec5fb3fd7dcc0be8b63a",
+    "content-hash": "c282b7fdb77489f62c5ae2d7affea292",
     "packages": [
         {
             "name": "aws/aws-crt-php",
@@ -1179,8 +1179,14 @@
             "version": "dev-main",
             "source": {
                 "type": "git",
-                "url": "../../nova-settings",
+                "url": "https://github.com/lubnik2005/nova-settings.git",
                 "reference": "cb23d6cc519337aae3354d90994084e849718cff"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/lubnik2005/nova-settings/zipball/cb23d6cc519337aae3354d90994084e849718cff",
+                "reference": "cb23d6cc519337aae3354d90994084e849718cff",
+                "shasum": ""
             },
             "require": {
                 "laravel/framework": "^11.0",
@@ -1225,6 +1231,9 @@
                 "spatie",
                 "spatie-settings"
             ],
+            "support": {
+                "source": "https://github.com/lubnik2005/nova-settings/tree/main"
+            },
             "funding": [
                 {
                     "type": "github",
