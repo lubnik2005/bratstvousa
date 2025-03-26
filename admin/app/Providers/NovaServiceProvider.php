@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Gate;
 use Laravel\Nova\Nova;
 use Laravel\Nova\NovaApplicationServiceProvider;
 use Dniccum\NovaDocumentation\NovaDocumentation;
+use Ferdiunal\NovaSettings\NovaSettings;
 
 class NovaServiceProvider extends NovaApplicationServiceProvider
 {
@@ -68,6 +69,7 @@ class NovaServiceProvider extends NovaApplicationServiceProvider
     public function tools()
     {
         return [
+            new NovaSettings,
             new \Pktharindu\NovaPermissions\NovaPermissions,
             new NovaDocumentation,
         ];
