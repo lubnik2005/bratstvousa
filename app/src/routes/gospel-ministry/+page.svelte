@@ -68,10 +68,9 @@
 
 <div class="container-xxl py-5">
 	<div class="container">
+		<Events events={data.events} {ministry_slug} />
 
-    <Events events={data.events} {ministry_slug} />
-
-		<div class="row g-5 mt-5 align-items-center">
+		<div class="row g-5 align-items-center mt-5">
 			<!-- Image Section -->
 			<div class="col-lg-6">
 				<div class="about-img position-relative overflow-hidden rounded p-5 pe-0">
