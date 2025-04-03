@@ -1,11 +1,4 @@
 /********** Template CSS **********/
-:root {
-	--primary: #6b8e23; /* Olive Green, softer and earthy */
-	--secondary: #a0522d; /* Sienna, a warm earthy tone */
-	--light: #f5f5dc; /* Beige, natural and subtle */
-	--dark: #2f4f4f; /* Dark Slate Gray, grounded and neutral */
-}
-
 .back-to-top {
 	position: fixed;
 	display: none;
@@ -400,6 +393,17 @@
 
 .footer .copyright a:hover {
 	color: var(--primary);
+}
+
+.blog-content a {
+	color: var(--primary);
+	text-decoration: underline;
+}
+
+.blog-content a:hover {
+	color: var(--secondary);
+	border-color: var(--secondary);
+	text-decoration: underline;
 }
 
 @import 'glightbox';
