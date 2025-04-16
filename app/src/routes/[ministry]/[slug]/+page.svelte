@@ -44,5 +44,7 @@
 </div>
 
 <div class="container">
+  <div class="blog-content" >
 	{@html data.event.content}
+</div>
 </div>
