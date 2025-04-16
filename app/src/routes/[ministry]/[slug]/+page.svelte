@@ -1,5 +1,5 @@
 <script lang="ts">
-	let { data } = $props();
+	export let data;
 	import '@splidejs/svelte-splide/css';
 	import { Splide, SplideSlide } from '@splidejs/svelte-splide';
 </script>
