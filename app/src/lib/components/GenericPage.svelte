@@ -7,7 +7,7 @@
 </script>
 
 <!-- 🔥 Featured Event Section -->
-{#if data.news_articles.length}
+{#if data.news_articles?.length}
 	<section class="row my-5">
 		<div class="col-lg-10 mx-auto">
 			<div class="card overflow-hidden border-0 shadow-lg">
@@ -35,7 +35,8 @@
 <Events events={data.events} {ministry_slug} />
 <!-- 📰 News Section -->
 
-<section class="row my-5">
+{#if data.news_articles?.length }
+<section class="row mb-5">
 	<h2 class="fw-bold mb-4 text-center">Новости</h2>
 	<div class="col-lg-12">
 		<div class="row g-3">
@@ -63,6 +64,7 @@
 		</div>
 	</div>
 </section>
+{/if}
 
 <style>
 	:root {
