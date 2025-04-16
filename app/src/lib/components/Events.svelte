@@ -4,7 +4,7 @@
 	export let ministry_slug;
 </script>
 
-<section class="row">
+<section class="row mb-5">
 	<h2 class="fw-bold mb-4 text-center">События</h2>
 	<div class="col-lg-12">
 		<div class="row g-4">
