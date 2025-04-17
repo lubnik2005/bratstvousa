@@ -3,7 +3,7 @@
 	import Header from '$lib/components/Header.svelte';
 	import News from '$lib/components/News.svelte';
 	import UpcomingEvents from '$lib/components/UpcomingEvents.svelte';
-  import GenericPage from '$lib/components/GenericPage.svelte';
+	import GenericPage from '$lib/components/GenericPage.svelte';
 </script>
 
 <Header title="Музыкально хоровой отдел (МХО)" />
@@ -49,9 +49,6 @@
 <News articles={data.articles} media_url={data.media_url} />
 <div class="container-fluid">
 	<div class="container">
-
-<GenericPage media_url=data.media_url {data} ministry_slug='choir-music' />
+		<GenericPage media_url="data.media_url" {data} ministry_slug="choir-music" />
+	</div>
 </div>
-</div>
-
-

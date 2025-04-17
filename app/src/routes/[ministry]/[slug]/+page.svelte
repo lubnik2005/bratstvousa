@@ -12,8 +12,8 @@
 	<meta property="og:description" content="Американское Объединение МСЦ ЕХБ" />
 	<meta property="og:type" content="article" />
 	{#if data.event?.date}
-	<meta property="article:published_time" content={data.event?.date} />
-  {/if}
+		<meta property="article:published_time" content={data.event?.date} />
+	{/if}
 	<meta name="twitter:card" content="summary_large_image" />
 	<meta name="twitter:title" content={data.event?.title} />
 	<meta name="twitter:description" content="Американское Объединение МСЦ ЕХБ" />
@@ -44,7 +44,7 @@
 </div>
 
 <div class="container">
-  <div class="blog-content" >
-	{@html data.event.content}
-</div>
+	<div class="blog-content">
+		{@html data.event.content}
+	</div>
 </div>

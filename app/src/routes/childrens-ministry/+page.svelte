@@ -100,39 +100,36 @@
 
 <div class="container-fluid">
 	<div class="container">
+		<section class="row my-5">
+			<h2 class="fw-bold mb-4 text-center">Новости</h2>
+			<div class="col-lg-12">
+				<div class="row g-3">
+					{#each data.articles as article}
+						<div class="col-md-6 col-lg-4">
+							<div class="news-card position-relative overflow-hidden">
+								<!-- 📸 News Image -->
+								{#if article.featuredImage}
+									<img
+										class="news-image w-100 object-fit-cover"
+										src={`${data.media_url}${article.featuredImage}`}
+										alt={article.title}
+									/>
+								{/if}
 
-<section class="row my-5">
-	<h2 class="fw-bold mb-4 text-center">Новости</h2>
-	<div class="col-lg-12">
-		<div class="row g-3">
-			{#each data.articles as article}
-				<div class="col-md-6 col-lg-4">
-					<div class="news-card position-relative overflow-hidden">
-						<!-- 📸 News Image -->
-						{#if article.featuredImage}
-							<img
-								class="news-image w-100 object-fit-cover"
-								src={`${data.media_url}${article.featuredImage}`}
-								alt={article.title}
-							/>
-						{/if}
-
-						<!-- 📝 Overlayed Content -->
-						<div class="news-overlay">
-							<h5 class="news-title">{article.title}</h5>
-							<span class="news-date">{article.date}</span>
-							<a href={`/news/${article.slug}`} class="btn btn-sm btn-light mt-2">Читать</a>
+								<!-- 📝 Overlayed Content -->
+								<div class="news-overlay">
+									<h5 class="news-title">{article.title}</h5>
+									<span class="news-date">{article.date}</span>
+									<a href={`/news/${article.slug}`} class="btn btn-sm btn-light mt-2">Читать</a>
+								</div>
+							</div>
 						</div>
-					</div>
+					{/each}
 				</div>
-			{/each}
-		</div>
+			</div>
+		</section>
 	</div>
-</section>
-	</div>
-	</div>
-
-
+</div>
 
 <style>
 	:root {
@@ -266,4 +263,3 @@
 		-webkit-text-stroke: 1px black; /* Black outline */
 	}
 </style>
-
