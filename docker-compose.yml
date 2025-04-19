@@ -7,10 +7,11 @@ services:
             - app/.env
         extra_hosts:
             - 'host.docker.internal:host-gateway'
-        ports:
-            - '3000:3000'
-        networks:
-            - sail
+        network_mode: "host"
+        # ports:
+        #     - '3000:3000'
+        # networks:
+        #     - sail
 
     admin:
         build:
@@ -22,9 +23,6 @@ services:
         image: 'sail-8.4/app'
         extra_hosts:
             - 'host.docker.internal:host-gateway'
-        ports:
-            - '${APP_PORT:-7128}:80'
-            - '${VITE_PORT:-5179}:${VITE_PORT:-5173}'
         env_file:
             - path: './admin/.env'
         environment:
@@ -37,8 +35,12 @@ services:
         volumes:
             - './admin:/var/www/html'
             - './media:/var/www/media'
-        networks:
-            - sail
+        network_mode: "host"
+        # ports:
+        #     - '${APP_PORT:-7128}:80'
+        #     - '${VITE_PORT:-5179}:${VITE_PORT:-5173}'
+        # networks:
+        #     - sail
 
     nginx:
         image: nginx:latest
