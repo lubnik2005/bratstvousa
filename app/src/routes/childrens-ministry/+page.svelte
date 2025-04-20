@@ -96,7 +96,17 @@
 	upcomingEvents={data.events}
 	media_url={data.media_url}
 />
-<Files files={data.childrens_files} media_url={data.media_url} />
+
+{#if data.childrens_camp_files}
+	<Files
+		title={'Темы и Расписание лагерей'}
+		files={data.childrens_camp_files}
+		media_url={data.media_url}
+	/>
+{/if}
+{#if data.childrens_files}
+	<Files files={data.childrens_files} media_url={data.media_url} />
+{/if}
 
 <div class="container-fluid">
 	<div class="container">

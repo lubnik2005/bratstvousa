@@ -54,6 +54,8 @@ class ChildrensFile extends Resource
                 'children' => 'Для детей',
                 'preteen' => 'Для подростков',
                 'preteen-bible-school-course-material' => 'Для курсов и семинаров',
+                'children-camp' => 'Детский лагерь',
+                'preteen-camp' => 'Подростковый лагерь',
             ])->nullable(),
             File::make('File', 'path')->storeOriginalName('name')->storeSize('size'),
         ];

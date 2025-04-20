@@ -6,12 +6,21 @@ import { formatDate } from '$lib/helpers';
 import { getMinistryEvents, getMinistryNewsArticles } from '$lib/server/db/queries';
 
 export async function load({ params }) {
-	const childrens_files = await db.select().from(childrensFiles).orderBy(childrensFiles.name);
+	const allFiles = await db.select().from(childrensFiles).orderBy(childrensFiles.name);
+
+	const childrens_camp_files = allFiles.filter(
+		(file) => file.category === 'children-camp' || file.category === 'preteen-camp'
+	);
+
+	const childrens_files = allFiles.filter(
+		(file) => file.category !== 'children-camp' && file.category !== 'preteen-camp'
+	);
 
 	return {
 		media_url: env.MEDIA_URL,
 		articles: await getMinistryNewsArticles(childrensNewsArticles),
 		events: await getMinistryEvents(childrensEvents),
-		childrens_files
+		childrens_files,
+		childrens_camp_files
 	};
 }
