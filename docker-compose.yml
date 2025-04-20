@@ -1,63 +1,62 @@
+version: "3.9"
+
 services:
-    app: 
-        build:
-            context: './app/'
-            dockerfile: Dockerfile
-        env_file:
-            - app/.env
-        extra_hosts:
-            - 'host.docker.internal:host-gateway'
-        network_mode: "host"
-        # ports:
-        #     - '3000:3000'
-        # networks:
-        #     - sail
+  app: 
+    build:
+      context: './app/'
+      dockerfile: Dockerfile
+    env_file:
+      - app/.env
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    ports:
+      - '3000:3000' # Adjust as needed
+    networks:
+      - sail
 
-    admin:
-        build:
-            context: './admin/runtimes/8.4'
-            dockerfile: Dockerfile
-            args:
-                WWWUSER: 1000
-                WWWGROUP: 1000
-        image: 'sail-8.4/app'
-        extra_hosts:
-            - 'host.docker.internal:host-gateway'
-        env_file:
-            - path: './admin/.env'
-        environment:
-            WWWUSER: 1000
-            WWWGROUP: 1000
-            LARAVEL_SAIL: 1
-            XDEBUG_MODE: '${SAIL_XDEBUG_MODE:-off}'
-            XDEBUG_CONFIG: '${SAIL_XDEBUG_CONFIG:-client_host=host.docker.internal}'
-            IGNITION_LOCAL_SITES_PATH: '${PWD}'
-        volumes:
-            - './admin:/var/www/html'
-            - './media:/var/www/media'
-        network_mode: "host"
-        # ports:
-        #     - '${APP_PORT:-7128}:80'
-        #     - '${VITE_PORT:-5179}:${VITE_PORT:-5173}'
-        # networks:
-        #     - sail
+  admin:
+    build:
+      context: './admin/runtimes/8.4'
+      dockerfile: Dockerfile
+      args:
+        WWWUSER: 1000
+        WWWGROUP: 1000
+    image: 'sail-8.4/app'
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    env_file:
+      - './admin/.env'
+    environment:
+      WWWUSER: 1000
+      WWWGROUP: 1000
+      LARAVEL_SAIL: 1
+      XDEBUG_MODE: '${SAIL_XDEBUG_MODE:-off}'
+      XDEBUG_CONFIG: '${SAIL_XDEBUG_CONFIG:-client_host=host.docker.internal}'
+      IGNITION_LOCAL_SITES_PATH: '${PWD}'
+    volumes:
+      - './admin:/var/www/html'
+      - './media:/var/www/media'
+    ports:
+      - '${APP_PORT:-7128}:80'
+      - '${VITE_PORT:-5179}:${VITE_PORT:-5173}'
+    networks:
+      - sail
 
-    nginx:
-        image: nginx:latest
-        container_name: nginx_proxy
-        ports:
-            - "80:80"
-        volumes:
-            - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-            - ./nginx/app.conf:/etc/nginx/conf.d/app.conf:ro
-            # - ./app/build/client/:/var/www/html/public:ro
-        depends_on:
-            - app
-            - admin
-        networks:
-            - sail
-
+  nginx:
+    image: nginx:latest
+    container_name: nginx_proxy
+    ports:
+      - "7128:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/app.conf:/etc/nginx/conf.d/app.conf:ro
+    depends_on:
+      - app
+      - admin
+    networks:
+      - sail
 
 networks:
-    sail:
-        driver: bridge
+  sail:
+    driver: bridge
+
