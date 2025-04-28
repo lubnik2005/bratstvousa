@@ -43,6 +43,7 @@ class ChildrensFile extends Resource
      */
     public function fields(NovaRequest $request)
     {
+        $disk = config('filesystems.default');
         return [
             ID::make()->sortable(),
             Text::make('Name'),
@@ -57,7 +58,7 @@ class ChildrensFile extends Resource
                 'children-camp' => 'Детский лагерь',
                 'preteen-camp' => 'Подростковый лагерь',
             ])->nullable(),
-            File::make('File', 'path')->storeOriginalName('name')->storeSize('size'),
+            File::make('File', 'path', $disk)->storeOriginalName('name')->storeSize('size')->path('/upfiles/file'),
         ];
     }
 
