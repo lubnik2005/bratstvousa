@@ -45,6 +45,6 @@
 
 <div class="container">
 	<div class="blog-content">
-		{@html data.event.content}
+		{@html data.event.use_editorjs ? data.event.editorjs_rendered : data.event.content }
 	</div>
 </div>
