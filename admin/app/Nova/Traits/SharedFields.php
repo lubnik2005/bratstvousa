@@ -25,7 +25,7 @@ class SharedFields
         return [
             ID::make()->sortable(),
             URL::make('Url Link', function ($resource) {
-                return 'localhost:5173/test/' . $resource->slug;
+                return env('FRONTEND_URL') . '/test/' . $resource->slug;
             })->onlyOnDetail(),
             Text::make('Title')->rules('required')->required(),
             Slug::make('Slug')->from('title'),
