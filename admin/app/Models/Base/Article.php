@@ -8,6 +8,7 @@ use Spatie\Image\Image;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
+use Advoor\NovaEditorJs\NovaEditorJsCast;
 
 class Article extends Model implements Auditable, HasMedia
 {
@@ -18,6 +19,7 @@ class Article extends Model implements Auditable, HasMedia
         'start_at' => 'date',
         'end_at' => 'date',
         'date' => 'date',
+        'editorjs' => NovaEditorJsCast::class,
     ];
 
     public function registerMediaConversions(?Media $media = null): void

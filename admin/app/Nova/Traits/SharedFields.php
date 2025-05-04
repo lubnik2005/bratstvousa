@@ -12,6 +12,9 @@ use Laravel\Nova\Fields\Slug;
 use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Fields\Trix;
 use Laravel\Nova\Fields\File;
+use Laravel\Nova\Fields\URL;
+use Laravel\Nova\Fields\Boolean;
+use Advoor\NovaEditorJs\NovaEditorJsField;
 
 class SharedFields
 {
@@ -21,6 +24,9 @@ class SharedFields
 
         return [
             ID::make()->sortable(),
+            URL::make('Url Link', function ($resource) {
+                return 'localhost:5173/test/' . $resource->slug;
+            })->onlyOnDetail(),
             Text::make('Title')->rules('required')->required(),
             Slug::make('Slug')->from('title'),
             Text::make('Description'),
@@ -40,6 +46,8 @@ class SharedFields
             Files::make('Playlist', 'playlist'),
             Files::make('Documents', 'documents'),
             Files::make('Featured Document', 'featured_document')->help('For certain types of resoures, this will appear as the main file to download to get more information about an event.'),
+            Boolean::make('Use EditorJS', 'use_editorjs'),
+            NovaEditorJsField::make('EditorJS', 'editorjs'),
         ];
     }
 
@@ -72,6 +80,8 @@ class SharedFields
             Files::make('Playlist', 'playlist'),
             Files::make('Documents', 'documents'),
             File::make('Featured Document', 'featured_document', $disk)->path('/upfiles/page')->help('For certain types of resoures, this will appear as the main file to download to get more information about an event.'),
+            Boolean::make('Use EditorJS', 'use_editorjs'),
+            NovaEditorJsField::make('EditorJS', 'editorjs'),
 
         ];
     }
