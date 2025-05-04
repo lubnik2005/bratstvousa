@@ -21,7 +21,8 @@
         "owen-it/laravel-auditing": "^13.7",
         "pktharindu/nova-permissions": "^3.0",
         "spatie/laravel-medialibrary": "^11.11",
-        "spatie/laravel-settings": "^3.4"
+        "spatie/laravel-settings": "^3.4",
+        "advoor/nova-editor-js": "dev-rollback"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
@@ -89,6 +90,11 @@
         {
             "type": "vcs",
             "url": "https://github.com/lubnik2005/nova-settings.git"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/lubnik2005/nova-editor-js.git"
         }
+
     ]
 }
