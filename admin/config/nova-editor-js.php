@@ -40,7 +40,7 @@ return [
             'activated' => true,
             'shortcut' => 'CMD+SHIFT+I',
             'path' => 'upfiles/page',
-            'disk' => 'upfiles',
+            'disk' => 'default',
             'alterations' => [
                 'resize' => [
                     'width' => false, // integer
