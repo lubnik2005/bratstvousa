@@ -40,7 +40,7 @@ return [
             'activated' => true,
             'shortcut' => 'CMD+SHIFT+I',
             'path' => 'upfiles/page',
-            'disk' => 'default',
+            'disk' => 's3', // This should be 'default' but it doesn't recognize it? Careful with this
             'alterations' => [
                 'resize' => [
                     'width' => false, // integer
