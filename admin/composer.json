@@ -10,7 +10,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.4",
-        "advoor/nova-editor-js": "^0.5.1",
+        "advoor/nova-editor-js": "dev-rollback",
         "devpartners/auditable-log": "^2.0",
         "dniccum/nova-documentation": "dev-master",
         "ebess/advanced-nova-media-library": "^5.1",
@@ -54,7 +54,16 @@
         {
             "type": "vcs",
             "url": "https://github.com/lubnik2005/nova-documentation"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/lubnik2005/nova-settings.git"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/lubnik2005/nova-editor-js.git"
         }
+
     ],
     "scripts": {
         "post-autoload-dump": [

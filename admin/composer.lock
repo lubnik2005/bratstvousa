@@ -4,26 +4,37 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "745af3025f88602cf8e0327083e1a22c",
+    "content-hash": "483499047e053a587af730ad66e7bd33",
     "packages": [
         {
             "name": "advoor/nova-editor-js",
-            "version": "v0.5.1",
+            "version": "dev-rollback",
             "source": {
                 "type": "git",
-                "url": "https://github.com/advoor/nova-editor-js.git",
-                "reference": "cb6a029f99b867d9ee1908b7f631ee591872f7ea"
+                "url": "https://github.com/lubnik2005/nova-editor-js.git",
+                "reference": "345424c896e6dab79892200bd364a5528478fa47"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/advoor/nova-editor-js/zipball/cb6a029f99b867d9ee1908b7f631ee591872f7ea",
-                "reference": "cb6a029f99b867d9ee1908b7f631ee591872f7ea",
+                "url": "https://api.github.com/repos/lubnik2005/nova-editor-js/zipball/345424c896e6dab79892200bd364a5528478fa47",
+                "reference": "345424c896e6dab79892200bd364a5528478fa47",
                 "shasum": ""
             },
             "require": {
                 "codex-team/editor.js": "*",
+                "ext-exif": "*",
                 "ext-json": "*",
-                "php": ">=7.1.0"
+                "guzzlehttp/guzzle": "^7.0",
+                "illuminate/events": "^10.0 || ^11.0 || ^12.0",
+                "illuminate/support": "^10.0 || ^11.0 || ^12.0",
+                "laravel/nova": "^4.0 || ^5.0",
+                "php": "^8.2",
+                "spatie/image": "^3.0"
+            },
+            "require-dev": {
+                "laravel/pint": "^1.15",
+                "orchestra/testbench": "^10",
+                "php-parallel-lint/php-parallel-lint": "^1.3"
             },
             "type": "library",
             "extra": {
@@ -38,7 +49,25 @@
                     "Advoor\\NovaEditorJs\\": "src/"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
+            "autoload-dev": {
+                "psr-4": {
+                    "Tests\\": "tests"
+                },
+                "files": [
+                    "tests/helpers.php"
+                ]
+            },
+            "scripts": {
+                "test": [
+                    "phpunit"
+                ],
+                "lint": [
+                    "parallel-lint --exclude .git --exclude vendor ."
+                ],
+                "format": [
+                    "pint"
+                ]
+            },
             "license": [
                 "MIT"
             ],
@@ -51,10 +80,9 @@
                 "wysiwyg"
             ],
             "support": {
-                "issues": "https://github.com/advoor/nova-editor-js/issues",
-                "source": "https://github.com/advoor/nova-editor-js/tree/v0.5.1"
+                "source": "https://github.com/lubnik2005/nova-editor-js/tree/rollback"
             },
-            "time": "2019-05-01T08:14:57+00:00"
+            "time": "2025-05-04T01:30:37+00:00"
         },
         {
             "name": "aws/aws-crt-php",
@@ -11905,6 +11933,7 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
+        "advoor/nova-editor-js": 20,
         "dniccum/nova-documentation": 20
     },
     "prefer-stable": true,
