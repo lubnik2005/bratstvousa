@@ -32,7 +32,7 @@ return [
 
         'local' => [
             'driver' => 'local',
-            'root' => storage_path('upfiles'),
+            'root' => storage_path('app/upfiles'),
             'url' => env('MEDIA_URL'),
             'serve' => true,
             'throw' => false,
