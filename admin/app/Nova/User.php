@@ -60,9 +60,9 @@ class User extends Resource
                 ->updateRules('unique:users,email,{{resourceId}}'),
 
             Password::make('Password')
-                ->onlyOnForms()
-                ->creationRules($this->passwordRules())
-                ->updateRules($this->optionalPasswordRules()),
+                ->onlyOnForms(),
+                // ->creationRules($this->passwordRules())
+                // ->updateRules($this->optionalPasswordRules()),
             AuditableLog::make(),
         ];
     }
