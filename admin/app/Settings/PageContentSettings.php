@@ -1,6 +1,6 @@
 <?php
 
-namespace App\NovaSettings;
+namespace App\Settings;
 
 use Spatie\LaravelSettings\Settings;
 
