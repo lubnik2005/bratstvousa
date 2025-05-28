@@ -30,13 +30,13 @@ return [
 
     'disks' => [
 
-        'upfiles' => [
-            'driver' => 'local',
-            'root' => storage_path('upfiles'),
-            'url' => env('MEDIA_URL'),
-            'serve' => true,
-            'throw' => false,
-        ],
+        // 'upfiles' => [
+        //     'driver' => 'local',
+        //     'root' => storage_path('upfiles'),
+        //     'url' => env('MEDIA_URL'),
+        //     'serve' => true,
+        //     'throw' => false,
+        // ],
 
         'local' => [
             'driver' => 'local',
