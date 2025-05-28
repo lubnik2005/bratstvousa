@@ -48,7 +48,7 @@
         {
             "type": "composer",
             "url": "https://nova.laravel.com"
-        }
+        },
     ],
     "scripts": {
         "post-autoload-dump": [

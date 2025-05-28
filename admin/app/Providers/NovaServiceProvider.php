@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Gate;
 use Laravel\Fortify\Features;
 use Laravel\Nova\Nova;
 use Laravel\Nova\NovaApplicationServiceProvider;
+use Dniccum\NovaDocumentation\NovaDocumentation;
+
 
 class NovaServiceProvider extends NovaApplicationServiceProvider
 {
@@ -79,7 +81,9 @@ class NovaServiceProvider extends NovaApplicationServiceProvider
      */
     public function tools(): array
     {
-        return [];
+        return [
+            new NovaDocumentation
+        ];
     }
 
     /**
