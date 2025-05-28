@@ -38,6 +38,8 @@
 	<meta property="og:site_name" content="Bratstvo USA" />
 	<!-- <meta name="author" content="{data.news_article.author}" /> -->
 	<meta name="linkedin:owner" content="Bratstvo USA" />
+  <title>{data.news_article.title}</title>
+  <meta name="description" content="Американское Объединение МСЦ ЕХБ">
 </svelte:head>
 
 <!-- <div class="container p-0"> -->

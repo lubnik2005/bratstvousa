@@ -24,6 +24,9 @@
 	<!-- LinkedIn Support -->
 	<meta property="og:site_name" content="Bratstvo USA" />
 	<meta name="linkedin:owner" content="Bratstvo USA" />
+  <title>{data.event?.title}</title>
+  <meta name="description" content="Американское Объединение МСЦ ЕХБ">
+
 </svelte:head>
 
 {#if data.event?.featuredImage}
@@ -45,6 +48,7 @@
 
 <div class="container">
 	<div class="blog-content">
+    Hello
 		{@html data.event.use_editorjs ? data.event.editorjs_rendered : data.event.content }
 	</div>
 </div>
