@@ -8,6 +8,9 @@ use Laravel\Fortify\Features;
 use Laravel\Nova\Nova;
 use Laravel\Nova\NovaApplicationServiceProvider;
 use Dniccum\NovaDocumentation\NovaDocumentation;
+use Pktharindu\NovaPermissions\NovaPermissions;
+use Ferdiunal\NovaSettings\NovaSettings;
+
 
 
 class NovaServiceProvider extends NovaApplicationServiceProvider
@@ -82,7 +85,9 @@ class NovaServiceProvider extends NovaApplicationServiceProvider
     public function tools(): array
     {
         return [
-            new NovaDocumentation
+            new NovaSettings,
+            new NovaDocumentation,
+            new NovaPermissions,
         ];
     }
 
