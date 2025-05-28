@@ -7,27 +7,24 @@
 <svelte:head>
 	<meta property="og:title" content={data.event?.title} />
 	{#if data.event?.featuredImage}
-		<meta property="og:image" content="{data.media_url}{data.event?.featuredImage}" />
+		<meta property="og:image" content={data.media_url + data.event.featuredImage} />
 	{/if}
 	<meta property="og:description" content="Американское Объединение МСЦ ЕХБ" />
 	<meta property="og:type" content="article" />
 	{#if data.event?.date}
-		<meta property="article:published_time" content={data.event?.date} />
+		<meta property="article:published_time" content={data.event.date} />
 	{/if}
 	<meta name="twitter:card" content="summary_large_image" />
 	<meta name="twitter:title" content={data.event?.title} />
 	<meta name="twitter:description" content="Американское Объединение МСЦ ЕХБ" />
 	{#if data.event?.featuredImage}
-		<meta name="twitter:image" content="{data.media_url}/{data.event?.featuredImage}" />
+		<meta name="twitter:image" content={data.media_url + data.event.featuredImage} />
 	{/if}
-
-	<!-- LinkedIn Support -->
 	<meta property="og:site_name" content="Bratstvo USA" />
-	<meta name="linkedin:owner" content="Bratstvo USA" />
-  <title>{data.event?.title}</title>
-  <meta name="description" content="Американское Объединение МСЦ ЕХБ">
-
+	<title>{data.event?.title}</title>
+	<meta name="description" content="Американское Объединение МСЦ ЕХБ" />
 </svelte:head>
+
 
 {#if data.event?.featuredImage}
 	<div class="container p-0">
