@@ -12,6 +12,7 @@
         "php": "^8.4",
         "advoor/nova-editor-js": "^0.5.1",
         "devpartners/auditable-log": "^2.0",
+        "dniccum/nova-documentation": "dev-master",
         "laravel/framework": "^12.0",
         "laravel/nova": "^5.0",
         "laravel/tinker": "^2.10.1",
@@ -48,6 +49,10 @@
         {
             "type": "composer",
             "url": "https://nova.laravel.com"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/lubnik2005/nova-documentation"
         }
     ],
     "scripts": {
