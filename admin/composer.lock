@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "483499047e053a587af730ad66e7bd33",
+    "content-hash": "552f18c940cb18f52324cb80c7755ea0",
     "packages": [
         {
             "name": "advoor/nova-editor-js",
@@ -1359,6 +1359,78 @@
                 "source": "https://github.com/ezyang/htmlpurifier/tree/v4.18.0"
             },
             "time": "2024-11-01T03:51:45+00:00"
+        },
+        {
+            "name": "ferdiunal/nova-settings",
+            "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/lubnik2005/nova-settings.git",
+                "reference": "536cb60e093f00a39572072318f57a28e1ca5ff5"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/lubnik2005/nova-settings/zipball/536cb60e093f00a39572072318f57a28e1ca5ff5",
+                "reference": "536cb60e093f00a39572072318f57a28e1ca5ff5",
+                "shasum": ""
+            },
+            "require": {
+                "laravel/framework": "^12.0",
+                "laravel/nova": "^5.0",
+                "php": "^8.2",
+                "spatie/laravel-settings": "^3.3"
+            },
+            "default-branch": true,
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Ferdiunal\\NovaSettings\\NovaSettingsToolServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Ferdiunal\\NovaSettings\\": "src/"
+                },
+                "files": [
+                    "src/helpers.php"
+                ]
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Ferdi Ünal",
+                    "email": "ferdiunal@outlook.com",
+                    "homepage": "https://gitub.com/ferdiunal",
+                    "role": "Developer"
+                }
+            ],
+            "description": "A Laravel Nova tool to manage settings",
+            "keywords": [
+                "laravel",
+                "nova",
+                "nova-settings",
+                "settings",
+                "spatie",
+                "spatie-settings"
+            ],
+            "support": {
+                "source": "https://github.com/lubnik2005/nova-settings/tree/main"
+            },
+            "funding": [
+                {
+                    "type": "github",
+                    "url": "https://github.com/sponsors/ferdiunal"
+                },
+                {
+                    "type": "buymeacoffee",
+                    "url": "https://buymeacoffee.com/ferdiunal"
+                }
+            ],
+            "time": "2025-05-28T03:00:28+00:00"
         },
         {
             "name": "fruitcake/php-cors",
@@ -11934,7 +12006,8 @@
     "minimum-stability": "stable",
     "stability-flags": {
         "advoor/nova-editor-js": 20,
-        "dniccum/nova-documentation": 20
+        "dniccum/nova-documentation": 20,
+        "ferdiunal/nova-settings": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,
