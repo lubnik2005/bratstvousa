@@ -11,6 +11,7 @@ return [
         'defaultBlock' => 'paragraph',
         'autofocus' => false,
         'rtl' => false,
+        'min-height'=> '500px',
     ],
 
     /**
