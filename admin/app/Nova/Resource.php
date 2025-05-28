@@ -4,7 +4,8 @@ namespace App\Nova;
 
 use Laravel\Nova\Http\Requests\NovaRequest;
 use Laravel\Nova\Resource as NovaResource;
-use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Contracts\Database\Eloquent\Builder;
+use Laravel\Scout\Builder as ScoutBuilder;
 
 abstract class Resource extends NovaResource
 {
