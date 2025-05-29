@@ -25,7 +25,6 @@
 	<meta name="description" content="Американское Объединение МСЦ ЕХБ" />
 </svelte:head>
 
-
 {#if data.event?.featuredImage}
 	<div class="container p-0">
 		<img src="{data.media_url}{data.event.featuredImage}" class="img-fluid w-100" alt="Top Image" />
@@ -45,6 +44,6 @@
 
 <div class="container">
 	<div class="blog-content">
-		{@html data.event.use_editorjs ? data.event.editorjs_rendered : data.event.content }
+		{@html data.event.use_editorjs ? data.event.editorjs_rendered : data.event.content}
 	</div>
 </div>

@@ -5,9 +5,6 @@ import { isNotNull } from 'drizzle-orm';
 import edjsHTML from 'editorjs-html';
 const edjsParser = edjsHTML();
 
-
-
-
 export async function load() {
 	return { media_url: env.MEDIA_URL };
 }

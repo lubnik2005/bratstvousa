@@ -40,10 +40,6 @@
 	<meta name="description" content="Американское Объединение МСЦ ЕХБ" />
 </svelte:head>
 
-
-
-
-
 <!-- <div class="container p-0"> -->
 <!-- 	<img -->
 <!-- 		src="{data.media_url}{data.news_article.featuredImage}" -->
@@ -55,7 +51,9 @@
 <Header title={data.news_article.title} />
 <div class="blog-container mx-auto px-3">
 	<div class="blog-content">
-		{@html data.news_article.content}
+		{@html data.news_article.use_editorjs
+			? data.news_article.editorjs_rendered
+			: data.news_article.content}
 	</div>
 </div>
 

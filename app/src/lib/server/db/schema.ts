@@ -36,8 +36,8 @@ export const Event = {
 	authorId: integer('author_id'),
 	description: varchar('description', { length: 255 }),
 	content: text('content'),
-  use_editorjs: jsonb('use_editorjs'),
-  editorjs: jsonb('editorjs'),
+	use_editorjs: jsonb('use_editorjs'),
+	editorjs: jsonb('editorjs'),
 	region: varchar('region', { length: 255 }).notNull(),
 	thumbnail: varchar('thumbnail'),
 	featuredImage: varchar('featured_image'),
@@ -57,6 +57,8 @@ export const Article = {
 	thumbnail: text('thumbnail'),
 	featuredImage: varchar('featured_image', { length: 255 }),
 	date: date('date'), // Adjust length as needed
+	use_editorjs: jsonb('use_editorjs'),
+	editorjs: jsonb('editorjs'),
 	createdAt: timestamp('created_at').defaultNow(),
 	updatedAt: timestamp('updated_at').defaultNow()
 };
@@ -111,7 +113,7 @@ export const youthEvents = pgTable('youth_events', Event);
 export const childrensEvents = pgTable('childrens_events', Event);
 export const bibleEducationEvents = pgTable('bible_education_events', {
 	...Event,
-	category: varchar('category'),
+	category: varchar('category')
 });
 export const gospelEvents = pgTable('gospel_events', Event);
 export const musicEvents = pgTable('music_events', Event);

@@ -42,7 +42,9 @@ export function eventsSchema() {
 			startAt: sql`events_union.start_at`,
 			endAt: sql`events_union.end_at`,
 			slug: sql`events_union.slug`,
-			featuredImage: sql`events_union.featured_image`
+			featuredImage: sql`events_union.featured_image`,
+			editorjs: sql`events_union.editorjs`,
+			use_editorjs: sql`events_union.use_editorjs`
 		})
 		.from(
 			unionAll(
@@ -70,6 +72,8 @@ export function newsArticlesSchema() {
 			date: sql<(typeof Article)['date']>`news_articles_union.date`,
 			slug: sql<(typeof Article)['slug']>`news_articles_union.slug`,
 			content: sql<(typeof Article)['content']>`news_articles_union.content`,
+			editorjs: sql<(typeof Article)['editorjs']>`news_articles_union.editorjs`,
+			use_editorjs: sql<(typeof Article)['use_editorjs']>`news_articles_union.use_editorjs`,
 			featuredImage: sql<(typeof Article)['featuredImage']>`news_articles_union.featured_image`
 		})
 		.from(
