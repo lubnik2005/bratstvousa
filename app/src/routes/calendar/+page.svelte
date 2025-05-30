@@ -1,28 +1,12 @@
 <script lang="ts">
-	import timeGridPlugin from '@fullcalendar/timegrid';
-	import ruLocale from '@fullcalendar/core/locales/ru';
-
+	export let data;
 	import { onMount } from 'svelte';
 	import { Calendar } from '@fullcalendar/core';
 	import dayGridPlugin from '@fullcalendar/daygrid';
 	import listPlugin from '@fullcalendar/list';
-	import { page } from '$app/stores';
-
-	export let data;
-
-	let calendar: Calendar;
-	let calendarIsLoading = true;
-	const headerToolbar = {
-		left: 'prev,today,next',
-		center: 'title',
-		right: 'listYear,dayGridMonth'
-	};
-
-	const headerToolbarMobile = {
-		left: '',
-		center: 'title',
-		right: 'prev,next,listYear,dayGridMonth'
-	};
+	import timeGridPlugin from '@fullcalendar/timegrid';
+	import ruLocale from '@fullcalendar/core/locales/ru';
+	import { goto } from '$app/navigation';
 
 	// Define available regions and ministries
 	const regions = [
@@ -43,20 +27,36 @@
 		{ key: 'youthEvents', label: 'Молодежный отдел', color: '#2176AE' }
 	];
 
-	// Default selected values (will be overridden by URL if present)
+	const headerToolbar = {
+		left: 'prev,today,next',
+		center: 'title',
+		right: 'listYear,dayGridMonth'
+	};
+
+	const headerToolbarMobile = {
+		left: '',
+		center: 'title',
+		right: 'prev,next,listYear,dayGridMonth'
+	};
+
+	let calendarIsLoading = true;
 	let selectedRegion = 'all';
 	let selectedMinistry = 'all';
 	let filteredEvents = data.events;
+	let calendar: Calendar;
 
-	// Function to update the URL parameters
 	function updateURLParams() {
 		const params = new URLSearchParams(window.location.search);
 		params.set('region', selectedRegion);
 		params.set('ministry', selectedMinistry);
-		window.history.replaceState({}, '', `${window.location.pathname}?${params.toString()}`);
+
+		goto(`${window.location.pathname}?${params.toString()}`, {
+			replaceState: true,
+			keepfocus: true,
+			noScroll: true
+		});
 	}
 
-	// Function to filter events
 	function filterEvents() {
 		filteredEvents = data.events.filter(
 			(e) =>
@@ -66,11 +66,9 @@
 
 		calendar.removeAllEvents();
 		filteredEvents.forEach((e) => calendar.addEvent(e));
-
 		updateURLParams();
 	}
 
-	// Read URL parameters on component mount
 	onMount(() => {
 		const params = new URLSearchParams(window.location.search);
 
@@ -84,11 +82,27 @@
 		}
 
 		const calendarEl = document.getElementById('calendar')!;
+
 		calendar = new Calendar(calendarEl, {
 			plugins: [listPlugin, dayGridPlugin, timeGridPlugin],
 			initialView: window.matchMedia('(max-width: 754px)').matches ? 'listYear' : 'dayGridMonth',
+			initialDate: params.get('date') ?? undefined,
 			firstDay: 0,
 			defaultAllDay: true,
+			datesSet(info) {
+				console.log('Current start date:', info.view.currentStart);
+				console.log('Current end date:', info.end);
+				console.log('View type:', info.view.type);
+				params.set('date', info.view.currentStart.toISOString().slice(0, 10)); // "YYYY-MM-DD");
+				goto(`${window.location.pathname}?${params.toString()}`, {
+					replaceState: true,
+					keepfocus: true,
+					noScroll: true
+				});
+
+				// Your custom function
+				// myCustomFunction(info);
+			},
 			headerToolbar: window.matchMedia('(max-width: 754px)').matches
 				? headerToolbarMobile
 				: headerToolbar,
@@ -102,8 +116,7 @@
 			}
 		});
 		calendar.render();
-		filterEvents(); // Apply filtering on mount
-
+		filterEvents();
 		return () => {
 			calendar.destroy();
 		};
@@ -115,6 +128,7 @@
 		<div class="section-header mx-auto mb-5 text-center" style="max-width: 500px;">
 			<h1 class="display-5 mb-3">Календарь</h1>
 		</div>
+
 		{#if calendarIsLoading}
 			<div class="placeholder-glow my-4" id="calendar-skeleton">
 				<span class="placeholder" style="width: 100%; aspect-ratio: 16/10;" />
