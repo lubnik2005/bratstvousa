@@ -56,7 +56,9 @@ export function eventsSchema() {
 							startAt: eventSchema.startAt,
 							endAt: eventSchema.endAt,
 							slug: eventSchema.slug,
-							featuredImage: eventSchema.featuredImage
+							featuredImage: eventSchema.featuredImage,
+							editorjs: eventSchema.editorjs,
+							use_editorjs: eventSchema.use_editorjs
 						})
 						.from(eventSchema)
 				)
