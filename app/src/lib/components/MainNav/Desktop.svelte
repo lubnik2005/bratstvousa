@@ -88,17 +88,14 @@
 										<div class="row">
 											{#each item.children as department}
 												<div class="col-6">
-													<a
-														href={department.href ? '/' + department.href : null}
-														class="dropdown-item title"
-													>
+													<a href={department.href ?? null} class="dropdown-item title">
 														<strong>{department.title}</strong>
 													</a>
 													{#if department.subcategory}
 														<ul class="list-unstyled">
 															{#each department.subcategory as sub}
 																<li>
-																	<a href="/{sub.href}" class="dropdown-item">{sub.title}</a>
+																	<a href={sub.href} class="dropdown-item">{sub.title}</a>
 																</li>
 															{/each}
 														</ul>
@@ -122,13 +119,17 @@
 								</a>
 								<div class="dropdown-menu">
 									{#each item.children as child}
-										<a href="/{child.href}" class="dropdown-item">{child.title}</a>
+										<a href={child.href} class="dropdown-item">{child.title}</a>
 									{/each}
 								</div>
 							</div>
 						{/if}
-					{:else}
-						<a href={item.href ? '/' + item.href : item.link} class="nav-item nav-link active">
+					{:else if item.href}
+						<a href={item.href} class="nav-item nav-link active">
+							{item.title}
+						</a>
+					{:else if item.link}
+						<a href={item.link} target="_blank" class="nav-item nav-link active">
 							{item.title}
 						</a>
 					{/if}
