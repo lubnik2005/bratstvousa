@@ -96,5 +96,5 @@ export function newsArticlesSchemaOrdered() {
 }
 
 export async function setting(name: string) {
-	return (await db.select().from(settings).where(eq(settings.name, name)))?.[0].payload;
+	return (await db.select().from(settings).where(eq(settings.name, name)))?.[0]?.payload;
 }
