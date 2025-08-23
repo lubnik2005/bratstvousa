@@ -217,10 +217,6 @@
 
   <div class="card-footer bg-white border-0 pt-0 pb-4 px-4 d-flex gap-2">
     <button class="btn btn-primary" type="submit" disabled={!agree}>Отправить заявку</button>
-    <a class="btn btn-outline-secondary" href="/resources/brothers-guide">Назад к описанию</a>
-    <a class="btn btn-link ms-auto" href="/files/methodical-guide-brothers-1tim_rus.pdf" target="_blank" rel="noopener">
-      Скачать PDF для самостоятельной печати
-    </a>
   </div>
 </form>
 
