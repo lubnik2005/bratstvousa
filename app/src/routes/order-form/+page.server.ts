@@ -2,6 +2,7 @@
 import { sendEmail } from '$lib/email';
 import type { Actions } from './$types';
 import { fail /*, redirect*/ } from '@sveltejs/kit';
+import { env } from '$env/dynamic/private';
 
 import { db } from '$lib/server/db';
 import { env } from '$env/dynamic/private';
@@ -49,9 +50,8 @@ export const actions: Actions = {
     const qty_rus = Number(data.get('qty_rus') ?? 0) || 0;
     const qty_rus_eng = Number(data.get('qty_rus_eng') ?? 0) || 0;
     const qty_rus_eng_rom = Number(data.get('qty_rus_eng_rom') ?? 0) || 0;
-    const agree = data.get('agree') === 'on';
 
-    if ( !address || !first_name || !last_name || !phone || !email || !agree) {
+    if ( !address || !first_name || !last_name || !phone || !email) {
       return fail(400, { error: 'Проверьте обязательные поля', success: false });
     }
 
@@ -65,7 +65,7 @@ export const actions: Actions = {
 		let church_name = null;
 		if (churchId) {
 			const cs = (await db.select().from(churches).where(eq(churches.id, churchId)).limit(1))[0];
-			church_name = `<a href="${process.env.ADMIN_URL}/${admin_paths.church.one(cs.id.toString())}"> ID: ${cs.id} | Name: ${cs.name_line_1} ${cs.name_line_2 ?? ''} | State: ${cs.state} | City: ${cs.city} | Region: ${cs.region} | Address: ${cs.address_line_1} ${cs.address_line_2 ?? ''} </a>`;
+			church_name = `<a href="${env.ADMIN_URL}${admin_paths.church.one(cs.id.toString())}"> ID: ${cs.id} | Name: ${cs.name_line_1} ${cs.name_line_2 ?? ''} | State: ${cs.state} | City: ${cs.city} | Region: ${cs.region} | Address: ${cs.address_line_1} ${cs.address_line_2 ?? ''} </a>`;
 
 		}
 		const newChurch = data.get('church') === 'other' ? data.get('new_church') : null;

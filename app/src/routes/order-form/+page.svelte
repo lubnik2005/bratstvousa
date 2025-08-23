@@ -23,7 +23,6 @@
   let qtyRus: number = 0;
   let qtyRusEng: number = 0;
   let qtyRusEngRom: number = 0;
-  let agree = false;
 
   $: totalQty = (qtyRus || 0) + (qtyRusEng || 0) + (qtyRusEngRom || 0);
   $: totalCost = totalQty * PRICE;
@@ -46,7 +45,6 @@
     if (!phone.trim()) return alert('Укажите номер телефона.');
     if (!email.trim() || !validateEmail(email)) return alert('Укажите корректный e-mail.');
     if (totalQty <= 0) return alert('Укажите количество экземпляров (минимум 1).');
-    if (!agree) return alert('Подтвердите, что ознакомлены с ценой и условиями.');
 
     // Since we have no backend, show a confirmation summary:
     alert([
@@ -70,7 +68,7 @@
   <meta name="description" content="Подайте заявку на печатные экземпляры пособия. Цена: $5 за экземпляр. Оплата по e-mail реквизитам." />
 </svelte:head>
 
-<Header title="Заявка на печатные экземпляры" subtitle="Цена одного экземпляра — $5.00. Реквизиты для платежа будут высланы на вашу электронную почту." />
+<Header title="Заявка на печатные экземпляры" />
 
 <div class="container-fluid">
   <div class="container">
@@ -202,10 +200,7 @@
     </div>
 
     <div class="form-check mt-2">
-      <input class="form-check-input" id="agree" type="checkbox" name="agree" bind:checked={agree} required />
-      <label class="form-check-label" for="agree">
-        Подтверждаю, что ознакомлен(а) с ценой и условиями (реквизиты будут высланы на e-mail).
-      </label>
+Цена одного экземпляра — $5.00. Реквизиты для платежа будут высланы на вашу электронную почту.
     </div>
 
     {#if form?.error}
@@ -217,7 +212,7 @@
   </div>
 
   <div class="card-footer bg-white border-0 pt-0 pb-4 px-4 d-flex gap-2">
-    <button class="btn btn-primary" type="submit" disabled={!agree}>Отправить заявку</button>
+    <button class="btn btn-primary" type="submit">Отправить заявку</button>
   </div>
 </form>
 
