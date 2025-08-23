@@ -2,7 +2,7 @@
   import Header from '$lib/components/Header.svelte';
 
   export let data: any;
-  const media_url: string = data?.media_url ?? '/';
+  const media_url: string = data?.media_url ?? '';
 
   // Same files you already had
   const downloads = [
@@ -55,12 +55,22 @@
 </script>
 
 <svelte:head>
-  <title>Ресурсы | Библейское образование</title>
-  <meta name="description" content='"Чтобы … ты знал, как должно поступать в доме Божием ...” 1Тим 3:15' />
+	<meta property="og:title" content="Методическое пособие для проведения братских общений" />
+	<meta property="og:image" content={media_url + 'bible-school/Study_Guide_Cover.jpg'} />
+	<meta name="twitter:image" content={media_url + 'bible-school/Study_Guide_Cover.jpg'} />
+	<meta property="og:description" content="Американское Объединение МСЦ ЕХБ" />
+	<meta property="og:type" content="article" />
+	<meta name="twitter:card" content="summary_large_image" />
+	<meta name="twitter:title" content={data.event?.title} />
+	<meta name="twitter:description" content="Американское Объединение МСЦ ЕХБ" />
+	<meta property="og:site_name" content="Bratstvo USA" />
+	<title>Методическое пособие для проведения братских общений в церкви</title>
+	<meta name="description" content="Американское Объединение МСЦ ЕХБ" />
 </svelte:head>
 
+
 <Header
-  title="Методическое пособие для проведения братских общений в церкви "
+  title="Методическое пособие для проведения братских общений"
 />
 
 <div class="container-fluid">

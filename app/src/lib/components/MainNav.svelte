@@ -1,289 +1,292 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+  import { onMount } from 'svelte';
 
-	export let media_url;
-	const menu_items = [
-		{
-			title: 'О НАС',
-			children: [
-				{ title: 'Приветственное слово', href: 'greeting' },
-				{ title: 'Краткий обзор', href: 'short-introduction' },
-				{ title: 'Состав совета', href: 'committee' },
-				{ title: 'Вероучение', href: 'beliefs' }
-			]
-		},
-		{ title: 'АДРЕСА ДОМОВ МОЛИТВЫ', href: 'churches' },
-		{ title: 'КАЛЕНДАРЬ', href: 'calendar' },
-		{ title: 'НОВОСТИ', href: 'news' },
+  // provide your media URL when using the component: <Navbar media_url="/media/" />
+  export let media_url = '/media/';
 
-		{
-			title: 'ОТДЕЛЫ',
-			children: [
-				{
-					title: 'Детский отдел',
-					href: 'childrens-ministry',
-					description: 'Учение в юности — основа жизни.'
-				},
-				{
-					title: 'Молодежный отдел',
-					href: 'youth-ministry',
-					description: 'Молодежь, исполненная Духа Святого, — надежда церкви.'
-				},
-				{
-					title: 'Семейный отдел',
-					href: 'family-ministry',
-					description: 'Крепкая семья — основа крепкой церкви.'
-				},
-				{
-					title: 'Отдел Благовестия',
-					href: 'gospel-ministry',
-					description: 'Проповедуйте Евангелие всей твари.'
-				},
-				{
-					title: 'Музыкально хоровой отдел (МХО)',
-					href: 'music-choir-ministry',
-					description: 'Пойте Господу новую песнь.'
-				},
-				{
-					title: 'Библейское Образование',
-					href: 'bible-education-ministry',
-					subcategory: [
-						{ title: 'Библейская Школа', href: 'bible-school-ministry' },
-						{ title: 'Библейские Курсы', href: 'bible-courses-ministry' },
-						{ title: 'Application', href: 'enroll' }
-					],
-					description: 'Познайте истину, и истина сделает вас свободными.'
-				}
-			]
-		},
+  const menu_items = [
+    {
+      title: 'О НАС',
+      children: [
+        { title: 'Приветственное слово', href: 'greeting' },
+        { title: 'Краткий обзор', href: 'short-introduction' },
+        { title: 'Состав совета', href: 'committee' },
+        { title: 'Вероучение', href: 'beliefs' }
+      ]
+    },
+    { title: 'АДРЕСА ДОМОВ МОЛИТВЫ', href: 'churches' },
+    { title: 'КАЛЕНДАРЬ', href: 'calendar' },
+    { title: 'НОВОСТИ', href: 'news' },
+    {
+      title: 'ОТДЕЛЫ',
+      children: [
+        {
+          title: 'Детский отдел',
+          href: 'childrens-ministry',
+          description: 'Учение в юности — основа жизни.'
+        },
+        {
+          title: 'Молодежный отдел',
+          href: 'youth-ministry',
+          description: 'Молодежь, исполненная Духа Святого, — надежда церкви.'
+        },
+        {
+          title: 'Семейный отдел',
+          href: 'family-ministry',
+          description: 'Крепкая семья — основа крепкой церкви.'
+        },
+        {
+          title: 'Отдел Благовестия',
+          href: 'gospel-ministry',
+          description: 'Проповедуйте Евангелие всей твари.'
+        },
+        {
+          title: 'Музыкально хоровой отдел (МХО)',
+          href: 'music-choir-ministry',
+          description: 'Пойте Господу новую песнь.'
+        },
+        {
+          title: 'Библейское Образование',
+          href: 'bible-education-ministry',
+          subcategory: [
+            { title: 'Библейская Школа', href: 'bible-school-ministry' },
+            { title: 'Библейские Курсы', href: 'bible-courses-ministry' },
+            { title: 'Application', href: 'enroll' }
+          ],
+          description: 'Познайте истину, и истина сделает вас свободными.'
+        }
+      ]
+    },
+    { title: 'ПРОПОВЕДИ', link: 'https://www.youtube.com/@bratstvousa' }
+  ];
 
-		{ title: 'ПРОПОВЕДИ', link: 'https://www.youtube.com/@bratstvousa' }
-	];
+  // Helper to build hrefs safely
+  const hrefOrLink = (item: any) =>
+    item?.href ? `/${item.href}` : item?.link ? item.link : '#';
 
-	onMount(() => {
-		// Fixed Navbar
-		window.addEventListener('scroll', () => {
-			const fixedTop: HTMLElement | null = document.querySelector('.responsive-fixed-top');
-			if (!fixedTop) return;
-			if (window.innerWidth < 992) {
-				if (window.scrollY > 45) {
-					fixedTop.classList.add('bg-white', 'shadow');
-				} else {
-					fixedTop.classList.remove('bg-white', 'shadow');
-				}
-			} else {
-				if (window.scrollY > 45) {
-					fixedTop.classList.add('bg-white', 'shadow');
-					fixedTop.style.top = '0';
-				} else {
-					fixedTop.classList.remove('bg-white', 'shadow');
-					fixedTop.style.top = '0';
-				}
-			}
-		});
-	});
+  onMount(() => {
+    // Fixed Navbar shadow on scroll
+    const fixedTop: HTMLElement | null = document.querySelector('.responsive-fixed-top');
+    const onScroll = () => {
+      if (!fixedTop) return;
+      if (window.scrollY > 45) {
+        fixedTop.classList.add('bg-white', 'shadow');
+      } else {
+        fixedTop.classList.remove('bg-white', 'shadow');
+      }
+    };
+    window.addEventListener('scroll', onScroll);
+    onScroll();
+
+    // Desktop hover for dropdowns (keep Bootstrap click for mobile)
+    const enableHover = () => {
+      const isDesktop = window.matchMedia('(min-width: 992px)').matches;
+      document.querySelectorAll('.navbar .dropdown').forEach((dd) => {
+        const toggle = dd.querySelector('[data-bs-toggle="dropdown"]') as HTMLElement | null;
+        const menu = dd.querySelector('.dropdown-menu') as HTMLElement | null;
+        if (!toggle || !menu) return;
+
+        // clean previous handlers
+        dd.removeEventListener('mouseenter', (dd as any)._enter);
+        dd.removeEventListener('mouseleave', (dd as any)._leave);
+        toggle.removeEventListener('click', (dd as any)._clickPrevent);
+
+        if (isDesktop) {
+          (dd as any)._enter = () => {
+            dd.classList.add('show');
+            menu.classList.add('show');
+            toggle.setAttribute('aria-expanded', 'true');
+          };
+          (dd as any)._leave = () => {
+            dd.classList.remove('show');
+            menu.classList.remove('show');
+            toggle.setAttribute('aria-expanded', 'false');
+          };
+          (dd as any)._clickPrevent = (e: Event) => {
+            // prevent jumping to "#" on desktop for toggles
+            if (toggle.getAttribute('href') === '#') e.preventDefault();
+          };
+          dd.addEventListener('mouseenter', (dd as any)._enter);
+          dd.addEventListener('mouseleave', (dd as any)._leave);
+          toggle.addEventListener('click', (dd as any)._clickPrevent);
+        } else {
+          // mobile: rely on Bootstrap's default click/tap
+          dd.classList.remove('show');
+          menu.classList.remove('show');
+          toggle.setAttribute('aria-expanded', 'false');
+        }
+      });
+    };
+
+    enableHover();
+    window.addEventListener('resize', enableHover);
+  });
 </script>
 
 <!-- Navbar Start -->
 <div class="container-fluid responsive-fixed-top whole-navbar px-0">
-	<!-- Mobile only -->
-	<div class="d-lg-none text-center">
-		<h1 class="text-primary ms-2 p-2" style="font-size:1.4rem">Американское Объединение МСЦ ЕХБ</h1>
-	</div>
+  <!-- Mobile only title -->
+  <div class="d-lg-none text-center">
+    <h1 class="text-primary ms-2 p-2" style="font-size:1.4rem">Американское Объединение МСЦ ЕХБ</h1>
+  </div>
 
-	<!-- <div class="top-bar row gx-0 align-items-center d-none d-lg-flex"> -->
-	<!-- This is the upper menu bit. Make sure to uncomment the main.js file to move this on scroll. -->
-	<!-- <div class="top-bar row gx-0 align-items-center d-none d-lg-flex"> -->
-	<!-- 	<div class="col-lg-6 px-5 text-start"> -->
-	<!-- 		<small><i class="fa fa-map-marker-alt me-2"></i>123 Street, New York, USA</small> -->
-	<!-- 		<small class="ms-4"><i class="fa fa-envelope me-2"></i>info@bratstvousa.com</small> -->
-	<!-- 	</div> -->
-	<!-- 	<div class="col-lg-6 px-5 text-end"> -->
-	<!-- 		<a class="text-body ms-3" href=""><i class="fab fa-facebook-f"></i></a> -->
-	<!-- 		<a class="text-body ms-3" href=""><i class="fab fa-twitter"></i></a> -->
-	<!-- 		<a class="text-body ms-3" href="https://www.youtube.com/@bratstvousa6465" -->
-	<!-- 			><i class="fab fa-youtube"></i></a -->
-	<!-- 		> -->
-	<!-- 		<a class="text-body ms-3" href=""><i class="fab fa-instagram"></i></a> -->
-	<!-- 	</div> -->
-	<!-- </div> -->
-	<!-- </div> -->
+  <nav class="navbar navbar-expand-lg navbar-light">
+    <!-- align navbar contents to the same width as page content -->
+    <div class="container">
+      <a href="/" class="navbar-brand d-flex align-items-center">
+        <img width="100" style="display:inline" src="{media_url}logo.png" alt="Логотип АО" />
+        <span class="ms-2">
+          <h1 class="fw-bold text-primary d-none d-lg-block m-0 text-center" style="font-size:1.4rem">
+            Американское Объединение <br /> МСЦ ЕХБ
+          </h1>
+        </span>
+      </a>
 
-	<nav class="navbar navbar-expand-lg navbar-light py-lg-0 px-lg-5">
-		<a href="/" class="navbar-brand ms-lg-0 d-flex align-items-center ms-4">
-			<img width="100" style="display: inline;" src="{media_url}logo.png" alt="" />
-			<span class="ms-2">
-				<h1
-					class="fw-bold text-primary d-none d-lg-block m-0 text-center"
-					style="font-size: 1.4rem"
-				>
-					Американское Объединение <br /> МСЦ ЕХБ
-				</h1>
-			</span>
-		</a>
+      <button
+        type="button"
+        class="navbar-toggler"
+        data-bs-toggle="collapse"
+        data-bs-target="#navbarCollapse"
+        aria-controls="navbarCollapse"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
 
-		<button
-			type="button"
-			class="navbar-toggler me-4"
-			data-bs-toggle="collapse"
-			data-bs-target="#navbarCollapse"
-		>
-			<span class="navbar-toggler-icon"></span>
-		</button>
-		<div class="navbar-collapse collapse" id="navbarCollapse">
-			<div class="navbar-nav p-lg-0 ms-auto p-4">
-				{#each menu_items as item}
-					{#if item.children}
-						{#if item.title === 'ОТДЕЛЫ'}
-							<!-- Mega Menu for Departments -->
-							<div class="nav-item dropdown mega-menu position-static">
-								<a href="#" class="nav-link dropdown-toggle active" data-bs-toggle="dropdown">
-									{item.title}
-								</a>
-								<div class="dropdown-menu mega-content w-100">
-									<div class="container">
-										<div class="row">
-											{#each item.children as department}
-												<div class="col-6">
-													<a
-														href={department.href ? '/' + department.href : null}
-														class="dropdown-item title"
-													>
-														<strong>{department.title}</strong>
-													</a>
-													{#if department.subcategory}
-														<ul class="list-unstyled">
-															{#each department.subcategory as sub}
-																<li>
-																	<a href="/{sub.href}" class="dropdown-item">{sub.title}</a>
-																</li>
-															{/each}
-														</ul>
-													{/if}
-													<p class="desc">{department.description}</p>
-												</div>
-											{/each}
-										</div>
-									</div>
-								</div>
-							</div>
-						{:else}
-							<!-- Regular Dropdown -->
-							<div class="nav-item dropdown">
-								<a
-									href={item?.children.length ? '#' : '/' + item.href}
-									class="nav-link dropdown-toggle active"
-									data-bs-toggle="dropdown"
-								>
-									{item.title}
-								</a>
-								<div class="dropdown-menu">
-									{#each item.children as child}
-										<a href="/{child.href}" class="dropdown-item">{child.title}</a>
-									{/each}
-								</div>
-							</div>
-						{/if}
-					{:else}
-						<a href={item.href ? '/' + item.href : item.link} class="nav-item nav-link active">
-							{item.title}
-						</a>
-					{/if}
-				{/each}
-			</div>
+      <div class="collapse navbar-collapse" id="navbarCollapse">
+        <div class="navbar-nav ms-auto p-4 p-lg-0">
+          {#each menu_items as item}
+            {#if item.children && item.title === 'ОТДЕЛЫ'}
+              <!-- Mega Menu -->
+              <div class="nav-item dropdown mega position-static">
+                <a
+                  href="#"
+                  class="nav-link dropdown-toggle"
+                  data-bs-toggle="dropdown"
+                  role="button"
+                  aria-haspopup="true"
+                  aria-expanded="false"
+                >
+                  {item.title}
+                </a>
 
-			<!-- This is a search icon. Commented out for now. -->
-			<!-- <div class="d-none d-lg-flex ms-2"> -->
-			<!-- 	<a class="btn-sm-square rounded-circle ms-3 bg-white" href=""> -->
-			<!-- 		<small class="fa fa-search text-body"></small> -->
-			<!-- 	</a> -->
-			<!-- </div> -->
-		</div>
-	</nav>
+                <!-- Full-bleed menu; inner .container matches navbar/page width -->
+                <div class="dropdown-menu border-0 shadow mega-menu p-0">
+                  <div class="container py-3">
+                    <div class="row g-3">
+                      {#each item.children as department}
+                        <div class="col-12 col-md-6 col-lg-4">
+                          <a class="dropdown-item fw-semibold px-0" href={hrefOrLink(department)}>
+                            {department.title}
+                          </a>
+
+                          {#if department.subcategory}
+                            <ul class="list-unstyled mt-2 mb-0">
+                              {#each department.subcategory as sub}
+                                <li>
+                                  <a href={'/' + sub.href} class="dropdown-item px-0 small">
+                                    {sub.title}
+                                  </a>
+                                </li>
+                              {/each}
+                            </ul>
+                          {/if}
+
+                          {#if department.description}
+                            <p class="text-muted small mt-2 mb-0">{department.description}</p>
+                          {/if}
+                        </div>
+                      {/each}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            {:else if item.children}
+              <!-- Regular dropdown -->
+              <div class="nav-item dropdown">
+                <a
+                  href="#"
+                  class="nav-link dropdown-toggle"
+                  data-bs-toggle="dropdown"
+                  role="button"
+                  aria-haspopup="true"
+                  aria-expanded="false"
+                >
+                  {item.title}
+                </a>
+                <div class="dropdown-menu border-0 shadow">
+                  {#each item.children as child}
+                    <a href={'/' + child.href} class="dropdown-item">{child.title}</a>
+                  {/each}
+                </div>
+              </div>
+            {:else}
+              <!-- Simple link -->
+              <a href={hrefOrLink(item)} class="nav-item nav-link">{item.title}</a>
+            {/if}
+          {/each}
+        </div>
+      </div>
+    </div>
+  </nav>
 </div>
-
 <!-- Navbar End -->
 
 <style>
-	.responsive-fixed-top {
-		background: linear-gradient(to bottom, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0));
-		transition:
-			background 0.3s,
-			box-shadow 0.3s;
-		z-index: 1000;
-		width: 100%;
-		top: 0;
-		position: fixed;
-	}
+  /* Fixed header background + shadow on scroll */
+  .responsive-fixed-top {
+    background: linear-gradient(to bottom, rgba(255,255,255,1), rgba(255,255,255,0));
+    transition: background .3s, box-shadow .3s;
+    z-index: 1000;
+    width: 100%;
+    top: 0;
+    position: fixed;
+  }
 
-	.bg-white-on-scroll {
-		background: white !important;
-		box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-	}
+  /* MEGA MENU LAYOUT */
+  .navbar .dropdown.mega.position-static { position: static; }
+  .navbar .dropdown .dropdown-menu { margin-top: 0; }
 
-	.mega-menu {
-		position: static !important; /* Ensure correct placement */
-	}
+  /* Make the dropdown span the viewport but constrain its inner content
+     to the same width as the navbar/page .container, eliminating the
+     "extra right margin" look. */
+  .mega-menu {
+    left: 0;
+    right: 0;
+    width: 100vw;
+    border: 0;
+    box-shadow: 0 6px 24px rgba(0,0,0,.12);
+  }
 
-	.mega-content {
-		position: absolute;
-		top: 100%;
-		right: 10px;
-		transform: translateX(-50%); /* Center aligns */
-		width: 80vw; /* Reduce width to keep it visually contained */
-		max-width: 900px; /* Prevents stretching on large screens */
-		padding: 20px;
-		background: white;
-		box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-		display: none;
-		z-index: 1000;
-		border-radius: 6px; /* Slight rounding for a cleaner look */
-	}
+  .mega-menu > .container {
+    /* Match your site’s container cap; adjust if you use container-xxl, etc. */
+    max-width: 1140px; /* use 1320px if your pages use .container-xxl */
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
 
-	.mega-menu:hover .mega-content {
-		display: block;
-	}
+  /* Desktop hover assist (JS still handles ARIA/show) */
+  @media (min-width: 992px) {
+    .navbar .dropdown:hover > .dropdown-menu {
+      display: block;
+    }
+  }
 
-	.mega-content .row {
-		display: flex;
-		justify-content: space-between;
-	}
-
-	.mega-content .col-md-4 {
-		flex: 1;
-		padding: 10px;
-		min-width: 200px; /* Ensures columns don't collapse */
-	}
-
-	.mega-content .title {
-		font-weight: bold;
-		color: #333;
-		font-size: 1.1rem;
-	}
-
-	.mega-content .desc {
-		font-size: 0.9rem;
-		color: gray;
-		margin-top: 5px;
-	}
-
-	/* Mobile Fixes */
-	@media (max-width: 992px) {
-		.mega-content {
-			width: 100%;
-			left: 0;
-			transform: none;
-			max-width: 100%;
-		}
-
-		.mega-content .row {
-			flex-wrap: wrap;
-		}
-
-		.mega-content .col-md-4 {
-			width: 100%;
-			text-align: center;
-			margin-bottom: 15px;
-		}
-	}
+  /* Mobile: let the menu flow naturally */
+  @media (max-width: 991.98px) {
+    .mega-menu {
+      position: static;
+      width: 100%;
+      box-shadow: none !important;
+    }
+    .mega-menu > .container {
+      max-width: 100%;
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+  }
 </style>
+
