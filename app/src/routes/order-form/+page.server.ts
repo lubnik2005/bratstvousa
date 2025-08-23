@@ -10,6 +10,7 @@ import { desc, eq } from 'drizzle-orm';
 import { email_template } from './email';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { v4 as uuidv4 } from 'uuid';
+import {admin_paths} from '$lib/admin/path';
 
 
 	let selectedChurch = '';

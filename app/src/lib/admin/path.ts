@@ -1,5 +1,5 @@
 
-const admin_paths = {
+export const admin_paths = {
     church: {
       list: '/resources/churches',
       one: (id: string) => `/resources/churches/${id}`
