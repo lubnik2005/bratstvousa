@@ -2,7 +2,6 @@
 import { sendEmail } from '$lib/email';
 import type { Actions } from './$types';
 import { fail /*, redirect*/ } from '@sveltejs/kit';
-import { env } from '$env/dynamic/private';
 
 import { db } from '$lib/server/db';
 import { env } from '$env/dynamic/private';
