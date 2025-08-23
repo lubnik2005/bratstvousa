@@ -5,6 +5,14 @@
 	export let data;
 </script>
 
+<style>
+.equal-btn {
+  display: inline-block;
+  width: 100%;
+}
+
+</style>
+
 <Header title="Отдел библейского образования" />
 
 <div class="container-fluid">
@@ -82,35 +90,38 @@
 			</div>
 		</div>
 		<!-- Cool Buttons Section -->
-		<div class="row mt-5">
-			<div class="col-lg-4 mb-3 text-center">
-				<a
-					href="/bible-school-ministry"
-					class="btn btn-primary btn-lg rounded-pill shadow-lg"
-					style="padding: 15px 30px; font-size: 1.25rem;"
-				>
-          Региональные Библейские курсы
-				</a>
-			</div>
-			<div class="col-lg-4 mb-3 text-center">
-				<a
-					href="/bible-courses-ministry"
-					class="btn btn-primary btn-lg rounded-pill shadow-lg"
-					style="padding: 15px 30px; font-size: 1.25rem;"
-				>
-        Библейская школа
-				</a>
-			</div>
-			<div class="col-lg-4 mb-3 text-center">
-				<a
-					href="/bible-courses-ministry"
-					class="btn btn-primary btn-lg rounded-pill shadow-lg"
-					style="padding: 15px 30px; font-size: 1.25rem;"
-				>
-          Ресурсы
-				</a>
-			</div>
-		</div>
+
+    <div class="row mt-5">
+  <div class="col-lg-4 mb-3 text-center">
+    <a
+      href="/bible-school-ministry"
+      class="btn btn-primary btn-lg rounded-pill shadow-lg equal-btn"
+      style="padding: 15px 30px; font-size: 1.25rem;"
+    >
+      Региональные Библейские курсы
+    </a>
+  </div>
+  <div class="col-lg-4 mb-3 text-center">
+    <a
+      href="/bible-courses-ministry"
+      class="btn btn-primary btn-lg rounded-pill shadow-lg equal-btn"
+      style="padding: 15px 30px; font-size: 1.25rem;"
+    >
+      Библейская школа
+    </a>
+  </div>
+  <div class="col-lg-4 mb-3 text-center">
+    <a
+      href="/resources"
+      class="btn btn-primary btn-lg rounded-pill shadow-lg equal-btn"
+      style="padding: 15px 30px; font-size: 1.25rem;"
+    >
+      Ресурсы
+    </a>
+  </div>
+</div>
+
+
 	</div>
 </div>
 
