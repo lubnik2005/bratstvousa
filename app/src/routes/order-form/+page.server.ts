@@ -1,11 +1,21 @@
+// +page.server.ts
+import { sendEmail } from '$lib/email';
+import type { Actions } from './$types';
+import { fail /*, redirect*/ } from '@sveltejs/kit';
+
 import { db } from '$lib/server/db';
 import { env } from '$env/dynamic/private';
 import { churches, formSubmissions, FormSubmission } from '$lib/server/db/schema';
 import { desc, eq } from 'drizzle-orm';
-import { sendEmail } from '$lib/email';
 import { email_template } from './email';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { v4 as uuidv4 } from 'uuid';
+
+
+	let churches = [];
+	let selectedChurch = '';
+	let newChurch = '';
+	let useNewChurch = false;
 
 export async function load() {
 	return {
@@ -25,10 +35,32 @@ export async function load() {
 	};
 }
 
-export const actions = {
-	default: async ({ cookies, request }) => {
-		const data = await request.formData();
+export const actions: Actions = {
+  default: async ({ request }) => {
+    const data = await request.formData();
 
+    const address = (data.get('address') as string | null)?.trim() || '';
+    const phone = (data.get('phone') as string | null)?.trim() || '';
+    const email = (data.get('email') as string | null)?.trim() || '';
+
+    const first_name = (data.get('first_name') as string | null)?.trim() || '';
+    const last_name = (data.get('last_name') as string | null)?.trim() || '';
+
+    const qty_rus = Number(data.get('qty_rus') ?? 0) || 0;
+    const qty_rus_eng = Number(data.get('qty_rus_eng') ?? 0) || 0;
+    const qty_rus_eng_rom = Number(data.get('qty_rus_eng_rom') ?? 0) || 0;
+    const agree = data.get('agree') === 'on';
+
+    if ( !address || !first_name || !last_name || !phone || !email || !agree) {
+      return fail(400, { error: 'Проверьте обязательные поля', success: false });
+    }
+
+    const totalQty = qty_rus + qty_rus_eng + qty_rus_eng_rom;
+    const totalCost = totalQty * 5;
+
+    // TODO: persist or notify (DB, email, Slack, etc.)
+    // Example: send an email via SES API (recommended over SMTP in SvelteKit)
+    
 		const churchId = data.get('church') !== 'other' ? Number(data.get('church')) : null;
 		let church_name = null;
 		if (churchId) {
@@ -37,9 +69,10 @@ export const actions = {
 		}
 		const newChurch = data.get('church') === 'other' ? data.get('new_church') : null;
 		church_name = church_name ?? newChurch;
+    
 
 		const formData = {
-			formName: '2025-order-study-guides-form',
+			formName: '2025-brothers-fellowship-meetings-request-form',
 			firstName: data.get('first_name'),
 			lastName: data.get('last_name'),
 			middleName: data.get('middle_name'),
@@ -47,30 +80,30 @@ export const actions = {
 			phone: data.get('phone'),
 			church_name,
 			churchId,
+      address,
 			content: JSON.parse(
 				JSON.stringify({
-					newChurch,
-					books_no1: data.get('books_no1'),
-					books_no2: data.get('books_no2'),
-					books_no3: data.get('books_no3')
+          qty_rus_eng,
+          qty_rus,
+          qty_rus_eng_rom
 				})
 			)
 		};
 
-		const form_submission = await db
-			.insert(formSubmissions)
-			.values({ ...formData, createdAt: new Date(), updatedAt: new Date() })
-			.returning(); // Returns the inserted row (optional)
 		const to = env.MAIL_INFO_USER;
-		const subject = `${formData.firstName} ${formData.lastName} - Анкета Поступающего в Библейскую Школу`;
+		const subject = `${formData.firstName} ${formData.lastName} - Заявка на печатные экземпляры`;
+
 		const content = formData.content;
 		const html = email_template({
 			...formData,
 			...content,
 			church_name
 		});
-		const result = await sendEmail(to, subject, html);
+    const result = await sendEmail(to, subject, html);
 
-		return { success: true };
-	}
+
+    return { success: true };
+    // or: throw redirect(303, '/thanks');
+  }
 };
+

@@ -8,7 +8,7 @@
 	<div class="container">
 		<h1 class="display-3 mb-3">{title}</h1>
 		{#if subtitle}
-			<p class="col-lg-8">{subtitle}</p>
+			<p class="col-lg-12">{subtitle}</p>
 		{/if}
 		<!-- <nav aria-label="breadcrumb"> -->
 		<!-- 	<ol class="breadcrumb mb-0"> -->

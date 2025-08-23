@@ -44,9 +44,9 @@ export const menu_items = [
 				title: 'Отдел библейского образования',
 				href: '/bible-education-ministry',
 				subcategory: [
+					{ title: 'Региональные Библейские курсы ', href: '/bible-courses-ministry' },
 					{ title: 'Библейская Школа', href: '/bible-school-ministry' },
-					{ title: 'Региональные Библейские курсы', href: '/bible-courses-ministry' },
-					{ title: 'Братские беседы', href: '/brothers-courses-ministry' }
+					{ title: 'Ресурсы', href: '/resources' }
 				],
 				description: 'Познайте истину, и истина сделает вас свободными.'
 			}

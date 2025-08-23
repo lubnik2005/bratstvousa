@@ -89,7 +89,7 @@
 					class="btn btn-primary btn-lg rounded-pill shadow-lg"
 					style="padding: 15px 30px; font-size: 1.25rem;"
 				>
-					Библейская Школа
+          Региональные Библейские курсы
 				</a>
 			</div>
 			<div class="col-lg-4 mb-3 text-center">
@@ -98,7 +98,7 @@
 					class="btn btn-primary btn-lg rounded-pill shadow-lg"
 					style="padding: 15px 30px; font-size: 1.25rem;"
 				>
-          Региональные Библейские курсы
+        Библейская школа
 				</a>
 			</div>
 			<div class="col-lg-4 mb-3 text-center">

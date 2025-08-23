@@ -41,13 +41,14 @@ export const email_template = (props) => `
 					<li><strong>Email:</strong> <a href='mailto:${props.email}'>${props.email}</a></li>
 					<li><strong>Телефон:</strong> ${props.phone}</li>
 					<li><strong>Церковь:</strong> ${props.church_name}</li>
+					<li><strong>Address:</strong> ${props.address}</li>
 				</ul>
-				<h3>Book 1</h3>
-				<div class='textarea'>${props.books_no1}</div>
-				<h3>Book 2</h3>
-				<div class='textarea'>${props.books_no2}</div>
-				<h3>Book 3<h3>
-				<div class='textarea'>${props.books_no3}</div>
+				<h3>Book Russian</h3>
+				<div class='textarea'>${props.content.qty_rus}</div>
+				<h3>Book Russian/English</h3>
+				<div class='textarea'>${props.content.qty_rus_eng}</div>
+				<h3>Book Russian/English/Romanian<h3>
+				<div class='textarea'>${props.content.qty_rus_eng_rom}</div>
 			</div>
 			<div class='footer'>
 				<p>© 2025 Библейская школа. Все права защищены.</p>
