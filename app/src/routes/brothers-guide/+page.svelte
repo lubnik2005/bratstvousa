@@ -6,9 +6,9 @@
 
   // Same files you already had
   const downloads = [
-    { lang: 'Română', file: `${media_url}bible-school/03_Ghid+metodologoic+Rus_eng_rom.pdf` },
-    { lang: 'English', file: `${media_url}bible-school/02_Brothers’ Fellowship Meetings_rus_eng.pdf` },
-    { lang: 'Русский',  file: `${media_url}bible-school/01_Методическое пособие_rus.pdf` }
+    { lang: 'Русский',  file: `${media_url}bible-school/01_Методическое пособие_rus.pdf` },
+    { lang: 'Русский/English', file: `${media_url}bible-school/02_Brothers’ Fellowship Meetings_rus_eng.pdf` },
+    { lang: 'Русский/English/Română', file: `${media_url}bible-school/03_Ghid+metodologoic+Rus_eng_rom.pdf` },
   ];
 
   // Three covers placeholders (#1, #2, #3) – replace src if you have real images
