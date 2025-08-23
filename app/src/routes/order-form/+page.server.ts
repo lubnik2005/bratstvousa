@@ -64,10 +64,12 @@ export const actions: Actions = {
 		let church_name = null;
 		if (churchId) {
 			const cs = (await db.select().from(churches).where(eq(churches.id, churchId)).limit(1))[0];
-			church_name = `${cs.id} - ${cs.name_line_1} ${cs.name_line_2 ?? ''}`;
+			church_name = `<a href="${process.env.ADMIN_URL}/${admin_paths.church.one(cs.id.toString())}"> ID: ${cs.id} | Name: ${cs.name_line_1} ${cs.name_line_2 ?? ''} | State: ${cs.state} | City: ${cs.city} | Region: ${cs.region} | Address: ${cs.address_line_1} ${cs.address_line_2 ?? ''} </a>`;
+
 		}
 		const newChurch = data.get('church') === 'other' ? data.get('new_church') : null;
-		church_name = church_name ?? newChurch;
+		church_name = church_name ?? `Other church: ${newChurch}`;
+
     
 
 		const formData = {

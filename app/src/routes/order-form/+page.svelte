@@ -12,7 +12,7 @@
 	let useNewChurch = false;
 
   let startChoice: 'sep-2025' | 'jan-2026' | '' = '';
-  let cityChurch = '';
+  let address = '';
   let fullName = '';
 
 	let lastName = '';
@@ -41,7 +41,7 @@
     e.preventDefault();
 
     if (!startChoice) return alert('Выберите планируемый старт (сентябрь 2025 или январь 2026).');
-    if (!cityChurch.trim()) return alert('Укажите Город и Церковь.');
+    if (!address.trim()) return alert('Укажите Адрес.');
     if (!fullName.trim()) return alert('Укажите Ф. И. О.');
     if (!phone.trim()) return alert('Укажите номер телефона.');
     if (!email.trim() || !validateEmail(email)) return alert('Укажите корректный e-mail.');
@@ -53,7 +53,7 @@
       'Заявка отправлена (локально). Проверьте e-mail: реквизиты будут высланы позже.',
       '',
       `Старт: ${startChoice === 'sep-2025' ? 'Сентябрь 2025 (дедлайн 1 сентября)' : 'Январь 2026 (дедлайн 1 декабря)'}`,
-      `Город и Церковь: ${cityChurch}`,
+      `Город и Церковь: ${address}`,
       `Ф.И.О.: ${fullName}`,
       `Телефон: ${phone}`,
       `E-mail: ${email}`,
@@ -149,9 +149,10 @@
 				</div>
 			{/if}
     <div class="mb-3">
-      <label class="form-label fw-semibold">Адрес</label>
-      <input class="form-control" type="text" name="address" bind:value={cityChurch} placeholder="Город, название церкви" required />
+      <label class="form-label fw-semibold">Адрес доставки</label>
+      <input class="form-control" type="text" name="address" bind:value={address} placeholder="Адрес доставки" required />
     </div>
+
 
 
 
