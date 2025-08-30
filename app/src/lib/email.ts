@@ -1,9 +1,6 @@
 // src/routes/api/send-email/+server.ts
 import nodemailer from 'nodemailer';
-import fs from 'fs';
-import handlebars from 'handlebars';
-import path from 'path';
-import { env } from '$env/dynamic/private';
+import { getSecret } from './server/secrets';
 
 // TODO: Cleanup this function
 /**
@@ -14,24 +11,24 @@ import { env } from '$env/dynamic/private';
  */
 export async function sendEmail(to: string, subject: string, html) {
 	// Configure Nodemailer with OAuth2
+  const Secret = getSecret();
 	const transporter = nodemailer.createTransport({
-		host: env.SMTP_HOST,
-		port: env.SMTP_PORT,
+		host: Secret.smtp.host,
+		port: Secret.smtp.port,
 		secure: false,
 		auth: {
-			user: env.SMTP_USER,
-			pass: env.SMTP_PASSWORD
+			user: Secret.smtp.user,
+			pass: Secret.smtp.password
 		}
 	});
 
 	// const filePath = path.resolve('static/templates/email/bibleSchoolFormNotification.hbs');
 	// const source = fs.readFileSync(filePath, 'utf8');
-	// const template = handlebars.compile(source);
 	// const html = template(formData);
 
 	// Email details
 	const mailOptions = {
-		from: env.SMTP_FROM, // Sender Name and Email
+		from: Secret.smtp.from, // Sender Name and Email
 		to, // Recipient Email
 		subject, // Email Subject
 		// TODO: This needs to be actual text

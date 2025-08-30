@@ -4,6 +4,7 @@ import { childrensEvents, childrensFiles, childrensNewsArticles } from '$lib/ser
 import { isNull, and, desc, or, gte, lt, isNotNull } from 'drizzle-orm';
 import { formatDate } from '$lib/helpers';
 import { getMinistryEvents, getMinistryNewsArticles } from '$lib/server/db/queries';
+import { getMediaUrl } from '$lib/server/secrets';
 
 export async function load({ params }) {
 	const allFiles = await db.select().from(childrensFiles).orderBy(childrensFiles.name);
@@ -17,7 +18,7 @@ export async function load({ params }) {
 	);
 
 	return {
-		media_url: env.MEDIA_URL,
+		media_url: getMediaUrl(),
 		articles: await getMinistryNewsArticles(childrensNewsArticles),
 		events: await getMinistryEvents(childrensEvents),
 		childrens_files,

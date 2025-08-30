@@ -4,6 +4,7 @@ import { env } from '$env/dynamic/private';
 
 import { lt, gte, or, and, isNull } from 'drizzle-orm/expressions';
 import { formatDate } from '$lib/helpers';
+import { getMediaUrl } from '$lib/server/secrets';
 
 export async function load() {
 	const today = new Date().toISOString(); // Convert Date to ISO string
@@ -33,6 +34,6 @@ export async function load() {
 	return {
 		upcomingEvents,
 		archivedEvents,
-		media_url: env.MEDIA_URL
+		media_url:getMediaUrl() 
 	};
 }

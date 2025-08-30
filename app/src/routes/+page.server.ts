@@ -8,6 +8,7 @@ import {
 	eventsSchemaOrdered,
 	newsArticlesSchemaOrdered
 } from '$lib/server/db/queries';
+import { getMediaUrl } from '$lib/server/secrets';
 
 export async function load() {
 	const today = new Date().toISOString(); // Convert Date to ISO string
@@ -46,6 +47,6 @@ export async function load() {
 	return {
 		events,
 		news_articles,
-		media_url: env.MEDIA_URL
+		media_url: getMediaUrl()
 	};
 }

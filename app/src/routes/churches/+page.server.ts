@@ -2,6 +2,7 @@ import { db } from '$lib/server/db';
 import { env } from '$env/dynamic/private';
 import { churches } from '$lib/server/db/schema';
 import { desc } from 'drizzle-orm';
+import { getMediaUrl } from '$lib/server/secrets';
 
 export async function load() {
 	return {
@@ -17,6 +18,6 @@ export async function load() {
 			const cityB = b.city.split(', ')[0];
 			return cityA.localeCompare(cityB);
 		}),
-		media_url: env.MEDIA_URL
+		media_url: getMediaUrl()
 	};
 }

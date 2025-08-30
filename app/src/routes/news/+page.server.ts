@@ -5,6 +5,7 @@ import { env } from '$env/dynamic/private';
 import { formatDate } from '$lib/helpers';
 import { unionAll } from 'drizzle-orm/mysql-core';
 import { newsArticlesSchema, newsArticlesSchemaOrdered } from '$lib/server/db/queries';
+import { getMediaUrl } from '$lib/server/secrets';
 
 export async function load({ params, url }) {
 	// Get the page parameter from the query string, default to page 1
@@ -29,6 +30,6 @@ export async function load({ params, url }) {
 		page,
 		perPage,
 		news_articles_count,
-		media_url: env.MEDIA_URL
+		media_url: getMediaUrl() 
 	};
 }

@@ -3,6 +3,7 @@ import { env } from '$env/dynamic/private';
 
 import { eq } from 'drizzle-orm/expressions';
 import { getMinistryEvents, getMinistryNewsArticles } from '$lib/server/db/queries';
+import { getMediaUrl } from '$lib/server/secrets';
 
 export async function load() {
 	const where_events = eq(bibleEducationEvents.category, 'courses'); // Example condition
@@ -11,6 +12,6 @@ export async function load() {
 	return {
 		events,
 		news_articles,
-		media_url: env.MEDIA_URL
+		media_url:getMediaUrl() 
 	};
 }

@@ -11,6 +11,7 @@ import { email_template } from './email';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { v4 as uuidv4 } from 'uuid';
 import {admin_paths} from '$lib/admin/path';
+import { getMediaUrl, getSecret } from '$lib/server/secrets';
 
 
 	let selectedChurch = '';
@@ -31,12 +32,13 @@ export async function load() {
 			const cityB = b.city.split(', ')[0];
 			return cityA.localeCompare(cityB);
 		}),
-		media_url: env.MEDIA_URL
+		media_url: getMediaUrl(),
 	};
 }
 
 export const actions: Actions = {
   default: async ({ request }) => {
+    const Secret = getSecret();
     const data = await request.formData();
 
     const address = (data.get('address') as string | null)?.trim() || '';
@@ -64,7 +66,7 @@ export const actions: Actions = {
 		let church_name = null;
 		if (churchId) {
 			const cs = (await db.select().from(churches).where(eq(churches.id, churchId)).limit(1))[0];
-			church_name = `<a href="${env.ADMIN_URL}${admin_paths.church.one(cs.id.toString())}"> ID: ${cs.id} | Name: ${cs.name_line_1} ${cs.name_line_2 ?? ''} | State: ${cs.state} | City: ${cs.city} | Region: ${cs.region} | Address: ${cs.address_line_1} ${cs.address_line_2 ?? ''} </a>`;
+			church_name = `<a href="${Secret.admin_url}${admin_paths.church.one(cs.id.toString())}"> ID: ${cs.id} | Name: ${cs.name_line_1} ${cs.name_line_2 ?? ''} | State: ${cs.state} | City: ${cs.city} | Region: ${cs.region} | Address: ${cs.address_line_1} ${cs.address_line_2 ?? ''} </a>`;
 
 		}
 		const newChurch = data.get('church') === 'other' ? data.get('new_church') : null;
@@ -91,7 +93,8 @@ export const actions: Actions = {
 			)
 		};
 
-		const to = env.MAIL_INFO_USER;
+    const Secrets = getSecret();
+		const to = Secrets.mail_info_user
 		const subject = `${formData.firstName} ${formData.lastName} - Заявка на печатные экземпляры`;
 
 		const content = formData.content;

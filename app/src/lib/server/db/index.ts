@@ -7,11 +7,10 @@
 // export const db = drizzle(client);
 //
 //
-import { secret } from '@aws-amplify/backend';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
-import { env } from '$env/dynamic/private';
-const database_url = env.DATABASE_URL ?? (secret('DATABASE_URL') as unknown as string | undefined);
+import { getDatabaseUrl } from '../secrets';
+const database_url = getDatabaseUrl()
 
 if (!database_url) throw new Error('DATABASE_URL is not set');
 const client = postgres(database_url);

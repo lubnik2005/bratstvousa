@@ -11,6 +11,7 @@ import { unionAll } from 'drizzle-orm/mysql-core';
 import { lte, desc, asc, or, sql, eq, gte, isNull, and, lt } from 'drizzle-orm';
 import { env } from '$env/dynamic/private';
 import edjsHTML from 'editorjs-html';
+import { getMediaUrl } from '$lib/server/secrets';
 
 function linkTool(block) {
 	const { link, meta } = block.data;
@@ -114,7 +115,7 @@ export async function load({
 	// Maybe it should always fix it? Not sure yet.
 	event.content = event.content?.replaceAll(
 		'src="/upfiles/photos/',
-		`src="${env.MEDIA_URL}upfiles/photos/`
+		`src="${getMediaUrl()}upfiles/photos/`
 	);
 	// console.log(event)
 	console.log(JSON.stringify(event?.editorjs?.blocks));

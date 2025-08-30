@@ -6,6 +6,7 @@ import { sendEmail } from '$lib/email';
 import { email_template } from './email';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { v4 as uuidv4 } from 'uuid';
+import { getMediaUrl, getSecret } from '$lib/server/secrets';
 
 export async function load() {
 	return {
@@ -21,14 +22,15 @@ export async function load() {
 			const cityB = b.city.split(', ')[0];
 			return cityA.localeCompare(cityB);
 		}),
-		media_url: env.MEDIA_URL
+		media_url: getMediaUrl()
 	};
 }
 
 export const actions = {
 	default: async ({ cookies, request }) => {
+    const Secret = getSecret();
 		const aws_creds = {
-			region: env.AWS_DEFAULT_REGION,
+			region: Secret.aws.region,
 			credentials: {
 				accessKeyId: env.AWS_ACCESS_KEY_ID,
 				secretAccessKey: env.AWS_SECRET_ACCESS_KEY
@@ -57,7 +59,7 @@ export const actions = {
 			try {
 				// Upload to S3
 				await s3Client.send(new PutObjectCommand(s3Params));
-				photoUrl = `${env.MEDIA_URL}${Key}`;
+				photoUrl = `${getMediaUrl()}${Key}`;
 			} catch (err) {
 				console.error('Error uploading to S3:', err);
 				return { success: false, error: 'Photo upload failed' };

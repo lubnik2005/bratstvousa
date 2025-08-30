@@ -2,6 +2,7 @@ import { env } from '$env/dynamic/private';
 import { db } from '$lib/server/db';
 import { newsArticlesSchema } from '$lib/server/db/queries';
 import { medias, newsArticles } from '$lib/server/db/schema';
+import { getMediaUrl } from '$lib/server/secrets';
 import { error } from '@sveltejs/kit';
 import { and, eq, sql } from 'drizzle-orm';
 import edjsHTML from 'editorjs-html';
@@ -60,7 +61,7 @@ export async function load({ params }) {
 
 	news_article.content = news_article.content?.replaceAll(
 		'src="/upfiles/photos/',
-		`src="${env.MEDIA_URL}upfiles/photos/`
+		`src="${getMediaUrl()}upfiles/photos/`
 	);
 
 	const images = await db
@@ -94,7 +95,7 @@ export async function load({ params }) {
 	//     ??.where(eq(newsArticles.slug, params.slug)))[0] ??
 	// null;
 	return {
-		media_url: env.MEDIA_URL,
+		media_url: getMediaUrl(),
 		news_article,
 		images,
 		audios
