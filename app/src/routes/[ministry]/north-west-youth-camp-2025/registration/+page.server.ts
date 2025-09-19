@@ -1,4 +1,4 @@
-// +page.server.ts
+// src/routes/[ministry]/north-west-youth-camp-2025/registration/+page.server.ts
 import { db } from '$lib/server/db';
 import { formSubmissions } from '$lib/server/db/schema';
 import type { Actions, PageServerLoad } from './$types';
@@ -32,8 +32,8 @@ export const actions: Actions = {
 		};
 
 		const errors: Record<string, string> = {};
-		if (!fields.firstName) errors.fullName = 'Please enter your first name.';
-		if (!fields.lastName) errors.fullName = 'Please enter your last name.';
+		if (!fields.firstName) errors.firstName = 'Please enter your first name.';
+		if (!fields.lastName) errors.lastName = 'Please enter your last name.';
 		if (!fields.phone) errors.phone = 'Please enter your phone.';
 		if (!fields.email) errors.email = 'Please enter your email.';
 		else if (!isEmail(fields.email)) errors.email = 'Please enter a valid email.';
@@ -44,28 +44,25 @@ export const actions: Actions = {
 			return fail(400, { form: { errors, fields } });
 		}
 
-		console.log('[camp-registration]', fields);
-
+		// Persist
 		const formData = {
 			formName: '2025-youth-north-west-camp',
 			firstName: fields.firstName,
 			lastName: fields.lastName,
 			email: fields.email,
 			phone: fields.phone,
-			content: JSON.parse(
-				JSON.stringify({
-					church: fields.church,
-					notes: fields.notes,
-					constent: fields.consent,
-					emergency: fields.emergency
-				})
-			)
+			content: {
+				church: fields.church,
+				notes: fields.notes,
+				consent: fields.consent,
+				emergency: fields.emergency
+			}
 		};
 
-		const form_submission = await db
+		await db
 			.insert(formSubmissions)
 			.values({ ...formData, createdAt: new Date(), updatedAt: new Date() })
-			.returning(); // Returns the inserted row (optional)
+			.returning();
 
 		return {
 			message:
