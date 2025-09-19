@@ -36,6 +36,7 @@ export const actions: Actions = {
 		if (!fields.lastName) errors.lastName = 'Please enter your last name.';
 		if (!fields.phone) errors.phone = 'Please enter your phone.';
 		if (!fields.email) errors.email = 'Please enter your email.';
+		if (!fields.church) errors.email = 'Please enter your church.';
 		else if (!isEmail(fields.email)) errors.email = 'Please enter a valid email.';
 		if (!fields.consent) errors.consent = 'Please confirm you filled out the consent form.';
 		if (!fields.paid) errors.paid = 'Please confirm that you paid with memo “camp2025”.';

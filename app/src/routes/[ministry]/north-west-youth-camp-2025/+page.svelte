@@ -1,43 +1,46 @@
+
 <script lang="ts">
-	// Props from +page.ts (optional)
-	export let data: {
-		media_url?: string;
-		event?: {
-			title?: string;
-			date?: string; // ISO
-			description?: string;
-			featuredImage?: string;
-			use_editorjs?: boolean;
-			editorjs_rendered?: string;
-			content?: string;
-			registerUrl?: string;   // <-- add this in your loader if you have it
-			registerLabel?: string; // optional custom label
-			location?: string;      // optional
-		};
-	} = {};
+  // Props from +page.ts (optional)
+  export let data: {
+    media_url?: string;
+    event?: {
+      title?: string;
+      date?: string; // ISO
+      description?: string;
+      featuredImage?: string;
+      use_editorjs?: boolean;
+      editorjs_rendered?: string;
+      content?: string;
+      registerUrl?: string;   // <-- add this in your loader if you have it
+      registerLabel?: string; // optional custom label
+      location?: string;      // optional
+    };
+    registration_count?: number; // <-- added
+  } = {};
 
-	import '@splidejs/svelte-splide/css';
-	import { Splide, SplideSlide } from '@splidejs/svelte-splide';
+  import '@splidejs/svelte-splide/css';
+  import { Splide, SplideSlide } from '@splidejs/svelte-splide';
 
-	// ---------- FALLBACK CONTENT ----------
-	const fallbackMediaUrl = '';
-	const eventData = {
-		title: 'Молодёжный Лагерь СЗР АО 2025',
-		date: '2025-10-16',
-		description:
-			'Расписание Молодёжного Лагеря СЗР АО • 16–19 октября, 2025. Американское Объединение МСЦ ЕХБ.',
-		featuredImage: ''
-	};
+  // ---------- FALLBACK CONTENT ----------
+  const fallbackMediaUrl = '';
+  const eventData = {
+    title: 'Молодёжный Лагерь СЗР ',
+    date: '2025-10-16',
+    description:
+      'Расписание Молодёжного Лагеря СЗР АО • 16–19 октября, 2025. Американское Объединение МСЦ ЕХБ.',
+    featuredImage: ''
+  };
 
-	type TimeBlock = {
-		start?: string;
-		end?: string;
-		title: string;
-		speaker?: string;
-		notes?: string;
-		inline?: boolean;
-	};
-	type DaySchedule = { key: string; label: string; rows: TimeBlock[]; dateNote?: string };
+  type TimeBlock = {
+    start?: string;
+    end?: string;
+    title: string;
+    speaker?: string;
+    notes?: string;
+    inline?: boolean;
+  };
+  type DaySchedule = { key: string; label: string; rows: TimeBlock[]; dateNote?: string };
+
 
 	const schedule: DaySchedule[] = [
 		{
@@ -130,193 +133,216 @@
 		}
 	];
 
-	// Effective event values
-	const mediaUrl = data.media_url ?? fallbackMediaUrl;
-	const title = data.event?.title || eventData.title;
-	const dateISO = data.event?.date || eventData.date;
-	const description =
-		data.event?.description ||
-		'Американское Объединение МСЦ ЕХБ. Молодёжный Лагерь СЗР АО • 16–19 октября, 2025.';
-	const featuredImage = data.event?.featuredImage || eventData.featuredImage;
+  // Effective event values
+  const mediaUrl = data.media_url ?? fallbackMediaUrl;
+  const title = data.event?.title || eventData.title;
+  const dateISO = data.event?.date || eventData.date;
+  const description =
+    data.event?.description ||
+    'Американское Объединение МСЦ ЕХБ. Молодёжный Лагерь СЗР АО • 16–19 октября, 2025.';
+  const featuredImage = data.event?.featuredImage || eventData.featuredImage;
 
-	// CTA
-	const registerUrl =
-		data.event?.registerUrl || '/youth-ministry/north-west-youth-camp-2025/registration'; // <— set your actual route or external form URL
-	const registerLabel = data.event?.registerLabel || 'Зарегистрироваться';
-	const location = data.event?.location || '';
+  // Build a safe hero image src
+  const heroSrc =
+    featuredImage && /^https?:\/\//.test(featuredImage)
+      ? featuredImage
+      : (mediaUrl || '') + (featuredImage || '');
 
-	// Helpers
-	const fmtTime = (t?: string) => (t ? t : '');
-	const hasTimes = (row: TimeBlock) => row.start || row.end;
+  // CTA
+  const registerUrl =
+    data.event?.registerUrl || '/youth-ministry/north-west-youth-camp-2025/registration'; // <— set your actual route or external form URL
+  const registerLabel = data.event?.registerLabel || 'Зарегистрироваться';
+  const location = data.event?.location || '';
 
-	// Splide options
-	const splideOptions = {
-		type: 'slide',
-		perPage: 1,
-		perMove: 1,
-		gap: '1rem',
-		pagination: true,
-		arrows: true,
-		breakpoints: {
-			768: { gap: '0.5rem' }
-		}
-	};
+  // ---- CAPACITY COUNTER (из 400) ----
+  const CAPACITY = 400;
+  const registeredRaw = Number(data.registration_count ?? 0);
+  const registered = Math.max(0, Math.min(CAPACITY, Number.isFinite(registeredRaw) ? registeredRaw : 0));
+  const remaining = Math.max(0, CAPACITY - registered);
+  const percent = Math.round((registered / CAPACITY) * 100);
+
+  // Helpers
+  const fmtTime = (t?: string) => (t ? t : '');
+  const hasTimes = (row: TimeBlock) => row.start || row.end;
+
+  // Splide options
+  const splideOptions = {
+    type: 'slide',
+    perPage: 1,
+    perMove: 1,
+    gap: '1rem',
+    pagination: true,
+    arrows: true,
+    breakpoints: {
+      768: { gap: '0.5rem' }
+    }
+  };
 </script>
 
 <svelte:head>
-	<meta property="og:title" content={title} />
-	{#if featuredImage}
-		<meta property="og:image" content={mediaUrl + featuredImage} />
-	{/if}
-	<meta property="og:description" content="Американское Объединение МСЦ ЕХБ" />
-	<meta property="og:type" content="article" />
-	{#if dateISO}
-		<meta property="article:published_time" content={dateISO} />
-	{/if}
-	<meta name="twitter:card" content="summary_large_image" />
-	<meta name="twitter:title" content={title} />
-	<meta name="twitter:description" content="Американское Объединение МСЦ ЕХБ" />
-	{#if featuredImage}
-		<meta name="twitter:image" content={mediaUrl + featuredImage} />
-	{/if}
-	<meta property="og:site_name" content="Bratstvo USA" />
-	<title>{title}</title>
-	<meta name="description" content={description} />
+  <meta property="og:title" content={title} />
+  {#if heroSrc}
+    <meta property="og:image" content={heroSrc} />
+  {/if}
+  <meta property="og:description" content="Американское Объединение МСЦ ЕХБ" />
+  <meta property="og:type" content="article" />
+  {#if dateISO}
+    <meta property="article:published_time" content={dateISO} />
+  {/if}
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={title} />
+  <meta name="twitter:description" content="Американское Объединение МСЦ ЕХБ" />
+  {#if heroSrc}
+    <meta name="twitter:image" content={heroSrc} />
+  {/if}
+  <meta property="og:site_name" content="Bratstvo USA" />
+  <title>{title}</title>
+  <meta name="description" content={description} />
 </svelte:head>
 
-{#if featuredImage}
-	<div class="container p-0">
-		<img src="{mediaUrl}{featuredImage}" class="img-fluid w-100" alt="Top Image" />
-	</div>
+{#if heroSrc}
+  <div class="container p-0">
+    <img src={heroSrc} class="img-fluid w-100" alt="Top Image" />
+  </div>
 {/if}
 
 <!-- HERO / DESCRIPTION + CTA -->
 <div class="container-xxl pb-4">
-	<div class="container">
-		<div class="section-header mx-auto mt-5 text-center" style="max-width: 900px;">
-			<h1 class="display-5 mb-2">{title}</h1>
+  <div class="container">
+    <div class="section-header mx-auto mt-5 text-center" style="max-width: 900px;">
+      <h1 class="display-5 mb-2">{title}</h1>
 
-			<!-- Dates / Location line -->
-			<p class="text-muted mb-3">
-				<strong>16–19 октября, 2025</strong>{location ? ` • ${location}` : ''}
-			</p>
+      <!-- Dates / Location line -->
+      <p class="text-muted mb-3">
+        <strong>16–19 октября, 2025</strong>{location ? ` • ${location}` : ''}
+      </p>
 
-			<!-- Description -->
-			<p class="lead">
-				{data.event?.description ?? 'Американское Объединение МСЦ ЕХБ'}
-			</p>
+      <!-- Description -->
+      <p class="lead">
+        {data.event?.description ?? 'Иметь общение с христианской молодежью вокруг Слова Божьего — значит переживать совместное духовное единение, делиться опытом познания Бога и поддерживать друг друга в стремлении жить по вере.'}
+      </p>
 
-			<!-- CTA Buttons -->
-			<div class="d-flex gap-3 justify-content-center mt-4 flex-wrap">
-				<a class="btn btn-primary btn-lg" href={registerUrl} rel="noopener">
-					{registerLabel}
-				</a>
-				<a class="btn btn-outline-secondary btn-lg" href="#schedule">
-					Смотреть расписание
-				</a>
-			</div>
-		</div>
-	</div>
+      <!-- CAPACITY COUNTER -->
+      <div class="mx-auto mt-3" style="max-width: 520px;">
+        <div class="d-flex justify-content-between align-items-center mb-1 small text-muted">
+          <div>Зарегистрировано: <strong>{registered}</strong> из <strong>{CAPACITY}</strong></div>
+          <div>{percent}%</div>
+        </div>
+        <div class="progress" style="height: 10px;" aria-label="Заполненность регистрации">
+          <div
+            class="progress-bar"
+            role="progressbar"
+            aria-valuenow={registered}
+            aria-valuemin="0"
+            aria-valuemax={CAPACITY}
+            style:width={percent + '%'}
+          />
+        </div>
+        {#if remaining > 0}
+          <div class="text-muted small mt-1">Осталось мест: {remaining}</div>
+        {:else}
+          <div class="text-danger small mt-1">Регистрация заполнена.</div>
+        {/if}
+      </div>
+
+      <!-- CTA Buttons -->
+      <div class="d-flex gap-3 justify-content-center mt-4 flex-wrap">
+        <a class="btn btn-primary btn-lg" href={registerUrl} rel="noopener">
+          {registerLabel}
+        </a>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- Optional extra content block from CMS -->
 {#if data.event?.use_editorjs || data.event?.content}
-	<div class="container mb-5">
-		<div class="blog-content">
-			{#if data.event?.use_editorjs}
-				{@html data.event?.editorjs_rendered ?? ''}
-			{:else}
-				{@html data.event?.content}
-			{/if}
-		</div>
-	</div>
+  <div class="container mb-5">
+    <div class="blog-content">
+      {#if data.event?.use_editorjs}
+        {@html data.event?.editorjs_rendered ?? ''}
+      {:else}
+        {@html data.event?.content}
+      {/if}
+    </div>
+  </div>
 {/if}
 
 <!-- SCHEDULE -->
 <section id="schedule" class="pt-4">
-	<div class="container-xxl pb-2">
-		<div class="container">
-			<h2 class="text-center">Расписание</h2>
-		</div>
-	</div>
-	<!-- Printable full schedule -->
-	<div class="container pb-4 mb-4">
-		<div class="blog-content">
-			<div class="printable">
-				{#each schedule as day}
-					<h3 class="mt-5">{day.label}</h3>
-					<table class="table table-striped align-middle">
-						<thead>
-							<tr>
-								<th style="width: 170px;">Время</th>
-								<th>Событие</th>
-								<th style="width: 220px;">Докладчик</th>
-							</tr>
-						</thead>
-						<tbody>
-							{#each day.rows as row}
-								{#if row.inline}
-									<tr class="inline-row">
-										<td></td>
-										<td><div class="inline-title">{row.title}</div></td>
-										<td>{row.speaker ?? ''}</td>
-									</tr>
-								{:else}
-									<tr>
-										<td>
-											{#if hasTimes(row)}
-												{fmtTime(row.start)}{row.end ? ' – ' + fmtTime(row.end) : ''}
-											{/if}
-										</td>
-										<td>
-											<strong>{row.title}</strong>
-											{#if row.notes}<div class="text-muted small">{row.notes}</div>{/if}
-										</td>
-										<td>{row.speaker ?? ''}</td>
-									</tr>
-								{/if}
-							{/each}
-						</tbody>
-					</table>
-				{/each}
-			</div>
-		</div>
-	</div>
+  <div class="container-xxl pb-2">
+    <div class="container">
+      <h2 class="text-center">Расписание</h2>
+    </div>
+  </div>
+  <div class="container pb-4 mb-4">
+    <div class="blog-content">
+      <div class="printable">
+        {#each schedule as day}
+          <h3 class="mt-5">{day.label}</h3>
+          <table class="table table-striped align-middle">
+            <thead>
+              <tr>
+                <th style="width: 170px;">Время</th>
+                <th>Событие</th>
+                <th style="width: 220px;">Докладчик</th>
+              </tr>
+            </thead>
+            <tbody>
+              {#each day.rows as row}
+                {#if row.inline}
+                  <tr class="inline-row">
+                    <td></td>
+                    <td><div class="inline-title">{row.title}</div></td>
+                    <td>{row.speaker ?? ''}</td>
+                  </tr>
+                {:else}
+                  <tr>
+                    <td>
+                      {#if hasTimes(row)}
+                        {fmtTime(row.start)}{row.end ? ' – ' + fmtTime(row.end) : ''}
+                      {/if}
+                    </td>
+                    <td>
+                      <strong>{row.title}</strong>
+                      {#if row.notes}<div class="text-muted small">{row.notes}</div>{/if}
+                    </td>
+                    <td>{row.speaker ?? ''}</td>
+                  </tr>
+                {/if}
+              {/each}
+            </tbody>
+          </table>
+        {/each}
+      </div>
+    </div>
+  </div>
 </section>
 
 <style>
-	.schedule-card { border-radius: 1rem; }
-	.time { white-space: nowrap; font-variant-numeric: tabular-nums; }
-	tr.inline-row td { border-top: none; padding-top: 0; padding-bottom: 0.25rem; }
-	.inline-title { padding-left: 0.75rem; border-left: 3px solid currentColor; }
+  .schedule-card { border-radius: 1rem; }
+  .time { white-space: nowrap; font-variant-numeric: tabular-nums; }
+  tr.inline-row td { border-top: none; padding-top: 0; padding-bottom: 0.25rem; }
+  .inline-title { padding-left: 0.75rem; border-left: 3px solid currentColor; }
 
-	/* Stick a small CTA at bottom of mobile screens (optional) */
-	@media (max-width: 576px) {
-		.mobile-cta {
-			position: sticky;
-			bottom: 0;
-			z-index: 1020;
-			background: var(--bs-body-bg, #fff);
-			border-top: 1px solid rgba(0,0,0,.08);
-			padding: .75rem;
-		}
-	}
+  @media (max-width: 576px) {
+    .mobile-cta {
+      position: sticky;
+      bottom: 0;
+      z-index: 1020;
+      background: var(--bs-body-bg, #fff);
+      border-top: 1px solid rgba(0,0,0,.08);
+      padding: .75rem;
+    }
+  }
 
-	/* Print-friendly */
-	@media print {
-		.splide,
-		.container-xxl.pb-4 .lead,
-		.container-xxl.pb-4 .btn { display: none !important; }
-		h1, h2, h3 { page-break-after: avoid; }
-		table { page-break-inside: auto; }
-		tr { page-break-inside: avoid; page-break-after: auto; }
-	}
+  @media print {
+    .splide,
+    .container-xxl.pb-4 .lead,
+    .container-xxl.pb-4 .btn { display: none !important; }
+    h1, h2, h3 { page-break-after: avoid; }
+    table { page-break-inside: auto; }
+    tr { page-break-inside: avoid; page-break-after: auto; }
+  }
 </style>
-
-<!-- Optional sticky mobile CTA (uncomment if you want it) -->
-<!--
-<div class="mobile-cta text-center d-sm-none">
-	<a class="btn btn-primary w-100" href={registerUrl} rel="noopener">{registerLabel}</a>
-</div>
--->
 

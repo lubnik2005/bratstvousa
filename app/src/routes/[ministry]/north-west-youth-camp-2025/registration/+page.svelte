@@ -17,11 +17,11 @@
       copied = label;
       setTimeout(() => (copied = null), 1500);
     } catch {
-      alert("Copy failed — please copy manually.");
+      alert("Не удалось скопировать — пожалуйста, скопируйте вручную.");
     }
   };
 
-  // use form if present; otherwise fall back to data.form
+  // использовать form, если есть; иначе data.form
   let f: any;
   $: f = form ?? data?.form ?? {};
 
@@ -36,26 +36,26 @@
 </script>
 
 <svelte:head>
-  <title>Camp 2025 Registration</title>
-  <meta name="description" content="Register for GSBC Youth Camp 2025." />
+  <title>Регистрация на лагерь 2025</title>
+  <meta name="description" content="Регистрация на молодёжный лагерь GSBC 2025." />
 </svelte:head>
 
 <div class="container-xxl pb-6">
   <div class="container">
     <div class="section-header mx-auto mt-5 text-center" style="max-width: 1000px;">
       <header class="mb-4 text-center">
-        <h1 class="display-6">Camp 2025 — Registration</h1>
+        <h1 class="display-6">Лагерь 2025 — Регистрация</h1>
         <p class="text-muted">
-          Please complete the steps below. We’ll email you again once we have
-          <strong>manually confirmed your payment</strong>.
+          Пожалуйста, выполните шаги ниже. Мы отправим вам письмо, когда
+          <strong>вручную подтвердим вашу оплату</strong>.
         </p>
       </header>
     </div>
 
-    <!-- Payment info -->
+    <!-- Способы оплаты -->
     <section class="card shadow-sm border-0 mb-4">
       <div class="card-body">
-        <h2 class="h5 mb-3">Payment Methods</h2>
+        <h2 class="h5 mb-3">Способы оплаты</h2>
         <div class="row g-3 align-items-center">
           <div class="col-md-6">
             <div class="d-flex align-items-center gap-3">
@@ -68,9 +68,9 @@
                 type="button"
                 class="btn btn-sm btn-outline-secondary ms-auto"
                 on:click={() => copy(CASHAPP, "cashapp")}
-                aria-label="Copy Cash App handle"
+                aria-label="Скопировать идентификатор Cash App"
               >
-                Copy
+                Копировать
               </button>
             </div>
           </div>
@@ -86,44 +86,44 @@
                 type="button"
                 class="btn btn-sm btn-outline-secondary ms-auto"
                 on:click={() => copy(ZELLE, "zelle")}
-                aria-label="Copy Zelle email"
+                aria-label="Скопировать email Zelle"
               >
-                Copy
+                Копировать
               </button>
             </div>
           </div>
         </div>
 
         <div class="small text-muted mt-3">
-          <strong>Payment memo:</strong> <code>camp2025-YOURNAME</code>
+          <strong>Примечание к платежу:</strong> <code>camp2025-YOURNAME</code>
           {#if copied}
-            <span class="badge bg-success ms-2">Copied {copied} ✓</span>
+            <span class="badge bg-success ms-2">Скопировано: {copied} ✓</span>
           {/if}
         </div>
       </div>
     </section>
 
-    <!-- Registration form -->
+    <!-- Форма регистрации -->
     <form method="POST" use:enhance={onEnhance} class="card shadow-sm border-0">
       <div class="card-body">
-        <h2 class="h5 mb-3">Your Info</h2>
+        <h2 class="h5 mb-3">Ваши данные</h2>
 
-        <!-- Honeypot (hidden) -->
+        <!-- Ханипот (скрытое поле) -->
         <div class="visually-hidden" aria-hidden="true">
           <label>
-            Do not fill this in
+            Не заполняйте это поле
             <input name="middle_name" autocomplete="off" />
           </label>
         </div>
 
         <div class="row g-3">
           <div class="col-md-6">
-            <label class="form-label">First Name *</label>
+            <label class="form-label">Имя *</label>
             <input
               class="form-control"
               name="firstName"
               required
-              placeholder="First Name"
+              placeholder="Имя"
               value={f?.fields?.firstName ?? ""}
             />
             {#if f?.errors?.firstName}
@@ -132,12 +132,12 @@
           </div>
 
           <div class="col-md-6">
-            <label class="form-label">Last Name *</label>
+            <label class="form-label">Фамилия *</label>
             <input
               class="form-control"
               name="lastName"
               required
-              placeholder="Last Name"
+              placeholder="Фамилия"
               value={f?.fields?.lastName ?? ""}
             />
             {#if f?.errors?.lastName}
@@ -146,7 +146,7 @@
           </div>
 
           <div class="col-md-6">
-            <label class="form-label">Phone *</label>
+            <label class="form-label">Телефон *</label>
             <input
               class="form-control"
               name="phone"
@@ -162,7 +162,7 @@
           </div>
 
           <div class="col-md-6">
-            <label class="form-label">Email *</label>
+            <label class="form-label">Эл. почта *</label>
             <input
               class="form-control"
               name="email"
@@ -177,39 +177,40 @@
           </div>
 
           <div class="col-md-6">
-            <label class="form-label">Church (optional)</label>
+            <label class="form-label">Церковь *</label>
             <input
               class="form-control"
               name="church"
-              placeholder="e.g., GSBC"
+              required
+              placeholder="например, GSBC"
               value={f?.fields?.church ?? ""}
             />
           </div>
 
           <div class="col-md-6">
-            <label class="form-label">Emergency Contact (optional)</label>
+            <label class="form-label">Контакт на случай ЧС (необязательно)</label>
             <input
               class="form-control"
               name="emergency"
-              placeholder="Name & phone"
+              placeholder="Имя и телефон"
               value={f?.fields?.emergency ?? ""}
             />
           </div>
 
           <div class="col-12">
-            <label class="form-label">Notes (optional)</label>
+            <label class="form-label">Примечания (необязательно)</label>
             <textarea
               class="form-control"
               name="notes"
               rows="3"
-              placeholder="Allergies, dietary needs, roommate preference, etc."
+              placeholder="Аллергии, питание и т.д."
             >{f?.fields?.notes ?? ""}</textarea>
           </div>
         </div>
 
         <hr class="my-4" />
 
-        <h2 class="h6 mb-3">Required Steps</h2>
+        <h2 class="h6 mb-3">Обязательные шаги</h2>
 
         <div class="form-check mb-2">
           <input
@@ -221,8 +222,30 @@
             checked={f?.fields?.consent === "on"}
           />
           <label class="form-check-label" for="consent">
-            I have filled out the&nbsp;
-            <a href={CONSENT_URL} target="_blank" rel="noopener">YoungLife Guest Consent & Release Form</a>.
+            Я заполнил(а)&nbsp;
+            <a href={CONSENT_URL} target="_blank" rel="noopener" style="text-decoration:underline">
+              форму согласия YoungLife (Guest Consent & Release)
+            </a>.
+          </label>
+          {#if f?.errors?.consent}
+            <div class="invalid d-block">{f.errors.consent}</div>
+          {/if}
+        </div>
+
+        <div class="form-check mb-2">
+          <input
+            class="form-check-input"
+            type="checkbox"
+            id="consent_rules"
+            name="consent"
+            required
+            checked={f?.fields?.consent === "on"}
+          />
+          <label class="form-check-label" for="consent_rules">
+            Я прочитал(а) и согласен(на) с&nbsp;
+            <a href={CONSENT_URL} target="_blank" rel="noopener" style="text-decoration:underline">
+              правилами лагеря
+            </a>.
           </label>
           {#if f?.errors?.consent}
             <div class="invalid d-block">{f.errors.consent}</div>
@@ -239,7 +262,7 @@
             checked={f?.fields?.paid === "on"}
           />
           <label class="form-check-label" for="paid">
-            I have submitted payment with memo <code>camp2025-YOURNAME</code>.
+            Я произвёл(а) оплату с примечанием <code>camp2025-YOURNAME</code>.
           </label>
           {#if f?.errors?.paid}
             <div class="invalid d-block">{f.errors.paid}</div>
@@ -247,7 +270,7 @@
         </div>
 
         <button class="btn btn-primary btn-lg" type="submit" disabled={submitting}>
-          {submitting ? "Submitting..." : "Submit Registration"}
+          {submitting ? "Отправка..." : "Отправить регистрацию"}
         </button>
 
         {#if f?.message}
@@ -259,13 +282,14 @@
         {/if}
 
         <p class="small text-muted mt-3">
-          We will email you again once we have <strong>manually</strong> confirmed your payment.
+          Мы повторно свяжемся с вами по электронной почте после
+          <strong>ручного</strong> подтверждения оплаты.
         </p>
       </div>
     </form>
 
     <footer class="my-4 small text-muted">
-      Need help? Email <a href={"mailto:" + ZELLE}>{ZELLE}</a>.
+      Нужна помощь? Напишите на <a href={"mailto:" + ZELLE}>{ZELLE}</a>.
     </footer>
   </div>
 </div>
