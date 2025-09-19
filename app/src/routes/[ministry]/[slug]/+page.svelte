@@ -35,7 +35,7 @@
 	<div class="container">
 		<div class="section-header mx-auto mt-5 text-center" style="max-width: 1000px;">
 			<h1 class="display-5 mb-3">{data.event.title}</h1>
-			<p>
+			<p style="min-height:50vh">
 				{data.event.description}
 			</p>
 		</div>
