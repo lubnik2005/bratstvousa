@@ -243,7 +243,7 @@
           />
           <label class="form-check-label" for="consent_rules">
             Я прочитал(а) и согласен(на) с&nbsp;
-            <a href={CONSENT_URL} target="_blank" rel="noopener" style="text-decoration:underline">
+            <a href="/youth-ministry/north-west-youth-camp-2025/rules" target="_blank" rel="noopener" style="text-decoration:underline">
               правилами лагеря
             </a>.
           </label>
