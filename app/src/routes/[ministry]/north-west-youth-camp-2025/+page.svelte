@@ -97,14 +97,14 @@
 </svelte:head>
 
 <!-- HERO IMAGE -->
-{#if heroSrc}
-  <div class="hero-image-wrap">
-    <img src={heroSrc} class="img-fluid w-100 hero-image" alt="Изображение лагеря" />
-  </div>
-{/if}
+<!-- {#if heroSrc} -->
+<!--   <div class="hero-image-wrap"> -->
+<!--     <img src={heroSrc} class="img-fluid w-100 hero-image" alt="Изображение лагеря" /> -->
+<!--   </div> -->
+<!-- {/if} -->
 
 <!-- HERO / DESCRIPTION + CTA -->
-<section class="container-xxl hero pb-4">
+<section class="container-xxl pb-4">
   <div class="container">
     <div class="section-header mx-auto mt-5 text-center" style="max-width: 900px;">
       <h1 class="display-5 mb-2">{title}</h1>
