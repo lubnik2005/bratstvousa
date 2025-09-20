@@ -18,19 +18,10 @@
 <div class="container-xxl pb-5">
   <div class="container">
     <div class="section-header mx-auto mt-5" style="max-width: 900px;">
-      <nav class="mb-3">
-        <a class="small text-muted" href={EVENT_URL}>&larr; Назад к странице лагеря</a>
-      </nav>
-
       <header class="text-center mb-4">
         <h1 class="display-6 mb-2">Правила лагеря</h1>
         <p class="text-muted">{EVENT_TITLE} • <strong>{EVENT_DATES}</strong></p>
       </header>
-
-      <div class="d-flex gap-2 justify-content-center mb-4 flex-wrap">
-        <button class="btn btn-outline-secondary" on:click={() => window.print()}>Печать</button>
-      </div>
-
       <article class="card shadow-sm border-0">
         <div class="card-body p-4 p-md-5">
           <h2 class="h4 mb-3">Общие положения</h2>

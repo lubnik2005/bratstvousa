@@ -1,15 +1,31 @@
 <!-- src/routes/[ministry]/north-west-youth-camp-2025/registration/+page.svelte -->
 <script lang="ts">
   import { enhance } from "$app/forms";
+  import { onMount } from "svelte";
   export let data;
   export let form: any = {};
 
+  /*** External resources & constants ***/
   const CONSENT_URL =
     "https://www.cognitoforms.com/YoungLife21/guestconsentreleaseformforoutsidegroupsusingyounglifecamp";
-
+  const RULES_URL = "/youth-ministry/north-west-youth-camp-2025/rules";
   const CASHAPP = "$GSBCYouth";
   const ZELLE = "gyouth5116@gmail.com";
 
+  const CAMP_COST = "$350";
+  const CAMP_ADDRESS = "1 Muddy Rd, Antelope, OR 97001";
+
+  // Cognito embed (use the values from the page you shared)
+  const COGNITO_KEY = "spO9ZCOVtkyDOX-2IFxCZw";
+  const COGNITO_FORM_ID = "279";
+  const COGNITO_EMBED_SRC = "https://www.cognitoforms.com/f/seamless.js";
+
+  /*** Local storage keys ***/
+  const CONSENT_OPENED_KEY = "camp2025_opened_consent";
+  const CONSENT_SUBMITTED_KEY = "camp2025_consent_submitted"; // stronger signal than "opened"
+  const RULES_OPENED_KEY = "camp2025_opened_rules";
+
+  /*** Clipboard helper ***/
   let copied: string | null = null;
   const copy = async (text: string, label: string) => {
     try {
@@ -21,7 +37,7 @@
     }
   };
 
-  // использовать form, если есть; иначе data.form
+  /*** Form state (SvelteKit + enhance) ***/
   let f: any;
   $: f = form ?? data?.form ?? {};
 
@@ -33,6 +49,111 @@
       await update();
     };
   };
+
+  /*** Gated steps state ***/
+  let didOpenConsent = false;   // opened or submitted
+  let didSubmitConsent = false; // truly submitted
+  let didOpenRules = false;
+
+  /*** Modal + embed state ***/
+  let showConsentModal = false;
+  let consentApi: any = null;     // Cognito(COGNITO_KEY)
+  let consentForm: any = null;    // mounted instance
+  let embedError = "";            // if seamless.js fails to load
+
+  /*** Restore persisted step states ***/
+  onMount(() => {
+    didSubmitConsent = localStorage.getItem(CONSENT_SUBMITTED_KEY) === "1";
+    didOpenConsent =
+      didSubmitConsent || localStorage.getItem(CONSENT_OPENED_KEY) === "1";
+    didOpenRules = localStorage.getItem(RULES_OPENED_KEY) === "1";
+  });
+
+  /*** Mark opened helpers ***/
+  function markOpened(which: "consent" | "rules") {
+    if (which === "consent") {
+      didOpenConsent = true;
+      localStorage.setItem(CONSENT_OPENED_KEY, "1");
+    } else {
+      didOpenRules = true;
+      localStorage.setItem(RULES_OPENED_KEY, "1");
+    }
+  }
+
+  /*** Load Cognito embed script once ***/
+  function loadCognitoScript(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      if ((window as any).Cognito) {
+        resolve();
+        return;
+      }
+      const s = document.createElement("script");
+      s.src = COGNITO_EMBED_SRC;
+      s.async = true;
+      s.onload = () => resolve();
+      s.onerror = () => reject(new Error("Не удалось загрузить форму Cognito."));
+      document.head.appendChild(s);
+    });
+  }
+
+  /*** Open modal & mount Cognito form ***/
+  async function openConsentModal() {
+    embedError = "";
+    showConsentModal = true;
+    try {
+      await loadCognitoScript();
+      const Cognito = (window as any).Cognito;
+      consentApi = Cognito(COGNITO_KEY);
+      // Mount into container
+      consentForm = consentApi.mount(COGNITO_FORM_ID, "#consent-form-container");
+
+      // Mark "opened"
+      markOpened("consent");
+
+      // Prefill (optional; uncomment if desired and adjust field names to match Cognito)
+      // consentForm.prefill({
+      //   "First Name": f?.fields?.firstName ?? "",
+      //   "Last Name": f?.fields?.lastName ?? "",
+      //   "Email": f?.fields?.email ?? "",
+      //   "Phone": f?.fields?.phone ?? ""
+      // });
+
+      // Unlock only after *actual* submit on Cognito side
+      consentForm.on("afterSubmit", (e: any) => {
+        didSubmitConsent = true;
+        didOpenConsent = true;
+        localStorage.setItem(CONSENT_SUBMITTED_KEY, "1");
+
+        // Auto-check the checkbox and stash entryId
+        const chk = document.getElementById("consent_form") as HTMLInputElement | null;
+        if (chk) chk.checked = true;
+
+        // Hidden input for backend reconciliation
+        let hidden = document.getElementById("consent_entry_id") as HTMLInputElement | null;
+        if (!hidden) {
+          hidden = document.createElement("input");
+          hidden.type = "hidden";
+          hidden.name = "consent_entry_id";
+          hidden.id = "consent_entry_id";
+          (document.querySelector("form")!).appendChild(hidden);
+        }
+        hidden.value = e?.entryId ?? "";
+
+        showConsentModal = false;
+      });
+    } catch (err: any) {
+      embedError = err?.message ?? "Не удалось загрузить встраиваемую форму.";
+      // Fallback: open in new tab
+      window.open(CONSENT_URL, "_blank", "noopener");
+    }
+  }
+
+  /*** Accessibility: close modal on ESC ***/
+  function onKeydownModal(e: KeyboardEvent) {
+    if (e.key === "Escape") {
+      showConsentModal = false;
+    }
+  }
 </script>
 
 <svelte:head>
@@ -52,6 +173,24 @@
       </header>
     </div>
 
+    <!-- Информация о лагере: стоимость и адрес -->
+    <section class="card shadow-sm border-0 mb-4">
+      <div class="card-body text-center">
+        <h2 class="h5 mb-3">Информация о лагере</h2>
+        <p class="fs-5 mb-2"><strong>Стоимость участия:</strong> {CAMP_COST}</p>
+        <p class="mb-0">
+          <strong>Адрес:</strong><br />
+          <a
+            href={"https://maps.google.com/?q=" + encodeURIComponent(CAMP_ADDRESS)}
+            target="_blank"
+            rel="noopener"
+          >
+            {CAMP_ADDRESS}
+          </a>
+        </p>
+      </div>
+    </section>
+
     <!-- Способы оплаты -->
     <section class="card shadow-sm border-0 mb-4">
       <div class="card-body">
@@ -63,6 +202,7 @@
               <div>
                 <div class="fw-semibold">Cash App</div>
                 <div class="mono">{CASHAPP}</div>
+                <div class="small text-muted">Отправьте {CAMP_COST} с примечанием <code>camp2025-YOURNAME</code>.</div>
               </div>
               <button
                 type="button"
@@ -81,6 +221,7 @@
               <div>
                 <div class="fw-semibold">Zelle</div>
                 <div class="mono">{ZELLE}</div>
+                <div class="small text-muted">Отправьте {CAMP_COST} с примечанием <code>camp2025-YOURNAME</code>.</div>
               </div>
               <button
                 type="button"
@@ -99,6 +240,62 @@
           {#if copied}
             <span class="badge bg-success ms-2">Скопировано: {copied} ✓</span>
           {/if}
+        </div>
+      </div>
+    </section>
+
+    <!-- Важные обязательные шаги -->
+    <section class="card shadow-sm border-0 mb-4">
+      <div class="card-body">
+        <h2 class="h5 mb-3">Шаги перед отправкой</h2>
+
+        <div class="row g-3">
+          <!-- Consent: open modal + embed -->
+          <div class="col-md-6">
+            <a
+              class="btn btn-success btn-lg w-100"
+              href={CONSENT_URL}
+              target="_blank"
+              rel="noopener"
+              on:click|preventDefault={openConsentModal}
+              aria-describedby="consent-desc"
+            >
+              1) Заполнить форму согласия YoungLife
+            </a>
+            <div id="consent-desc" class="form-text mt-2">
+              Форма откроется во всплывающем окне. После успешной отправки чекбокс ниже станет активным.
+              {#if didSubmitConsent}
+                <span class="badge bg-success ms-1 align-middle">Отправлено ✓</span>
+              {:else if didOpenConsent}
+                <span class="badge bg-secondary ms-1 align-middle">Открыто</span>
+              {/if}
+              {#if embedError}
+                <div class="text-danger mt-1">
+                  {embedError} — <a href={CONSENT_URL} target="_blank" rel="noopener">открыть форму в новой вкладке</a>.
+                </div>
+              {/if}
+            </div>
+          </div>
+
+          <!-- Rules: plain link; unlock on open -->
+          <div class="col-md-6">
+            <a
+              class="btn btn-outline-primary btn-lg w-100"
+              href={RULES_URL}
+              target="_blank"
+              rel="noopener"
+              on:click={() => markOpened("rules")}
+              aria-describedby="rules-desc"
+            >
+              2) Прочитать правила лагеря
+            </a>
+            <div id="rules-desc" class="form-text mt-2">
+              Откроется в новой вкладке. После перехода чекбокс ниже станет активным.
+              {#if didOpenRules}
+                <span class="badge bg-success ms-1 align-middle">Открыто ✓</span>
+              {/if}
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -212,46 +409,84 @@
 
         <h2 class="h6 mb-3">Обязательные шаги</h2>
 
+        <!-- CONSENT CHECK: disabled until true submission; tooltip explains -->
         <div class="form-check mb-2">
           <input
             class="form-check-input"
             type="checkbox"
-            id="consent"
-            name="consent"
+            id="consent_form"
+            name="consent_form"
             required
-            checked={f?.fields?.consent === "on"}
+            disabled={!didSubmitConsent}
+            title={!didSubmitConsent ? "Сначала заполните и отправьте форму согласия (кнопка выше)" : undefined}
+            aria-describedby="consent-form-help"
           />
-          <label class="form-check-label" for="consent">
-            Я заполнил(а)&nbsp;
-            <a href={CONSENT_URL} target="_blank" rel="noopener" style="text-decoration:underline">
+          <label
+            class={"form-check-label" + (!didSubmitConsent ? " text-muted" : "")}
+            for="consent_form"
+          >
+            Я заполнил(а) и отправил(а)
+            <button
+              type="button"
+              class="btn btn-link p-0 align-baseline"
+              on:click={openConsentModal}
+            >
               форму согласия YoungLife (Guest Consent & Release)
-            </a>.
+            </button>.
           </label>
-          {#if f?.errors?.consent}
-            <div class="invalid d-block">{f.errors.consent}</div>
+          <div id="consent-form-help" class="form-text">
+            {#if !didSubmitConsent}
+              Чекбокс станет активным после успешной отправки формы согласия.
+            {:else}
+              Спасибо! Форма согласия получена.
+            {/if}
+          </div>
+          {#if f?.errors?.consent_form}
+            <div class="invalid d-block">{f.errors.consent_form}</div>
           {/if}
         </div>
 
+        <!-- RULES CHECK: disabled until opened -->
         <div class="form-check mb-2">
           <input
             class="form-check-input"
             type="checkbox"
             id="consent_rules"
-            name="consent"
+            name="consent_rules"
             required
-            checked={f?.fields?.consent === "on"}
+            disabled={!didOpenRules}
+            title={!didOpenRules ? "Сначала откройте и прочитайте правила лагеря" : undefined}
+            checked={didOpenRules && f?.fields?.consent_rules === "on"}
+            aria-describedby="rules-help"
           />
-          <label class="form-check-label" for="consent_rules">
-            Я прочитал(а) и согласен(на) с&nbsp;
-            <a href="/youth-ministry/north-west-youth-camp-2025/rules" target="_blank" rel="noopener" style="text-decoration:underline">
+          <label
+            class={"form-check-label" + (!didOpenRules ? " text-muted" : "")}
+            for="consent_rules"
+          >
+            Я прочитал(а) и согласен(на) с
+            <a
+              href={RULES_URL}
+              target="_blank"
+              rel="noopener"
+              on:click={() => markOpened("rules")}
+              style="text-decoration:underline"
+            >
               правилами лагеря
             </a>.
           </label>
-          {#if f?.errors?.consent}
-            <div class="invalid d-block">{f.errors.consent}</div>
+          <div id="rules-help" class="form-text">
+            {#if !didOpenRules}
+              Чекбокс станет активным после перехода по ссылке выше.
+            {:else}
+              Спасибо! Теперь вы можете отметить чекбокс.
+            {/if}
+          </div>
+          {#if f?.errors?.consent_rules}
+            <div class="invalid d-block">{f.errors.consent_rules}</div>
           {/if}
         </div>
 
+        <!-- PAID CHECK -->
         <div class="form-check mb-3">
           <input
             class="form-check-input"
@@ -262,7 +497,7 @@
             checked={f?.fields?.paid === "on"}
           />
           <label class="form-check-label" for="paid">
-            Я произвёл(а) оплату с примечанием <code>camp2025-YOURNAME</code>.
+            Я произвёл(а) оплату {CAMP_COST} с примечанием <code>camp2025-YOURNAME</code>.
           </label>
           {#if f?.errors?.paid}
             <div class="invalid d-block">{f.errors.paid}</div>
@@ -294,9 +529,39 @@
   </div>
 </div>
 
+<!-- Modal (Bootstrap-like minimal structure) -->
+{#if showConsentModal}
+  <div class="modal-backdrop show"></div>
+  <div
+    class="modal d-block"
+    tabindex="-1"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="consentModalTitle"
+    on:keydown={onKeydownModal}
+  >
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 id="consentModalTitle" class="modal-title">Форма согласия YoungLife</h5>
+          <button type="button" class="btn-close" aria-label="Закрыть" on:click={() => (showConsentModal = false)} />
+        </div>
+        <div class="modal-body">
+          <div id="consent-form-container"><!-- Cognito mounts here --></div>
+          <div class="form-text mt-3">
+            Если форма не отображается, можно открыть её
+            <a href={CONSENT_URL} target="_blank" rel="noopener" on:click={() => markOpened("consent")}>по ссылке</a>.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{/if}
+
 <style>
   .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; }
   .invalid { color: var(--bs-danger, #dc3545); }
+
   .payicon {
     width: 40px; height: 40px; border-radius: 10px;
     display:flex; align-items:center; justify-content:center;
@@ -304,5 +569,29 @@
   }
   .payicon.cashapp { background:#00C244; }
   .payicon.zelle { background:#6C3DF4; }
+
+  /* Minimal modal visuals to blend with Bootstrap */
+  .modal-backdrop.show {
+    position: fixed; inset: 0; background: rgba(0,0,0,.5);
+    opacity: 1; z-index: 1050;
+  }
+  .modal.d-block {
+    position: fixed; inset: 0; z-index: 1060;
+    display: block;
+    overflow-x: hidden; overflow-y: auto;
+  }
+  .modal-dialog {
+    max-width: min(1200px, 96vw);
+  }
+  .modal-content {
+    background: #fff; border-radius: .5rem; overflow: hidden;
+    box-shadow: 0 1rem 3rem rgba(0,0,0,.175);
+  }
+  .modal-header { padding: 1rem 1.25rem; border-bottom: 1px solid rgba(0,0,0,.1); }
+  .modal-body { padding: 1rem 1.25rem; }
+  .btn-close {
+    background: transparent; border: 0; width: 1em; height: 1em; opacity: .5; cursor: pointer;
+  }
+  .btn-close:hover { opacity: .75; }
 </style>
 

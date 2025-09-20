@@ -68,8 +68,7 @@
   const percent = Math.round((registered / CAPACITY) * 100);
 
   // Video embed
-  const videoId = 'g2LaxfdwUes'; // from https://m.youtube.com/watch?v=g2LaxfdwUes
-  const videoSrc = `https://www.youtube-nocookie.com/embed/${videoId}?rel=0&modestbranding=1&hl=ru`;
+  const videoSrc = 'https://www.youtube.com/embed/lOJpVaNHg-Y?si=g8w_doDC1-Gc_IE0'
 
   // Helpers
   const fmtTime = (t?: string) => (t ? t : '');
