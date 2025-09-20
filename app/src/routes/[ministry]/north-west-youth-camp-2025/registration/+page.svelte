@@ -1,29 +1,31 @@
+
 <!-- src/routes/[ministry]/north-west-youth-camp-2025/registration/+page.svelte -->
 <script lang="ts">
   import { enhance } from "$app/forms";
   import { onMount } from "svelte";
+
   export let data;
   export let form: any = {};
 
-  /*** External resources & constants ***/
-  const CONSENT_URL =
-    "https://www.cognitoforms.com/YoungLife21/guestconsentreleaseformforoutsidegroupsusingyounglifecamp";
-  const RULES_URL = "/youth-ministry/north-west-youth-camp-2025/rules";
-  const CASHAPP = "$GSBCYouth";
-  const ZELLE = "gyouth5116@gmail.com";
-
+  /*** Content & constants ***/
+  const EVENT_TITLE = "Христианский молодёжный лагерь — СЗР";
+  const EVENT_DATES = "16–19 октября 2025 г.";
   const CAMP_COST = "$350";
   const CAMP_ADDRESS = "1 Muddy Rd, Antelope, OR 97001";
 
-  // Cognito embed (use the values from the page you shared)
-  const COGNITO_KEY = "spO9ZCOVtkyDOX-2IFxCZw";
-  const COGNITO_FORM_ID = "279";
+  const CASHAPP = "$GSBCYouth";
+  const ZELLE = "gyouth5116@gmail.com";
+
+  // External consent form as embed (Cognito)
+  const CONSENT_URL =
+    "https://www.cognitoforms.com/YoungLife21/guestconsentreleaseformforoutsidegroupsusingyounglifecamp";
+  const COGNITO_KEY = "spO9ZCOVtkyDOX-2IFxCZw";   // from the page you shared
+  const COGNITO_FORM_ID = "279";                   // from the page you shared
   const COGNITO_EMBED_SRC = "https://www.cognitoforms.com/f/seamless.js";
 
   /*** Local storage keys ***/
-  const CONSENT_OPENED_KEY = "camp2025_opened_consent";
-  const CONSENT_SUBMITTED_KEY = "camp2025_consent_submitted"; // stronger signal than "opened"
-  const RULES_OPENED_KEY = "camp2025_opened_rules";
+  const CONSENT_SUBMITTED_KEY = "camp2025_consent_submitted"; // only after actual submit
+  const RULES_ACK_KEY = "camp2025_rules_ack";                 // after “I read”
 
   /*** Clipboard helper ***/
   let copied: string | null = null;
@@ -37,7 +39,7 @@
     }
   };
 
-  /*** Form state (SvelteKit + enhance) ***/
+  /*** SvelteKit enhance state ***/
   let f: any;
   $: f = form ?? data?.form ?? {};
 
@@ -50,35 +52,24 @@
     };
   };
 
-  /*** Gated steps state ***/
-  let didOpenConsent = false;   // opened or submitted
-  let didSubmitConsent = false; // truly submitted
-  let didOpenRules = false;
+  /*** Step gating state ***/
+  let didSubmitConsent = false; // true only after Cognito afterSubmit
+  let didAckRules = false;      // true only after user presses “I read” in the rules modal
 
-  /*** Modal + embed state ***/
+  /*** Modals ***/
   let showConsentModal = false;
-  let consentApi: any = null;     // Cognito(COGNITO_KEY)
-  let consentForm: any = null;    // mounted instance
-  let embedError = "";            // if seamless.js fails to load
+  let showRulesModal = false;
 
-  /*** Restore persisted step states ***/
+  /*** Cognito embed handles ***/
+  let embedError = "";
+  let consentApi: any = null;
+  let consentForm: any = null;
+
   onMount(() => {
+    // Restore persisted completion
     didSubmitConsent = localStorage.getItem(CONSENT_SUBMITTED_KEY) === "1";
-    didOpenConsent =
-      didSubmitConsent || localStorage.getItem(CONSENT_OPENED_KEY) === "1";
-    didOpenRules = localStorage.getItem(RULES_OPENED_KEY) === "1";
+    didAckRules = localStorage.getItem(RULES_ACK_KEY) === "1";
   });
-
-  /*** Mark opened helpers ***/
-  function markOpened(which: "consent" | "rules") {
-    if (which === "consent") {
-      didOpenConsent = true;
-      localStorage.setItem(CONSENT_OPENED_KEY, "1");
-    } else {
-      didOpenRules = true;
-      localStorage.setItem(RULES_OPENED_KEY, "1");
-    }
-  }
 
   /*** Load Cognito embed script once ***/
   function loadCognitoScript(): Promise<void> {
@@ -96,7 +87,7 @@
     });
   }
 
-  /*** Open modal & mount Cognito form ***/
+  /*** Open Consent modal & mount Cognito form ***/
   async function openConsentModal() {
     embedError = "";
     showConsentModal = true;
@@ -104,13 +95,9 @@
       await loadCognitoScript();
       const Cognito = (window as any).Cognito;
       consentApi = Cognito(COGNITO_KEY);
-      // Mount into container
       consentForm = consentApi.mount(COGNITO_FORM_ID, "#consent-form-container");
 
-      // Mark "opened"
-      markOpened("consent");
-
-      // Prefill (optional; uncomment if desired and adjust field names to match Cognito)
+      // Optional: prefill with fields from our page (adjust field names to match Cognito if needed)
       // consentForm.prefill({
       //   "First Name": f?.fields?.firstName ?? "",
       //   "Last Name": f?.fields?.lastName ?? "",
@@ -118,13 +105,12 @@
       //   "Phone": f?.fields?.phone ?? ""
       // });
 
-      // Unlock only after *actual* submit on Cognito side
+      // Unlock only after real submit on the Cognito side
       consentForm.on("afterSubmit", (e: any) => {
         didSubmitConsent = true;
-        didOpenConsent = true;
         localStorage.setItem(CONSENT_SUBMITTED_KEY, "1");
 
-        // Auto-check the checkbox and stash entryId
+        // Auto-check checkbox in case it's visible
         const chk = document.getElementById("consent_form") as HTMLInputElement | null;
         if (chk) chk.checked = true;
 
@@ -143,22 +129,38 @@
       });
     } catch (err: any) {
       embedError = err?.message ?? "Не удалось загрузить встраиваемую форму.";
-      // Fallback: open in new tab
+      // Fallback: open in a new tab
       window.open(CONSENT_URL, "_blank", "noopener");
     }
   }
 
-  /*** Accessibility: close modal on ESC ***/
+  /*** Rules modal handlers ***/
+  function openRulesModal() {
+    showRulesModal = true;
+  }
+  function acknowledgeRules() {
+    didAckRules = true;
+    try {
+      localStorage.setItem(RULES_ACK_KEY, "1");
+    } catch {}
+    // Auto-check if present
+    const chk = document.getElementById("consent_rules") as HTMLInputElement | null;
+    if (chk) chk.checked = true;
+    showRulesModal = false;
+  }
+
+  /*** Accessibility: close modals on ESC ***/
   function onKeydownModal(e: KeyboardEvent) {
     if (e.key === "Escape") {
       showConsentModal = false;
+      showRulesModal = false;
     }
   }
 </script>
 
 <svelte:head>
   <title>Регистрация на лагерь 2025</title>
-  <meta name="description" content="Регистрация на молодёжный лагерь GSBC 2025." />
+  <meta name="description" content="Регистрация на молодёжный лагерь СЗР/GSBC 2025." />
 </svelte:head>
 
 <div class="container-xxl pb-6">
@@ -166,6 +168,9 @@
     <div class="section-header mx-auto mt-5 text-center" style="max-width: 1000px;">
       <header class="mb-4 text-center">
         <h1 class="display-6">Лагерь 2025 — Регистрация</h1>
+        <p class="text-muted">
+          {EVENT_TITLE} • <strong>{EVENT_DATES}</strong>
+        </p>
         <p class="text-muted">
           Пожалуйста, выполните шаги ниже. Мы отправим вам письмо, когда
           <strong>вручную подтвердим вашу оплату</strong>.
@@ -202,7 +207,9 @@
               <div>
                 <div class="fw-semibold">Cash App</div>
                 <div class="mono">{CASHAPP}</div>
-                <div class="small text-muted">Отправьте {CAMP_COST} с примечанием <code>camp2025-YOURNAME</code>.</div>
+                <div class="small text-muted">
+                  Отправьте {CAMP_COST} с примечанием <code>camp2025-YOURNAME</code>.
+                </div>
               </div>
               <button
                 type="button"
@@ -221,7 +228,9 @@
               <div>
                 <div class="fw-semibold">Zelle</div>
                 <div class="mono">{ZELLE}</div>
-                <div class="small text-muted">Отправьте {CAMP_COST} с примечанием <code>camp2025-YOURNAME</code>.</div>
+                <div class="small text-muted">
+                  Отправьте {CAMP_COST} с примечанием <code>camp2025-YOURNAME</code>.
+                </div>
               </div>
               <button
                 type="button"
@@ -244,13 +253,13 @@
       </div>
     </section>
 
-    <!-- Важные обязательные шаги -->
+    <!-- Шаги перед отправкой: большие кнопки -->
     <section class="card shadow-sm border-0 mb-4">
       <div class="card-body">
         <h2 class="h5 mb-3">Шаги перед отправкой</h2>
 
         <div class="row g-3">
-          <!-- Consent: open modal + embed -->
+          <!-- Consent: modal + embed -->
           <div class="col-md-6">
             <a
               class="btn btn-success btn-lg w-100"
@@ -266,33 +275,29 @@
               Форма откроется во всплывающем окне. После успешной отправки чекбокс ниже станет активным.
               {#if didSubmitConsent}
                 <span class="badge bg-success ms-1 align-middle">Отправлено ✓</span>
-              {:else if didOpenConsent}
-                <span class="badge bg-secondary ms-1 align-middle">Открыто</span>
               {/if}
               {#if embedError}
                 <div class="text-danger mt-1">
-                  {embedError} — <a href={CONSENT_URL} target="_blank" rel="noopener">открыть форму в новой вкладке</a>.
+                  {embedError} — <a href={CONSENT_URL} target="_blank" rel="noopener">открыть в новой вкладке</a>.
                 </div>
               {/if}
             </div>
           </div>
 
-          <!-- Rules: plain link; unlock on open -->
+          <!-- Rules: modal with full content -->
           <div class="col-md-6">
-            <a
+            <button
+              type="button"
               class="btn btn-outline-primary btn-lg w-100"
-              href={RULES_URL}
-              target="_blank"
-              rel="noopener"
-              on:click={() => markOpened("rules")}
+              on:click={openRulesModal}
               aria-describedby="rules-desc"
             >
               2) Прочитать правила лагеря
-            </a>
+            </button>
             <div id="rules-desc" class="form-text mt-2">
-              Откроется в новой вкладке. После перехода чекбокс ниже станет активным.
-              {#if didOpenRules}
-                <span class="badge bg-success ms-1 align-middle">Открыто ✓</span>
+              Правила откроются во всплывающем окне. После подтверждения чекбокс ниже станет активным.
+              {#if didAckRules}
+                <span class="badge bg-success ms-1 align-middle">Подтверждено ✓</span>
               {/if}
             </div>
           </div>
@@ -305,7 +310,7 @@
       <div class="card-body">
         <h2 class="h5 mb-3">Ваши данные</h2>
 
-        <!-- Ханипот (скрытое поле) -->
+        <!-- Ханипот -->
         <div class="visually-hidden" aria-hidden="true">
           <label>
             Не заполняйте это поле
@@ -409,7 +414,7 @@
 
         <h2 class="h6 mb-3">Обязательные шаги</h2>
 
-        <!-- CONSENT CHECK: disabled until true submission; tooltip explains -->
+        <!-- CONSENT CHECK: disabled until actual submission -->
         <div class="form-check mb-2">
           <input
             class="form-check-input"
@@ -446,7 +451,7 @@
           {/if}
         </div>
 
-        <!-- RULES CHECK: disabled until opened -->
+        <!-- RULES CHECK: disabled until acknowledged in modal -->
         <div class="form-check mb-2">
           <input
             class="form-check-input"
@@ -454,31 +459,28 @@
             id="consent_rules"
             name="consent_rules"
             required
-            disabled={!didOpenRules}
-            title={!didOpenRules ? "Сначала откройте и прочитайте правила лагеря" : undefined}
-            checked={didOpenRules && f?.fields?.consent_rules === "on"}
+            disabled={!didAckRules}
+            title={!didAckRules ? "Сначала откройте и подтвердите ознакомление с правилами" : undefined}
             aria-describedby="rules-help"
           />
           <label
-            class={"form-check-label" + (!didOpenRules ? " text-muted" : "")}
+            class={"form-check-label" + (!didAckRules ? " text-muted" : "")}
             for="consent_rules"
           >
             Я прочитал(а) и согласен(на) с
-            <a
-              href={RULES_URL}
-              target="_blank"
-              rel="noopener"
-              on:click={() => markOpened("rules")}
-              style="text-decoration:underline"
+            <button
+              type="button"
+              class="btn btn-link p-0 align-baseline"
+              on:click={openRulesModal}
             >
               правилами лагеря
-            </a>.
+            </button>.
           </label>
           <div id="rules-help" class="form-text">
-            {#if !didOpenRules}
-              Чекбокс станет активным после перехода по ссылке выше.
+            {#if !didAckRules}
+              Чекбокс станет активным после подтверждения в окне с правилами.
             {:else}
-              Спасибо! Теперь вы можете отметить чекбокс.
+              Спасибо! Вы подтвердили ознакомление с правилами.
             {/if}
           </div>
           {#if f?.errors?.consent_rules}
@@ -529,7 +531,7 @@
   </div>
 </div>
 
-<!-- Modal (Bootstrap-like minimal structure) -->
+<!-- CONSENT MODAL -->
 {#if showConsentModal}
   <div class="modal-backdrop show"></div>
   <div
@@ -550,8 +552,79 @@
           <div id="consent-form-container"><!-- Cognito mounts here --></div>
           <div class="form-text mt-3">
             Если форма не отображается, можно открыть её
-            <a href={CONSENT_URL} target="_blank" rel="noopener" on:click={() => markOpened("consent")}>по ссылке</a>.
+            <a href={CONSENT_URL} target="_blank" rel="noopener">по ссылке</a>.
           </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{/if}
+
+<!-- RULES MODAL (inline content) -->
+{#if showRulesModal}
+  <div class="modal-backdrop show"></div>
+  <div
+    class="modal d-block"
+    tabindex="-1"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="rulesModalTitle"
+    on:keydown={onKeydownModal}
+  >
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 id="rulesModalTitle" class="modal-title">Правила лагеря</h5>
+          <button type="button" class="btn-close" aria-label="Закрыть" on:click={() => (showRulesModal = false)} />
+        </div>
+        <div class="modal-body">
+          <p class="text-muted">{EVENT_TITLE} • <strong>{EVENT_DATES}</strong></p>
+
+          <article>
+            <h2 class="h5 mb-3">Общие положения</h2>
+            <ul class="rules-list">
+              <li>Участниками лагеря могут быть юноши и девушки молодёжного возраста, ведущие христианский образ жизни.</li>
+              <li>Присутствие в лагере должно быть согласовано с руководством церкви.</li>
+              <li>Участники должны находиться в лагере весь период, от начала до конца.</li>
+              <li><strong>Важно!</strong> Всем участникам необходимо пройти предварительную регистрацию и оплатить стоимость пребывания.</li>
+              <li>Все присутствующие должны иметь с собой Библию, письменные принадлежности, средства личной гигиены, тёплую одежду и спальные принадлежности.</li>
+              <li>Участники обязаны посещать все обязательные мероприятия и соблюдать распорядок дня.</li>
+              <li>Перед выездом необходимо привести в порядок место проживания и территорию.</li>
+              <li>Участники обязаны уважительно относиться друг к другу и к сотрудникам лагеря.</li>
+              <li>Каждый присутствующий должен выполнять распоряжения службы охраны, связанные с безопасностью, дисциплиной и порядком в лагере.</li>
+              <li>Руководство лагеря не несёт ответственности за утерянные вещи и ценности.</li>
+            </ul>
+
+            <hr class="my-4" />
+
+            <h2 class="h5 mb-3">Строго запрещается</h2>
+            <ul class="rules-list">
+              <li>Ввозить, хранить и употреблять спиртные напитки, наркотические и курительные средства.</li>
+              <li>Привозить, хранить или использовать любое оружие.</li>
+              <li>Самовольно покидать территорию лагеря без уведомления руководства или ответственного за молодёжную группу.</li>
+              <li>Наносить материальный ущерб лагерю или имуществу других участников.</li>
+            </ul>
+
+            <hr class="my-4" />
+
+            <h2 class="h5 mb-3">Внешний вид</h2>
+            <ul class="rules-list">
+              <li>Причёска, одежда и обувь должны соответствовать христианским нормам.</li>
+              <li>Братьям следует одеваться скромно, избегая маек, шортов и обтягивающих брюк.</li>
+              <li>Сёстры не должны использовать косметику, носить брюки, обтягивающую, прозрачную и короткую одежду, а также иметь распущенные волосы.</li>
+            </ul>
+
+            <div class="alert alert-warning mt-4" role="alert">
+              Соблюдение правил обязательно для всех участников. Несоблюдение может привести к ограничению участия в мероприятиях или досрочному выезду из лагеря.
+            </div>
+          </article>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-outline-secondary" on:click={() => (showRulesModal = false)}>Закрыть</button>
+          <button class="btn btn-primary" on:click={acknowledgeRules}>
+            Я прочитал(а) правила
+          </button>
         </div>
       </div>
     </div>
@@ -569,6 +642,9 @@
   }
   .payicon.cashapp { background:#00C244; }
   .payicon.zelle { background:#6C3DF4; }
+
+  .rules-list { padding-left: 1.25rem; }
+  .rules-list li + li { margin-top: .4rem; }
 
   /* Minimal modal visuals to blend with Bootstrap */
   .modal-backdrop.show {
@@ -589,9 +665,16 @@
   }
   .modal-header { padding: 1rem 1.25rem; border-bottom: 1px solid rgba(0,0,0,.1); }
   .modal-body { padding: 1rem 1.25rem; }
+  .modal-footer { padding: .75rem 1.25rem; border-top: 1px solid rgba(0,0,0,.1); }
   .btn-close {
     background: transparent; border: 0; width: 1em; height: 1em; opacity: .5; cursor: pointer;
   }
   .btn-close:hover { opacity: .75; }
+
+  @media print {
+    nav, .btn, .alert, .modal, .modal-backdrop { display: none !important; }
+    .card { box-shadow: none !important; border: none !important; }
+    body { color: #000; }
+  }
 </style>
 
