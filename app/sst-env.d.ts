@@ -21,6 +21,10 @@ declare module "sst" {
       "type": "sst.sst.Secret"
       "value": string
     }
+    "FFAWS": {
+      "type": "sst.aws.Nextjs"
+      "url": string
+    }
     "MAIL_INFO_USER": {
       "type": "sst.sst.Secret"
       "value": string
@@ -30,7 +34,7 @@ declare module "sst" {
       "value": string
     }
     "MyWeb": {
-      "type": "sst.aws.SvelteKit"
+      "type": "sst.aws.Nextjs"
       "url": string
     }
     "SMTP_FROM": {
@@ -52,6 +56,14 @@ declare module "sst" {
     "SMTP_USER": {
       "type": "sst.sst.Secret"
       "value": string
+    }
+    "bratstvousa": {
+      "type": "sst.aws.SvelteKit"
+      "url": string
+    }
+    "bratstvousa-bruh": {
+      "type": "sst.aws.SvelteKit"
+      "url": string
     }
   }
 }
