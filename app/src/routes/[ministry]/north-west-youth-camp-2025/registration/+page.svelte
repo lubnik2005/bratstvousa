@@ -156,12 +156,36 @@
       showRulesModal = false;
     }
   }
+
+  const mediaUrl = data.media_url;
+  const title = 'Молодёжный Лагерь СЗР АО 2025 | Регистрация'
+  const description = 'Американское Объединение МСЦ ЕХБ. Молодёжный Лагерь СЗР АО • 16–19 октября, 2025.';
+
+  // Build a safe hero image src
+  const heroSrc = `${mediaUrl}upfiles/page/north-west-youth-camp-2025-200.png`
 </script>
 
 <svelte:head>
   <title>Регистрация на лагерь 2025</title>
-  <meta name="description" content="Регистрация на молодёжный лагерь СЗР/GSBC 2025." />
+  <meta name="description" content="Молодёжный Лагерь СЗР АО 2025 | Регистрация" />
+
+  <meta property="og:title" content={title} />
+  {#if heroSrc}
+    <meta property="og:image" content={heroSrc} />
+  {/if}
+  <meta property="og:description" content="Американское Объединение МСЦ ЕХБ" />
+  <meta property="og:type" content="article" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={title} />
+  <meta name="twitter:description" content="Американское Объединение МСЦ ЕХБ" />
+  {#if heroSrc}
+    <meta name="twitter:image" content={heroSrc} />
+  {/if}
+  <meta property="og:site_name" content="Bratstvo USA" />
+  <title>{title}</title>
+  <meta name="description" content={description} />
 </svelte:head>
+
 
 <div class="container-xxl pb-6">
   <div class="container">
