@@ -14,7 +14,7 @@
   const CAMP_ADDRESS = "1 Muddy Rd, Antelope, OR 97001";
 
   const CASHAPP = "$GSBCYouth";
-  const ZELLE = "gyouth5116@gmail.com";
+  const ZELLE = "youth@bratstvousa.com";
 
   // External consent form as embed (Cognito)
   const CONSENT_URL =
