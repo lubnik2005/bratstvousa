@@ -41,7 +41,7 @@
 
   // Effective event values
   const mediaUrl = data.media_url ?? fallbackMediaUrl;
-  const title = data.event?.title || eventData.title;
+  const title = ' Молодёжный Лагерь СЗР АО 2025'
   const dateISO = data.event?.date || eventData.date;
   const description =
     data.event?.description ||
@@ -49,10 +49,7 @@
   const featuredImage = data.event?.featuredImage || eventData.featuredImage;
 
   // Build a safe hero image src
-  const heroSrc =
-    featuredImage && /^https?:\/\//.test(featuredImage)
-      ? featuredImage
-      : (mediaUrl || '') + (featuredImage || '');
+  const heroSrc = `${mediaUrl}upfiles/page/north-west-youth-camp-2025-200.png`
 
   // CTA
   const registerUrl =
@@ -82,9 +79,6 @@
   {/if}
   <meta property="og:description" content="Американское Объединение МСЦ ЕХБ" />
   <meta property="og:type" content="article" />
-  {#if dateISO}
-    <meta property="article:published_time" content={dateISO} />
-  {/if}
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content={title} />
   <meta name="twitter:description" content="Американское Объединение МСЦ ЕХБ" />
