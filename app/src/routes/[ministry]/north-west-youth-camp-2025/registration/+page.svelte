@@ -13,7 +13,7 @@
   const CAMP_COST = "$350";
   const CAMP_ADDRESS = "1 Muddy Rd, Antelope, OR 97001";
 
-  const CASHAPP = "$GSBCYouth";
+  const CASHAPP = "$TIM0XA";
   const ZELLE = "youth@bratstvousa.com";
 
   // External consent form as embed (Cognito)
