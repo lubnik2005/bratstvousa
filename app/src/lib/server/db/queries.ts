@@ -1,5 +1,5 @@
 import { and, desc, eq, gte, isNotNull, or, sql } from 'drizzle-orm';
-import { db } from '.';
+import { db, isMockDb } from '.';
 import {
 	eventSchemas,
 	newsArticleSchemas,
@@ -9,7 +9,14 @@ import {
 	childrensNewsArticles,
 	newsArticles,
 	bibleEducationNewsArticles,
-	settings
+	settings,
+	youthEvents,
+	bibleEducationEvents,
+	gospelEvents,
+	musicEvents,
+	familyEvents,
+	generalEvents,
+	youthNewsArticles
 } from './schema';
 import { formatDate } from '$lib/helpers';
 import { unionAll } from 'drizzle-orm/mysql-core';
@@ -36,6 +43,71 @@ export async function getMinistryNewsArticles(article: Article) {
 }
 
 export function eventsSchema() {
+	// Simplified version for mock database
+	if (isMockDb) {
+		return {
+			where: (condition: any) => ({
+				orderBy: (order: any) => ({
+					limit: (n: number) => {
+						// Return combined events from all tables
+						const allEvents = [
+							...((db as any)._mockData?.youthEvents || []),
+							...((db as any)._mockData?.childrensEvents || []),
+							...((db as any)._mockData?.bibleEducationEvents || []),
+							...((db as any)._mockData?.gospelEvents || []),
+							...((db as any)._mockData?.musicEvents || []),
+							...((db as any)._mockData?.familyEvents || []),
+							...((db as any)._mockData?.generalEvents || [])
+						];
+						const today = new Date();
+						return Promise.resolve(
+							allEvents.filter((e: any) => new Date(e.startAt) > today).slice(0, n)
+						);
+					},
+					then: (resolve: any) => {
+						const allEvents = [
+							...((db as any)._mockData?.youthEvents || []),
+							...((db as any)._mockData?.childrensEvents || []),
+							...((db as any)._mockData?.bibleEducationEvents || []),
+							...((db as any)._mockData?.gospelEvents || []),
+							...((db as any)._mockData?.musicEvents || []),
+							...((db as any)._mockData?.familyEvents || []),
+							...((db as any)._mockData?.generalEvents || [])
+						];
+						return resolve(allEvents.sort((a: any, b: any) => a.startAt.localeCompare(b.startAt)));
+					}
+				}),
+				then: (resolve: any) => {
+					const allEvents = [
+						...((db as any)._mockData?.youthEvents || []),
+						...((db as any)._mockData?.childrensEvents || []),
+						...((db as any)._mockData?.bibleEducationEvents || []),
+						...((db as any)._mockData?.gospelEvents || []),
+						...((db as any)._mockData?.musicEvents || []),
+						...((db as any)._mockData?.familyEvents || []),
+						...((db as any)._mockData?.generalEvents || [])
+					];
+					const today = new Date();
+					return resolve(allEvents.filter((e: any) => new Date(e.startAt) > today));
+				}
+			}),
+			orderBy: (order: any) => ({
+				then: (resolve: any) => {
+					const allEvents = [
+						...((db as any)._mockData?.youthEvents || []),
+						...((db as any)._mockData?.childrensEvents || []),
+						...((db as any)._mockData?.bibleEducationEvents || []),
+						...((db as any)._mockData?.gospelEvents || []),
+						...((db as any)._mockData?.musicEvents || []),
+						...((db as any)._mockData?.familyEvents || []),
+						...((db as any)._mockData?.generalEvents || [])
+					];
+					return resolve(allEvents.sort((a: any, b: any) => a.startAt.localeCompare(b.startAt)));
+				}
+			})
+		} as any;
+	}
+
 	return db
 		.select({
 			title: sql`events_union.title`,
@@ -67,6 +139,55 @@ export function eventsSchema() {
 }
 
 export function newsArticlesSchema() {
+	// Simplified version for mock database
+	if (isMockDb) {
+		return {
+			where: (condition: any) => ({
+				orderBy: (order: any) => ({
+					limit: (n: number) => {
+						const allArticles = [
+							...((db as any)._mockData?.newsArticles || []),
+							...((db as any)._mockData?.youthNewsArticles || [])
+						];
+						return Promise.resolve(
+							allArticles
+								.filter((a: any) => a.date)
+								.sort((a: any, b: any) => b.date.localeCompare(a.date))
+								.slice(0, n)
+						);
+					},
+					then: (resolve: any) => {
+						const allArticles = [
+							...((db as any)._mockData?.newsArticles || []),
+							...((db as any)._mockData?.youthNewsArticles || [])
+						];
+						return resolve(
+							allArticles
+								.filter((a: any) => a.date)
+								.sort((a: any, b: any) => b.date.localeCompare(a.date))
+						);
+					}
+				}),
+				then: (resolve: any) => {
+					const allArticles = [
+						...((db as any)._mockData?.newsArticles || []),
+						...((db as any)._mockData?.youthNewsArticles || [])
+					];
+					return resolve(allArticles.filter((a: any) => a.date));
+				}
+			}),
+			orderBy: (order: any) => ({
+				then: (resolve: any) => {
+					const allArticles = [
+						...((db as any)._mockData?.newsArticles || []),
+						...((db as any)._mockData?.youthNewsArticles || [])
+					];
+					return resolve(allArticles.sort((a: any, b: any) => b.date.localeCompare(a.date)));
+				}
+			})
+		} as any;
+	}
+
 	return db
 		.select({
 			id: sql<Pick<typeof Article, 'id'>['id']>`ROW_NUMBER() OVER ()`, // Dynamically gets Article.id type

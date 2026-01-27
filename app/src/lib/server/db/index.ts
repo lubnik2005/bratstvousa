@@ -1,18 +1,33 @@
-// import { drizzle } from 'drizzle-orm/postgres-js';
-// import postgres from 'postgres';
-// import { env } from '$env/dynamic/private';
-// console.log('env DATABASE_URL:', env.DATABASE_URL);
-// if (!env.DATABASE_URL) throw new Error('DATABASE_URL is not set');
-// const client = postgres(env.DATABASE_URL);
-// export const db = drizzle(client);
-//
-//
-import { secret } from '@aws-amplify/backend';
-import { drizzle } from 'drizzle-orm/postgres-js';
-import postgres from 'postgres';
 import { env } from '$env/dynamic/private';
-const database_url = env.DATABASE_URL ?? (secret('DATABASE_URL') as unknown as string | undefined);
+import { createMockDb } from './mock-db';
 
-if (!database_url) throw new Error('DATABASE_URL is not set');
-const client = postgres(database_url);
-export const db = drizzle(client);
+// Check if we should use mock database
+const useMockDb = env.USE_MOCK_DB === 'true' || !env.DATABASE_URL;
+
+export const isMockDb = useMockDb;
+
+let db: any;
+
+if (useMockDb) {
+	// Use mock database for development without PostgreSQL
+	console.log('🔶 Using mock database (set USE_MOCK_DB=false and DATABASE_URL to use real DB)');
+	db = createMockDb();
+} else {
+	// Use real PostgreSQL database
+	const { drizzle } = await import('drizzle-orm/postgres-js');
+	const postgres = (await import('postgres')).default;
+	const { secret } = await import('@aws-amplify/backend');
+
+	const database_url =
+		env.DATABASE_URL ?? (secret('DATABASE_URL') as unknown as string | undefined);
+
+	if (!database_url) {
+		throw new Error('DATABASE_URL is not set and USE_MOCK_DB is not enabled');
+	}
+
+	const client = postgres(database_url);
+	db = drizzle(client);
+	console.log('✅ Connected to PostgreSQL database');
+}
+
+export { db };
