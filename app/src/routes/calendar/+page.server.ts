@@ -1,4 +1,4 @@
-import { db } from '$lib/server/db';
+import { db, isMockDb } from '$lib/server/db';
 import { Event, eventSchemas } from '$lib/server/db/schema';
 import { sql } from 'drizzle-orm';
 import { unionAll } from 'drizzle-orm/mysql-core';
@@ -14,6 +14,36 @@ const ministries = [
 ];
 
 export async function load() {
+	// Mock database branch - directly access mock data
+	if (isMockDb) {
+		const mockData = (db as any)._mockData;
+		const allEvents: any[] = [];
+
+		// Combine all event tables with their colors
+		ministries.forEach((ministry, i) => {
+			const events = mockData[ministry.name] || [];
+			events.forEach((event: any) => {
+				allEvents.push({
+					id: event.id,
+					title: event.title,
+					start: event.startAt,
+					// Add a day to end date for fullcalendar.io (end is exclusive)
+					end: new Date(new Date(event.endAt).getTime() + 24 * 60 * 60 * 1000)
+						.toISOString()
+						.split('T')[0],
+					url: `/general-event/${event.slug}`,
+					region: event.region,
+					borderColor: ministry.color,
+					backgroundColor: ministry.color,
+					schemaName: ministry.name
+				});
+			});
+		});
+
+		return { events: allEvents };
+	}
+
+	// Real database branch - use unionAll
 	const events = await unionAll(
 		...eventSchemas.map((eventSchema, i) => {
 			return db

@@ -1,4 +1,4 @@
-import { db } from '$lib/server/db';
+import { db, isMockDb } from '$lib/server/db';
 import { bibleEducationNewsArticles, eventSchemas, newsArticles } from '$lib/server/db/schema';
 import { desc, eq, isNotNull, count, sql } from 'drizzle-orm';
 import { env } from '$env/dynamic/private';
@@ -12,17 +12,28 @@ export async function load({ params, url }) {
 	const perPage = 30;
 	const offset = (page - 1) * perPage;
 
-	// Query the total count for pagination controls
-	const news_articles_count = (
-		await db.select({ count: count() }).from(newsArticlesSchemaOrdered())
-	)[0].count;
-	// Query the database for the current page
-	const news_articles = (await newsArticlesSchemaOrdered().limit(perPage).offset(offset)).map(
-		(a) => ({
+	let news_articles: any[];
+	let news_articles_count: number;
+
+	// Mock database branch
+	if (isMockDb) {
+		const allArticles = await newsArticlesSchemaOrdered();
+		news_articles_count = allArticles.length;
+		news_articles = allArticles.slice(offset, offset + perPage).map((a) => ({
 			date_string: formatDate(a.date),
 			...a
-		})
-	);
+		}));
+	} else {
+		// Real database branch
+		// Query the total count for pagination controls
+		news_articles_count = (await db.select({ count: count() }).from(newsArticlesSchemaOrdered()))[0]
+			.count;
+		// Query the database for the current page
+		news_articles = (await newsArticlesSchemaOrdered().limit(perPage).offset(offset)).map((a) => ({
+			date_string: formatDate(a.date),
+			...a
+		}));
+	}
 
 	return {
 		news_articles,

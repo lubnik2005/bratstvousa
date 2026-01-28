@@ -26,7 +26,10 @@ class MockQueryBuilder {
 	private filters: Array<(item: any) => boolean> = [];
 	private orderByFn: ((a: any, b: any) => number) | null = null;
 	private limitValue: number | null = null;
+	private offsetValue: number = 0;
 	private selectedFields: string[] | null = null;
+	private selectedFieldsMap: any = null;
+	private aliasName: string | null = null;
 
 	constructor(data: MockData) {
 		this.data = [...data]; // Clone to avoid mutation
@@ -35,8 +38,13 @@ class MockQueryBuilder {
 	select(fields?: any) {
 		if (fields) {
 			this.selectedFields = Object.keys(fields);
+			this.selectedFieldsMap = fields;
 		}
 		return this;
+	}
+
+	getSelectedFields() {
+		return this.selectedFieldsMap || {};
 	}
 
 	from(table: any) {
@@ -81,6 +89,25 @@ class MockQueryBuilder {
 		return this;
 	}
 
+	offset(value: number) {
+		this.offsetValue = value;
+		return this;
+	}
+
+	as(alias: string) {
+		this.aliasName = alias;
+		// Return a proxy that behaves like an aliased table
+		return new Proxy(this, {
+			get(target, prop) {
+				if (typeof prop === 'string' && prop !== 'then' && prop !== 'execute') {
+					// Return mock column references for the aliased table
+					return { _: { name: prop } };
+				}
+				return (target as any)[prop];
+			}
+		});
+	}
+
 	innerJoin(table: any, condition: any) {
 		// Simplified join - just return self for now
 		return this;
@@ -103,7 +130,10 @@ class MockQueryBuilder {
 			result = result.sort(this.orderByFn);
 		}
 
-		// Apply limit
+		// Apply offset and limit
+		if (this.offsetValue > 0) {
+			result = result.slice(this.offsetValue);
+		}
 		if (this.limitValue !== null) {
 			result = result.slice(0, this.limitValue);
 		}
@@ -231,6 +261,11 @@ class MockDeleteBuilder {
 }
 
 function getTableData(table: any): MockData {
+	// Handle query builder objects - return empty array silently
+	if (table && typeof table === 'object' && ('then' in table || 'limit' in table)) {
+		return [];
+	}
+
 	// Map table to mock data
 	if (table === schema.user) return mockUsers;
 	if (table === schema.session) return mockSessions;
@@ -249,8 +284,7 @@ function getTableData(table: any): MockData {
 	if (table === schema.childrensFiles) return mockChildrensFiles;
 	if (table === schema.medias) return mockMedias;
 
-	// Default empty array for unknown tables
-	console.warn('Unknown table in mock DB:', table);
+	// Default empty array for unknown tables (no warning for query objects)
 	return [];
 }
 

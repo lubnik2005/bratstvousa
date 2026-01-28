@@ -48,22 +48,38 @@ export function eventsSchema() {
 		return {
 			where: (condition: any) => ({
 				orderBy: (order: any) => ({
-					limit: (n: number) => {
-						// Return combined events from all tables
-						const allEvents = [
-							...((db as any)._mockData?.youthEvents || []),
-							...((db as any)._mockData?.childrensEvents || []),
-							...((db as any)._mockData?.bibleEducationEvents || []),
-							...((db as any)._mockData?.gospelEvents || []),
-							...((db as any)._mockData?.musicEvents || []),
-							...((db as any)._mockData?.familyEvents || []),
-							...((db as any)._mockData?.generalEvents || [])
-						];
-						const today = new Date();
-						return Promise.resolve(
-							allEvents.filter((e: any) => new Date(e.startAt) > today).slice(0, n)
-						);
-					},
+					limit: (n: number) => ({
+						offset: (offsetValue: number) => {
+							const allEvents = [
+								...((db as any)._mockData?.youthEvents || []),
+								...((db as any)._mockData?.childrensEvents || []),
+								...((db as any)._mockData?.bibleEducationEvents || []),
+								...((db as any)._mockData?.gospelEvents || []),
+								...((db as any)._mockData?.musicEvents || []),
+								...((db as any)._mockData?.familyEvents || []),
+								...((db as any)._mockData?.generalEvents || [])
+							];
+							const today = new Date();
+							return Promise.resolve(
+								allEvents
+									.filter((e: any) => new Date(e.startAt) > today)
+									.slice(offsetValue, offsetValue + n)
+							);
+						},
+						then: (resolve: any) => {
+							const allEvents = [
+								...((db as any)._mockData?.youthEvents || []),
+								...((db as any)._mockData?.childrensEvents || []),
+								...((db as any)._mockData?.bibleEducationEvents || []),
+								...((db as any)._mockData?.gospelEvents || []),
+								...((db as any)._mockData?.musicEvents || []),
+								...((db as any)._mockData?.familyEvents || []),
+								...((db as any)._mockData?.generalEvents || [])
+							];
+							const today = new Date();
+							return resolve(allEvents.filter((e: any) => new Date(e.startAt) > today).slice(0, n));
+						}
+					}),
 					then: (resolve: any) => {
 						const allEvents = [
 							...((db as any)._mockData?.youthEvents || []),
@@ -104,7 +120,19 @@ export function eventsSchema() {
 					];
 					return resolve(allEvents.sort((a: any, b: any) => a.startAt.localeCompare(b.startAt)));
 				}
-			})
+			}),
+			then: (resolve: any) => {
+				const allEvents = [
+					...((db as any)._mockData?.youthEvents || []),
+					...((db as any)._mockData?.childrensEvents || []),
+					...((db as any)._mockData?.bibleEducationEvents || []),
+					...((db as any)._mockData?.gospelEvents || []),
+					...((db as any)._mockData?.musicEvents || []),
+					...((db as any)._mockData?.familyEvents || []),
+					...((db as any)._mockData?.generalEvents || [])
+				];
+				return resolve(allEvents);
+			}
 		} as any;
 	}
 
@@ -144,18 +172,32 @@ export function newsArticlesSchema() {
 		return {
 			where: (condition: any) => ({
 				orderBy: (order: any) => ({
-					limit: (n: number) => {
-						const allArticles = [
-							...((db as any)._mockData?.newsArticles || []),
-							...((db as any)._mockData?.youthNewsArticles || [])
-						];
-						return Promise.resolve(
-							allArticles
-								.filter((a: any) => a.date)
-								.sort((a: any, b: any) => b.date.localeCompare(a.date))
-								.slice(0, n)
-						);
-					},
+					limit: (n: number) => ({
+						offset: (offsetValue: number) => {
+							const allArticles = [
+								...((db as any)._mockData?.newsArticles || []),
+								...((db as any)._mockData?.youthNewsArticles || [])
+							];
+							return Promise.resolve(
+								allArticles
+									.filter((a: any) => a.date)
+									.sort((a: any, b: any) => b.date.localeCompare(a.date))
+									.slice(offsetValue, offsetValue + n)
+							);
+						},
+						then: (resolve: any) => {
+							const allArticles = [
+								...((db as any)._mockData?.newsArticles || []),
+								...((db as any)._mockData?.youthNewsArticles || [])
+							];
+							return resolve(
+								allArticles
+									.filter((a: any) => a.date)
+									.sort((a: any, b: any) => b.date.localeCompare(a.date))
+									.slice(0, n)
+							);
+						}
+					}),
 					then: (resolve: any) => {
 						const allArticles = [
 							...((db as any)._mockData?.newsArticles || []),
@@ -184,7 +226,14 @@ export function newsArticlesSchema() {
 					];
 					return resolve(allArticles.sort((a: any, b: any) => b.date.localeCompare(a.date)));
 				}
-			})
+			}),
+			then: (resolve: any) => {
+				const allArticles = [
+					...((db as any)._mockData?.newsArticles || []),
+					...((db as any)._mockData?.youthNewsArticles || [])
+				];
+				return resolve(allArticles);
+			}
 		} as any;
 	}
 
