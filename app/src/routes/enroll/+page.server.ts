@@ -74,7 +74,7 @@ export const actions = {
 		church_name = church_name ?? newChurch;
 
 		const formData = {
-			formName: '2025-bible-school-application',
+			formName: '2026-bible-school-application',
 			firstName: data.get('first_name'),
 			lastName: data.get('last_name'),
 			middleName: data.get('middle_name'),
