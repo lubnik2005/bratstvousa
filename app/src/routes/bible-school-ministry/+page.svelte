@@ -46,23 +46,17 @@
 
 				<div class="content-text">
 					<p>
-						Библейская школа Американского объединения предназначена для твёрдого усвоения основных
-						догматов Писания о Личности Бога, получения хороших навыков экзегетического исследования
-						Писания, более глубокого изучения принципов проповеди Благой вести.
+						Библейская школа Американского объединения объявляет набор на учебный блок 2026 года.
+						Школа является частью отдела библейского образования объединения и направлена на
+						углублённую подготовку братьев для изучения Священного Писания и практического служения
+						в Церкви.
 					</p>
+
 					<p>
-						Предполагаемый возраст студентов — от 20 до 40 лет. Учебный план школы включает 15
-						предметов, которые изучаются в течение 4 лет. На каждый год запланированы 3 очные
-						сессии, а также уроки в режиме онлайн. Таким образом, за 1 учебный год студенты школы
-						проходят 75 рабочих часов непосредственного обучения в классе, дополняется еженедельной
-						самостоятельной работой (до 2 часов в неделю), что в общей сложности составляет 175
-						учебных часов за год.
-					</p>
-					<p>
-						Программа полного курса обучения состоит из 4 независимых блоков, что позволяет новым
-						студентам поступать в школу в начале каждого года. Техническое обеспечение учебного
-						процесса осуществляется на платформе Canvas, что обеспечивает удобство и доступность для
-						всех студентов.
+						Учебная программа рассчитана на <strong>четыре года</strong> и состоит из
+						<strong>четырёх независимых учебных блоков</strong>, что даёт возможность поступления в
+						начале каждого учебного года. Учебный блок 2026 года соответствует
+						<strong>второму году обучения.</strong>
 					</p>
 				</div>
 			</div>
@@ -105,10 +99,6 @@
 		<div class="row">
 			<div class="col-lg-10 mx-auto">
 				<h2 class="fw-bold mb-4 text-center">Расписание сессий 2026 года</h2>
-				<p class="text-muted mb-5 text-center">
-					Каждый год обучения включает <strong>три очных сессии</strong> по 25 часов каждая и
-					<strong>50 часов заочного обучения</strong>, дополняемых самостоятельной работой.
-				</p>
 
 				<div class="row g-4 mb-5">
 					<div class="col-md-4">
@@ -145,12 +135,6 @@
 						</div>
 					</div>
 				</div>
-
-				<p class="text-muted text-center">
-					Между сессиями студенты выполняют <strong>50 часов заочной работы</strong> на платформе
-					<strong>Canvas</strong>, а также выделяют <strong>2 часа в неделю</strong> на самостоятельное
-					изучение.
-				</p>
 			</div>
 		</div>
 	</div>
@@ -354,57 +338,6 @@
 								</p>
 							</div>
 						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-</div>
-
-<!-- Leadership Section -->
-<div class="container py-5">
-	<div class="row">
-		<div class="col-lg-10 mx-auto">
-			<h2 class="fw-bold mb-4 text-center">Руководство школы</h2>
-			<p class="text-muted mb-5 text-center">
-				Свяжитесь с нами по вопросам поступления:
-				<a href="mailto:bibleeducation@bratstvousa.com">bibleeducation@bratstvousa.com</a>
-			</p>
-			<div class="row g-4 justify-content-center">
-				<div class="col-md-4">
-					<div class="text-center">
-						<div
-							class="rounded-circle bg-primary d-inline-flex align-items-center justify-content-center mb-3 bg-opacity-10"
-							style="width: 80px; height: 80px;"
-						>
-							<i class="fas fa-user-tie fa-2x text-primary"></i>
-						</div>
-						<h5 class="fw-bold">Ответственный за школу</h5>
-						<p class="text-muted mb-0">Диакону Дмитрий</p>
-					</div>
-				</div>
-				<div class="col-md-4">
-					<div class="text-center">
-						<div
-							class="rounded-circle bg-primary d-inline-flex align-items-center justify-content-center mb-3 bg-opacity-10"
-							style="width: 80px; height: 80px;"
-						>
-							<i class="fas fa-chalkboard-teacher fa-2x text-primary"></i>
-						</div>
-						<h5 class="fw-bold">Помощник по учебной части</h5>
-						<p class="text-muted mb-0">Щербина Борис</p>
-					</div>
-				</div>
-				<div class="col-md-4">
-					<div class="text-center">
-						<div
-							class="rounded-circle bg-primary d-inline-flex align-items-center justify-content-center mb-3 bg-opacity-10"
-							style="width: 80px; height: 80px;"
-						>
-							<i class="fas fa-laptop-code fa-2x text-primary"></i>
-						</div>
-						<h5 class="fw-bold">Помощник по технической части</h5>
-						<p class="text-muted mb-0">Бруяко Андрей</p>
 					</div>
 				</div>
 			</div>
