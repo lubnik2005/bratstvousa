@@ -44,7 +44,7 @@ export const menu_items = [
 				title: 'Отдел библейского образования',
 				href: '/bible-education-ministry',
 				subcategory: [
-					{ title: 'Региональные Библейские курсы ', href: '/bible-courses-ministry' },
+					{ title: 'Библейские курсы', href: '/bible-courses-ministry' },
 					{ title: 'Библейская Школа', href: '/bible-school-ministry' },
 					{ title: 'Ресурсы', href: '/resources' }
 				],

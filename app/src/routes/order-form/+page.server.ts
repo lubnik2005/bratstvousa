@@ -10,12 +10,11 @@ import { desc, eq } from 'drizzle-orm';
 import { email_template } from './email';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { v4 as uuidv4 } from 'uuid';
-import {admin_paths} from '$lib/admin/path';
+import { admin_paths } from '$lib/admin/path';
 
-
-	let selectedChurch = '';
-	let newChurch = '';
-	let useNewChurch = false;
+let selectedChurch = '';
+let newChurch = '';
+let useNewChurch = false;
 
 export async function load() {
 	return {
@@ -36,41 +35,38 @@ export async function load() {
 }
 
 export const actions: Actions = {
-  default: async ({ request }) => {
-    const data = await request.formData();
+	default: async ({ request }) => {
+		const data = await request.formData();
 
-    const address = (data.get('address') as string | null)?.trim() || '';
-    const phone = (data.get('phone') as string | null)?.trim() || '';
-    const email = (data.get('email') as string | null)?.trim() || '';
+		const address = (data.get('address') as string | null)?.trim() || '';
+		const phone = (data.get('phone') as string | null)?.trim() || '';
+		const email = (data.get('email') as string | null)?.trim() || '';
 
-    const first_name = (data.get('first_name') as string | null)?.trim() || '';
-    const last_name = (data.get('last_name') as string | null)?.trim() || '';
+		const first_name = (data.get('first_name') as string | null)?.trim() || '';
+		const last_name = (data.get('last_name') as string | null)?.trim() || '';
 
-    const qty_rus = Number(data.get('qty_rus') ?? 0) || 0;
-    const qty_rus_eng = Number(data.get('qty_rus_eng') ?? 0) || 0;
-    const qty_rus_eng_rom = Number(data.get('qty_rus_eng_rom') ?? 0) || 0;
+		const qty_rus = Number(data.get('qty_rus') ?? 0) || 0;
+		const qty_rus_eng = Number(data.get('qty_rus_eng') ?? 0) || 0;
+		const qty_rus_eng_rom = Number(data.get('qty_rus_eng_rom') ?? 0) || 0;
 
-    if ( !address || !first_name || !last_name || !phone || !email) {
-      return fail(400, { error: 'Проверьте обязательные поля', success: false });
-    }
+		if (!address || !first_name || !last_name || !phone || !email) {
+			return fail(400, { error: 'Проверьте обязательные поля', success: false });
+		}
 
-    const totalQty = qty_rus + qty_rus_eng + qty_rus_eng_rom;
-    const totalCost = totalQty * 5;
+		const totalQty = qty_rus + qty_rus_eng + qty_rus_eng_rom;
+		const totalCost = totalQty * 5;
 
-    // TODO: persist or notify (DB, email, Slack, etc.)
-    // Example: send an email via SES API (recommended over SMTP in SvelteKit)
-    
+		// TODO: persist or notify (DB, email, Slack, etc.)
+		// Example: send an email via SES API (recommended over SMTP in SvelteKit)
+
 		const churchId = data.get('church') !== 'other' ? Number(data.get('church')) : null;
 		let church_name = null;
 		if (churchId) {
 			const cs = (await db.select().from(churches).where(eq(churches.id, churchId)).limit(1))[0];
 			church_name = `<a href="${env.ADMIN_URL}${admin_paths.church.one(cs.id.toString())}"> ID: ${cs.id} | Name: ${cs.name_line_1} ${cs.name_line_2 ?? ''} | State: ${cs.state} | City: ${cs.city} | Region: ${cs.region} | Address: ${cs.address_line_1} ${cs.address_line_2 ?? ''} </a>`;
-
 		}
 		const newChurch = data.get('church') === 'other' ? data.get('new_church') : null;
 		church_name = church_name ?? `Other church: ${newChurch}`;
-
-    
 
 		const formData = {
 			formName: '2025-brothers-fellowship-meetings-request-form',
@@ -81,12 +77,12 @@ export const actions: Actions = {
 			phone: data.get('phone'),
 			church_name,
 			churchId,
-      address,
+			address,
 			content: JSON.parse(
 				JSON.stringify({
-          qty_rus_eng,
-          qty_rus,
-          qty_rus_eng_rom
+					qty_rus_eng,
+					qty_rus,
+					qty_rus_eng_rom
 				})
 			)
 		};
@@ -100,11 +96,9 @@ export const actions: Actions = {
 			...content,
 			church_name
 		});
-    const result = await sendEmail(to, subject, html);
+		const result = await sendEmail(to, subject, html);
 
-
-    return { success: true };
-    // or: throw redirect(303, '/thanks');
-  }
+		return { success: true };
+		// or: throw redirect(303, '/thanks');
+	}
 };
-

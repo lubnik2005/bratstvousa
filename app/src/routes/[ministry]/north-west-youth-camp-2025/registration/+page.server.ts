@@ -13,14 +13,14 @@ const clean = (s: FormDataEntryValue | null | undefined) =>
 
 export const actions: Actions = {
 	default: async ({ request }) => {
-    console.log("POSTING")
+		console.log('POSTING');
 		const fd = await request.formData();
 
 		// honeypot
 		if (clean(fd.get('middle_name'))) {
 			return { form: { message: 'Thanks! If this was submitted in error, no action is needed.' } };
 		}
-    console.log("Got passed middle name");
+		console.log('Got passed middle name');
 
 		const fields = {
 			firstName: clean(fd.get('firstName')),
@@ -44,14 +44,14 @@ export const actions: Actions = {
 		// if (!fields.consent) errors.consent = 'Please confirm you filled out the consent form.';
 		if (!fields.paid) errors.paid = 'Please confirm that you paid with memo “camp2025”.';
 
-    console.log("Got passed error");
+		console.log('Got passed error');
 
 		if (Object.keys(errors).length) {
-      console.log({errors});
+			console.log({ errors });
 			return fail(400, { form: { errors, fields } });
 		}
 
-    console.log("Got passed error return");
+		console.log('Got passed error return');
 
 		// Persist
 		const formData = {
@@ -73,9 +73,8 @@ export const actions: Actions = {
 			.values({ ...formData, createdAt: new Date(), updatedAt: new Date() })
 			.returning();
 
-    console.log({returned_formed_data});
-    console.log("FINISHED")
-
+		console.log({ returned_formed_data });
+		console.log('FINISHED');
 
 		return {
 			message:

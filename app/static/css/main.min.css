@@ -1009,11 +1009,11 @@ iframe.wait-autoplay {
 	--bs-dark-border-subtle: #adb5bd;
 	--bs-white-rgb: 255, 255, 255;
 	--bs-black-rgb: 0, 0, 0;
-	--bs-font-sans-serif: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', 'Noto Sans',
-		'Liberation Sans', Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
-		'Noto Color Emoji';
-	--bs-font-monospace: SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New',
-		monospace;
+	--bs-font-sans-serif:
+		system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', 'Noto Sans', 'Liberation Sans',
+		Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+	--bs-font-monospace:
+		SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
 	--bs-gradient: linear-gradient(180deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0));
 	--bs-body-font-family: 'Open Sans', sans-serif;
 	--bs-body-font-size: 1rem;
@@ -5786,8 +5786,9 @@ fieldset:disabled .btn {
 .accordion {
 	--bs-accordion-color: var(--bs-body-color);
 	--bs-accordion-bg: var(--bs-body-bg);
-	--bs-accordion-transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
-		border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out, border-radius 0.15s ease;
+	--bs-accordion-transition:
+		color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out,
+		box-shadow 0.15s ease-in-out, border-radius 0.15s ease;
 	--bs-accordion-border-color: var(--bs-border-color);
 	--bs-accordion-border-width: var(--bs-border-width);
 	--bs-accordion-border-radius: var(--bs-border-radius);

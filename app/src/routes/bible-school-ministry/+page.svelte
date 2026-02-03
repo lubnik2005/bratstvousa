@@ -29,6 +29,11 @@
 		<div class="row">
 			<!-- First Column -->
 			<div class="col-lg-12">
+				<div class="alert alert-info mb-4">
+					<strong>Учебный блок 2026 года</strong> — Библейская школа Американского объединения объявляет
+					набор на второй год обучения. Программа состоит из четырёх независимых учебных блоков, что
+					даёт возможность поступления в начале каждого учебного года.
+				</div>
 				<p>
 					Библейская школа Американского объединения предназначена для твёрдого усвоения основных
 					догматов Писания о Личности Бога, получения хороших навыков экзегетического исследования
@@ -54,12 +59,25 @@
 			<div class="col-lg-12">
 				<div class="ratio ratio-16x9 rounded-4 shadow-lg">
 					<iframe
-						src="https://www.youtube.com/embed/yfNJ40Dm1bI"
+						src="https://www.youtube.com/embed/ns7FX08MlH4"
 						title="YouTube video"
 						allowfullscreen
 						allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
 						class="rounded-4"
 					></iframe>
+				</div>
+			</div>
+		</div>
+
+		<div class="row mt-5">
+			<div class="col-lg-10 mx-auto">
+				<div class="alert alert-primary" role="alert">
+					<h5 class="alert-heading">О учебном блоке 2026 года</h5>
+					<p class="mb-0">
+						Учебная программа рассчитана на четыре года и состоит из четырёх независимых учебных
+						блоков, что даёт возможность поступления в начале каждого учебного года.
+						<strong>Учебный блок 2026 года соответствует второму году обучения.</strong>
+					</p>
 				</div>
 			</div>
 		</div>
@@ -78,21 +96,21 @@
 		<div class="col-md-4">
 			<div class="rounded border p-3">
 				<h5 class="fw-bold">1-я сессия</h5>
-				<p>27 - 30 марта</p>
-				<p><strong>Vancouver, WA</strong></p>
-			</div>
-		</div>
-		<div class="col-md-4">
-			<div class="rounded border p-3">
-				<h5 class="fw-bold">2-я сессия</h5>
-				<p>24 - 27 июля</p>
+				<p>26 - 29 марта</p>
 				<p><strong>Sacramento, CA</strong></p>
 			</div>
 		</div>
 		<div class="col-md-4">
 			<div class="rounded border p-3">
+				<h5 class="fw-bold">2-я сессия</h5>
+				<p>23 - 26 июля</p>
+				<p><strong>Vancouver, WA</strong></p>
+			</div>
+		</div>
+		<div class="col-md-4">
+			<div class="rounded border p-3">
 				<h5 class="fw-bold">3-я сессия</h5>
-				<p>11 - 14 декабря</p>
+				<p>10 - 13 декабря</p>
 				<p><strong>Philadelphia, PA</strong></p>
 			</div>
 		</div>
@@ -103,6 +121,27 @@
 		<strong>Canvas</strong>, а также выделяют <strong>2 часа в неделю</strong> на самостоятельное изучение.
 	</p>
 	<h2 class="mb-4 text-center">Условия поступления</h2>
+
+	<div class="row mb-5">
+		<div class="col-lg-8 mx-auto">
+			<div class="bg-light rounded border p-4">
+				<h4>Поступление</h4>
+				<p>
+					<strong>Регистрация открыта с 1 по 28 февраля.</strong> После рассмотрения анкет кандидаты,
+					соответствующие установленным требованиям, приглашаются к вступительному экзамену. По итогам
+					экзамена принимается решение о зачислении.
+				</p>
+
+				<h5 class="mt-4">Требования к кандидатам:</h5>
+				<ul>
+					<li>Братья, имеющие базовую библейскую подготовку</li>
+					<li>Опыт обучения на библейских курсах</li>
+					<li>Стремление к духовному росту</li>
+					<li>Готовность к систематическому обучению</li>
+				</ul>
+			</div>
+		</div>
+	</div>
 
 	<h2 class="mt-5 text-center">Курсы по годам</h2>
 
@@ -120,14 +159,15 @@
 			</div>
 		</div>
 		<div class="col-md-6">
-			<div class="mb-3 rounded border p-3">
+			<div class="border-primary border-3 bg-light mb-3 rounded border p-3">
+				<span class="badge bg-primary mb-2">Набор 2026</span>
 				<h4 class="fw-bold">Второй курс</h4>
 				<ul>
-					<li>Гомилетика: Христоцентричная проповедь</li>
+					<li>Христоцентричная проповедь (герменевтика)</li>
 					<li>Экзегетика: Послание к Евреям</li>
 					<li>Апологетика</li>
 					<li>Пастырелогия</li>
-					<li>Догматика: Учение об Иисусе Христе</li>
+					<li>Догматика: Учение о Христе</li>
 				</ul>
 			</div>
 		</div>
@@ -201,11 +241,14 @@
 		</div>
 	</div>
 	<div class="bg-light mt-5 rounded p-4 text-center">
-		<h3 class="mb-3">Поступление в школу</h3>
+		<h3 class="mb-3">Поступление в школу на 2026 год</h3>
 		<p>
-			Если вы хотите поступить в Библейскую Школу, заполните анкету и отправьте её до 5 марта 2025
-			года.
+			Если вы приняли решение поступить в Библейскую Школу, пожалуйста, зарегистрируйтесь, заполнив
+			анкету.
 		</p>
-		<a href="/enroll" class="btn btn-primary">Заполнить Анкету</a>
+		<p class="text-muted">
+			<strong>Регистрация открыта с 1 по 28 февраля 2026 года.</strong>
+		</p>
+		<a href="/enroll" class="btn btn-primary btn-lg">Заполнить Анкету</a>
 	</div>
 </div>
