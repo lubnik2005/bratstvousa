@@ -12,7 +12,7 @@ import { env } from '$env/dynamic/private';
  * @param {string} subject - Email subject
  * @param {string} text - Email body (plain text)
  */
-export async function sendEmail(to: string, subject: string, html) {
+export async function sendEmail(to: string, subject: string, html: string) {
 	// Configure Nodemailer with OAuth2
 	const transporter = nodemailer.createTransport({
 		host: env.SMTP_HOST,
@@ -23,11 +23,6 @@ export async function sendEmail(to: string, subject: string, html) {
 			pass: env.SMTP_PASSWORD
 		}
 	});
-
-	// const filePath = path.resolve('static/templates/email/bibleSchoolFormNotification.hbs');
-	// const source = fs.readFileSync(filePath, 'utf8');
-	// const template = handlebars.compile(source);
-	// const html = template(formData);
 
 	// Email details
 	const mailOptions = {

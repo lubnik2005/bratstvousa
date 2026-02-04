@@ -200,14 +200,10 @@ export async function load({
 		'src="/upfiles/photos/',
 		`src="${env.MEDIA_URL}upfiles/photos/`
 	);
-	// console.log(event)
-	console.log(JSON.stringify(event?.editorjs?.blocks));
 	const cleanBlocks = event.editorjs?.blocks?.filter((b) => b.type !== 'image');
 	event.editorjs_rendered = cleanBlocks
 		? edjsParser.parse({ blocks: event.editorjs?.blocks })
 		: null;
-	console.log('----');
-	console.log(event);
 
 	return { event };
 }

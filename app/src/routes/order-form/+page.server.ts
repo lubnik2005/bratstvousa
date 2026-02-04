@@ -1,7 +1,7 @@
 // +page.server.ts
 import { sendEmail } from '$lib/email';
 import type { Actions } from './$types';
-import { fail /*, redirect*/ } from '@sveltejs/kit';
+import { fail } from '@sveltejs/kit';
 
 import { db } from '$lib/server/db';
 import { env } from '$env/dynamic/private';
@@ -11,10 +11,6 @@ import { email_template } from './email';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { v4 as uuidv4 } from 'uuid';
 import { admin_paths } from '$lib/admin/path';
-
-let selectedChurch = '';
-let newChurch = '';
-let useNewChurch = false;
 
 export async function load() {
 	return {

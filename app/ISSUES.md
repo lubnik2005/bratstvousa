@@ -1,31 +1,18 @@
 # Issues & Technical Debt Tracker
 
-**Last Updated:** January 26, 2026  
+**Last Updated:** February 3, 2026  
 **Project:** bratstvousa SvelteKit Application
 
 ---
 
 ## P0 - CRITICAL (Blocking Development)
 
-### 1. Cannot View Site Without Database/API Running - MUST FIX FIRST
+### 1. Cannot View Site Without Database/API Running - RESOLVED ✅
 
-- **Status:** Blocking
-- **Impact:** Cannot develop or view site without running PostgreSQL
-- **Location:** All routes with +page.server.ts or +layout.server.ts (28 files)
-- **Root Cause:**
-  - src/routes/+layout.server.ts queries DB on every page load (lines 4-10)
-  - Database connection required for all ministry pages
-  - No fallback or mock data for development
-- **Solution Needed:**
-  - Create mock data for all database tables
-  - Add environment variable to enable mock mode
-  - Implement mock database layer that mimics Drizzle ORM API
-  - Allow site to run with DATABASE_URL undefined in dev mode
-- **Files Affected:**
-  - src/lib/server/db/index.ts - DB connection
-  - src/routes/+layout.server.ts - Global layout queries
-  - All 28 +page.server.ts files
-- **Estimated Effort:** 4-6 hours
+- **Status:** RESOLVED as of Feb 3, 2026
+- **Resolution:** Mock database system implemented in `src/lib/server/db/mock-db.ts`
+- **Impact:** Site can now run without PostgreSQL using `USE_MOCK_DB=true`
+- **See:** MOCK_DATABASE.md for details
 
 ---
 
@@ -283,6 +270,83 @@
 - TypeScript strict mode enabled
 - No hardcoded secrets
 - Consistent code formatting with Prettier
+
+---
+
+## P3 - LOW PRIORITY (Nice to Have)
+
+### Known TODOs & HACKs From Code Review (Feb 3, 2026)
+
+#### 1. Calendar URL Routing Bug
+
+- **Location:** src/routes/calendar/+page.server.ts:57
+- **Issue:** Calendar events link to '/general-event' instead of ministry-specific slugs
+- **Comment:** "TODO: this should link to the ministry slug, not just 'general-event'"
+- **Impact:** Users can't click on calendar events to see details
+- **Estimated Effort:** 2 hours
+
+#### 2. Calendar End Date HACK
+
+- **Location:** src/routes/calendar/+page.server.ts:54
+- **Issue:** End date is incremented by 1 day for fullcalendar.io exclusive end date behavior
+- **Comment:** "HACK: in the fullcalendar.io, the end date is exclusive, so I need to add a day."
+- **Impact:** Workaround works but is fragile
+- **Estimated Effort:** 1 hour to document or refactor
+
+#### 3. Media URL String Replacement HACK
+
+- **Location:** src/routes/[ministry]/[slug]/+page.server.ts:152
+- **Issue:** String replacement for media URLs instead of fixing in DB
+- **Comment:** "HACK: This is a temporary solution. In reality the url should be changed in the db, probably?"
+- **Impact:** Performance overhead on every page load, unclear responsibility
+- **Solution:** Either fix URLs in database or document this as intentional
+- **Estimated Effort:** 3 hours (including DB migration)
+
+#### 4. Email Plain Text Body Missing
+
+- **Location:** src/lib/email.ts:37-38
+- **Issue:** Plain text email body is empty string
+- **Comment:** "TODO: This needs to be actual text"
+- **Impact:** Poor email accessibility, some email clients may reject
+- **Solution:** Generate plain text version from HTML
+- **Estimated Effort:** 2 hours
+- **Already Documented:** See P1 Issue #6 above
+
+#### 5. Email Function Needs Cleanup
+
+- **Location:** src/lib/email.ts:8
+- **Issue:** Function needs refactoring
+- **Comment:** "TODO: Cleanup this function"
+- **Impact:** Code quality
+- **Estimated Effort:** 2 hours
+- **Already Documented:** See P1 Issue #6 above
+
+#### 6. Order Form Persistence Commented Out
+
+- **Location:** src/routes/order-form/+page.server.ts:59
+- **Issue:** Commented out code for persisting/notifying
+- **Comment:** "TODO: persist or notify (DB, email, Slack, etc.)"
+- **Impact:** Form submissions may not be saved or notified
+- **Estimated Effort:** 3 hours
+
+---
+
+## Improvements Made (Feb 3, 2026)
+
+### Code Quality Fixes
+
+- ✅ Fixed wrong `error` import from 'console' → '@sveltejs/kit' in registration route
+- ✅ Properly typed `db` instance (was `any`)
+- ✅ Added `html: string` type parameter to email function
+- ✅ Added null check for `personalPhoto` before accessing properties
+- ✅ Fixed error field assignment bug (errors.church was assigned to errors.email)
+- ✅ Removed 18 debug console.log statements from production code
+- ✅ Added return type annotations to 20+ functions in queries.ts, auth.ts, helpers.ts
+- ✅ Fixed `where?: unknown` → `where?: SQL` type in queries
+- ✅ Removed unused module-level variables in order-form route
+- ✅ Deleted commented-out code blocks (8+ locations)
+- ✅ Exported MockDb type from mock-db.ts
+- ✅ Improved type safety across authentication layer
 
 ---
 

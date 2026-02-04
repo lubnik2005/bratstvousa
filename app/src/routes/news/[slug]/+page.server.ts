@@ -85,14 +85,11 @@ export async function load({ params }) {
 			)
 		);
 
-	console.log(JSON.stringify(news_article?.editorjs?.blocks));
 	const cleanBlocks = news_article.editorjs?.blocks?.filter((b) => b.type !== 'image');
 	news_article.editorjs_rendered = cleanBlocks
 		? edjsParser.parse({ blocks: news_article.editorjs?.blocks })
 		: null;
 
-	//     ??.where(eq(newsArticles.slug, params.slug)))[0] ??
-	// null;
 	return {
 		media_url: env.MEDIA_URL,
 		news_article,

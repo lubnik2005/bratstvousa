@@ -359,6 +359,8 @@ export class MockDrizzle {
 	return this;
 };
 
-export function createMockDb() {
-	return new MockDrizzle() as any;
+export function createMockDb(): MockDrizzle {
+	return new MockDrizzle();
 }
+
+export type MockDb = MockDrizzle;

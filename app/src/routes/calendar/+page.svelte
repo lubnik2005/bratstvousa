@@ -90,9 +90,6 @@
 			firstDay: 0,
 			defaultAllDay: true,
 			datesSet(info) {
-				console.log('Current start date:', info.view.currentStart);
-				console.log('Current end date:', info.end);
-				console.log('View type:', info.view.type);
 				params.set('date', info.view.currentStart.toISOString().slice(0, 10)); // "YYYY-MM-DD");
 				goto(`${window.location.pathname}?${params.toString()}`, {
 					replaceState: true,

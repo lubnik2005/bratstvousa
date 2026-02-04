@@ -1,4 +1,4 @@
-import { and, desc, eq, gte, isNotNull, or, sql } from 'drizzle-orm';
+import { and, desc, eq, gte, isNotNull, or, sql, type SQL } from 'drizzle-orm';
 import { db, isMockDb } from '.';
 import {
 	eventSchemas,
@@ -21,7 +21,10 @@ import {
 import { formatDate } from '$lib/helpers';
 import { unionAll } from 'drizzle-orm/mysql-core';
 
-export async function getMinistryEvents(events: Event, where?: unknown) {
+export async function getMinistryEvents(
+	events: Event,
+	where?: SQL | undefined
+): Promise<Array<ReturnType<typeof formatDate> & Record<string, unknown>>> {
 	const today = new Date().toISOString(); // Use Date object directly
 
 	let query = db.select().from(events);
@@ -36,13 +39,15 @@ export async function getMinistryEvents(events: Event, where?: unknown) {
 	return (await query).map((a) => ({ startAtString: formatDate(a.startAt), ...a }));
 }
 
-export async function getMinistryNewsArticles(article: Article) {
+export async function getMinistryNewsArticles(
+	article: Article
+): Promise<Array<ReturnType<typeof formatDate> & Record<string, unknown>>> {
 	return (
 		await db.select().from(article).where(isNotNull(article.date)).orderBy(desc(article.date))
 	).map((e) => ({ dateString: formatDate(e.date), ...e })); // Order archive descending
 }
 
-export function eventsSchema() {
+export function eventsSchema(): any {
 	// Simplified version for mock database
 	if (isMockDb) {
 		return {
@@ -166,7 +171,7 @@ export function eventsSchema() {
 		);
 }
 
-export function newsArticlesSchema() {
+export function newsArticlesSchema(): any {
 	// Simplified version for mock database
 	if (isMockDb) {
 		return {
@@ -253,18 +258,18 @@ export function newsArticlesSchema() {
 		);
 }
 
-export function eventsSchemaOrdered() {
+export function eventsSchemaOrdered(): any {
 	return eventsSchema()
 		.where(sql`events_union.start_at > NOW()`)
 		.orderBy(sql`events_union.start_at`);
 }
 
-export function newsArticlesSchemaOrdered() {
+export function newsArticlesSchemaOrdered(): any {
 	return newsArticlesSchema()
 		.where(sql`news_articles_union.date IS NOT NULL`)
 		.orderBy(sql`news_articles_union.date DESC`);
 }
 
-export async function setting(name: string) {
+export async function setting(name: string): Promise<unknown> {
 	return (await db.select().from(settings).where(eq(settings.name, name)))?.[0]?.payload;
 }

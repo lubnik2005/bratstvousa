@@ -80,27 +80,30 @@
 						{#if item.title === 'ОТДЕЛЫ'}
 							<!-- Mega Menu for Departments -->
 							<div class="nav-item dropdown mega-menu position-static">
-								<a href="#" class="nav-link dropdown-toggle active" data-bs-toggle="dropdown">
+								<button
+									type="button"
+									class="nav-link dropdown-toggle active"
+									data-bs-toggle="dropdown"
+									aria-expanded="false"
+								>
 									{item.title}
-								</a>
-								<div class="dropdown-menu mega-content w-100">
-									<div class="container">
-										<div class="row">
+								</button>
+								<div class="dropdown-menu mega-content">
+									<div class="mega-container">
+										<div class="mega-grid">
 											{#each item.children as department}
-												<div class="col-6">
-													<a href={department.href ?? null} class="dropdown-item title">
-														<strong>{department.title}</strong>
-													</a>
+												<div class="mega-card" style="--accent-color: {department.color}">
+													<a href={department.href ?? '#'} class="mega-card-title"
+														>{department.title}</a
+													>
+													<p class="mega-card-desc">{department.description}</p>
 													{#if department.subcategory}
-														<ul class="list-unstyled">
+														<div class="mega-card-links">
 															{#each department.subcategory as sub}
-																<li>
-																	<a href={sub.href} class="dropdown-item">{sub.title}</a>
-																</li>
+																<a href={sub.href}>{sub.title}</a>
 															{/each}
-														</ul>
+														</div>
 													{/if}
-													<p class="desc">{department.description}</p>
 												</div>
 											{/each}
 										</div>
@@ -165,69 +168,142 @@
 		box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 	}
 
+	/* Navbar needs relative positioning to contain the mega menu dropdown */
+	:global(.whole-navbar .navbar) {
+		position: relative !important;
+	}
+
+	/* Mega menu container - must be static so dropdown positions relative to navbar */
 	.mega-menu {
-		position: static !important; /* Ensure correct placement */
+		position: static !important;
 	}
 
-	.mega-content {
-		position: absolute;
-		top: 100%;
-		left: 50%;
-		transform: translateX(-50%);
-		width: 80vw;
-		max-width: 900px;
-		padding: 20px;
-		background: white;
-		box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-		display: none;
-		z-index: 1000;
-		border-radius: 6px;
+	/* Style the dropdown toggle button to look like a nav link */
+	.mega-menu :global(button.nav-link.dropdown-toggle) {
+		background: none;
+		border: none;
+		cursor: pointer;
 	}
 
-	.mega-menu:hover .mega-content {
-		display: block;
+	/* Override Bootstrap's dropdown-menu positioning for mega menu - FULL WIDTH */
+	.mega-menu :global(.dropdown-menu.mega-content) {
+		position: absolute !important;
+		top: 100% !important;
+		left: 0 !important;
+		right: 0 !important;
+		transform: none !important;
+		width: 100% !important;
+		max-width: none !important;
+		padding: 24px 40px;
+		background: #fff;
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+		border-radius: 0;
+		border: none;
+		border-top: 1px solid #eee;
+		margin-top: 0;
 	}
 
-	.mega-content .row {
-		display: flex;
-		justify-content: space-between;
+	/* Show mega menu on hover */
+	.mega-menu:hover :global(.dropdown-menu.mega-content),
+	.mega-menu:focus-within :global(.dropdown-menu.mega-content) {
+		display: block !important;
 	}
 
-	.mega-content .col-md-4 {
-		flex: 1;
-		padding: 10px;
-		min-width: 200px; /* Ensures columns don't collapse */
+	/* Container inside mega menu */
+	.mega-container {
+		max-width: 1200px;
+		margin: 0 auto;
 	}
 
-	.mega-content .title {
-		font-weight: bold;
+	/* 3-column grid layout */
+	.mega-grid {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		gap: 16px;
+	}
+
+	/* Individual card - simplified without icons */
+	.mega-card {
+		padding: 16px;
+		background: #fafafa;
+		border-left: 3px solid var(--accent-color, #666);
+		border-radius: 4px;
+		transition: all 0.2s ease;
+	}
+
+	.mega-card:hover {
+		background: #fff;
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+	}
+
+	/* Card title */
+	.mega-card-title {
+		font-size: 0.95rem;
+		font-weight: 600;
 		color: #333;
-		font-size: 1.1rem;
+		display: block;
+		margin-bottom: 6px;
+		line-height: 1.3;
+		text-decoration: none;
 	}
 
-	.mega-content .desc {
-		font-size: 0.9rem;
-		color: gray;
-		margin-top: 5px;
+	.mega-card-title:hover {
+		color: var(--accent-color, #333);
+		text-decoration: underline;
 	}
 
-	/* Mobile Fixes */
-	@media (max-width: 992px) {
-		.mega-content {
-			width: 100%;
-			left: 0;
-			transform: none;
-			max-width: 100%;
+	/* Card description */
+	.mega-card-desc {
+		font-size: 0.8rem;
+		color: #666;
+		margin: 0;
+		line-height: 1.5;
+	}
+
+	/* Subcategory links */
+	.mega-card-links {
+		margin-top: 10px;
+		padding-top: 8px;
+		border-top: 1px solid #e5e5e5;
+		display: flex;
+		flex-wrap: wrap;
+		gap: 6px 16px;
+	}
+
+	.mega-card-links a {
+		font-size: 0.8rem;
+		color: var(--accent-color, #555);
+		text-decoration: none;
+	}
+
+	.mega-card-links a:hover {
+		text-decoration: underline;
+	}
+
+	/* Responsive: 2 columns on medium screens */
+	@media (max-width: 1024px) {
+		.mega-menu :global(.dropdown-menu.mega-content) {
+			padding: 20px 24px;
 		}
 
-		.mega-content .row {
-			flex-wrap: wrap;
+		.mega-grid {
+			grid-template-columns: repeat(2, 1fr);
+		}
+	}
+
+	/* Responsive: 1 column on small/tablet screens */
+	@media (max-width: 768px) {
+		.mega-menu :global(.dropdown-menu.mega-content) {
+			padding: 16px;
 		}
 
-		.mega-content .col-md-4 {
-			width: 100%;
-			text-align: center;
-			margin-bottom: 15px;
+		.mega-grid {
+			grid-template-columns: 1fr;
+			gap: 12px;
+		}
+
+		.mega-card {
+			padding: 12px;
 		}
 	}
 </style>
