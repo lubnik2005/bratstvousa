@@ -5,7 +5,7 @@
 	import { regionToLabel } from '$lib/helpers';
 	export let data;
 	const media_url = data.media_url;
-	const ministry_slug = 'bible-school';
+	const ministry_slug = 'bible-courses-ministry';
 </script>
 
 <Header
