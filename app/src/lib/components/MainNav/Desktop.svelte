@@ -54,7 +54,12 @@
 
 	<nav class="navbar navbar-expand-lg navbar-light py-lg-0 px-lg-5">
 		<a href="/" class="navbar-brand ms-lg-0 d-flex align-items-center ms-4">
-			<img width="100" style="display: inline;" src="{media_url}logo.png" alt="" />
+			<img
+				width="100"
+				style="display: inline;"
+				src="{media_url}logo.png"
+				alt="Логотип Братства США"
+			/>
 			<span class="ms-2">
 				<h1
 					class="fw-bold text-primary d-none d-lg-block m-0 text-center"
@@ -132,7 +137,12 @@
 							{item.title}
 						</a>
 					{:else if item.link}
-						<a href={item.link} target="_blank" class="nav-item nav-link active">
+						<a
+							href={item.link}
+							target="_blank"
+							rel="noopener noreferrer"
+							class="nav-item nav-link active"
+						>
 							{item.title}
 						</a>
 					{/if}

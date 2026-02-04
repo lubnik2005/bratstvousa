@@ -42,14 +42,14 @@
 	<header class="mobile-header d-lg-none">
 		<!-- Logo on the Left -->
 		<a href="/">
-			<img src="{media_url}logo.png" alt="Logo" />
+			<img src="{media_url}logo.png" alt="Логотип Братства США" />
 		</a>
 
 		<!-- Title in the Center -->
 		<h1>Американское Объединение МСЦ ЕХБ</h1>
 
 		<!-- Hamburger Menu on the Right -->
-		<button class="hamburger-menu" on:click={toggleMenu}> ☰ </button>
+		<button class="hamburger-menu" aria-label="Открыть меню" on:click={toggleMenu}> ☰ </button>
 	</header>
 	<!-- Menu Backdrop -->
 	{#if isOpen}
@@ -60,7 +60,7 @@
 	<nav class="fullscreen-menu {isOpen ? 'open' : ''}">
 		<!-- Close Button in Header -->
 		<div class="menu-header">
-			<button class="close-btn" on:click={closeMenu}>&times;</button>
+			<button class="close-btn" aria-label="Закрыть меню" on:click={closeMenu}>&times;</button>
 		</div>
 
 		<ul class="list-unstyled p-3">
@@ -108,7 +108,9 @@
 					{:else if item.href}
 						<a href={item.href} class="d-block py-2" on:click={handleLinkClick}>{item.title}</a>
 					{:else if item.link}
-						<a href={item.link} target="_blank" class="d-block py-2">{item.title}</a>
+						<a href={item.link} target="_blank" rel="noopener noreferrer" class="d-block py-2"
+							>{item.title}</a
+						>
 					{/if}
 				</li>
 			{/each}

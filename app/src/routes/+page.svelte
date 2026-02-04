@@ -13,11 +13,15 @@
 	/>
 	<title>Американское Объединение МСЦ ЕХБ</title>
 	<!-- Open Graph Meta Tags -->
-	<meta property="og:title" content="Братство США" />
-	<!-- <meta property="og:description" content="Your site description here." /> -->
-	<!-- <meta property="og:image" content="%sveltekit.assets%/og-image.png" /> -->
-	<!-- <meta property="og:url" content="https://yourdomain.com" /> -->
-	<!-- <meta name="twitter:card" content="summary_large_image" /> -->
+	<meta property="og:title" content="Братство США - Американское Объединение МСЦ ЕХБ" />
+	<meta
+		property="og:description"
+		content="Официальный сайт Американского Объединения МСЦ ЕХБ - события, новости и ресурсы для христианских общин."
+	/>
+	<meta property="og:image" content="{data.media_url}img/og-image.webp" />
+	<meta property="og:url" content="https://www.bratstvousa.com/" />
+	<meta property="og:type" content="website" />
+	<meta name="twitter:card" content="summary_large_image" />
 </svelte:head>
 
 <div class="container-fluid mb-5 p-0">
@@ -43,7 +47,7 @@
 							src="{data.media_url}img/bratstvo_header_low.webp"
 							data-src="{data.media_url}img/bratstvo_header.webp"
 							class="lazyload"
-							alt=""
+							alt="Братство США - главный баннер"
 						/>
 					</div>
 				</div>

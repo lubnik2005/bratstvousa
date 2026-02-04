@@ -391,30 +391,28 @@ $enable-negative-margins: true;
 // Footer
 // ---------------------
 .footer {
-	color: #999999;
+	color: #b3b3b3;
 
 	.btn.btn-link {
 		display: block;
 		margin-bottom: 5px;
 		padding: 0;
 		text-align: left;
-		color: #999999;
+		color: #b3b3b3;
 		font-weight: normal;
 		text-transform: capitalize;
-		transition: 0.3s;
 
 		&::before {
 			position: relative;
 			content: '\f105';
 			font-family: 'Font Awesome 5 Free';
 			font-weight: 900;
-			color: #999999;
+			color: #b3b3b3;
 			margin-right: 10px;
 		}
 
 		&:hover {
 			color: var(--light);
-			letter-spacing: 1px;
 			box-shadow: none;
 		}
 	}

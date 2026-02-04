@@ -53,6 +53,8 @@
 					<a
 						class="btn btn-outline-light rounded-circle me-1"
 						target="_blank"
+						rel="noopener noreferrer"
+						aria-label="YouTube канал Братства"
 						href="https://www.youtube.com/@bratstvousa"><i class="fab fa-youtube"></i></a
 					>
 				</div>
@@ -60,12 +62,30 @@
 			<div class="col-lg-3 col-md-6">
 				<h4 class="text-light mb-4">Quick Links</h4>
 				<!-- <a class="btn btn-link" href="">Youtube Channel</a> -->
-				<a class="btn btn-link" target="_blank" href="https://awakeningmission.org/"
-					>Awakening Mission</a
+				<a
+					class="btn btn-link"
+					target="_blank"
+					rel="noopener noreferrer"
+					href="https://awakeningmission.org/">Awakening Mission</a
 				>
-				<a class="btn btn-link" target="_blank" href="https://missionrem.org/">Mission REM</a>
-				<a class="btn btn-link" target="_blank" href="https://mscmusic.org/">MSC Music</a>
-				<a class="btn btn-link" target="_blank" href="https://iosifnichita.com/">Iosif Nichita</a>
+				<a
+					class="btn btn-link"
+					target="_blank"
+					rel="noopener noreferrer"
+					href="https://missionrem.org/">Mission REM</a
+				>
+				<a
+					class="btn btn-link"
+					target="_blank"
+					rel="noopener noreferrer"
+					href="https://mscmusic.org/">MSC Music</a
+				>
+				<a
+					class="btn btn-link"
+					target="_blank"
+					rel="noopener noreferrer"
+					href="https://iosifnichita.com/">Iosif Nichita</a
+				>
 				<form action={data.donation_url} method="post" target="_blank">
 					<input type="hidden" name="cmd" value="_xclick" />
 					<input type="hidden" name="tokenuid" value={data.donation_tokenuid} />
@@ -80,8 +100,10 @@
 					We are committed to protecting your privacy. We do not collect, store, or process any
 					personal information or data about our users during general use of our platform. Any
 					interaction with our service is entirely anonymous, and no identifiable or
-					non-identifiable data is gathered from your use of our platform. <a href="/privacy-policy"
-						>Learn More</a
+					non-identifiable data is gathered from your use of our platform. <a
+						href="/privacy-policy"
+						class="text-decoration-underline"
+						style="color: #b3b3b3;">Read our Privacy Policy</a
 					>
 				</p>
 			</div>
