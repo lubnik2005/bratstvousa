@@ -30,7 +30,11 @@
 			<div class="carousel-item active">
 				<div class="video-wrapper d-none d-lg-block">
 					<video poster="{data.media_url}video/first-frame.webp" autoplay muted loop playsinline>
-						<source src="{data.media_url}video/bg_compressed_no_audio.webm" type="video/webm" />
+						<source
+							src="{data.media_url}video/bg_compressed_no_audio.webm"
+							type="video/webm"
+							media="(min-width: 992px)"
+						/>
 						Your browser does not support the video tag.
 					</video>
 					<!---->
