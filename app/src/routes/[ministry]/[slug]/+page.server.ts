@@ -1,103 +1,10 @@
 import { db, isMockDb } from '$lib/server/db';
-import { error } from '@sveltejs/kit';
-import {
-	Event,
-	bibleEducationEvents,
-	childrensEvents,
-	eventSchemas,
-	youthEvents
-} from '$lib/server/db/schema';
+import { parseEditorJS } from '$lib/server/editorjs';
+import { eventSchemas } from '$lib/server/db/schema';
 import { unionAll } from 'drizzle-orm/mysql-core';
-import { lte, desc, asc, or, sql, eq, gte, isNull, and, lt } from 'drizzle-orm';
+import { sql, eq } from 'drizzle-orm';
 import { env } from '$env/dynamic/private';
-import edjsHTML from 'editorjs-html';
-
-function linkTool(block: any) {
-	const { link, meta } = block.data;
-
-	return `
-<div class="card mb-4 shadow-sm border-0">
-  <a href="${link}" target="_blank" class="text-decoration-none text-reset">
-    <img src="${meta.imageUrl}" class="card-img-top" alt="${meta.title}" />
-    <div class="card-body">
-      <h5 class="card-title">${meta.title}</h5>
-      <p class="card-text">${meta.description}</p>
-      <small class="text-muted">${link}</small>
-    </div>
-  </a>
-</div>
-`;
-}
-
-function image(block: any) {
-	const { file, caption } = block.data;
-
-	const originalUrl = file.url;
-	const smallUrl = originalUrl.replace(/(\.[\w]+)$/, '_small$1');
-
-	return `
-  <figure class="mb-4 text-center">
-    <a href="${originalUrl}" target="_blank">
-      <img src="${smallUrl}" class="img-fluid rounded" alt="${caption || ''}">
-    </a>
-    ${caption ? `<figcaption class="mt-2 text-muted small">${caption}</figcaption>` : ''}
-  </figure>
-  `;
-}
-
-function table(block: any) {
-	const { withHeadings, content } = block.data;
-
-	if (!content || content.length === 0) {
-		return '';
-	}
-
-	let tableHTML = '<div class="table-responsive"><table class="table table-bordered">';
-
-	content.forEach((row: any[], rowIndex: number) => {
-		const isHeader = withHeadings && rowIndex === 0;
-		const tag = isHeader ? 'th' : 'td';
-
-		// Open thead for first row if withHeadings
-		if (isHeader) {
-			tableHTML += '<thead>';
-		}
-		// Open tbody after header row
-		if (withHeadings && rowIndex === 1) {
-			tableHTML += '<tbody>';
-		}
-		// Open tbody if no headers and first row
-		if (!withHeadings && rowIndex === 0) {
-			tableHTML += '<tbody>';
-		}
-
-		tableHTML += '<tr>';
-
-		row.forEach((cell: string) => {
-			tableHTML += `<${tag}>${cell}</${tag}>`;
-		});
-
-		tableHTML += '</tr>';
-
-		// Close thead after first row if withHeadings
-		if (isHeader) {
-			tableHTML += '</thead>';
-		}
-	});
-
-	tableHTML += '</tbody></table></div>';
-	return tableHTML;
-}
-
-const plugins = {
-	linkTool,
-	image,
-	table
-};
-
-const edjsParser = edjsHTML(plugins);
-
-// Array of event table names
+import { error } from '@sveltejs/kit';
 
 // Load function
 export async function load({
@@ -200,10 +107,7 @@ export async function load({
 		'src="/upfiles/photos/',
 		`src="${env.MEDIA_URL}upfiles/photos/`
 	);
-	const cleanBlocks = event.editorjs?.blocks?.filter((b) => b.type !== 'image');
-	event.editorjs_rendered = cleanBlocks
-		? edjsParser.parse({ blocks: event.editorjs?.blocks })
-		: null;
+	event.editorjs_rendered = parseEditorJS(event.editorjs);
 
 	return { event };
 }
