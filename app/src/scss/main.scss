@@ -437,13 +437,193 @@ $enable-negative-margins: true;
 // ---------------------
 // Blog
 // ---------------------
-.blog-content a {
-	color: #2962ff; // vibrant blue-ish color (you can use #1e88e5 or #2196f3 too)
-	text-decoration: none;
-	transition: color 0.3s ease;
+// Blog container for centered, max-width layout
+.blog-container {
+	max-width: 760px;
+	margin: 0 auto;
+	padding: 2rem 1rem;
+}
 
-	&:hover {
-		color: #0039cb; // darker blue on hover
-		text-decoration: underline;
+// Comprehensive blog content styles
+.blog-content {
+	line-height: 1.7;
+	font-size: 1.1rem;
+
+	// Conditional minimum height when empty
+	&.empty-content {
+		min-height: 50vh;
+	}
+
+	// Headings
+	h1,
+	h2,
+	h3,
+	h4,
+	h5,
+	h6 {
+		margin-top: 2rem;
+		margin-bottom: 1rem;
+		font-weight: 600;
+	}
+
+	h1 {
+		font-size: 2.5rem;
+	}
+	h2 {
+		font-size: 2rem;
+	}
+	h3 {
+		font-size: 1.75rem;
+	}
+
+	// Paragraphs
+	p {
+		margin-bottom: 1.5rem;
+	}
+
+	// Images
+	img {
+		max-width: 100%;
+		height: auto;
+		border-radius: 8px;
+		margin: 1.5rem 0;
+	}
+
+	figure {
+		margin: 2rem 0;
+
+		figcaption {
+			text-align: center;
+			font-size: 0.9rem;
+			color: #666;
+		}
+	}
+
+	// Lists
+	ul,
+	ol {
+		margin-bottom: 1.5rem;
+		padding-left: 2rem;
+
+		li {
+			margin-bottom: 0.5rem;
+		}
+	}
+
+	// Nested lists
+	ul ul,
+	ol ol,
+	ul ol,
+	ol ul {
+		margin-top: 0.5rem;
+		margin-bottom: 0.5rem;
+	}
+
+	// Code blocks
+	code {
+		background-color: #f5f5f5;
+		padding: 2px 6px;
+		border-radius: 3px;
+		font-size: 0.9em;
+		font-family: 'Courier New', monospace;
+	}
+
+	pre {
+		background-color: #f5f5f5;
+		padding: 1rem;
+		border-radius: 8px;
+		overflow-x: auto;
+		margin: 1.5rem 0;
+
+		code {
+			background: none;
+			padding: 0;
+		}
+	}
+
+	// Quotes
+	blockquote {
+		border-left: 4px solid var(--primary);
+		padding-left: 1.5rem;
+		margin: 2rem 0;
+		font-style: italic;
+		color: #666;
+	}
+
+	// Tables (using Bootstrap classes)
+	.table-responsive {
+		margin: 2rem 0;
+		overflow-x: auto;
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+		border-radius: 8px;
+	}
+
+	table {
+		width: 100%;
+		margin-bottom: 0;
+
+		th,
+		td {
+			padding: 0.75rem;
+			vertical-align: top;
+		}
+
+		thead th {
+			background-color: var(--primary);
+			color: #ffffff;
+			font-weight: 600;
+		}
+
+		tbody tr {
+			&:nth-child(even) {
+				background-color: rgba(0, 0, 0, 0.02);
+			}
+
+			&:hover {
+				background-color: rgba(0, 0, 0, 0.05);
+			}
+		}
+	}
+
+	// Delimiter
+	hr {
+		margin: 3rem 0;
+		border: 0;
+		border-top: 2px solid #e0e0e0;
+	}
+
+	// Cards (for link previews)
+	.card {
+		margin-bottom: 2rem;
+		transition:
+			transform 0.2s,
+			box-shadow 0.2s;
+
+		&:hover {
+			transform: translateY(-2px);
+			box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+		}
+	}
+
+	// Embed containers
+	.embed-tool {
+		margin: 2rem 0;
+
+		iframe {
+			max-width: 100%;
+			border-radius: 8px;
+		}
+	}
+
+	// Links
+	a {
+		color: #2962ff;
+		text-decoration: none;
+		transition: color 0.3s ease;
+
+		&:hover {
+			color: #0039cb;
+			text-decoration: underline;
+		}
 	}
 }

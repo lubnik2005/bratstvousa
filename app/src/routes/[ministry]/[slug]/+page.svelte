@@ -35,15 +35,20 @@
 	<div class="container">
 		<div class="section-header mx-auto mt-5 text-center" style="max-width: 1000px;">
 			<h1 class="display-5 mb-3">{data.event.title}</h1>
-			<p style="min-height:50vh">
+			<p>
 				{data.event.description}
 			</p>
 		</div>
 	</div>
 </div>
 
-<div class="container">
-	<div class="blog-content">
-		{@html data.event.use_editorjs ? data.event.editorjs_rendered : data.event.content}
+<div class="container mb-5">
+	<div class="blog-container mx-auto px-3">
+		<div
+			class="blog-content"
+			class:empty-content={!data.event.content && !data.event.editorjs_rendered}
+		>
+			{@html data.event.use_editorjs ? data.event.editorjs_rendered : data.event.content}
+		</div>
 	</div>
 </div>

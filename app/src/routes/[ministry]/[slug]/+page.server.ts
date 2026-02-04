@@ -12,7 +12,7 @@ import { lte, desc, asc, or, sql, eq, gte, isNull, and, lt } from 'drizzle-orm';
 import { env } from '$env/dynamic/private';
 import edjsHTML from 'editorjs-html';
 
-function linkTool(block) {
+function linkTool(block: any) {
 	const { link, meta } = block.data;
 
 	return `
@@ -29,7 +29,7 @@ function linkTool(block) {
 `;
 }
 
-function image(block) {
+function image(block: any) {
 	const { file, caption } = block.data;
 
 	const originalUrl = file.url;
@@ -45,9 +45,54 @@ function image(block) {
   `;
 }
 
+function table(block: any) {
+	const { withHeadings, content } = block.data;
+
+	if (!content || content.length === 0) {
+		return '';
+	}
+
+	let tableHTML = '<div class="table-responsive"><table class="table table-bordered">';
+
+	content.forEach((row: any[], rowIndex: number) => {
+		const isHeader = withHeadings && rowIndex === 0;
+		const tag = isHeader ? 'th' : 'td';
+
+		// Open thead for first row if withHeadings
+		if (isHeader) {
+			tableHTML += '<thead>';
+		}
+		// Open tbody after header row
+		if (withHeadings && rowIndex === 1) {
+			tableHTML += '<tbody>';
+		}
+		// Open tbody if no headers and first row
+		if (!withHeadings && rowIndex === 0) {
+			tableHTML += '<tbody>';
+		}
+
+		tableHTML += '<tr>';
+
+		row.forEach((cell: string) => {
+			tableHTML += `<${tag}>${cell}</${tag}>`;
+		});
+
+		tableHTML += '</tr>';
+
+		// Close thead after first row if withHeadings
+		if (isHeader) {
+			tableHTML += '</thead>';
+		}
+	});
+
+	tableHTML += '</tbody></table></div>';
+	return tableHTML;
+}
+
 const plugins = {
 	linkTool,
-	image
+	image,
+	table
 };
 
 const edjsParser = edjsHTML(plugins);
