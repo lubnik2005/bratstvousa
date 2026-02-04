@@ -42,7 +42,7 @@
 	<header class="mobile-header d-lg-none">
 		<!-- Logo on the Left -->
 		<a href="/">
-			<img src="{media_url}logo.png" alt="Логотип Братства США" />
+			<img src="{media_url}logo.png" alt="Логотип Братства США" width="58" height="40" />
 		</a>
 
 		<!-- Title in the Center -->

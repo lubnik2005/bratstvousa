@@ -34,6 +34,12 @@ const handleSecurityHeaders: Handle = async ({ event, resolve }) => {
 	response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
 	response.headers.set('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
 
+	// HSTS - enforce HTTPS (start with 1 day, increase after testing)
+	response.headers.set('Strict-Transport-Security', 'max-age=86400; includeSubDomains');
+
+	// COOP - isolate the browsing context
+	response.headers.set('Cross-Origin-Opener-Policy', 'same-origin');
+
 	return response;
 };
 

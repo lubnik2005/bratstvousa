@@ -56,6 +56,7 @@
 		<a href="/" class="navbar-brand ms-lg-0 d-flex align-items-center ms-4">
 			<img
 				width="100"
+				height="69"
 				style="display: inline;"
 				src="{media_url}logo.png"
 				alt="Логотип Братства США"
