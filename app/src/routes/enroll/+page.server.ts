@@ -37,23 +37,23 @@ export const actions = {
 		const s3Client = new S3Client(aws_creds);
 
 		const data = await request.formData();
-		const personalPhoto = data.get('personal_photo');
+		const personalPhoto = data.get('personal_photo') as File | null;
 		let photoUrl = null;
-
-		const fileExtension = personalPhoto.name.split('.').pop();
-		const fileName = `${uuidv4()}.${fileExtension}`;
-		const prefix = 'upfiles/photos/form/';
-		const Key = `${prefix}${fileName}`;
-		const s3Params = {
-			Bucket: env.AWS_BUCKET_NAME,
-			Key,
-			Body: await personalPhoto.arrayBuffer(),
-			ContentType: personalPhoto.type
-			// ACL: 'public-read'
-		};
 
 		if (personalPhoto && personalPhoto.size > 0) {
 			// Generate unique filename using UUID
+			const fileExtension = personalPhoto.name.split('.').pop();
+			const fileName = `${uuidv4()}.${fileExtension}`;
+			const prefix = 'upfiles/photos/form/';
+			const Key = `${prefix}${fileName}`;
+			const s3Params = {
+				Bucket: env.AWS_BUCKET_NAME,
+				Key,
+				Body: await personalPhoto.arrayBuffer(),
+				ContentType: personalPhoto.type
+				// ACL: 'public-read'
+			};
+
 			try {
 				// Upload to S3
 				await s3Client.send(new PutObjectCommand(s3Params));

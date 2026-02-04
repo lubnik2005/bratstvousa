@@ -1,12 +1,14 @@
 import { env } from '$env/dynamic/private';
 import { createMockDb } from './mock-db';
+import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
+import type { MockDb } from './mock-db';
 
 // Check if we should use mock database
 const useMockDb = env.USE_MOCK_DB === 'true' || !env.DATABASE_URL;
 
 export const isMockDb = useMockDb;
 
-let db: any;
+let db: PostgresJsDatabase | MockDb;
 
 if (useMockDb) {
 	// Use mock database for development without PostgreSQL

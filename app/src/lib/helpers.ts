@@ -1,6 +1,6 @@
 // Please, never have a helpers file
 //
-export function formatDate(dateString: string | null) {
+export function formatDate(dateString: string | null): string | null {
 	if (!dateString) return null;
 	const date = new Date(dateString);
 	return date.toLocaleDateString('en-US', {
@@ -10,7 +10,7 @@ export function formatDate(dateString: string | null) {
 	});
 }
 
-export function regionToLabel(key: string) {
+export function regionToLabel(key: string): string | undefined {
 	return [
 		{ key: 'all', label: 'Американское Объединение' },
 		{ key: 'central', label: 'Центральный регион' },
