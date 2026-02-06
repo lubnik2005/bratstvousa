@@ -32,7 +32,7 @@ class Church extends Resource
      * @var array
      */
     public static $search = [
-        'name_line_1', 'state',
+        'name_line_1', 'name_line_2', 'state', 'city',
     ];
 
     /**

@@ -5,7 +5,6 @@ namespace App\Nova;
 use Laravel\Nova\Actions\ExportAsCsv;
 use Laravel\Nova\Http\Requests\NovaRequest;
 
-
 class MusicEvent extends Resource
 {
     /**
@@ -28,7 +27,7 @@ class MusicEvent extends Resource
      * @var array
      */
     public static $search = [
-        'id',
+        'id', 'title', 'description', 'slug',
     ];
 
     /**

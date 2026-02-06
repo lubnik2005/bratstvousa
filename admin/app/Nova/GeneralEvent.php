@@ -2,15 +2,8 @@
 
 namespace App\Nova;
 
-use Laravel\Nova\Fields\Date;
-use Laravel\Nova\Fields\ID;
-use Laravel\Nova\Fields\Image;
-use Laravel\Nova\Fields\Select;
-use Laravel\Nova\Fields\Slug;
-use Laravel\Nova\Fields\Text;
-use Laravel\Nova\Fields\Trix;
-use Laravel\Nova\Http\Requests\NovaRequest;
 use Laravel\Nova\Actions\ExportAsCsv;
+use Laravel\Nova\Http\Requests\NovaRequest;
 
 class GeneralEvent extends Resource
 {
@@ -85,6 +78,6 @@ class GeneralEvent extends Resource
      */
     public function actions(NovaRequest $request): array
     {
-        return [        ExportAsCsv::make(),];
+        return [ExportAsCsv::make()];
     }
 }

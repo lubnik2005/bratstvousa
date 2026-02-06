@@ -2,8 +2,8 @@
 
 namespace App\Nova;
 
-use Laravel\Nova\Http\Requests\NovaRequest;
 use Laravel\Nova\Actions\ExportAsCsv;
+use Laravel\Nova\Http\Requests\NovaRequest;
 
 class GospelEvent extends Resource
 {
@@ -27,7 +27,7 @@ class GospelEvent extends Resource
      * @var array
      */
     public static $search = [
-        'id',
+        'id', 'title', 'description', 'slug',
     ];
 
     /**
@@ -78,6 +78,6 @@ class GospelEvent extends Resource
      */
     public function actions(NovaRequest $request): array
     {
-        return [        ExportAsCsv::make(),];
+        return [ExportAsCsv::make()];
     }
 }

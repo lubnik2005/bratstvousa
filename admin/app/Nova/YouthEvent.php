@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 use Laravel\Nova\Actions\ExportAsCsv;
 use Laravel\Nova\Http\Requests\NovaRequest;
 
-
 class YouthEvent extends Resource
 {
     /**
@@ -29,7 +28,7 @@ class YouthEvent extends Resource
      * @var array
      */
     public static $search = [
-        'id',
+        'id', 'title', 'description', 'slug',
     ];
 
     /**
@@ -80,6 +79,6 @@ class YouthEvent extends Resource
      */
     public function actions(NovaRequest $request)
     {
-        return [        ExportAsCsv::make(),];
+        return [ExportAsCsv::make()];
     }
 }

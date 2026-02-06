@@ -2,8 +2,6 @@
 
 namespace App\Nova;
 
-use Illuminate\Http\Request;
-use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Http\Requests\NovaRequest;
 
 class BibleEducationNewsArticle extends Resource
@@ -28,7 +26,7 @@ class BibleEducationNewsArticle extends Resource
      * @var array
      */
     public static $search = [
-        'id',
+        'id', 'title', 'description', 'slug',
     ];
 
     /**
@@ -38,7 +36,7 @@ class BibleEducationNewsArticle extends Resource
      */
     public function fields(NovaRequest $request): array
     {
-        return [...Traits\SharedFields::articleFields() ];
+        return [...Traits\SharedFields::articleFields()];
     }
 
     /**

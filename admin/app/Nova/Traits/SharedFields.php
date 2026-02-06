@@ -2,19 +2,19 @@
 
 namespace App\Nova\Traits;
 
+use Advoor\NovaEditorJs\NovaEditorJsField;
 use Ebess\AdvancedNovaMediaLibrary\Fields\Files;
 use Ebess\AdvancedNovaMediaLibrary\Fields\Images;
+use Laravel\Nova\Fields\Boolean;
 use Laravel\Nova\Fields\Date;
+use Laravel\Nova\Fields\File;
 use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\Image;
 use Laravel\Nova\Fields\Select;
 use Laravel\Nova\Fields\Slug;
 use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Fields\Trix;
-use Laravel\Nova\Fields\File;
 use Laravel\Nova\Fields\URL;
-use Laravel\Nova\Fields\Boolean;
-use Advoor\NovaEditorJs\NovaEditorJsField;
 
 class SharedFields
 {
@@ -25,7 +25,7 @@ class SharedFields
         return [
             ID::make()->sortable(),
             URL::make('Url Link', function ($resource) {
-                return env('FRONTEND_URL') . '/test/' . $resource->slug;
+                return env('FRONTEND_URL').'/test/'.$resource->slug;
             })->onlyOnDetail(),
             Text::make('Title')->rules('required')->required(),
             Slug::make('Slug')->from('title'),
@@ -51,8 +51,10 @@ class SharedFields
         ];
     }
 
-    public static function articleFields(){
+    public static function articleFields()
+    {
         $disk = config('filesystems.default');
+
         return [
             ID::make()->sortable(),
             Text::make('Title')->rules('required')->required(),

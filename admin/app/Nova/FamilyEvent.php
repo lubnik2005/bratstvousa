@@ -2,15 +2,8 @@
 
 namespace App\Nova;
 
-use Laravel\Nova\Fields\Date;
-use Laravel\Nova\Fields\ID;
-use Laravel\Nova\Fields\Image;
-use Laravel\Nova\Fields\Select;
-use Laravel\Nova\Fields\Slug;
-use Laravel\Nova\Fields\Text;
-use Laravel\Nova\Fields\Trix;
-use Laravel\Nova\Http\Requests\NovaRequest;
 use Laravel\Nova\Actions\ExportAsCsv;
+use Laravel\Nova\Http\Requests\NovaRequest;
 
 class FamilyEvent extends Resource
 {
@@ -34,7 +27,7 @@ class FamilyEvent extends Resource
      * @var array
      */
     public static $search = [
-        'id',
+        'id', 'title', 'description', 'slug',
     ];
 
     /**
@@ -42,7 +35,6 @@ class FamilyEvent extends Resource
      *
      * @return array<int, \Laravel\Nova\Fields\Field>
      */
-
     public function fields(NovaRequest $request)
     {
         return array_merge(Traits\SharedFields::eventFields(), []);
@@ -86,6 +78,6 @@ class FamilyEvent extends Resource
      */
     public function actions(NovaRequest $request): array
     {
-        return [        ExportAsCsv::make(),];
+        return [ExportAsCsv::make()];
     }
 }

@@ -33,7 +33,7 @@ class ChildrensFile extends Resource
      * @var array
      */
     public static $search = [
-        'id',
+        'id', 'name', 'category',
     ];
 
     /**
@@ -44,6 +44,7 @@ class ChildrensFile extends Resource
     public function fields(NovaRequest $request)
     {
         $disk = config('filesystems.default');
+
         return [
             ID::make()->sortable(),
             Text::make('Name'),
