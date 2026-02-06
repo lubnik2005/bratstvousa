@@ -1,68 +1,143 @@
 import { db, isMockDb } from '$lib/server/db';
-import { Event, eventSchemas } from '$lib/server/db/schema';
-import { sql } from 'drizzle-orm';
-import { unionAll } from 'drizzle-orm/mysql-core';
+import { eventSchemas } from '$lib/server/db/schema';
+import { sql, gte, lte, and } from 'drizzle-orm';
+import type { PageServerLoad } from './$types';
 
-const ministries = [
-	{ name: 'youthEvents', color: '#5A4A42' },
-	{ name: 'childrensEvents', color: '#8D230F' },
-	{ name: 'bibleEducationEvents', color: '#F2C572' },
-	{ name: 'generalEvents', color: '#397367' },
-	{ name: 'gospelEvents', color: '#6C4A79' },
-	{ name: 'musicEvents', color: '#2176AE' },
-	{ name: 'familyEvents', color: '#FF8C42' }
+// Ministry metadata for calendar display
+const ministryMeta: Record<string, { color: string; slug: string }> = {
+	youthEvents: { color: '#2176AE', slug: 'youth-ministry' },
+	childrensEvents: { color: '#8D230F', slug: 'childrens-ministry' },
+	bibleEducationEvents: { color: '#F2C572', slug: 'bible-education-ministry' },
+	generalEvents: { color: '#397367', slug: 'general-event' },
+	gospelEvents: { color: '#6C4A79', slug: 'gospel-ministry' },
+	musicEvents: { color: '#5A4A42', slug: 'music-choir-ministry' },
+	familyEvents: { color: '#FF8C42', slug: 'family-ministry' }
+};
+
+// Schema name mapping (order matches eventSchemas array)
+const schemaNames = [
+	'youthEvents',
+	'childrensEvents',
+	'bibleEducationEvents',
+	'generalEvents',
+	'gospelEvents',
+	'musicEvents',
+	'familyEvents'
 ];
 
-export async function load() {
-	// Mock database branch - directly access mock data
+export interface CalendarEvent {
+	id: number;
+	title: string;
+	start: string;
+	end: string;
+	url: string;
+	region: string;
+	backgroundColor: string;
+	borderColor: string;
+	schemaName: string;
+}
+
+export const load: PageServerLoad = async ({ url }) => {
+	// Get date range from URL params (default: 1 year before to 1 year after today)
+	const now = new Date();
+	const defaultStart = new Date(now.getFullYear() - 1, now.getMonth(), 1);
+	const defaultEnd = new Date(now.getFullYear() + 1, now.getMonth() + 1, 0);
+
+	const startDate = url.searchParams.get('start') ?? defaultStart.toISOString().slice(0, 10);
+	const endDate = url.searchParams.get('end') ?? defaultEnd.toISOString().slice(0, 10);
+
+	// Mock database branch
 	if (isMockDb) {
 		const mockData = (db as any)._mockData;
-		const allEvents: any[] = [];
+		const allEvents: CalendarEvent[] = [];
 
-		// Combine all event tables with their colors
-		ministries.forEach((ministry, i) => {
-			const events = mockData[ministry.name] || [];
+		schemaNames.forEach((schemaName) => {
+			const events = mockData[schemaName] || [];
+			const meta = ministryMeta[schemaName];
+
 			events.forEach((event: any) => {
+				// Apply date filtering
+				if (event.startAt < startDate || event.startAt > endDate) return;
+
+				// Add a day to end date for fullcalendar.io (end is exclusive)
+				const endPlusOne = event.endAt
+					? new Date(new Date(event.endAt).getTime() + 86400000).toISOString().slice(0, 10)
+					: event.startAt;
+
 				allEvents.push({
 					id: event.id,
 					title: event.title,
 					start: event.startAt,
-					// Add a day to end date for fullcalendar.io (end is exclusive)
-					end: new Date(new Date(event.endAt).getTime() + 24 * 60 * 60 * 1000)
-						.toISOString()
-						.split('T')[0],
-					url: `/general-event/${event.slug}`,
-					region: event.region,
-					borderColor: ministry.color,
-					backgroundColor: ministry.color,
-					schemaName: ministry.name
+					end: endPlusOne,
+					url: `/${meta.slug}/${event.slug}`,
+					region: event.region || 'all',
+					backgroundColor: meta.color,
+					borderColor: meta.color,
+					schemaName
 				});
 			});
 		});
 
+		// Sort by start date
+		allEvents.sort((a, b) => a.start.localeCompare(b.start));
+
 		return { events: allEvents };
 	}
 
-	// Real database branch - use unionAll
-	const events = await unionAll(
-		...eventSchemas.map((eventSchema, i) => {
-			return db
-				.select({
-					id: eventSchema.id,
-					title: eventSchema.title,
-					start: eventSchema.startAt,
-					// HACK: in the fullcalendar.io, the end date is exclusive, so I need to add a day.
-					end: sql`(${eventSchema.endAt}::TIMESTAMP + INTERVAL '1 day')`,
-					// end: eventSchema.endAt,
-					// TODO: this should link to the ministry slug, not just 'general-event'
-					url: sql`CONCAT('/general-event/', ${eventSchema.slug})`, // Add prefix to the slug
-					region: eventSchema.region,
-					borderColor: sql`${ministries[i].color}`,
-					backgroundColor: sql`${ministries[i].color}`,
-					schemaName: sql`${ministries[i].name}` // Add schema name to identify source
-				})
-				.from(eventSchema);
-		})
-	);
-	return { events };
-}
+	// Real database branch - query each table individually (more efficient than unionAll for filtered queries)
+	const allEvents: CalendarEvent[] = [];
+
+	// Execute all queries in parallel
+	const queryPromises = eventSchemas.map(async (schema, i) => {
+		const schemaName = schemaNames[i];
+		const meta = ministryMeta[schemaName];
+
+		const events = await db
+			.select({
+				id: schema.id,
+				title: schema.title,
+				startAt: schema.startAt,
+				endAt: schema.endAt,
+				slug: schema.slug,
+				region: schema.region
+			})
+			.from(schema)
+			.where(and(gte(schema.startAt, startDate), lte(schema.startAt, endDate)));
+
+		return events.map(
+			(event: {
+				id: number;
+				title: string;
+				startAt: string | null;
+				endAt: string | null;
+				slug: string | null;
+				region: string;
+			}) => {
+				// Add a day to end date for fullcalendar.io (end is exclusive)
+				const endPlusOne = event.endAt
+					? new Date(new Date(event.endAt).getTime() + 86400000).toISOString().slice(0, 10)
+					: event.startAt;
+
+				return {
+					id: event.id,
+					title: event.title,
+					start: event.startAt,
+					end: endPlusOne,
+					url: `/${meta.slug}/${event.slug}`,
+					region: event.region || 'all',
+					backgroundColor: meta.color,
+					borderColor: meta.color,
+					schemaName
+				} as CalendarEvent;
+			}
+		);
+	});
+
+	const results = await Promise.all(queryPromises);
+	results.forEach((eventList) => allEvents.push(...eventList));
+
+	// Sort by start date
+	allEvents.sort((a, b) => a.start.localeCompare(b.start));
+
+	return { events: allEvents };
+};

@@ -3,7 +3,7 @@ import { bibleEducationNewsArticles, eventSchemas, newsArticles } from '$lib/ser
 import { desc, eq, isNotNull, count, sql } from 'drizzle-orm';
 import { env } from '$env/dynamic/private';
 import { formatDate } from '$lib/helpers';
-import { unionAll } from 'drizzle-orm/mysql-core';
+import { unionAll } from 'drizzle-orm/pg-core';
 import { newsArticlesSchema, newsArticlesSchemaOrdered } from '$lib/server/db/queries';
 
 export async function load({ params, url }) {

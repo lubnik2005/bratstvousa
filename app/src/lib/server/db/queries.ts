@@ -19,7 +19,7 @@ import {
 	youthNewsArticles
 } from './schema';
 import { formatDate } from '$lib/helpers';
-import { unionAll } from 'drizzle-orm/mysql-core';
+import { unionAll } from 'drizzle-orm/pg-core';
 
 export async function getMinistryEvents(
 	events: Event,

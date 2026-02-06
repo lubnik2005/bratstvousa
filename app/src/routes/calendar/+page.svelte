@@ -1,5 +1,4 @@
 <script lang="ts">
-	export let data;
 	import { onMount } from 'svelte';
 	import { Calendar } from '@fullcalendar/core';
 	import dayGridPlugin from '@fullcalendar/daygrid';
@@ -7,6 +6,9 @@
 	import timeGridPlugin from '@fullcalendar/timegrid';
 	import ruLocale from '@fullcalendar/core/locales/ru';
 	import { goto } from '$app/navigation';
+	import type { PageData } from './$types';
+
+	export let data: PageData;
 
 	// Define available regions and ministries
 	const regions = [
@@ -19,12 +21,12 @@
 
 	const ministries = [
 		{ key: 'all', label: 'Все Отделы' },
-		{ key: 'bibleEducationEvents', label: 'Отдел библейского образования', color: '#5A4A42' },
-		{ key: 'familyEvents', label: 'Семейный отдел', color: '#8D230F' },
-		{ key: 'childrensEvents', label: 'Детский отдел', color: '#F2C572' },
-		{ key: 'gospelEvents', label: 'Отдел Благовестия', color: '#397367' },
-		{ key: 'musicEvents', label: 'Музыкально хоровой отдел', color: '#6C4A79' },
-		{ key: 'youthEvents', label: 'Молодежный отдел', color: '#2176AE' }
+		{ key: 'bibleEducationEvents', label: 'Отдел библейского образования' },
+		{ key: 'familyEvents', label: 'Семейный отдел' },
+		{ key: 'childrensEvents', label: 'Детский отдел' },
+		{ key: 'gospelEvents', label: 'Отдел Благовестия' },
+		{ key: 'musicEvents', label: 'Музыкально хоровой отдел' },
+		{ key: 'youthEvents', label: 'Молодежный отдел' }
 	];
 
 	const headerToolbar = {
@@ -42,30 +44,44 @@
 	let calendarIsLoading = true;
 	let selectedRegion = 'all';
 	let selectedMinistry = 'all';
-	let filteredEvents = data.events;
 	let calendar: Calendar;
 
-	function updateURLParams() {
+	function getFilteredEvents() {
+		return data.events
+			.filter(
+				(e) =>
+					(selectedRegion === 'all' || e.region === selectedRegion) &&
+					(selectedMinistry === 'all' || e.schemaName === selectedMinistry)
+			)
+			.map((e) => ({
+				id: String(e.id),
+				title: e.title,
+				start: e.start ?? undefined,
+				end: e.end ?? undefined,
+				url: e.url,
+				backgroundColor: e.backgroundColor,
+				borderColor: e.borderColor
+			}));
+	}
+
+	function updateURLParams(dateStr?: string) {
 		const params = new URLSearchParams(window.location.search);
 		params.set('region', selectedRegion);
 		params.set('ministry', selectedMinistry);
+		if (dateStr) {
+			params.set('date', dateStr);
+		}
 
 		goto(`${window.location.pathname}?${params.toString()}`, {
 			replaceState: true,
-			keepfocus: true,
+			keepFocus: true,
 			noScroll: true
 		});
 	}
 
 	function filterEvents() {
-		filteredEvents = data.events.filter(
-			(e) =>
-				(selectedRegion === 'all' || e.region === selectedRegion) &&
-				(selectedMinistry === 'all' || e.schemaName === selectedMinistry)
-		);
-
-		calendar.removeAllEvents();
-		filteredEvents.forEach((e) => calendar.addEvent(e));
+		// Use setOption to update events efficiently (no DOM churn)
+		calendar.setOption('events', getFilteredEvents());
 		updateURLParams();
 	}
 
@@ -76,44 +92,36 @@
 		if (params.has('region')) {
 			selectedRegion = params.get('region') || 'all';
 		}
-
 		if (params.has('ministry')) {
 			selectedMinistry = params.get('ministry') || 'all';
 		}
 
+		const isMobile = window.matchMedia('(max-width: 754px)').matches;
 		const calendarEl = document.getElementById('calendar')!;
 
 		calendar = new Calendar(calendarEl, {
 			plugins: [listPlugin, dayGridPlugin, timeGridPlugin],
-			initialView: window.matchMedia('(max-width: 754px)').matches ? 'listYear' : 'dayGridMonth',
+			initialView: isMobile ? 'listYear' : 'dayGridMonth',
 			initialDate: params.get('date') ?? undefined,
 			firstDay: 0,
 			defaultAllDay: true,
 			datesSet(info) {
-				params.set('date', info.view.currentStart.toISOString().slice(0, 10)); // "YYYY-MM-DD");
-				goto(`${window.location.pathname}?${params.toString()}`, {
-					replaceState: true,
-					keepfocus: true,
-					noScroll: true
-				});
-
-				// Your custom function
-				// myCustomFunction(info);
+				const dateStr = info.view.currentStart.toISOString().slice(0, 10);
+				updateURLParams(dateStr);
 			},
-			headerToolbar: window.matchMedia('(max-width: 754px)').matches
-				? headerToolbarMobile
-				: headerToolbar,
+			headerToolbar: isMobile ? headerToolbarMobile : headerToolbar,
 			locales: [ruLocale],
 			buttonText: {
 				list: 'График'
 			},
-			events: filteredEvents,
-			loading: function (isLoading) {
+			events: getFilteredEvents(),
+			loading(isLoading) {
 				calendarIsLoading = isLoading;
 			}
 		});
+
 		calendar.render();
-		filterEvents();
+
 		return () => {
 			calendar.destroy();
 		};
@@ -126,33 +134,38 @@
 			<h1 class="display-5 mb-3">Календарь</h1>
 		</div>
 
-		{#if calendarIsLoading}
+		{#if !calendarIsLoading}
+			<div class="d-flex mb-3 flex-wrap gap-2">
+				<select
+					bind:value={selectedRegion}
+					on:change={() => filterEvents()}
+					class="custom-select"
+					id="filter-region"
+					aria-label="Фильтр по региону"
+				>
+					{#each regions as region}
+						<option value={region.key}>{region.label}</option>
+					{/each}
+				</select>
+
+				<select
+					bind:value={selectedMinistry}
+					on:change={() => filterEvents()}
+					class="custom-select"
+					id="filter-ministry"
+					aria-label="Фильтр по отделу"
+				>
+					{#each ministries as ministry}
+						<option value={ministry.key}>{ministry.label}</option>
+					{/each}
+				</select>
+			</div>
+		{:else}
 			<div class="placeholder-glow my-4" id="calendar-skeleton">
 				<span class="placeholder" style="width: 100%; aspect-ratio: 16/10;" />
 			</div>
-		{:else}
-			<select
-				bind:value={selectedRegion}
-				on:change={() => filterEvents()}
-				class="custom-select"
-				id="region"
-			>
-				{#each regions as region}
-					<option value={region.key}>{region.label}</option>
-				{/each}
-			</select>
-
-			<select
-				class="custom-select"
-				id="region"
-				bind:value={selectedMinistry}
-				on:change={() => filterEvents()}
-			>
-				{#each ministries as ministry}
-					<option value={ministry.key}>{ministry.label}</option>
-				{/each}
-			</select>
 		{/if}
+
 		<div id="calendar" class="my-4" style="min-height: 700px;" />
 	</div>
 </div>
@@ -191,5 +204,9 @@
 		--fc-highlight-color: rgba(188, 232, 241, 0.3);
 		--fc-today-bg-color: rgba(255, 220, 40, 0.15);
 		--fc-now-indicator-color: red;
+	}
+
+	.custom-select {
+		min-width: 200px;
 	}
 </style>

@@ -1,7 +1,7 @@
 import { db, isMockDb } from '$lib/server/db';
 import { parseEditorJS } from '$lib/server/editorjs';
 import { eventSchemas } from '$lib/server/db/schema';
-import { unionAll } from 'drizzle-orm/mysql-core';
+import { unionAll } from 'drizzle-orm/pg-core';
 import { sql, eq } from 'drizzle-orm';
 import { env } from '$env/dynamic/private';
 import { error } from '@sveltejs/kit';
