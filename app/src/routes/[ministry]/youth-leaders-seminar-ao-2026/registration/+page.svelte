@@ -11,7 +11,7 @@
 	const SEMINAR_COST = '$200';
 	const SEMINAR_LOCATION = 'WA, Havilah Retreat Center';
 
-	const ZELLE = 'gyouth5116@bratstvousa.com';
+	const ZELLE = 'gyouth5116@gmail.com';
 
 	/*** Clipboard helper ***/
 	let copied = false;
