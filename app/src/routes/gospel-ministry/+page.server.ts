@@ -1,12 +1,12 @@
 import { gospelEvents } from '$lib/server/db/schema';
-import { env } from '$env/dynamic/private';
+import { getMinistryEvents } from '$lib/server/db/queries';
+import type { PageServerLoad } from './$types';
 
-import { getMinistryEvents, getMinistryNewsArticles } from '$lib/server/db/queries';
-
-export async function load() {
+export const load: PageServerLoad = async ({ locals, platform, setHeaders }) => {
+	setHeaders({ 'cache-control': 'public, max-age=0, s-maxage=300, stale-while-revalidate=3600' });
 	return {
-		events: await getMinistryEvents(gospelEvents),
+		events: await getMinistryEvents(locals.db, gospelEvents),
 		articles: [],
-		media_url: env.MEDIA_URL
+		media_url: platform?.env?.MEDIA_URL ?? ''
 	};
-}
+};

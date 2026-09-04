@@ -1,16 +1,18 @@
 import { env } from '$env/dynamic/private';
-import { db } from '$lib/server/db';
 import { parseEditorJS } from '$lib/server/editorjs';
-import { newsArticlesSchema } from '$lib/server/db/queries';
+import { getAllNewsArticles } from '$lib/server/db/queries';
 import { medias } from '$lib/server/db/schema';
 import { error } from '@sveltejs/kit';
-import { and, eq, sql } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
+import type { PageServerLoad } from './$types';
 
-export async function load({ params }) {
-	const news_articles = await newsArticlesSchema().where(
-		sql`news_articles_union.slug = ${params.slug}`
-	);
-	const news_article = news_articles[0];
+export const load: PageServerLoad = async ({ params, locals, setHeaders }) => {
+	setHeaders({ 'cache-control': 'public, max-age=0, s-maxage=300, stale-while-revalidate=3600' });
+	const db = locals.db;
+
+	// Search all news article tables for matching slug
+	const allArticles = await getAllNewsArticles(db);
+	const news_article: any = allArticles.find((a) => a.slug === params.slug);
 
 	if (!news_article) {
 		error(404, {
@@ -53,4 +55,4 @@ export async function load({ params }) {
 		images,
 		audios
 	};
-}
+};

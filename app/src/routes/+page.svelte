@@ -1,6 +1,41 @@
 <script lang="ts">
-	// let { data } = $props();
+	import { hasEventContent } from '$lib/helpers';
+
 	export let data;
+
+	// The server augments each event with these display fields at runtime
+	// (see +page.server.ts); surface them to the template with a light type.
+	type HomeEvent = {
+		slug: string;
+		title: string;
+		featuredImage?: string | null;
+		numerical_date?: string;
+		month_short?: string;
+		dates_description?: string;
+		description?: string | null;
+		content?: string | null;
+		editorjs?: unknown;
+		use_editorjs?: unknown;
+	};
+	type HomeArticle = {
+		slug: string;
+		title: string;
+		featuredImage?: string | null;
+		date?: string | null;
+		description?: string;
+	};
+
+	$: events = (data.events ?? []) as HomeEvent[];
+	$: news_articles = (data.news_articles ?? []) as HomeArticle[];
+
+	const formatArticleDate = (value?: string | null): string =>
+		value
+			? new Intl.DateTimeFormat('ru-RU', {
+					day: 'numeric',
+					month: 'long',
+					year: 'numeric'
+				}).format(new Date(value))
+			: '';
 </script>
 
 <svelte:head>
@@ -30,11 +65,8 @@
 			<div class="carousel-item active">
 				<div class="video-wrapper d-none d-lg-block">
 					<video poster="{data.media_url}video/first-frame.webp" autoplay muted loop playsinline>
-						<source
-							src="{data.media_url}video/bg_compressed_no_audio.webm"
-							type="video/webm"
-							media="(min-width: 992px)"
-						/>
+						<source src="{data.media_url}video/bg-hero-1280.webm" type="video/webm" />
+						<source src="{data.media_url}video/bg-hero-1280.mp4" type="video/mp4" />
 						Your browser does not support the video tag.
 					</video>
 					<!---->
@@ -48,21 +80,20 @@
 						<img
 							fetchpriority="high"
 							loading="eager"
-							src="{data.media_url}img/bratstvo_header_low.webp"
-							data-src="{data.media_url}img/bratstvo_header.webp"
-							class="lazyload"
+							src="{data.media_url}img/bratstvo_header.webp"
 							alt="Братство США - главный баннер"
 						/>
 					</div>
 				</div>
 				<div class="carousel-caption">
 					<div class="container">
-						<div class="row justify-content-start">
-							<div class="col-lg-12">
-								<h1 class="display-2 text-outline mb-5 text-center">
-									Американское Объединение <br /> МСЦ ЕХБ
-								</h1>
-							</div>
+						<div class="hero-wordmark mx-auto">
+							<p class="hero-eyebrow">Американское Объединение</p>
+							<h1 class="hero-title">МСЦ ЕХБ</h1>
+							<p class="hero-scripture">
+								«Господь — Пастырь мой; я ни в чём не буду нуждаться»
+								<span class="hero-cite">Псалом 22:1</span>
+							</p>
 						</div>
 					</div>
 				</div>
@@ -131,83 +162,102 @@
 <!-- </div> -->
 <!-- Carousel End -->
 
-{#if data.events.length}
-	<div class="container my-5">
-		<div class="d-flex align-items-center justify-content-between bg-light rounded p-4 shadow-sm">
-			<!-- Event Image -->
-			{#if data.events[0]?.featuredImage}
-				<div class="d-none d-lg-block event-image me-4">
-					<img
-						src="{data.media_url}{data.events[0].featuredImage}"
-						alt={data.events[0].title}
-						class="rounded"
-						style="width: 150px; height: auto;"
-						defer
-					/>
+{#if events.length}
+	<section class="container my-6">
+		<div class="featured-event measure-wide mx-auto">
+			<p class="eyebrow">Ближайшее событие</p>
+			<div class="row g-4 align-items-center">
+				{#if events[0]?.featuredImage}
+					<div class="col-lg-4 d-none d-lg-block">
+						{#if hasEventContent(events[0])}
+							<a href="/general-event/{events[0].slug}">
+								<img
+									src="{data.media_url}{events[0].featuredImage}"
+									alt={events[0].title}
+									class="featured-event-img"
+								/>
+							</a>
+						{:else}
+							<img
+								src="{data.media_url}{events[0].featuredImage}"
+								alt={events[0].title}
+								class="featured-event-img"
+							/>
+						{/if}
+					</div>
+				{/if}
+				<div class="col-lg-8">
+					<h2 class="featured-event-title">{events[0].title}</h2>
+					<p class="featured-event-meta">{events[0].dates_description}</p>
+					{#if hasEventContent(events[0])}
+						<a href="/general-event/{events[0].slug}" class="btn-quiet">Подробнее →</a>
+					{/if}
 				</div>
-			{/if}
-
-			<!-- Event Details -->
-			<!-- content here -->
-			<div class="event-details flex-grow-1">
-				<span class="badge bg-primary mb-2">Следующее предстоящее событие</span>
-				<a href="/general-event/{data.events[0].slug}"
-					><h3 class="mb-2">{data.events[0].title}</h3></a
-				>
-				<p class="text-muted">{data.events[0].dates_description}</p>
 			</div>
 		</div>
-	</div>
+	</section>
 {/if}
 
-<div class="container my-5">
-	<div class="row">
+<div class="container my-6">
+	<div class="row g-5 g-lg-6">
 		<!-- Upcoming Events -->
 		<div class="col-lg-6">
-			<h3 class="mb-4">События</h3>
-			{#each data.events as event}
-				<div class="d-flex align-items-start mb-4">
-					<div class="bg-primary me-3 rounded p-3 text-center text-white" style="min-width: 70px;">
-						<h5 class="text-light mb-0">{event.numerical_date}</h5>
-						<small>{event.month_short}</small>
-					</div>
-					<div>
-						<h5 class="mb-1"><a href="/general-event/{event.slug}">{event.title}</a></h5>
-						<small class="text-muted">{event.dates_description}</small>
-						<p class="text-muted mb-0">{event.description}</p>
-					</div>
-				</div>
-			{/each}
+			<div class="section-header mb-4 text-start">
+				<p class="eyebrow">Календарь</p>
+				<h2>События</h2>
+			</div>
+			<ul class="home-list list-unstyled">
+				{#each events as event}
+					<li class="home-event">
+						<div class="home-event-when">
+							<span class="home-event-day">{event.numerical_date}</span>
+							<span class="home-event-month">{event.month_short}</span>
+						</div>
+						<div class="home-event-body">
+							<span class="home-event-title">{event.title}</span>
+							<p class="home-event-meta">{event.dates_description}</p>
+							{#if event.description}
+								<p class="home-event-desc">{event.description}</p>
+							{/if}
+							{#if hasEventContent(event)}
+								<a href="/general-event/{event.slug}" class="btn-quiet home-event-cta">
+									Подробнее →
+								</a>
+							{/if}
+						</div>
+					</li>
+				{/each}
+			</ul>
 		</div>
 
 		<!-- Latest News -->
 		<div class="col-lg-6">
-			<h3 class="mb-4">Новости</h3>
-			{#each data.news_articles as article}
-				<!-- content here -->
-				<div class="d-flex align-items-start mb-4">
-					<img
-						src="{data.media_url}{article.featuredImage}"
-						alt={article.title}
-						class="me-3 rounded"
-						style="width: 100px; height: 100px; object-fit: cover;"
-						loading="lazy"
-					/>
-					<div>
-						<a href="/news/{article.slug}"><h5 class="mb-1">{article.title}</h5></a>
-						<small class="text-muted">
-							Опубликовано: {new Intl.DateTimeFormat('ru-RU', {
-								day: 'numeric',
-								month: 'long',
-								year: 'numeric'
-							}).format(new Date(article.date))}
-						</small>
-						<p class="text-muted mb-0">
-							{article.description}
-						</p>
-					</div>
-				</div>
-			{/each}
+			<div class="section-header mb-4 text-start">
+				<p class="eyebrow">Публикации</p>
+				<h2>Новости</h2>
+			</div>
+			<ul class="home-list list-unstyled">
+				{#each news_articles as article}
+					<li class="home-news">
+						{#if article.featuredImage}
+							<a href="/news/{article.slug}" class="home-news-figure">
+								<img
+									src="{data.media_url}{article.featuredImage}"
+									alt={article.title}
+									loading="lazy"
+								/>
+							</a>
+						{/if}
+						<div class="home-news-body">
+							<p class="eyebrow home-news-date">{formatArticleDate(article.date)}</p>
+							<a href="/news/{article.slug}" class="home-news-title">{article.title}</a>
+							{#if article.description}
+								<p class="home-news-desc">{article.description}</p>
+							{/if}
+						</div>
+					</li>
+				{/each}
+			</ul>
 		</div>
 	</div>
 </div>
@@ -218,7 +268,9 @@
 		background-color: black; /* Black background for the bars */
 	}
 
-	/* Apply blue tint as an overlay */
+	/* Muting overlay: an even tint across the whole video tones the colours
+	   down and evens out the light/dark flicker, layered with a stronger
+	   gradient toward the bottom so the wordmark stays legible. */
 	.video-wrapper::before {
 		content: '';
 		position: absolute;
@@ -226,9 +278,16 @@
 		left: 0;
 		width: 100%;
 		height: 100%;
-		background-color: rgba(162, 140, 106, 0.3); /* Blue tint with transparency */
-		z-index: 2; /* Overlay above the video */
-		pointer-events: none; /* Allow clicks to pass through to the video */
+		background:
+			linear-gradient(
+				to bottom,
+				rgba(44, 43, 41, 0.25) 0%,
+				rgba(44, 43, 41, 0.3) 45%,
+				rgba(44, 43, 41, 0.7) 100%
+			),
+			rgba(44, 43, 41, 0.28);
+		z-index: 2;
+		pointer-events: none;
 	}
 
 	/* General styles for the video wrapper */
@@ -259,46 +318,88 @@
 		}
 	}
 
-	/* Carousel caption styling */
+	/* Caption sits low in the frame, resting on the gradient scrim */
 	.carousel-caption {
 		position: absolute;
-		top: 50%; /* Centers vertically */
-		left: 50%; /* Centers horizontally */
-		transform: translate(-50%, -50%); /* Ensures both horizontal and vertical centering */
-		z-index: 3; /* Ensure it stays above other elements */
-		color: white; /* Text color */
-		text-shadow:
-			1px 1px 2px black,
-			-1px -1px 2px black,
-			1px -1px 2px black,
-			-1px 1px 2px black; /* Adds a text outline for readability */
-		text-align: center; /* Ensures text is horizontally centered */
-		width: 100%; /* Makes it span the full width */
-		max-width: 80%; /* Optional: Limit the width for better readability */
+		left: 50%;
+		bottom: 8%;
+		transform: translateX(-50%);
+		z-index: 3;
+		text-align: center;
+		width: 100%;
+	}
+
+	.hero-wordmark {
+		color: #f6f2ea;
+		max-width: 46rem;
+	}
+
+	.hero-eyebrow {
+		font-size: 0.85rem;
+		text-transform: uppercase;
+		letter-spacing: 0.25em;
+		margin-bottom: 0.75rem;
+		color: rgba(246, 242, 234, 0.85);
+	}
+
+	.hero-title {
+		font-family: 'Lora', serif;
+		font-weight: 600;
+		font-size: clamp(2.75rem, 6vw, 4.5rem);
+		letter-spacing: 0.02em;
+		margin: 0;
+		color: #f6f2ea;
+	}
+
+	.hero-scripture {
+		font-family: 'Lora', serif;
+		font-style: italic;
+		font-size: 1.05rem;
+		line-height: 1.6;
+		margin: 1.5rem auto 0;
+		max-width: 34rem;
+		color: rgba(246, 242, 234, 0.92);
+	}
+
+	.hero-cite {
+		display: block;
+		font-style: normal;
+		font-size: 0.72rem;
+		text-transform: uppercase;
+		letter-spacing: 0.18em;
+		margin-top: 0.6rem;
+		color: rgba(246, 242, 234, 0.7);
 	}
 
 	@media (max-width: 768px) {
 		.carousel-caption {
-			top: 60%; /* Adjust vertical position for smaller screens */
-			transform: translate(-50%, -60%); /* Re-centers with new top value */
+			bottom: 6%;
 		}
 	}
 
-	.text-outline {
-		color: white;
-		text-shadow:
-			1px 1px 2px black,
-			-1px -1px 2px black,
-			1px -1px 2px black,
-			-1px 1px 2px black;
+	.image-container {
+		position: relative;
+		/* Fixed hero band on mobile so the caption always sits over the photo.
+		   The height lives on the wrapper (not the img) so the image can never
+		   collapse to 0 and expose the black carousel background. */
+		height: 78vh;
+		min-height: 420px;
+		max-height: 560px;
+		overflow: hidden;
 	}
 
 	.image-container img {
 		display: block;
-		filter: blur(2px); /* Adjust the blur radius */
-		width: 100%; /* Ensures the image scales properly */
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+		object-position: center;
+		filter: blur(2px); /* Soft focus behind the wordmark */
 	}
 
+	/* Mobile hero scrim: the caption text is light (#f6f2ea), so darken the
+	   blurred image enough for it to read — an even tint plus a stronger
+	   gradient toward the bottom where the wordmark sits. */
 	.image-container::after {
 		content: '';
 		position: absolute;
@@ -306,7 +407,169 @@
 		left: 0;
 		width: 100%;
 		height: 100%;
-		background-color: rgba(0, 0, 0, 0.1); /* Adjust the opacity and color of the overlay */
+		background:
+			linear-gradient(
+				to bottom,
+				rgba(44, 43, 41, 0.3) 0%,
+				rgba(44, 43, 41, 0.4) 45%,
+				rgba(44, 43, 41, 0.72) 100%
+			),
+			rgba(44, 43, 41, 0.32);
 		pointer-events: none; /* Ensures the overlay doesn't block interactions */
+	}
+
+	/* Featured event */
+	.featured-event {
+		padding-top: 2rem;
+		border-top: 1px solid var(--bs-rule);
+	}
+
+	.featured-event-img {
+		display: block;
+		width: 100%;
+		aspect-ratio: 4 / 3;
+		object-fit: cover;
+		transition: opacity 0.4s ease;
+	}
+
+	.featured-event-img:hover {
+		opacity: 0.92;
+	}
+
+	.featured-event-title {
+		font-family: var(--bs-font-serif, 'Lora', serif);
+		color: var(--bs-dark);
+		margin-bottom: 0.5rem;
+	}
+
+	.featured-event-meta {
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+		font-size: 0.82rem;
+		color: var(--bs-ink-muted);
+		margin: 0 0 0.85rem;
+		white-space: nowrap;
+	}
+
+	/* Shared home lists (events + news) */
+	.home-list {
+		margin: 0;
+	}
+
+	/* Events list: day/month rule + serif title */
+	.home-event {
+		display: grid;
+		grid-template-columns: 4.5rem 1fr;
+		gap: 1.25rem;
+		padding: 1.25rem 0;
+		border-bottom: 1px solid var(--bs-rule);
+	}
+
+	.home-event:first-child {
+		border-top: 1px solid var(--bs-rule);
+	}
+
+	.home-event-when {
+		text-align: center;
+		line-height: 1.1;
+	}
+
+	.home-event-day {
+		display: block;
+		font-family: var(--bs-font-serif, 'Lora', serif);
+		font-size: 1.6rem;
+		color: var(--bs-dark);
+	}
+
+	.home-event-month {
+		display: block;
+		text-transform: uppercase;
+		letter-spacing: 0.12em;
+		font-size: 0.7rem;
+		color: var(--bs-ink-muted);
+		margin-top: 0.15rem;
+	}
+
+	.home-event-title {
+		display: block;
+		font-family: var(--bs-font-serif, 'Lora', serif);
+		font-size: 1.15rem;
+		color: var(--bs-dark);
+	}
+
+	.home-event-meta {
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+		font-size: 0.78rem;
+		color: var(--bs-ink-muted);
+		margin: 0.35rem 0 0;
+	}
+
+	.home-event-desc {
+		margin: 0.5rem 0 0;
+		color: var(--bs-body-color);
+	}
+
+	.home-event-cta {
+		display: inline-block;
+		margin-top: 0.6rem;
+	}
+
+	/* News list: small figure + serif title */
+	.home-news {
+		display: flex;
+		gap: 1.25rem;
+		padding: 1.25rem 0;
+		border-bottom: 1px solid var(--bs-rule);
+	}
+
+	.home-news:first-child {
+		border-top: 1px solid var(--bs-rule);
+	}
+
+	.home-news-figure {
+		flex: 0 0 auto;
+		display: block;
+		width: 96px;
+	}
+
+	.home-news-figure img {
+		display: block;
+		width: 96px;
+		height: 96px;
+		object-fit: cover;
+		transition: opacity 0.4s ease;
+	}
+
+	.home-news-figure:hover img {
+		opacity: 0.92;
+	}
+
+	.home-news-body {
+		min-width: 0;
+	}
+
+	.home-news-date {
+		margin-bottom: 0.35rem;
+	}
+
+	.home-news-title {
+		display: block;
+		font-family: var(--bs-font-serif, 'Lora', serif);
+		font-size: 1.1rem;
+		color: var(--bs-dark);
+		text-decoration: none;
+	}
+
+	.home-news-title:hover,
+	.home-news-title:focus-visible {
+		color: var(--bs-primary);
+		text-decoration: underline;
+		text-underline-offset: 0.15em;
+	}
+
+	.home-news-desc {
+		margin: 0.5rem 0 0;
+		color: var(--bs-body-color);
 	}
 </style>

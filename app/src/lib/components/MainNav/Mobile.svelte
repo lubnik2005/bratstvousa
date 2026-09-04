@@ -3,8 +3,8 @@
 	export let media_url;
 
 	let isOpen = false;
-	let activeItem = null;
-	let activeSubcategory = null;
+	let activeItem: number | null = null;
+	let activeSubcategory: number | null = null;
 
 	const toggleMenu = () => {
 		isOpen = !isOpen;
@@ -16,18 +16,18 @@
 		document.body.style.overflow = 'auto';
 	};
 
-	const toggleItem = (index) => {
+	const toggleItem = (index: number) => {
 		activeItem = activeItem === index ? null : index;
 	};
 
-	const toggleSubcategory = (index) => {
+	const toggleSubcategory = (index: number) => {
 		activeSubcategory = activeSubcategory === index ? null : index;
 	};
 
 	// Close the menu when clicking a link
-	const handleLinkClick = (event) => {
+	const handleLinkClick = (event: MouseEvent) => {
 		event.preventDefault();
-		const href = event.target.getAttribute('href');
+		const href = (event.currentTarget as HTMLAnchorElement)?.getAttribute('href');
 		if (href) {
 			closeMenu();
 			setTimeout(() => {
@@ -49,11 +49,16 @@
 		<h1>Американское Объединение МСЦ ЕХБ</h1>
 
 		<!-- Hamburger Menu on the Right -->
-		<button class="hamburger-menu" aria-label="Открыть меню" on:click={toggleMenu}> ☰ </button>
+		<button class="hamburger-menu" aria-label="Открыть меню" on:click={toggleMenu}>
+			<span></span>
+			<span></span>
+			<span></span>
+		</button>
 	</header>
 	<!-- Menu Backdrop -->
 	{#if isOpen}
-		<div class="menu-backdrop" on:click={closeMenu}></div>
+		<button type="button" class="menu-backdrop" aria-label="Закрыть меню" on:click={closeMenu}
+		></button>
 	{/if}
 
 	<!-- Fullscreen Mobile Menu -->
@@ -67,10 +72,15 @@
 			{#each menu_items as item, index}
 				<li>
 					{#if item.children}
-						<div class="submenu-toggle" on:click={() => toggleItem(index)}>
+						<button
+							type="button"
+							class="submenu-toggle"
+							aria-expanded={activeItem === index}
+							on:click={() => toggleItem(index)}
+						>
 							{item.title}
-							<span>{activeItem === index ? '−' : '+'}</span>
-						</div>
+							<span class="toggle-mark" class:open={activeItem === index}></span>
+						</button>
 						<ul
 							class="list-unstyled ms-3"
 							style="display: {activeItem === index ? 'block' : 'none'}"
@@ -91,10 +101,15 @@
 							{/each}
 						</ul>
 					{:else if item.subcategory}
-						<div class="submenu-toggle" on:click={() => toggleSubcategory(index)}>
+						<button
+							type="button"
+							class="submenu-toggle"
+							aria-expanded={activeSubcategory === index}
+							on:click={() => toggleSubcategory(index)}
+						>
 							{item.title}
-							<span>{activeSubcategory === index ? '−' : '+'}</span>
-						</div>
+							<span class="toggle-mark" class:open={activeSubcategory === index}></span>
+						</button>
 						<ul
 							class="list-unstyled ms-3"
 							style="display: {activeSubcategory === index ? 'block' : 'none'}"
@@ -119,74 +134,13 @@
 </div>
 
 <style>
-	.fullscreen-menu {
-		position: fixed;
-		top: 0;
-		left: 0;
-		width: 100vw;
-		height: 100vh;
-		background: #fff;
-		overflow-y: auto;
-		z-index: 999;
-		transform: translateX(100%);
-		transition: transform 0.3s ease;
-		padding-top: 60px;
-	}
-
-	.fullscreen-menu.open {
-		transform: translateX(0);
-	}
-
-	.menu-backdrop {
-		position: fixed;
-		top: 0;
-		left: 0;
-		width: 100vw;
-		height: 100vh;
-		background: rgba(0, 0, 0, 0.5);
-		z-index: 998;
-	}
-
-	.menu-header {
-		position: fixed;
-		top: 0;
-		left: 0;
-		width: 100%;
-		height: 60px;
-		background: #333;
-		color: #fff;
-		display: flex;
-		align-items: center;
-		justify-content: flex-end;
-		padding: 0 20px;
-		box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-		z-index: 1000;
-	}
-
-	.close-btn {
-		background: none;
-		border: none;
-		color: #fff;
-		font-size: 28px;
-		cursor: pointer;
-	}
-
-	.submenu-toggle {
-		cursor: pointer;
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		padding: 10px 0;
-		border-bottom: 1px solid #ddd;
-	}
-
 	.mobile-header {
 		top: 0;
 		left: 0;
 		width: 100%;
 		height: 60px;
-		background: #fff;
-		box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+		background: var(--bs-paper, #f6f2ea);
+		border-bottom: 1px solid var(--bs-rule, #ddd5c8);
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
@@ -201,26 +155,42 @@
 
 	.mobile-header h1 {
 		margin: 0;
-		font-size: 18px;
+		font-family: var(--bs-font-serif, 'Lora', serif);
+		font-size: 1rem;
+		font-weight: 600;
+		color: var(--bs-primary, #5a4a42);
 		text-align: center;
 		flex-grow: 1;
+		padding: 0 0.75rem;
 	}
 
+	/* Hamburger: three quiet ink rules */
 	.hamburger-menu {
-		font-size: 28px;
+		width: 32px;
+		height: 28px;
 		background: none;
 		border: none;
 		cursor: pointer;
+		padding: 4px 2px;
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
 	}
 
-	/* Menu Styles */
+	.hamburger-menu span {
+		display: block;
+		height: 1.5px;
+		width: 100%;
+		background: var(--bs-dark, #2c2b29);
+	}
+
 	.fullscreen-menu {
 		position: fixed;
 		top: 0;
 		left: 0;
 		width: 100vw;
 		height: 100vh;
-		background: #fff;
+		background: var(--bs-paper, #f6f2ea);
 		overflow-y: auto;
 		z-index: 999;
 		transform: translateX(100%);
@@ -238,7 +208,95 @@
 		left: 0;
 		width: 100vw;
 		height: 100vh;
-		background: rgba(0, 0, 0, 0.5);
+		background: rgba(44, 43, 41, 0.45);
+		border: none;
+		padding: 0;
 		z-index: 998;
+	}
+
+	.menu-header {
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 60px;
+		background: var(--bs-paper, #f6f2ea);
+		border-bottom: 1px solid var(--bs-rule, #ddd5c8);
+		display: flex;
+		align-items: center;
+		justify-content: flex-end;
+		padding: 0 20px;
+		z-index: 1000;
+	}
+
+	.close-btn {
+		background: none;
+		border: none;
+		color: var(--bs-dark, #2c2b29);
+		font-size: 28px;
+		line-height: 1;
+		cursor: pointer;
+	}
+
+	.submenu-toggle {
+		cursor: pointer;
+		width: 100%;
+		background: none;
+		border: none;
+		border-bottom: 1px solid var(--bs-rule, #ddd5c8);
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: 12px 0;
+		font-family: var(--bs-font-serif, 'Lora', serif);
+		font-size: 1.05rem;
+		color: var(--bs-dark, #2c2b29);
+		text-align: left;
+	}
+
+	/* +/- indicator drawn in CSS */
+	.toggle-mark {
+		position: relative;
+		width: 12px;
+		height: 12px;
+		flex-shrink: 0;
+	}
+
+	.toggle-mark::before,
+	.toggle-mark::after {
+		content: '';
+		position: absolute;
+		background: var(--bs-ink-muted, #736a5f);
+		transition: opacity 0.2s ease;
+	}
+
+	.toggle-mark::before {
+		top: 50%;
+		left: 0;
+		width: 100%;
+		height: 1.5px;
+		transform: translateY(-50%);
+	}
+
+	.toggle-mark::after {
+		left: 50%;
+		top: 0;
+		height: 100%;
+		width: 1.5px;
+		transform: translateX(-50%);
+	}
+
+	.toggle-mark.open::after {
+		opacity: 0;
+	}
+
+	.fullscreen-menu a {
+		color: var(--bs-body-color, #3a352f);
+		text-decoration: none;
+	}
+
+	.fullscreen-menu a:hover,
+	.fullscreen-menu a:focus-visible {
+		color: var(--bs-primary, #5a4a42);
 	}
 </style>

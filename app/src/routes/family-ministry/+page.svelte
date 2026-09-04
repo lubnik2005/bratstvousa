@@ -1,50 +1,74 @@
 <script>
 	export let data;
 	import GenericPage from '$lib/components/GenericPage.svelte';
-	import Header from '$lib/components/Header.svelte';
-	import News from '$lib/components/News.svelte';
-	import UpcomingEvents from '$lib/components/UpcomingEvents.svelte';
 </script>
 
-<Header title="Семейный отдел" />
-<!-- Page Header Start -->
-<div class="container-fluid pb-5">
-	<div class="container">
-		<!-- 📖 Section Title -->
-		<div class="row g-0 gx-5 align-items-end">
-			<div class="col-lg-8">
-				<div class="section-header mb-5 text-start" style="max-width: 700px;">
-					<h1>Приветственное слово</h1>
-				</div>
-			</div>
-		</div>
+<svelte:head>
+	<title>Семейный отдел — Американское Объединение МСЦ ЕХБ</title>
+</svelte:head>
 
-		<!-- 📝 Two-Column Layout (Text + Leader Info) -->
-		<div class="row">
-			<div class="col-lg-8">
-				«А я и дом мой будем служить Господу» И. Нав. 24:15 Эти слова произнес Иисус Навин, вождь
-				народа Израильского, которого Бог поставил после Моисея. Каждая поместная церковь состоит из
-				семей, поэтому очень важно, чтобы семьи были крепкие, богобоязненые и служили Господу. На
-				протяжении нескольких лет, в Американском объединении, совершается служение семейного
-				отдела. Во всех четырёх регионах есть ответственные за это служение братья, которые проводят
-				семейные лагеря, общения для сестёр, общения для отцов и сыновей, мам и дочерей, общения для
-				семей в которых есть дети с ограниченными возможностями, а также для вдов и одиноких.
-				Совершаются молитвы над детьми. Слава Господу! Молимся, чтобы Бог сохранил наши семьи для
-				неба. Хранил от разрушений. Да будет имя Господа нашего прославленно вовеки. Слава Ему.
+<div class="ministry-family" style="--ministry-accent: var(--bs-accent-family);">
+	<div class="container-fluid page-header">
+		<div class="container">
+			<p class="eyebrow ministry-eyebrow">Отделы</p>
+			<h1 class="display-3">Семейный отдел</h1>
+		</div>
+	</div>
+
+	<div class="container my-6">
+		<div class="row g-5">
+			<div class="col-lg-7">
+				<p class="eyebrow ministry-eyebrow">Приветственное слово</p>
+				<figure class="family-scripture">
+					<blockquote class="scripture">
+						«А я и дом мой будем служить Господу»
+						<cite>Иисуса Навина 24:15</cite>
+					</blockquote>
+				</figure>
+				<p>
+					Эти слова произнёс Иисус Навин, вождь народа Израильского, которого Бог поставил после
+					Моисея. Каждая поместная церковь состоит из семей, поэтому очень важно, чтобы семьи были
+					крепкие, богобоязненные и служили Господу.
+				</p>
+				<p>
+					На протяжении нескольких лет, в Американском объединении, совершается служение семейного
+					отдела. Во всех четырёх регионах есть ответственные за это служение братья, которые
+					проводят семейные лагеря, общения для сестёр, общения для отцов и сыновей, мам и дочерей,
+					общения для семей в которых есть дети с ограниченными возможностями, а также для вдов и
+					одиноких. Совершаются молитвы над детьми.
+				</p>
+				<p>
+					Слава Господу! Молимся, чтобы Бог сохранил наши семьи для неба, хранил от разрушений. Да
+					будет имя Господа нашего прославлено вовеки. Слава Ему.
+				</p>
 			</div>
-			<div class="col-lg-4">
-				<div class="card border-0 p-4 text-center shadow-lg">
+			<div class="col-lg-4 offset-lg-1">
+				<div class="leader-card" style="--leader-accent: var(--bs-accent-family);">
 					<img
-						class="img-fluid rounded shadow"
 						src="{data.media_url}upfiles/page/e76ed1bc8553f6df3a8dff8e774622c926341736.jpg"
 						alt="Виктор Владимирович Помазнюк"
 					/>
-					<h5 class="fw-bold mt-3">Помазнюк <br />Виктор Владимирович</h5>
-
-					<a href="mailto:info@bratstvousa.com" class="text-muted">info@bratstvousa.com</a>
+					<p class="leader-name">Помазнюк <br />Виктор Владимирович</p>
+					<a href="mailto:info@bratstvousa.com">info@bratstvousa.com</a>
 				</div>
 			</div>
 		</div>
-		<GenericPage media_url={data.media_url} {data} ministry_slug="family-ministry" />
 	</div>
+
+	<GenericPage media_url={data.media_url} {data} ministry_slug="family-ministry" />
 </div>
+
+<style>
+	.ministry-eyebrow {
+		color: var(--ministry-accent);
+	}
+	.page-header {
+		border-bottom-color: var(--ministry-accent);
+	}
+	.family-scripture {
+		margin: 1.5rem 0 2.5rem;
+	}
+	.family-scripture .scripture {
+		border-left-color: var(--ministry-accent);
+	}
+</style>

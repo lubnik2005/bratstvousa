@@ -17,14 +17,6 @@
 		}
 	];
 
-	// Three covers placeholders (#1, #2, #3) – replace src if you have real images
-	const covers = [
-		{ n: '#1', alt: 'Обложка #1', src: `${media_url}upfiles/photos/cover-1.jpg` },
-		{ n: '#2', alt: 'Обложка #2', src: `${media_url}upfiles/photos/cover-2.jpg` },
-		{ n: '#3', alt: 'Обложка #3', src: `${media_url}upfiles/photos/cover-3.jpg` }
-	];
-
-	// Keep your downloads list
 	// Fullscreen reader state
 	let readerOpen = false;
 	let readerTitle = '';
@@ -71,7 +63,7 @@
 
 <Header title="Методическое пособие для проведения братских общений" />
 
-<div class="container-fluid">
+<div class="container-xxl py-6">
 	<div class="container">
 		<!-- ==== Вербатим текст, без переиначиваний ==== -->
 		<div class="row">
@@ -88,8 +80,8 @@
 					объединении.
 				</p>
 
-				<!-- Дедлайны — строка оставлена как в оригинале (два предложения) -->
-				<div class="alert alert-secondary mb-4 border-0 shadow-sm">
+				<!-- Дедлайны -->
+				<div class="deadline-note mb-4">
 					Если вы планируете начать беседы в сентябре 2025 года, просьба подать заявку до 1 сентября
 					на удобном для вас языке.
 					<br />
@@ -100,21 +92,21 @@
 				<!-- “Скачать PDF файл и напечатать самостоятельно” — показываем фразой + кнопками -->
 
 				<section class="mt-4">
-					<h3 class="h5 mb-3">Заявка / Скачать</h3>
+					<h2 class="h5 mb-3">Заявка / Скачать</h2>
 
-					<div class="list-group shadow-sm">
+					<div class="download-list">
 						{#each downloads as d}
 							<div
-								class="list-group-item d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3"
+								class="download-row d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3"
 							>
 								<div>
-									<div class="fw-semibold">{d.lang}</div>
-									<div class="small text-muted">PDF</div>
+									<div class="download-lang">{d.lang}</div>
+									<div class="eyebrow">PDF</div>
 								</div>
 
-								<div class="d-flex gap-2">
-									<a class="btn btn-primary" href={d.file} download rel="noopener"> Скачать </a>
-									<a class="btn btn-light border" href={d.file} target="_blank" rel="noopener">
+								<div class="d-flex gap-3">
+									<a class="btn-quiet" href={d.file} download rel="noopener">Скачать</a>
+									<a class="btn-quiet" href={d.file} target="_blank" rel="noopener">
 										Открыть в новой вкладке
 									</a>
 								</div>
@@ -128,9 +120,9 @@
 					</p>
 				</section>
 
-				<!-- Кнопка заявки (нейтральная подпись, чтобы не менять смысл) -->
+				<!-- Кнопка заявки -->
 				<div class="mb-5">
-					<a class="btn btn-success btn-lg" href="/order-form" rel="noopener">Подать заявку</a>
+					<a class="btn btn-primary" href="/order-form" rel="noopener">Подать заявку</a>
 				</div>
 			</div>
 		</div>
@@ -148,24 +140,29 @@
 				<button class="btn btn-secondary" on:click={closeReader}>Закрыть</button>
 			</div>
 		</div>
-		<iframe class="pdf-reader-frame" src={readerSrc} title={readerTitle} />
+		<iframe class="pdf-reader-frame" src={readerSrc} title={readerTitle}></iframe>
 	</div>
 {/if}
 
 <style>
-	.cover-tile {
-		height: 160px;
-		background: #fff;
+	.deadline-note {
+		padding: 1.25rem 1.5rem;
+		background: var(--bs-paper-sunk);
+		border-left: 2px solid var(--bs-secondary);
+		color: var(--bs-body-color);
+		line-height: 1.7;
 	}
-	@media (min-width: 992px) {
-		.cover-tile {
-			height: 200px;
-		}
+	.download-list {
+		border-top: 1px solid var(--bs-rule);
 	}
-
-	.list-group-item {
-		border: none;
-		border-bottom: 1px solid #eee;
+	.download-row {
+		padding: 1.25rem 0;
+		border-bottom: 1px solid var(--bs-rule);
+	}
+	.download-lang {
+		font-family: var(--bs-font-serif);
+		font-size: 1.1rem;
+		color: var(--bs-dark);
 	}
 
 	/* Fullscreen reader */
@@ -183,9 +180,8 @@
 		align-items: center;
 		gap: 0.75rem;
 		justify-content: space-between;
-		background: rgba(255, 255, 255, 0.9);
-		backdrop-filter: saturate(1.2) blur(4px);
-		border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+		background: var(--bs-paper);
+		border-bottom: 1px solid var(--bs-rule);
 		padding: 0.5rem 0.75rem;
 	}
 	.pdf-reader-title {

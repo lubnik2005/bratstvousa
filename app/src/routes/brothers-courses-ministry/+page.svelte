@@ -1,12 +1,8 @@
 <script lang="ts">
-	import GenericPage from '$lib/components/GenericPage.svelte';
 	import Header from '$lib/components/Header.svelte';
-	import Main from '$lib/components/MainNav/Main.svelte';
-	import { regionToLabel } from '$lib/helpers';
 
 	export let data;
 	const media_url: string = data?.media_url ?? '/';
-	const ministry_slug = 'bible-school';
 
 	const contact = {
 		name: 'Отдел библейского образования АО',
@@ -49,7 +45,7 @@
 		<div class="row g-0 gx-5 align-items-end">
 			<div class="col-lg-8">
 				<div class="section-header mb-5 text-start" style="max-width: 700px;">
-					<h1>Приветственное слово</h1>
+					<h2>Приветственное слово</h2>
 					<p class="lead text-muted">
 						"Чтобы … ты знал, как должно поступать в доме Божием ...” 1Тим 3:15
 					</p>
@@ -67,16 +63,10 @@
 				</p>
 			</div>
 			<div class="col-lg-4">
-				<div class="card border-0 p-4 text-center shadow-lg">
-					<img
-						class="img-fluid rounded shadow"
-						src="{media_url}upfiles/photos/Диакону.jpg"
-						alt="Диакону Дмитрий"
-					/>
-					<h5 class="fw-bold mt-3">Диакону Дмитрий</h5>
-					<a href="mailto:bibleeducation@bratstvousa.com" class="text-muted"
-						>bibleeducation@bratstvousa.com</a
-					>
+				<div class="leader-card" style="--leader-accent: var(--bs-accent-bible);">
+					<img src="{media_url}upfiles/photos/Диакону.jpg" alt="Диакону Дмитрий" />
+					<p class="leader-name">Диакону Дмитрий</p>
+					<a href="mailto:bibleeducation@bratstvousa.com">bibleeducation@bratstvousa.com</a>
 				</div>
 			</div>
 		</div>
@@ -84,7 +74,7 @@
 		<div class="row g-0 gx-5 align-items-end">
 			<div class="col-lg-10">
 				<div class="section-header mb-5 text-start" style="max-width: 860px;">
-					<h1>О пособии</h1>
+					<h2>О пособии</h2>
 					<p class="lead text-muted">
 						Отдел библейского образования Американского объединения предлагает методическое пособие
 						для проведения систематических и регулярных бесед с братьями в церкви. Цель —
@@ -109,26 +99,15 @@
 
 				<div class="mb-4">
 					<h3 class="h4">Рекомендуемый график</h3>
-					<div class="alert alert-secondary border-0 shadow-sm" role="note">
-						<div class="d-flex align-items-start">
-							<div class="me-3">
-								<svg width="28" height="28" viewBox="0 0 24 24" aria-hidden="true">
-									<path
-										d="M7 2v2H5a2 2 0 0 0-2 2v1h18V6a2 2 0 0 0-2-2h-2V2h-2v2H9V2H7Zm14 7H3v11a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9Zm-9 3h2v6h-2v-6Zm-4 3h2v3H8v-3Zm8-5h2v8h-2V10Z"
-									/>
-								</svg>
-							</div>
-							<div>
-								<p class="mb-1">
-									По усмотрению каждой поместной церкви (начиная с сентября или января), выберите <strong
-										>один вечер во второй неделе месяца</strong
-									> — сразу после Вечери Господней — для проведения братской встречи.
-								</p>
-								<p class="mb-0">
-									Такой ритм помогает сохранять темп, вовлечённость и преемственность обсуждений.
-								</p>
-							</div>
-						</div>
+					<div class="schedule-note" role="note">
+						<p class="mb-2">
+							По усмотрению каждой поместной церкви (начиная с сентября или января), выберите <strong
+								>один вечер во второй неделе месяца</strong
+							> — сразу после Вечери Господней — для проведения братской встречи.
+						</p>
+						<p class="mb-0">
+							Такой ритм помогает сохранять темп, вовлечённость и преемственность обсуждений.
+						</p>
 					</div>
 				</div>
 
@@ -165,41 +144,65 @@
 			</div>
 
 			<div class="col-lg-4">
-				<div class="card border-0 p-4 text-center shadow-lg">
-					<img
-						class="img-fluid mb-3 rounded shadow"
-						src="{media_url}upfiles/photos/brotherhood-placeholder.jpg"
-						alt="Братское общение"
-						on:error={(e: any) => (e.currentTarget.style.display = 'none')}
-					/>
-					<h5 class="fw-bold">{contact.name}</h5>
-					<a href="mailto:{contact.email}" class="text-muted">{contact.email}</a>
+				<aside class="downloads-panel">
+					<p class="eyebrow">Отдел библейского образования</p>
+					<p class="downloads-contact">
+						<a href="mailto:{contact.email}">{contact.email}</a>
+					</p>
 
 					<hr class="my-4" />
 
-					<!-- Optional CTA: replace href with actual file when ready -->
-					<div class="d-grid gap-3">
+					<p class="eyebrow mb-3">Скачать пособие</p>
+					<div class="download-links">
 						{#each downloads as d}
-							<a class="btn btn-primary btn-lg" href={d.file} rel="noopener" download>
-								{d.lang}
-							</a>
+							<a class="btn-quiet" href={d.file} rel="noopener" download>{d.lang}</a>
 						{/each}
 					</div>
-					<small class="text-muted d-block mt-2">
+					<small class="downloads-note d-block mt-3">
 						Если файл недоступен, свяжитесь с нами по email.
 					</small>
-				</div>
+				</aside>
 			</div>
 		</div>
 	</div>
 </div>
 
 <style>
-	.section-header h1 {
-		letter-spacing: 0.2px;
+	.schedule-note {
+		padding: 1.25rem 1.5rem;
+		background: var(--bs-paper-sunk);
+		border-left: 2px solid var(--bs-secondary);
+		color: var(--bs-body-color);
+		line-height: 1.7;
 	}
-	.alert svg path {
-		fill: currentColor;
-		opacity: 0.8;
+	.downloads-panel {
+		padding: 1.75rem;
+		background: var(--bs-paper-sunk);
+		border: 1px solid var(--bs-rule);
+		border-top: 2px solid var(--bs-accent-bible);
+	}
+	.downloads-panel :global(.eyebrow) {
+		color: #655c52;
+	}
+	.downloads-contact a {
+		color: #655c52;
+		font-size: 0.95rem;
+	}
+	.downloads-contact a:hover {
+		color: var(--bs-primary);
+	}
+	.download-links {
+		display: flex;
+		flex-direction: column;
+		gap: 0.85rem;
+		align-items: flex-start;
+	}
+	.downloads-note {
+		color: #655c52;
+		font-size: 0.85rem;
+	}
+	hr {
+		border-color: var(--bs-rule);
+		opacity: 1;
 	}
 </style>

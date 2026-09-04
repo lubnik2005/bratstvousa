@@ -6,6 +6,7 @@
 	import timeGridPlugin from '@fullcalendar/timegrid';
 	import ruLocale from '@fullcalendar/core/locales/ru';
 	import { goto } from '$app/navigation';
+	import Header from '$lib/components/Header.svelte';
 	import type { PageData } from './$types';
 
 	export let data: PageData;
@@ -64,12 +65,18 @@
 			}));
 	}
 
-	function updateURLParams(dateStr?: string) {
+	function updateURLParams(dateStr?: string, viewType?: string) {
 		const params = new URLSearchParams(window.location.search);
 		params.set('region', selectedRegion);
 		params.set('ministry', selectedMinistry);
 		if (dateStr) {
 			params.set('date', dateStr);
+		}
+		// Persist the active view (list vs month) so returning from an event
+		// (browser "back") restores the exact view the user was on.
+		const view = viewType ?? calendar?.view?.type;
+		if (view) {
+			params.set('view', view);
 		}
 
 		goto(`${window.location.pathname}?${params.toString()}`, {
@@ -77,6 +84,70 @@
 			keepFocus: true,
 			noScroll: true
 		});
+	}
+
+	// Scroll the list view so today's row sits at the top. If today is not in
+	// the rendered range (e.g. a different year), leave the scroller at the top.
+	function scrollListToToday() {
+		requestAnimationFrame(() => {
+			const scroller = document.querySelector<HTMLElement>('#calendar .fc-scroller');
+			const todayRow = document.querySelector<HTMLElement>('#calendar .fc-list-day.fc-day-today');
+			if (!scroller) return;
+			if (todayRow) {
+				scroller.scrollTop = todayRow.offsetTop;
+			} else {
+				scroller.scrollTop = 0;
+			}
+		});
+	}
+
+	// One-shot key: when the user clicks an event from the list view we remember
+	// the exact scroll position (plus the view + date it belongs to) so that,
+	// after pressing browser Back, we can restore the precise pixel offset
+	// instead of snapping to today.
+	const LIST_SCROLL_KEY = 'calendar:listScroll';
+
+	function saveListScroll(viewType: string) {
+		if (!viewType.startsWith('list')) return;
+		const scroller = document.querySelector<HTMLElement>('#calendar .fc-scroller');
+		if (!scroller) return;
+		const params = new URLSearchParams(window.location.search);
+		try {
+			sessionStorage.setItem(
+				LIST_SCROLL_KEY,
+				JSON.stringify({
+					scrollTop: scroller.scrollTop,
+					view: viewType,
+					date: params.get('date') ?? ''
+				})
+			);
+		} catch {
+			// sessionStorage unavailable (private mode etc.) — non-fatal.
+		}
+	}
+
+	// If a saved scroll entry matches the view+date we are restoring, apply the
+	// exact pixel offset and consume it (one-shot). Returns true if applied.
+	function restoreListScroll(viewType: string, dateStr: string): boolean {
+		let raw: string | null = null;
+		try {
+			raw = sessionStorage.getItem(LIST_SCROLL_KEY);
+			if (raw) sessionStorage.removeItem(LIST_SCROLL_KEY);
+		} catch {
+			return false;
+		}
+		if (!raw) return false;
+		try {
+			const saved = JSON.parse(raw) as { scrollTop: number; view: string; date: string };
+			if (saved.view !== viewType || saved.date !== dateStr) return false;
+			requestAnimationFrame(() => {
+				const scroller = document.querySelector<HTMLElement>('#calendar .fc-scroller');
+				if (scroller) scroller.scrollTop = saved.scrollTop;
+			});
+			return true;
+		} catch {
+			return false;
+		}
 	}
 
 	function filterEvents() {
@@ -99,15 +170,30 @@
 		const isMobile = window.matchMedia('(max-width: 754px)').matches;
 		const calendarEl = document.getElementById('calendar')!;
 
+		// Restore the saved view from the URL (set when the user last interacted),
+		// falling back to the mobile/desktop default.
+		const savedView = params.get('view');
+		const defaultView = isMobile ? 'listYear' : 'dayGridMonth';
+
+		// Track the previous view so we can detect entering the list view.
+		let prevViewType = savedView ?? defaultView;
+
 		calendar = new Calendar(calendarEl, {
 			plugins: [listPlugin, dayGridPlugin, timeGridPlugin],
-			initialView: isMobile ? 'listYear' : 'dayGridMonth',
+			initialView: savedView ?? defaultView,
 			initialDate: params.get('date') ?? undefined,
 			firstDay: 0,
 			defaultAllDay: true,
 			datesSet(info) {
 				const dateStr = info.view.currentStart.toISOString().slice(0, 10);
-				updateURLParams(dateStr);
+				const viewType = info.view.type;
+				updateURLParams(dateStr, viewType);
+				// Auto-scroll to today when entering the list view (not on every
+				// paging within it, so navigating years doesn't yank the user back).
+				if (viewType.startsWith('list') && !prevViewType.startsWith('list')) {
+					scrollListToToday();
+				}
+				prevViewType = viewType;
 			},
 			headerToolbar: isMobile ? headerToolbarMobile : headerToolbar,
 			locales: [ruLocale],
@@ -120,20 +206,51 @@
 			}
 		});
 
+		// Before navigating away to an event, remember the exact list scroll
+		// position so browser Back can restore it. Capture phase runs before the
+		// link triggers navigation. FullCalendar renders events as <a> links.
+		const onCalendarClick = (e: MouseEvent) => {
+			// FullCalendar list events render as <a href> inside tr.fc-list-event
+			// (the class is on the row, not the anchor), and month events as
+			// a.fc-event. Match any event anchor with an href, or the row itself.
+			const link = (e.target as HTMLElement)?.closest(
+				'.fc-list-event a[href], .fc-list-event, a.fc-event, a[href].fc-event'
+			);
+			if (link) {
+				saveListScroll(calendar.view.type);
+			}
+		};
+		calendarEl.addEventListener('click', onCalendarClick, true);
+
 		calendar.render();
 
+		// If the calendar loads directly into the list view (default on mobile or
+		// restored from the URL), first try to restore the exact scroll position
+		// saved when the user clicked an event (browser Back). Otherwise fall back
+		// to scrolling to today.
+		const initialView = savedView ?? defaultView;
+		if (initialView.startsWith('list')) {
+			const dateStr = params.get('date') ?? '';
+			if (!restoreListScroll(initialView, dateStr)) {
+				scrollListToToday();
+			}
+		}
+
 		return () => {
+			calendarEl.removeEventListener('click', onCalendarClick, true);
 			calendar.destroy();
 		};
 	});
 </script>
 
+<svelte:head>
+	<title>Календарь — Американское Объединение МСЦ ЕХБ</title>
+</svelte:head>
+
+<Header title="Календарь" />
+
 <div class="container-xxl py-6">
 	<div class="container">
-		<div class="section-header mx-auto mb-5 text-center" style="max-width: 500px;">
-			<h1 class="display-5 mb-3">Календарь</h1>
-		</div>
-
 		{#if !calendarIsLoading}
 			<div class="d-flex mb-3 flex-wrap gap-2">
 				<select
@@ -162,51 +279,27 @@
 			</div>
 		{:else}
 			<div class="placeholder-glow my-4" id="calendar-skeleton">
-				<span class="placeholder" style="width: 100%; aspect-ratio: 16/10;" />
+				<span class="placeholder" style="width: 100%; aspect-ratio: 16/10;"></span>
 			</div>
 		{/if}
 
-		<div id="calendar" class="my-4" style="min-height: 700px;" />
+		<div id="calendar" class="my-4" style="min-height: 700px;"></div>
 	</div>
 </div>
 
+<!-- FullCalendar theming is centralised in src/scss/main.scss (.fc). -->
 <style>
-	:root {
-		--fc-small-font-size: 0.85em;
-		--fc-page-bg-color: #fff;
-		--fc-neutral-bg-color: rgba(208, 208, 208, 0.3);
-		--fc-neutral-text-color: #808080;
-		--fc-border-color: #ddd;
-
-		--fc-button-text-color: #fff;
-		--fc-button-bg-color: #2c2b29;
-		--fc-button-border-color: #2c2b29;
-		--fc-button-hover-bg-color: #555555;
-		--fc-button-hover-border-color: #555555;
-		--fc-button-active-bg-color: #555555;
-		--fc-button-active-border-color: #555555;
-
-		--fc-event-bg-color: #5a4a42;
-		--fc-event-border-color: #2c2b29;
-		--fc-event-text-color: #fff;
-		--fc-event-selected-overlay-color: rgba(0, 0, 0, 0.25);
-
-		--fc-more-link-bg-color: #d0d0d0;
-		--fc-more-link-text-color: inherit;
-
-		--fc-event-resizer-thickness: 8px;
-		--fc-event-resizer-dot-total-width: 8px;
-		--fc-event-resizer-dot-border-width: 1px;
-
-		--fc-non-business-color: rgba(215, 215, 215, 0.3);
-		--fc-bg-event-color: rgb(143, 223, 130);
-		--fc-bg-event-opacity: 0.3;
-		--fc-highlight-color: rgba(188, 232, 241, 0.3);
-		--fc-today-bg-color: rgba(255, 220, 40, 0.15);
-		--fc-now-indicator-color: red;
-	}
-
 	.custom-select {
 		min-width: 200px;
+		padding: 0.5rem 0.75rem;
+		border: 1px solid var(--bs-rule);
+		border-radius: 0;
+		background-color: var(--bs-paper);
+		color: var(--bs-body-color);
+		font-size: 0.95rem;
+	}
+	.custom-select:focus {
+		outline: none;
+		border-color: var(--bs-secondary);
 	}
 </style>

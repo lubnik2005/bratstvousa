@@ -3,15 +3,18 @@
 	import Header from '$lib/components/Header.svelte';
 </script>
 
+<svelte:head>
+	<title>Приветственное слово — Американское Объединение МСЦ ЕХБ</title>
+</svelte:head>
+
 <Header title="Приветственное слово" />
 
-<!-- Page Header Start -->
-<div class="container-fluid pb-5">
+<div class="container-xxl py-6">
 	<div class="container">
-		<div class="row">
+		<div class="row g-5">
 			<!-- First Column -->
 			<div class="col-lg-8">
-				<p>
+				<p class="lead-serif">
 					Дорогие друзья, мир вам! Я рад приветствовать вас на сайте Американского объединения
 					Международного союза церквей евангельских христиан-баптистов (МСЦ ЕХБ). Братство Совета
 					церквей, в последующем переименованное в МСЦ ЕХБ, родилось в начале 60-х годов XX века в
@@ -38,11 +41,24 @@
 			<!-- Second Column -->
 			<div class="col-lg-4">
 				<img
-					style="width: 100%;"
+					class="greeting-portrait"
 					src="{data.media_url}upfiles/page/903c8795fe0febaa8d2543f6f8d6ba2770047187.jpg"
-					alt=""
+					alt="Нейман Константин Андреевич"
 				/>
 			</div>
 		</div>
 	</div>
 </div>
+
+<style>
+	.lead-serif {
+		font-family: var(--bs-font-serif);
+		font-size: 1.2rem;
+		line-height: 1.7;
+		color: var(--bs-dark);
+	}
+	.greeting-portrait {
+		width: 100%;
+		filter: saturate(0.95);
+	}
+</style>

@@ -1,126 +1,128 @@
-import {
-	pgTable,
-	serial,
-	text,
-	integer,
-	timestamp,
-	varchar,
-	date,
-	json,
-	jsonb,
-	boolean
-} from 'drizzle-orm/pg-core';
+import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core';
+import { sql } from 'drizzle-orm';
 
-export const user = pgTable('user', {
+export const user = sqliteTable('user', {
 	id: text('id').primaryKey(),
 	age: integer('age'),
 	username: text('username').notNull().unique(),
 	passwordHash: text('password_hash').notNull()
 });
 
-export const session = pgTable('session', {
+export const session = sqliteTable('session', {
 	id: text('id').primaryKey(),
 	userId: text('user_id')
 		.notNull()
 		.references(() => user.id),
-	expiresAt: timestamp('expires_at', { withTimezone: true, mode: 'date' }).notNull()
+	expiresAt: integer('expires_at', { mode: 'timestamp' }).notNull()
 });
 
 export type Session = typeof session.$inferSelect;
 export type User = typeof user.$inferSelect;
 
-export const Event = {
-	id: serial('id').primaryKey(),
-	title: varchar('title', { length: 255 }).notNull(),
-	slug: varchar('slug', { length: 255 }),
+const Event = {
+	id: integer('id').primaryKey({ autoIncrement: true }),
+	title: text('title').notNull(),
+	slug: text('slug'),
 	authorId: integer('author_id'),
-	description: varchar('description', { length: 255 }),
+	description: text('description'),
 	content: text('content'),
-	use_editorjs: jsonb('use_editorjs'),
-	editorjs: jsonb('editorjs'),
-	region: varchar('region', { length: 255 }).notNull(),
-	thumbnail: varchar('thumbnail'),
-	featuredImage: varchar('featured_image'),
-	startAt: date('start_at'), // Use `timestamp` if storing as datetime
-	endAt: varchar('end_at', { length: 255 }), // Use `timestamp` if storing as datetime
-	createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
-	updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull()
+	use_editorjs: text('use_editorjs', { mode: 'json' }),
+	editorjs: text('editorjs', { mode: 'json' }),
+	region: text('region').notNull(),
+	thumbnail: text('thumbnail'),
+	featuredImage: text('featured_image'),
+	startAt: text('start_at'),
+	endAt: text('end_at'),
+	createdAt: text('created_at')
+		.default(sql`(datetime('now'))`)
+		.notNull(),
+	updatedAt: text('updated_at')
+		.default(sql`(datetime('now'))`)
+		.notNull()
 };
 
 export const Article = {
-	id: serial('id').primaryKey(),
-	title: varchar('title', { length: 255 }), // Adjust length as needed
-	slug: varchar('slug', { length: 255 }),
+	id: integer('id').primaryKey({ autoIncrement: true }),
+	title: text('title'),
+	slug: text('slug'),
 	authorId: integer('author_id'),
-	description: varchar('description', { length: 255 }),
+	description: text('description'),
 	content: text('content'),
 	thumbnail: text('thumbnail'),
-	featuredImage: varchar('featured_image', { length: 255 }),
-	date: date('date'), // Adjust length as needed
-	use_editorjs: jsonb('use_editorjs'),
-	editorjs: jsonb('editorjs'),
-	createdAt: timestamp('created_at').defaultNow(),
-	updatedAt: timestamp('updated_at').defaultNow()
+	featuredImage: text('featured_image'),
+	date: text('date'),
+	use_editorjs: text('use_editorjs', { mode: 'json' }),
+	editorjs: text('editorjs', { mode: 'json' }),
+	createdAt: text('created_at').default(sql`(datetime('now'))`),
+	updatedAt: text('updated_at').default(sql`(datetime('now'))`)
 };
 
-export const formSubmissions = pgTable('form_submissions', {
-	id: serial('id').primaryKey(),
-	formName: varchar('form_name', { length: 255 }),
-	email: varchar('email', { length: 255 }),
-	phone: varchar('phone', { length: 255 }),
-	firstName: varchar('first_name', { length: 255 }),
-	lastName: varchar('last_name', { length: 255 }),
-	middleName: varchar('middle_name', { length: 255 }),
-	dateOfBirth: date('date_of_birth'),
+export const formSubmissions = sqliteTable('form_submissions', {
+	id: integer('id').primaryKey({ autoIncrement: true }),
+	formName: text('form_name'),
+	email: text('email'),
+	phone: text('phone'),
+	firstName: text('first_name'),
+	lastName: text('last_name'),
+	middleName: text('middle_name'),
+	dateOfBirth: text('date_of_birth'),
 	churchId: integer('church_id'),
-	content: jsonb('content'),
-	createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
-	updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull()
+	content: text('content', { mode: 'json' }),
+	createdAt: text('created_at')
+		.default(sql`(datetime('now'))`)
+		.notNull(),
+	updatedAt: text('updated_at')
+		.default(sql`(datetime('now'))`)
+		.notNull()
 });
 
 export type FormSubmission = typeof formSubmissions.$inferSelect;
 
-export const settings = pgTable('settings', {
-	id: serial('id').primaryKey(),
-	group: varchar('group'),
-	name: varchar('name'),
-	payload: varchar('payload'),
-	locked: boolean('locked')
+export const settings = sqliteTable('settings', {
+	id: integer('id').primaryKey({ autoIncrement: true }),
+	group: text('group'),
+	name: text('name'),
+	payload: text('payload'),
+	locked: integer('locked', { mode: 'boolean' })
 });
 
-export const medias = pgTable('media', {
-	id: serial('id').primaryKey(),
-	modelType: varchar('model_type', { length: 255 }).notNull(),
+export const medias = sqliteTable('media', {
+	id: integer('id').primaryKey({ autoIncrement: true }),
+	modelType: text('model_type').notNull(),
 	modelId: integer('model_id').notNull(),
-	uuid: varchar('uuid', { length: 255 }).notNull(),
-	collectionName: varchar('collection_name', { length: 255 }).notNull(),
-	name: varchar('name', { length: 255 }).notNull(),
-	fileName: varchar('file_name', { length: 255 }).notNull(),
-	mimeType: varchar('mime_type', { length: 255 }).notNull(),
-	disk: varchar('disk', { length: 255 }).notNull(),
-	conversionsDisk: varchar('conversions_disk', { length: 255 }).notNull(),
+	uuid: text('uuid').notNull(),
+	collectionName: text('collection_name').notNull(),
+	name: text('name').notNull(),
+	fileName: text('file_name').notNull(),
+	mimeType: text('mime_type').notNull(),
+	disk: text('disk').notNull(),
+	conversionsDisk: text('conversions_disk').notNull(),
 	size: integer('size').notNull(),
-	manipulations: json('manipulations').notNull(),
-	customProperties: json('custom_properties').notNull(),
-	generatedConversions: json('generated_conversions').notNull(),
-	responsiveImages: json('responsive_images').notNull(),
+	manipulations: text('manipulations', { mode: 'json' }).notNull(),
+	customProperties: text('custom_properties', { mode: 'json' }).notNull(),
+	generatedConversions: text('generated_conversions', { mode: 'json' }).notNull(),
+	responsiveImages: text('responsive_images', { mode: 'json' }).notNull(),
 	orderColumn: integer('order_column'),
-	createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
-	updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow()
+	createdAt: text('created_at')
+		.default(sql`(datetime('now'))`)
+		.notNull(),
+	updatedAt: text('updated_at')
+		.default(sql`(datetime('now'))`)
+		.notNull()
 });
 
-export const youthEvents = pgTable('youth_events', Event);
-export const childrensEvents = pgTable('childrens_events', Event);
-export const bibleEducationEvents = pgTable('bible_education_events', {
+export const youthEvents = sqliteTable('youth_events', Event);
+export const childrensEvents = sqliteTable('childrens_events', Event);
+export const bibleEducationEvents = sqliteTable('bible_education_events', {
 	...Event,
-	category: varchar('category')
+	category: text('category')
 });
-export const gospelEvents = pgTable('gospel_events', Event);
-export const musicEvents = pgTable('music_events', Event);
-export const familyEvents = pgTable('family_events', Event);
-export const generalEvents = pgTable('general_events', {
+export const gospelEvents = sqliteTable('gospel_events', Event);
+export const musicEvents = sqliteTable('music_events', Event);
+export const familyEvents = sqliteTable('family_events', Event);
+export const generalEvents = sqliteTable('general_events', {
 	...Event,
-	comment: varchar('comment', { length: 255 })
+	comment: text('comment')
 });
 
 // eventSchemas exist for locations where all events are displayed.
@@ -134,12 +136,12 @@ export const eventSchemas = [
 	familyEvents
 ];
 
-export const youthNewsArticles = pgTable('youth_news_articles', Article);
-export const childrensNewsArticles = pgTable('childrens_news_articles', Article);
-export const familyNewsArticles = pgTable('family_news_articles', Article);
-export const bibleEducationNewsArticles = pgTable('bible_education_news_articles', Article);
-export const musicNewsArticles = pgTable('music_news_articles', Article);
-export const newsArticles = pgTable('news_articles', Article);
+export const youthNewsArticles = sqliteTable('youth_news_articles', Article);
+export const childrensNewsArticles = sqliteTable('childrens_news_articles', Article);
+export const familyNewsArticles = sqliteTable('family_news_articles', Article);
+export const bibleEducationNewsArticles = sqliteTable('bible_education_news_articles', Article);
+export const musicNewsArticles = sqliteTable('music_news_articles', Article);
+export const newsArticles = sqliteTable('news_articles', Article);
 
 export const newsArticleSchemas = [
 	newsArticles,
@@ -150,33 +152,83 @@ export const newsArticleSchemas = [
 	childrensNewsArticles
 ];
 
-export const childrensFiles = pgTable('childrens_files', {
-	id: serial('id').primaryKey(),
-	name: varchar('name', { length: 255 }),
-	path: varchar('path', { length: 255 }),
-	category: varchar('category', { length: 255 }),
-	size: varchar('size', { length: 255 }),
-	createdAt: timestamp('created_at').defaultNow(),
-	updatedAt: timestamp('updated_at').defaultNow()
+export const childrensFiles = sqliteTable('childrens_files', {
+	id: integer('id').primaryKey({ autoIncrement: true }),
+	name: text('name'),
+	path: text('path'),
+	category: text('category'),
+	size: text('size'),
+	createdAt: text('created_at').default(sql`(datetime('now'))`),
+	updatedAt: text('updated_at').default(sql`(datetime('now'))`)
 });
 
-export const churches = pgTable('churches', {
-	id: serial('id').primaryKey(),
-	state: varchar('state', { length: 255 }),
-	city: varchar('city', { length: 255 }),
-	name_line_1: varchar('name_line_1', { length: 255 }),
-	name_line_2: varchar('name_line_2', { length: 255 }),
-	region: varchar('region', { length: 255 }),
-	address_line_1: varchar('address_line_1', { length: 255 }),
-	address_line_2: varchar('address_line_2', { length: 255 }),
-	contact_first_name: varchar('contact_first_name', { length: 255 }),
-	contact_last_name: varchar('contact_last_name', { length: 255 }),
-	phone: varchar('phone', { length: 255 }),
-	youtube: varchar('youtube', { length: 255 }),
-	website: varchar('website', { length: 255 }),
-	flickr: varchar('flickr', { length: 255 }),
-	createdAt: timestamp('created_at').defaultNow(),
-	updatedAt: timestamp('updated_at').defaultNow(),
-	longitude: varchar('longitude'),
-	latitude: varchar('latitude')
+export const churches = sqliteTable('churches', {
+	id: integer('id').primaryKey({ autoIncrement: true }),
+	state: text('state'),
+	city: text('city'),
+	name_line_1: text('name_line_1'),
+	name_line_2: text('name_line_2'),
+	region: text('region'),
+	address_line_1: text('address_line_1'),
+	address_line_2: text('address_line_2'),
+	contact_first_name: text('contact_first_name'),
+	contact_last_name: text('contact_last_name'),
+	phone: text('phone'),
+	youtube: text('youtube'),
+	website: text('website'),
+	flickr: text('flickr'),
+	createdAt: text('created_at').default(sql`(datetime('now'))`),
+	updatedAt: text('updated_at').default(sql`(datetime('now'))`),
+	longitude: text('longitude'),
+	latitude: text('latitude')
 });
+
+// Youth camp registration system.
+// Youth leaders who approve camp registrations. Populated from a list the
+// admin provides; each leader gets a scoped Nova account to approve their own.
+export const youthLeaders = sqliteTable('youth_leaders', {
+	id: integer('id').primaryKey({ autoIncrement: true }),
+	name: text('name').notNull(),
+	email: text('email'),
+	region: text('region'),
+	churchId: integer('church_id'),
+	active: integer('active', { mode: 'boolean' }).default(true).notNull(),
+	createdAt: text('created_at')
+		.default(sql`(datetime('now'))`)
+		.notNull(),
+	updatedAt: text('updated_at')
+		.default(sql`(datetime('now'))`)
+		.notNull()
+});
+
+export type YouthLeader = typeof youthLeaders.$inferSelect;
+
+// Camp registrations. status flow:
+//   pending_payment -> awaiting_approval -> approved | rejected
+// paymentStatus: unpaid | paid (from Stripe). approvalToken used in the
+// approve-link emailed to the responsible leader.
+export const campRegistrations = sqliteTable('camp_registrations', {
+	id: integer('id').primaryKey({ autoIncrement: true }),
+	eventSlug: text('event_slug').notNull(),
+	firstName: text('first_name').notNull(),
+	lastName: text('last_name').notNull(),
+	church: text('church'),
+	email: text('email'),
+	phone: text('phone'),
+	leaderId: integer('leader_id').references(() => youthLeaders.id),
+	status: text('status').default('pending_payment').notNull(),
+	paymentStatus: text('payment_status').default('unpaid').notNull(),
+	amount: integer('amount'),
+	stripeSessionId: text('stripe_session_id'),
+	approvalToken: text('approval_token'),
+	approvedBy: text('approved_by'),
+	approvedAt: text('approved_at'),
+	createdAt: text('created_at')
+		.default(sql`(datetime('now'))`)
+		.notNull(),
+	updatedAt: text('updated_at')
+		.default(sql`(datetime('now'))`)
+		.notNull()
+});
+
+export type CampRegistration = typeof campRegistrations.$inferSelect;

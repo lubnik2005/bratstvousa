@@ -1,12 +1,11 @@
 import { env } from '$env/dynamic/private';
-import { db } from '$lib/server/db';
 import { childrensEvents, childrensFiles, childrensNewsArticles } from '$lib/server/db/schema';
-import { isNull, and, desc, or, gte, lt, isNotNull } from 'drizzle-orm';
-import { formatDate } from '$lib/helpers';
 import { getMinistryEvents, getMinistryNewsArticles } from '$lib/server/db/queries';
+import type { PageServerLoad } from './$types';
 
-export async function load({ params }) {
-	const allFiles = await db.select().from(childrensFiles).orderBy(childrensFiles.name);
+export const load: PageServerLoad = async ({ locals, setHeaders }) => {
+	setHeaders({ 'cache-control': 'public, max-age=0, s-maxage=300, stale-while-revalidate=3600' });
+	const allFiles = await locals.db.select().from(childrensFiles).orderBy(childrensFiles.name);
 
 	const childrens_camp_files = allFiles.filter(
 		(file) => file.category === 'children-camp' || file.category === 'preteen-camp'
@@ -18,9 +17,9 @@ export async function load({ params }) {
 
 	return {
 		media_url: env.MEDIA_URL,
-		articles: await getMinistryNewsArticles(childrensNewsArticles),
-		events: await getMinistryEvents(childrensEvents),
+		articles: await getMinistryNewsArticles(locals.db, childrensNewsArticles),
+		events: await getMinistryEvents(locals.db, childrensEvents),
 		childrens_files,
 		childrens_camp_files
 	};
-}
+};

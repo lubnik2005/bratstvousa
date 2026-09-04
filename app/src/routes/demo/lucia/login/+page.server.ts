@@ -1,11 +1,36 @@
-import { hash, verify } from '@node-rs/argon2';
+import { scrypt } from '@noble/hashes/scrypt.js';
+import { bytesToHex, randomBytes } from '@noble/hashes/utils.js';
 import { encodeBase32LowerCase } from '@oslojs/encoding';
 import { fail, redirect } from '@sveltejs/kit';
 import { eq } from 'drizzle-orm';
 import * as auth from '$lib/server/auth';
-import { db } from '$lib/server/db';
 import * as table from '$lib/server/db/schema';
 import type { Actions, PageServerLoad } from './$types';
+
+// Scrypt password hashing utilities
+function hashPassword(password: string): string {
+	const salt = randomBytes(16);
+	const hash = scrypt(new TextEncoder().encode(password), salt, {
+		N: 16384,
+		r: 8,
+		p: 1,
+		dkLen: 32
+	});
+	return `${bytesToHex(salt)}:${bytesToHex(hash)}`;
+}
+
+function verifyPassword(storedHash: string, password: string): boolean {
+	const [saltHex, hashHex] = storedHash.split(':');
+	if (!saltHex || !hashHex) return false;
+	const salt = new Uint8Array(saltHex.match(/.{2}/g)!.map((b) => parseInt(b, 16)));
+	const hash = scrypt(new TextEncoder().encode(password), salt, {
+		N: 16384,
+		r: 8,
+		p: 1,
+		dkLen: 32
+	});
+	return bytesToHex(hash) === hashHex;
+}
 
 export const load: PageServerLoad = async (event) => {
 	if (event.locals.user) {
@@ -27,6 +52,7 @@ export const actions: Actions = {
 			return fail(400, { message: 'Invalid password' });
 		}
 
+		const db = event.locals.db;
 		const results = await db.select().from(table.user).where(eq(table.user.username, username));
 
 		const existingUser = results.at(0);
@@ -34,18 +60,13 @@ export const actions: Actions = {
 			return fail(400, { message: 'Incorrect username or password' });
 		}
 
-		const validPassword = await verify(existingUser.passwordHash, password, {
-			memoryCost: 19456,
-			timeCost: 2,
-			outputLen: 32,
-			parallelism: 1
-		});
+		const validPassword = verifyPassword(existingUser.passwordHash, password);
 		if (!validPassword) {
 			return fail(400, { message: 'Incorrect username or password' });
 		}
 
 		const sessionToken = auth.generateSessionToken();
-		const session = await auth.createSession(sessionToken, existingUser.id);
+		const session = await auth.createSession(db, sessionToken, existingUser.id);
 		auth.setSessionTokenCookie(event, sessionToken, session.expiresAt);
 
 		return redirect(302, '/demo/lucia');
@@ -62,20 +83,15 @@ export const actions: Actions = {
 			return fail(400, { message: 'Invalid password' });
 		}
 
+		const db = event.locals.db;
 		const userId = generateUserId();
-		const passwordHash = await hash(password, {
-			// recommended minimum parameters
-			memoryCost: 19456,
-			timeCost: 2,
-			outputLen: 32,
-			parallelism: 1
-		});
+		const passwordHash = hashPassword(password);
 
 		try {
 			await db.insert(table.user).values({ id: userId, username, passwordHash });
 
 			const sessionToken = auth.generateSessionToken();
-			const session = await auth.createSession(sessionToken, userId);
+			const session = await auth.createSession(db, sessionToken, userId);
 			auth.setSessionTokenCookie(event, sessionToken, session.expiresAt);
 		} catch (e) {
 			return fail(500, { message: 'An error has occurred' });

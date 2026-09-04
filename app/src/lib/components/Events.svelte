@@ -1,176 +1,109 @@
 <script lang="ts">
-	import { regionToLabel } from '$lib/helpers';
+	import { regionToLabel, hasEventContent } from '$lib/helpers';
 	export let events;
 	export let ministry_slug;
 </script>
 
-<section class="row mb-5">
-	<h2 class="fw-bold mb-4 text-center">События</h2>
-	<div class="col-lg-12">
-		<div class="row g-4">
-			{#each events as event}
-				<div class="col-md-4">
-					<div class="card event-card d-flex align-items-stretch flex-row border-0 shadow-sm">
-						<!-- 📅 Full-Height Date Block -->
-						<div class="event-date">
-							<div class="event-day">{event.startAtString.split('/')[0]}</div>
-							<div class="event-divider">/</div>
-							<div class="event-month">{event.startAtString.split('/')[1]}</div>
-							<div class="event-divider">/</div>
-							<div class="event-year">{event.startAtString.split('/')[2]}</div>
+{#if events?.length}
+	<section class="events my-6">
+		<p class="eyebrow mb-2 text-center">Календарь</p>
+		<h2 class="mb-5 text-center">События</h2>
+		<div class="measure-wide mx-auto">
+			<ul class="event-list list-unstyled mb-0">
+				{#each events as event}
+					<li class="event-item">
+						<div class="event-when">
+							<span class="event-day">{event.startAtString.split('/')[0]}</span>
+							<span class="event-rest">
+								{event.startAtString.split('/').slice(1).join(' / ')}
+							</span>
 						</div>
-
-						<!-- 📝 Event Details -->
-						<div class="event-details flex-grow-1 p-3">
-							<h5 class="fw-bold mb-1">{event.title}</h5>
-							<!-- <p class="text-muted small mb-2">{event.description ?? ' '}</p> -->
-							<p class="text-muted small mb-2">
+						<div class="event-body">
+							<h3 class="event-title h5 mb-1">{event.title}</h3>
+							<p class="event-meta mb-1">
 								{regionToLabel(event.region) || 'Место не указано'}
 							</p>
-							<p class="text-dark small">{event.description || 'Описание отсутствует'}</p>
-							{#if event.content}
-								<a
-									href={`/${ministry_slug}/${event.slug}`}
-									class="btn btn-sm btn-outline-primary mt-2">Подробнее</a
-								>
+							{#if event.description}
+								<p class="event-desc mb-2">{event.description}</p>
+							{/if}
+							{#if hasEventContent(event)}
+								<a href={`/${ministry_slug}/${event.slug}`} class="btn-quiet">Подробнее →</a>
 							{/if}
 						</div>
-					</div>
-				</div>
-			{/each}
+					</li>
+				{/each}
+			</ul>
 		</div>
-	</div>
-</section>
+	</section>
+{/if}
 
 <style>
-	:root {
-		--bs-primary: #2c3e50;
-		--bs-dark: #1a252f;
+	.event-list {
+		border-top: 1px solid var(--bs-rule, #ddd5c8);
 	}
 
-	.card {
-		border-radius: 12px;
-		transition: transform 0.2s ease-in-out;
+	.event-item {
+		display: grid;
+		grid-template-columns: 8rem 1fr;
+		gap: 1.5rem;
+		padding: 1.75rem 0;
+		border-bottom: 1px solid var(--bs-rule, #ddd5c8);
 	}
 
-	.card:hover {
-		transform: translateY(-5px);
-		box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.2);
-	}
-
-	/* 📅 Event Date Block */
-	.event-date {
-		background: var(--bs-dark);
-		color: #ffffff;
-		min-width: 70px;
+	.event-when {
 		display: flex;
 		flex-direction: column;
-		justify-content: center;
-		align-items: center;
-		font-size: 1.4rem;
-		font-weight: bold;
-		padding: 15px 0;
-		border-radius: 12px 0 0 12px;
+		align-items: flex-start;
+		padding-top: 0.15rem;
 	}
 
-	.event-divider {
-		font-size: 1rem;
-		opacity: 0.6;
-		margin: 2px 0;
+	.event-day {
+		font-family: 'Lora', serif;
+		font-size: 2rem;
+		line-height: 1;
+		color: var(--bs-dark, #2c2b29);
 	}
 
-	.event-details {
-		flex-grow: 1;
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
+	.event-rest {
+		margin-top: 0.4rem;
+		font-size: 0.8rem;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		color: var(--bs-ink-muted, #736a5f);
 	}
 
-	/* 📰 News Cards */
-	.news-card {
-		height: 350px;
-		display: flex;
-		flex-direction: column;
-		justify-content: space-between;
+	.event-title {
+		font-family: 'Lora', serif;
+		color: var(--bs-dark, #2c2b29);
 	}
 
-	.news-image {
-		height: 70%;
-		object-fit: cover;
+	.event-meta {
+		font-size: 0.8rem;
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+		color: var(--bs-ink-muted, #736a5f);
 	}
 
-	/* 🎭 News Overlay */
-	.bg-dark.opacity-50 {
-		position: absolute;
-		bottom: 0;
-		left: 0;
-		width: 100%;
-		height: 30%;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		text-align: center;
-		backdrop-filter: blur(4px);
+	.event-desc {
+		color: var(--bs-body-color, #3a352f);
+		max-width: 34rem;
 	}
 
-	:root {
-		--bs-primary: #2c3e50;
-		--bs-dark: #1a252f;
-	}
-
-	.news-card {
-		height: 350px;
-		position: relative;
-		border-radius: 12px;
-		overflow: hidden;
-		box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-		transition: transform 0.2s ease-in-out;
-	}
-
-	.news-card:hover {
-		transform: translateY(-3px);
-		box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.2);
-	}
-
-	/* 📸 Ensure News Images Fit */
-	.news-image {
-		height: 100%;
-		object-fit: cover;
-		position: absolute;
-		width: 100%;
-		top: 0;
-		left: 0;
-	}
-
-	/* 📝 Overlay Content */
-	.news-overlay {
-		position: absolute;
-		bottom: 0;
-		left: 0;
-		width: 100%;
-		background: rgba(0, 0, 0, 0.6);
-		color: white;
-		padding: 15px;
-		backdrop-filter: blur(4px);
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		text-align: center;
-		border-radius: 0 0 12px 12px;
-	}
-
-	.news-title {
-		color: white;
-		font-size: 1.1rem;
-		margin-bottom: 5px;
-	}
-
-	.news-date {
-		font-size: 0.85rem;
-		opacity: 0.8;
-	}
-	.text-outline {
-		color: white;
-		-webkit-text-stroke: 1px black; /* Black outline */
+	@media (max-width: 575.98px) {
+		.event-item {
+			grid-template-columns: 1fr;
+			gap: 0.5rem;
+		}
+		.event-when {
+			flex-direction: row;
+			align-items: baseline;
+			gap: 0.6rem;
+		}
+		.event-day {
+			font-size: 1.4rem;
+		}
+		.event-rest {
+			margin-top: 0;
+		}
 	}
 </style>

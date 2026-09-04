@@ -1,54 +1,84 @@
 <script>
 	export let data;
-	import Header from '$lib/components/Header.svelte';
 	import News from '$lib/components/News.svelte';
-	import UpcomingEvents from '$lib/components/UpcomingEvents.svelte';
-	import GenericPage from '$lib/components/GenericPage.svelte';
+	import Events from '$lib/components/Events.svelte';
 </script>
 
-<Header title="Музыкально хоровой отдел (МХО)" />
+<svelte:head>
+	<title>Музыкально-хоровой отдел — Американское Объединение МСЦ ЕХБ</title>
+</svelte:head>
 
-<!-- Page Header Start -->
-<div class="container-fluid pb-5">
-	<div class="container">
-		<div class="row">
-			<!-- First Column -->
-			<div class="col-lg-8">
+<div class="ministry-music" style="--ministry-accent: var(--bs-accent-music);">
+	<div class="container-fluid page-header">
+		<div class="container">
+			<p class="eyebrow ministry-eyebrow">Отделы</p>
+			<h1 class="display-3">Музыкально-хоровой отдел</h1>
+		</div>
+	</div>
+
+	<figure class="ministry-scripture measure mx-auto text-center">
+		<blockquote class="scripture scripture-centered">
+			«Приидите, воспоём Господу, воскликнем Богу, твердыне спасения нашего»
+			<cite>Псалом 94:1</cite>
+		</blockquote>
+	</figure>
+
+	<div class="container my-6">
+		<div class="row justify-content-center">
+			<div class="col-lg-7 text-center">
+				<p class="eyebrow ministry-eyebrow">Приветственное слово</p>
 				<p>
-					Дорогие друзья, Музыкально-хоровой отдел МСЦ ЕХБ, имеет благодарность Богу и радость за
-					благословения в этом служении. Радость за пройденный путь этого служения и видеть, как
-					молодое поколение, в этом служении проявляет усердие и ревность. Благослови Вас Бог, чтобы
-					каждый человек послужил Ему в своей жизни и через музыкальное служение, ещё больше
-					прославился наш Великий Бог!
+					Дорогие друзья! Музыкально-хоровой отдел МСЦ ЕХБ имеет благодарность Богу и радость за
+					благословения в этом служении — за пройденный путь и за то, что молодое поколение
+					проявляет в нём усердие и ревность. Благослови вас Бог, чтобы каждый человек послужил Ему
+					в своей жизни, и чтобы через музыкальное служение ещё больше прославился наш Великий Бог!
 				</p>
-				<footer class="blockquote-footer">Юрий Иванович Павленко</footer>
-				<a class="btn btn-primary" target="_blank" href="https://mscmusic.org/">MSC Music</a>
+				<footer class="blockquote-footer">Павленко Юрий Иванович</footer>
+				<div class="mt-4">
+					<a class="btn-quiet" target="_blank" rel="noopener" href="https://mscmusic.org/"
+						>MSC Music</a
+					>
+				</div>
 			</div>
+		</div>
 
-			<div class="col-lg-3">
-				<div class="team-wrap rounded border p-3">
-					<div class="team-member text-center">
-						<div class="team-img mb-3">
-							<img
-								style="width: 100%;"
-								src="{data.media_url}upfiles/page/e520e72681104b35e9d52bd1ac40119b26192271.jpg"
-								alt=""
-							/>
-						</div>
-
-						<h5 class="team-title">Павленко <br /> Юрий Иванович</h5>
-						<div class="social">
-							<a href="mailto:info@bratstvousa.com">info@bratstvousa.com</a>
-						</div>
-					</div>
+		<div class="row justify-content-center mt-5">
+			<div class="col-lg-4 col-md-6">
+				<div class="leader-card" style="--leader-accent: var(--bs-accent-music);">
+					<img
+						src="{data.media_url}upfiles/optimized/music-choir-portrait.jpg"
+						alt="Юрий Иванович Павленко"
+					/>
+					<p class="leader-name">Павленко <br />Юрий Иванович</p>
+					<a href="mailto:info@bratstvousa.com">info@bratstvousa.com</a>
 				</div>
 			</div>
 		</div>
 	</div>
-</div>
-<News articles={data.articles} media_url={data.media_url} />
-<div class="container-fluid">
+
 	<div class="container">
-		<GenericPage media_url="data.media_url" {data} ministry_slug="choir-music" />
+		<Events events={data.events} ministry_slug="music-choir-ministry" />
 	</div>
+
+	<News articles={data.articles} media_url={data.media_url} />
 </div>
+
+<style>
+	.ministry-eyebrow {
+		color: var(--ministry-accent);
+	}
+	.page-header {
+		border-bottom-color: var(--ministry-accent);
+	}
+	.ministry-scripture {
+		margin-top: 3.5rem;
+	}
+	.scripture-centered {
+		border-left: 0;
+		padding-left: 0;
+		font-size: 1.4rem;
+	}
+	.scripture-centered :global(cite) {
+		color: var(--ministry-accent);
+	}
+</style>

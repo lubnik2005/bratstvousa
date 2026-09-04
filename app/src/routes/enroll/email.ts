@@ -1,4 +1,4 @@
-export const email_template = (props) => `
+export const email_template = (props: Record<string, string>) => `
 <html lang='ru'>
 	<head>
 		<meta charset='UTF-8' />

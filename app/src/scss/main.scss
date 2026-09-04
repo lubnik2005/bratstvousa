@@ -1,29 +1,286 @@
-// ---------------------
-// Variables
-// ---------------------
-$primary: #5a4a42; // Muted Brown
-$secondary: #a28c6a; // Earthy Beige
-$light: #f5f5f1; // Off-White
-$dark: #2c2b29; // Charcoal Black
-$body-color: #555555;
+// =====================================================================
+// Design System — shibui: understated excellence, restraint, warmth.
+// Ascetic in ornament, lavish in craftsmanship.
+// =====================================================================
 
-$font-family-base: 'Open Sans', sans-serif;
-$headings-font-family: 'Lora', serif;
+// ---------------------
+// Palette
+// ---------------------
+// Warm, earthy base evoking paper, ink, oak and stone. No stark whites,
+// no flat greys. Every colour is drawn toward warmth.
+$primary: #5a4a42; // Muted Brown  — primary ink / accent
+$secondary: #a28c6a; // Earthy Beige — quiet secondary
+$light: #f3efe7; // Warm Paper   — page ground (was #f5f5f1)
+$dark: #2c2b29; // Charcoal Ink — headings / deep ground
+$body-color: #3a352f; // Warm Ink     — body text (was flat #555)
+
+// Supporting tokens (used by custom component styles, not Bootstrap)
+$paper: #f6f2ea; // page background, a touch lighter than $light
+$paper-sunk: #efe9df; // recessed surfaces (quiet fills)
+$ink-muted: #736a5f; // metadata, captions, muted text
+$rule: #ddd5c8; // hairline dividers / borders
+$rule-strong: #c7bdae; // stronger hairline where needed
+
+// Harmonised ministry accents — muted siblings of the earth palette,
+// desaturated and darkened so they read as one family, never a crayon box.
+$accent-children: #9a6a3a; // warm terracotta-brown
+$accent-youth: #4a5f76; // slate blue, dusty
+$accent-family: #5c6b4f; // sage/olive
+$accent-gospel: #7a5540; // deep clay
+$accent-music: #6a5a72; // muted heather
+$accent-bible: #3f5a68; // deep teal-slate
+
+// ---------------------
+// Typography
+// ---------------------
+$font-family-base: 'Open Sans', 'Open Sans Fallback', sans-serif;
+$headings-font-family: 'Lora', 'Lora Fallback', serif;
+$font-family-serif: 'Lora', 'Lora Fallback', serif;
 $headings-color: $dark;
 $headings-font-weight: 600;
 $display-font-weight: 700;
+$headings-line-height: 1.2;
+$line-height-base: 1.7; // generous, literary
 $enable-responsive-font-sizes: true;
-$border-radius: 0;
+
+// Measure — controlled line length for readable prose (~66ch)
+$measure: 38rem;
+$measure-wide: 46rem;
+
+// ---------------------
+// Form & material
+// ---------------------
+$border-radius: 0; // square corners everywhere — no soft SaaS blobs
 $border-radius-sm: $border-radius;
 $border-radius-lg: $border-radius;
 $link-decoration: none;
+$link-color: $primary;
+$link-hover-color: $dark;
 $enable-negative-margins: true;
+$enable-shadows: false;
+$box-shadow: none;
+$box-shadow-sm: none;
+$box-shadow-lg: none;
 
 // ---------------------
 // Imports
 // ---------------------
 @import 'glightbox';
 @import '../../node_modules/bootstrap/scss/bootstrap';
+
+// =====================================================================
+// Custom design tokens as CSS custom properties, so component-scoped
+// <style> blocks can reference the same palette without hardcoding hex.
+// =====================================================================
+:root {
+	--bs-paper: #{$paper};
+	--bs-paper-sunk: #{$paper-sunk};
+	--bs-ink-muted: #{$ink-muted};
+	--bs-rule: #{$rule};
+	--bs-rule-strong: #{$rule-strong};
+	--bs-accent-children: #{$accent-children};
+	--bs-accent-youth: #{$accent-youth};
+	--bs-accent-family: #{$accent-family};
+	--bs-accent-gospel: #{$accent-gospel};
+	--bs-accent-music: #{$accent-music};
+	--bs-accent-bible: #{$accent-bible};
+	--bs-font-serif: 'Lora', serif;
+}
+
+// =====================================================================
+// Base — the quiet ground the whole site rests on.
+// =====================================================================
+body {
+	background-color: $paper;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	text-rendering: optimizeLegibility;
+	font-feature-settings:
+		'kern' 1,
+		'liga' 1;
+}
+
+// Headings — restrained, confident. Not marketing-loud.
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.h1,
+.h2,
+.h3,
+.h4,
+.h5,
+.h6 {
+	letter-spacing: -0.01em;
+}
+
+// A calmer type scale. Pull the giant "display" sizes back to
+// dignified, book-like proportions.
+.display-1 {
+	font-size: calc(2.6rem + 1.8vw);
+	font-weight: 700;
+}
+.display-2 {
+	font-size: calc(2.3rem + 1.5vw);
+	font-weight: 700;
+}
+.display-3 {
+	font-size: calc(2rem + 1.1vw);
+	font-weight: 600;
+}
+.display-4 {
+	font-size: calc(1.8rem + 0.8vw);
+	font-weight: 600;
+}
+.display-5 {
+	font-size: calc(1.5rem + 0.5vw);
+	font-weight: 600;
+}
+.display-6 {
+	font-size: calc(1.3rem + 0.3vw);
+	font-weight: 600;
+}
+
+// Links — quiet, warm, never electric blue. A hairline underline keeps
+// them discoverable without shouting; it firms up to the ink colour on hover.
+a {
+	color: $primary;
+	text-decoration: underline;
+	text-decoration-color: $rule;
+	text-underline-offset: 0.15em;
+	transition:
+		color 0.25s ease,
+		text-decoration-color 0.25s ease;
+
+	&:hover {
+		color: $dark;
+		text-decoration-color: currentColor;
+	}
+}
+
+// Structural / decorative anchors opt out of the resting underline: real
+// buttons, nav items, whole-card wrappers, image links, and serif title
+// links. Title links re-reveal an underline on hover/focus (see components).
+a.btn,
+a.navbar-brand,
+.navbar-nav a,
+.dropdown-item,
+.mega-card-title,
+.mega-card-links a,
+.fullscreen-menu a,
+.footer a,
+.news-figure,
+.event-figure,
+.featured-figure,
+.featured-event-img,
+.home-news-figure,
+.resource-entry,
+.pathway-link,
+.region-tab,
+.category-tab,
+.pager-list a,
+.toc-top,
+.toc-item,
+.toc-child {
+	text-decoration: none;
+}
+
+// Consistent, on-brand keyboard focus ring for everything interactive.
+a,
+button,
+.btn,
+[role='button'],
+summary,
+.region-tab,
+.category-tab,
+.pager-list a,
+input,
+select,
+textarea {
+	&:focus-visible {
+		outline: 2px solid $secondary;
+		outline-offset: 2px;
+	}
+}
+
+// Small caps / label treatment for metadata and eyebrow labels.
+.eyebrow {
+	font-family: $font-family-base;
+	font-size: 0.78rem;
+	font-weight: 600;
+	letter-spacing: 0.14em;
+	text-transform: uppercase;
+	color: $ink-muted;
+}
+
+// ---------------------
+// Measure — controlled reading width.
+// ---------------------
+.measure {
+	max-width: $measure;
+}
+.measure-wide {
+	max-width: $measure-wide;
+}
+.measure,
+.measure-wide {
+	&.mx-auto {
+		margin-left: auto;
+		margin-right: auto;
+	}
+}
+
+// ---------------------
+// Hairline dividers — whitespace over borders; when a rule is needed,
+// it is a single quiet line.
+// ---------------------
+.rule {
+	border: 0;
+	border-top: 1px solid $rule;
+}
+.rule-short {
+	width: 3rem;
+	height: 1px;
+	background: $secondary;
+	border: 0;
+	margin: 1.5rem 0;
+}
+
+// ---------------------
+// Scripture — treated with quiet dignity, integrated into the page.
+// Not an inspirational social-media card.
+// ---------------------
+.scripture {
+	font-family: $font-family-serif;
+	font-size: 1.25rem;
+	line-height: 1.75;
+	font-style: italic;
+	color: $body-color;
+	max-width: $measure;
+	padding-left: 1.5rem;
+	border-left: 2px solid $secondary;
+	margin: 2.5rem 0;
+
+	cite {
+		display: block;
+		margin-top: 0.75rem;
+		font-family: $font-family-base;
+		font-style: normal;
+		font-size: 0.82rem;
+		font-weight: 600;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		color: #655c52;
+	}
+}
+
+// Attribution line under quotes/greetings.
+// Bootstrap's default #6c757d fails contrast on the warm paper background.
+.blockquote-footer {
+	color: $ink-muted;
+}
 
 // ---------------------
 // Utilities
@@ -75,14 +332,38 @@ $enable-negative-margins: true;
 // Buttons
 // ---------------------
 .btn {
-	font-weight: 500;
-	transition: 0.5s;
+	font-family: $font-family-base;
+	font-weight: 600;
+	letter-spacing: 0.04em;
+	padding: 0.6rem 1.4rem;
+	transition:
+		color 0.3s ease,
+		background-color 0.3s ease,
+		border-color 0.3s ease;
 
 	&.btn-primary,
 	&.btn-secondary,
 	&.btn-outline-primary:hover,
 	&.btn-outline-secondary:hover {
 		color: #ffffff;
+	}
+
+	// A quiet, letter-spaced "link" action — the shibui call-to-action.
+	&.btn-quiet {
+		padding: 0;
+		font-size: 0.82rem;
+		letter-spacing: 0.12em;
+		text-transform: uppercase;
+		color: $primary;
+		border: 0;
+		border-bottom: 1px solid $rule;
+		border-radius: 0;
+		background: none;
+
+		&:hover {
+			color: $dark;
+			border-bottom-color: $dark;
+		}
 	}
 }
 
@@ -138,7 +419,6 @@ $enable-negative-margins: true;
 			padding: 25px 15px;
 			color: #555555;
 			font-weight: 500;
-			outline: none;
 
 			&:hover,
 			&.active {
@@ -225,87 +505,145 @@ $enable-negative-margins: true;
 	}
 }
 
+// A quiet typographic page header. No forced cover image, no marketing
+// hero. Just generous space, a hairline rule, and confident type.
+// (Accounts for the fixed navbar height.)
 .page-header {
-	padding-top: 12rem;
-	padding-bottom: 6rem;
-	background-size: cover;
+	padding-top: 2.5rem;
+	padding-bottom: 1.5rem;
+	border-bottom: 1px solid $rule;
+	margin-bottom: 2rem;
+
+	h1 {
+		margin-bottom: 0;
+	}
+
+	// A restrained lead / subtitle under the title.
+	> .container > p,
+	> p {
+		color: $ink-muted;
+		max-width: $measure-wide;
+		margin-top: 1rem;
+		margin-bottom: 0;
+	}
+
+	&.text-center {
+		> .container > p,
+		> p {
+			margin-left: auto;
+			margin-right: auto;
+		}
+	}
+
+	@include media-breakpoint-up(lg) {
+		padding-top: 3rem;
+		padding-bottom: 2rem;
+	}
+}
+
+// Banner image at the top of content pages (committee, beliefs,
+// short-introduction, etc.). These are PHOTOGRAPHS OF PEOPLE, so we must never
+// crop them (no object-fit: cover — that decapitates group photos). The banner
+// is placed inside the same Bootstrap .container as the page content, so its
+// width tracks the content column at every breakpoint (they stay aligned). We
+// just make the image fill that container and keep its aspect ratio; the whole
+// photo stays visible and is never upscaled past its natural resolution.
+.page-hero-img {
+	display: block;
+	width: 100%;
+	height: auto;
+}
+
+// Full-width hero band placed as the FIRST element on a page (above the title).
+// Below lg it breaks out of any container to span the whole viewport width
+// (edge-to-edge). At lg and up it is capped to a wide band and centred, so it
+// reads as a large banner without stretching absurdly on ultrawide monitors.
+// The inner .page-hero-img keeps its aspect ratio and is never cropped.
+.page-hero-band {
+	width: 100vw;
+	max-width: 100vw;
+	margin-left: calc(50% - 50vw);
+	margin-right: calc(50% - 50vw);
+
+	@include media-breakpoint-up(lg) {
+		width: min(100%, 1600px);
+		max-width: 1600px;
+		margin-left: auto;
+		margin-right: auto;
+	}
+}
+
+// The desktop navbar (.responsive-fixed-top) is position: fixed and sits over
+// the top of the page. With the opaque paper background it now covers the top
+// of page content (banners, hero) — cutting off heads in group photos. Offset
+// the main content down by the navbar height so nothing renders underneath it.
+// Desktop only (>=992px, matching the navbar's d-lg-block). On mobile the header
+// is position: static (in normal flow), so no offset is needed there.
+//
+// The navbar height is NOT constant: between 992px and ~1150px the menu wraps to
+// two lines (~133px) and above that it is a single line (~79px). So the offset
+// is driven by --nav-offset, set in JS (see +layout.svelte) from the navbar's
+// measured height and kept in sync on resize. The 80px fallback covers the
+// common wide-screen case before hydration.
+@media (min-width: 992px) {
+	#main-content {
+		padding-top: var(--nav-offset, 80px);
+	}
+
+	// Home page: the full-bleed video hero must sit at the very top, UNDER the
+	// transparent navbar (which overlays the video). Remove the nav-offset here
+	// so the hero starts at y=0; the navbar floats over it until scrolled.
+	#main-content.home-hero {
+		padding-top: 0;
+	}
 }
 
 .breadcrumb-item + .breadcrumb-item::before {
-	color: #999999;
+	color: $ink-muted;
 }
 
 // ---------------------
-// Section Header
+// Section Header — a single quiet rule above the title, not a pair of
+// centred decorative dashes. Whitespace over ornament.
 // ---------------------
 .section-header {
 	position: relative;
-	padding-top: 25px;
-
-	&::before,
-	&::after {
-		position: absolute;
-		content: '';
-		left: 50%;
-		transform: translateX(-50%);
-	}
+	padding-top: 1.5rem;
 
 	&::before {
-		width: 60px;
-		height: 2px;
+		content: '';
+		position: absolute;
 		top: 0;
-		background: var(--primary);
+		left: 50%;
+		transform: translateX(-50%);
+		width: 2.5rem;
+		height: 1px;
+		background: $secondary;
 	}
 
-	&::after {
-		width: 90px;
-		height: 2px;
-		top: 10px;
-		background: var(--secondary);
-	}
-
-	&.text-start {
-		&::before,
-		&::after {
-			left: 0;
-			transform: translateX(0);
-		}
+	&.text-start::before {
+		left: 0;
+		transform: none;
 	}
 }
 
 // ---------------------
 // About
 // ---------------------
+// About image — plain, documentary. The skewed dotted ornament is gone.
 .about-img {
 	img {
 		position: relative;
 		z-index: 2;
 	}
-
-	&::before {
-		position: absolute;
-		content: '';
-		top: 0;
-		left: -50%;
-		width: 100%;
-		height: 100%;
-		background-image: repeating-radial-gradient(
-			#ffffff,
-			#eeeeee 5px,
-			transparent 5px,
-			transparent 10px
-		);
-		background-size: 20px 20px;
-		transform: skew(20deg);
-		z-index: 1;
-	}
 }
 
 // ---------------------
-// Product
+// Product / Event / News card — a composed item, not a floating card.
+// Hairline dividing rules, no shadow, no lift, no image zoom.
 // ---------------------
 .nav-pills .nav-item .btn {
-	color: var(--dark);
+	color: $body-color;
 
 	&:hover,
 	&.active {
@@ -314,18 +652,81 @@ $enable-negative-margins: true;
 }
 
 .product-item {
-	box-shadow: 0 0 45px rgba(0, 0, 0, 0.07);
+	background: transparent;
+	transition: none;
+
+	.position-relative {
+		overflow: hidden;
+	}
 
 	img {
-		transition: 0.5s;
+		transition: opacity 0.4s ease;
 	}
 
 	&:hover img {
-		transform: scale(1.1);
+		opacity: 0.92;
+	}
+
+	// The title, quiet and serif, drawn in ink.
+	.h5,
+	h5 {
+		font-family: $font-family-serif;
+		color: $dark;
 	}
 
 	small a:hover {
-		color: var(--primary) !important;
+		color: $primary !important;
+	}
+}
+
+// ---------------------
+// Leader card
+// A quiet portrait panel for the person who leads a ministry.
+// One unified treatment: sunk paper, a hairline frame, a thin
+// accent rule at the top, square photo, serif name, muted contact.
+// Ministry pages may tint the accent rule via --leader-accent.
+// ---------------------
+.leader-card {
+	background: $paper-sunk;
+	border: 1px solid $rule;
+	border-top: 2px solid var(--leader-accent, #{$secondary});
+	padding: 1.5rem;
+	text-align: center;
+
+	img {
+		width: 100%;
+		border-radius: 0;
+		display: block;
+		margin-bottom: 1.25rem;
+		filter: saturate(0.95);
+	}
+
+	.leader-name {
+		font-family: $font-family-serif;
+		font-weight: 600;
+		font-size: 1.15rem;
+		line-height: 1.35;
+		color: $dark;
+		margin-bottom: 0.5rem;
+	}
+
+	.leader-role {
+		font-size: 0.78rem;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		color: #655c52;
+		margin-bottom: 0.75rem;
+	}
+
+	a {
+		color: #655c52;
+		font-size: 0.95rem;
+		text-decoration-color: $rule;
+	}
+
+	a:hover {
+		color: $primary;
+		text-decoration-color: currentColor;
 	}
 }
 
@@ -391,42 +792,199 @@ $enable-negative-margins: true;
 // Footer
 // ---------------------
 .footer {
-	color: #b3b3b3;
+	$footer-muted: #b3b3b3;
 
-	.btn.btn-link {
-		display: block;
-		margin-bottom: 5px;
+	position: relative;
+	overflow: hidden;
+	color: $footer-muted;
+	// Accent hairline tying the footer to the rest of the site's rule motif.
+	border-top: 1px solid $secondary;
+
+	// Content sits above the decorative watermark.
+	.footer-body {
+		position: relative;
+		z-index: 1;
+	}
+
+	// Top link bar — the upper slice of the "sandwich", a mirror of the bottom
+	// .copyright bar. All footer navigation lives here as a single inline row
+	// with no headings; the middle (brand) sits between this and the copyright.
+	.footer-linkbar {
+		position: relative;
+		z-index: 1;
+		padding: 25px 0;
+		font-size: 15px;
+		background: rgba(0, 0, 0, 0.18);
+		border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+	}
+
+	.footer-linkbar-row {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.5rem 2rem;
+	}
+
+	// Inline links for the top bar — plain, no chevron, no button chrome.
+	.footer-link-inline {
 		padding: 0;
-		text-align: left;
-		color: #b3b3b3;
+		border: 0;
+		background: none;
+		color: $footer-muted;
+		font-size: 15px;
 		font-weight: normal;
-		text-transform: capitalize;
+		text-decoration: none;
+		transition: color 0.2s ease;
 
-		&::before {
-			position: relative;
-			content: '\f105';
-			font-family: 'Font Awesome 5 Free';
-			font-weight: 900;
-			color: #b3b3b3;
-			margin-right: 10px;
-		}
-
-		&:hover {
+		&:hover,
+		&:focus-visible {
 			color: var(--light);
-			box-shadow: none;
+		}
+	}
+
+	// Keep the donate form from breaking the inline row.
+	.footer-donate-inline {
+		display: inline;
+		margin: 0;
+	}
+
+	// Brand block — left-aligned in the open middle of the sandwich.
+	.footer-brand {
+		max-width: 30rem;
+	}
+
+	// Large, quiet cross monogram — texture, not ornament. ~4% opacity in the
+	// earthy-beige accent, anchored bottom-right, non-interactive. Hidden on
+	// small screens to avoid clutter.
+	.footer-cross {
+		position: absolute;
+		right: -1.5rem;
+		bottom: -2.5rem;
+		width: 320px;
+		height: auto;
+		color: $secondary;
+		opacity: 0.045;
+		pointer-events: none;
+		z-index: 0;
+		display: none;
+
+		@include media-breakpoint-up(md) {
+			display: block;
+		}
+	}
+
+	// Brand logo anchor.
+	.footer-logo {
+		height: 64px;
+		width: auto;
+		display: block;
+	}
+
+	// Serif wordmark — the footer's typographic focal point.
+	.footer-wordmark {
+		font-family: $font-family-serif;
+		font-size: 1.65rem;
+		font-weight: 600;
+		letter-spacing: 0.08em;
+	}
+
+	// Scripture line — quiet italic serif, reusing the hero verse.
+	.footer-scripture {
+		font-family: $font-family-serif;
+		font-style: italic;
+		font-size: 1rem;
+		line-height: 1.6;
+		color: $footer-muted;
+		max-width: 24rem;
+	}
+
+	.footer-scripture-cite {
+		display: block;
+		font-style: normal;
+		font-size: 0.8rem;
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+		color: $secondary;
+		margin-top: 0.5rem;
+	}
+
+	// Footer column headings — serif, quiet, restrained (marked up as <h2>
+	// for a valid heading order).
+	.footer-heading {
+		font-size: 1.25rem;
+		letter-spacing: 0.01em;
+	}
+
+	.footer-muted {
+		color: $footer-muted;
+	}
+
+	// Plain text links — no chevron, no button chrome. A single quiet colour
+	// shift on hover.
+	.footer-link {
+		display: block;
+		margin-bottom: 0.5rem;
+		padding: 0;
+		border: 0;
+		background: none;
+		text-align: left;
+		color: $footer-muted;
+		font-weight: normal;
+		text-decoration: none;
+		transition: color 0.2s ease;
+
+		&:hover,
+		&:focus-visible {
+			color: var(--light);
+		}
+	}
+
+	// The donate control is a <button> inside a form — strip native button look.
+	.footer-link-button {
+		font: inherit;
+		cursor: pointer;
+	}
+
+	.footer-link-email {
+		text-transform: lowercase;
+	}
+
+	// Social icon — just the mark, no border, no arrow.
+	.footer-social {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		font-size: 1.5rem;
+		line-height: 1;
+		color: $footer-muted;
+		text-decoration: none;
+		transition: color 0.2s ease;
+
+		&:hover,
+		&:focus-visible {
+			color: var(--light);
 		}
 	}
 
 	.copyright {
+		position: relative;
+		z-index: 1;
+		margin-top: 1rem;
 		padding: 25px 0;
 		font-size: 15px;
-		border-top: 1px solid rgba(256, 256, 256, 0.1);
+		// Two-tone ground — the bottom bar reads a touch deeper than the footer
+		// body, adding quiet depth without gradients or shadows.
+		background: rgba(0, 0, 0, 0.18);
+		border-top: 1px solid rgba(255, 255, 255, 0.1);
 
-		a {
-			color: var(--light);
+		.copyright-link {
+			color: $footer-muted;
+			text-decoration: none;
+			transition: color 0.2s ease;
 
-			&:hover {
-				color: var(--primary);
+			&:hover,
+			&:focus-visible {
+				color: var(--light);
 			}
 		}
 	}
@@ -437,31 +995,35 @@ $enable-negative-margins: true;
 // ---------------------
 // Blog container for centered, max-width layout
 .blog-container {
-	max-width: 760px;
+	max-width: 44rem;
 	margin: 0 auto;
 	padding: 2rem 1rem;
 }
 
-// Comprehensive blog content styles
+// Comprehensive blog content styles — typeset like a book, not a webpage.
 .blog-content {
-	line-height: 1.7;
-	font-size: 1.1rem;
+	line-height: 1.75;
+	font-size: 1.12rem;
+	color: $body-color;
 
 	// Conditional minimum height when empty
 	&.empty-content {
 		min-height: 50vh;
 	}
 
-	// Headings
+	// Headings — serif, in ink.
 	h1,
 	h2,
 	h3,
 	h4,
 	h5,
 	h6 {
-		margin-top: 2rem;
+		font-family: $font-family-serif;
+		color: $dark;
+		margin-top: 2.5rem;
 		margin-bottom: 1rem;
 		font-weight: 600;
+		line-height: 1.25;
 	}
 
 	h1 {
@@ -479,12 +1041,12 @@ $enable-negative-margins: true;
 		margin-bottom: 1.5rem;
 	}
 
-	// Images
+	// Images — square, documentary. No rounded corners.
 	img {
 		max-width: 100%;
 		height: auto;
-		border-radius: 8px;
-		margin: 1.5rem 0;
+		border-radius: 0;
+		margin: 2rem 0;
 	}
 
 	figure {
@@ -493,7 +1055,7 @@ $enable-negative-margins: true;
 		figcaption {
 			text-align: center;
 			font-size: 0.9rem;
-			color: #666;
+			color: $ink-muted;
 		}
 	}
 
@@ -519,17 +1081,17 @@ $enable-negative-margins: true;
 
 	// Code blocks
 	code {
-		background-color: #f5f5f5;
+		background-color: $paper-sunk;
 		padding: 2px 6px;
-		border-radius: 3px;
+		border-radius: 0;
 		font-size: 0.9em;
 		font-family: 'Courier New', monospace;
 	}
 
 	pre {
-		background-color: #f5f5f5;
+		background-color: $paper-sunk;
 		padding: 1rem;
-		border-radius: 8px;
+		border-radius: 0;
 		overflow-x: auto;
 		margin: 1.5rem 0;
 
@@ -539,21 +1101,24 @@ $enable-negative-margins: true;
 		}
 	}
 
-	// Quotes
+	// Quotes — dignified, integrated. A quiet rule, serif, in ink.
 	blockquote {
-		border-left: 4px solid var(--primary);
+		border-left: 2px solid $secondary;
 		padding-left: 1.5rem;
-		margin: 2rem 0;
+		margin: 2.5rem 0;
+		font-family: $font-family-serif;
 		font-style: italic;
-		color: #666;
+		font-size: 1.2rem;
+		color: $body-color;
 	}
 
-	// Tables (using Bootstrap classes)
+	// Tables — hairline, no shadow, no rounding.
 	.table-responsive {
 		margin: 2rem 0;
 		overflow-x: auto;
-		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-		border-radius: 8px;
+		box-shadow: none;
+		border-radius: 0;
+		border: 1px solid $rule;
 	}
 
 	table {
@@ -583,23 +1148,22 @@ $enable-negative-margins: true;
 		}
 	}
 
-	// Delimiter
+	// Delimiter — a single quiet hairline.
 	hr {
 		margin: 3rem 0;
 		border: 0;
-		border-top: 2px solid #e0e0e0;
+		border-top: 1px solid $rule;
 	}
 
-	// Cards (for link previews)
+	// Cards (for link previews) — hairline, no lift, no shadow.
 	.card {
 		margin-bottom: 2rem;
-		transition:
-			transform 0.2s,
-			box-shadow 0.2s;
+		border: 1px solid $rule;
+		border-radius: 0;
+		transition: border-color 0.3s ease;
 
 		&:hover {
-			transform: translateY(-2px);
-			box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+			border-color: $secondary;
 		}
 	}
 
@@ -609,19 +1173,69 @@ $enable-negative-margins: true;
 
 		iframe {
 			max-width: 100%;
-			border-radius: 8px;
+			border-radius: 0;
 		}
 	}
 
-	// Links
+	// Links — warm ink with a quiet underline, never electric blue.
 	a {
-		color: #2962ff;
-		text-decoration: none;
+		color: $primary;
+		text-decoration: underline;
+		text-decoration-color: $rule;
+		text-underline-offset: 0.15em;
 		transition: color 0.3s ease;
 
 		&:hover {
-			color: #0039cb;
-			text-decoration: underline;
+			color: $dark;
+			text-decoration-color: currentColor;
 		}
+	}
+}
+
+// =====================================================================
+// FullCalendar theme — centralised here (previously duplicated as a
+// leaking :root block in both calendar/+page.svelte and
+// EventCalendar.svelte). Palette-aligned to the earth/ink system.
+// =====================================================================
+.fc {
+	--fc-small-font-size: 0.85em;
+	--fc-page-bg-color: #{$paper};
+	--fc-neutral-bg-color: #{$paper-sunk};
+	--fc-neutral-text-color: #{$ink-muted};
+	--fc-border-color: #{$rule};
+
+	--fc-button-text-color: #{$light};
+	--fc-button-bg-color: #{$dark};
+	--fc-button-border-color: #{$dark};
+	--fc-button-hover-bg-color: #{$primary};
+	--fc-button-hover-border-color: #{$primary};
+	--fc-button-active-bg-color: #{$primary};
+	--fc-button-active-border-color: #{$primary};
+
+	--fc-event-bg-color: #{$primary};
+	--fc-event-border-color: #{$dark};
+	--fc-event-text-color: #{$light};
+	--fc-event-selected-overlay-color: rgba(44, 43, 41, 0.25);
+
+	--fc-more-link-bg-color: #{$paper-sunk};
+	--fc-more-link-text-color: inherit;
+
+	--fc-event-resizer-thickness: 8px;
+	--fc-event-resizer-dot-total-width: 8px;
+	--fc-event-resizer-dot-border-width: 1px;
+
+	--fc-non-business-color: #{$paper-sunk};
+	--fc-bg-event-color: #{$secondary};
+	--fc-bg-event-opacity: 0.25;
+	--fc-highlight-color: rgba(162, 140, 106, 0.15);
+	--fc-today-bg-color: rgba(162, 140, 106, 0.12);
+	--fc-now-indicator-color: #{$accent-gospel};
+
+	// Buttons in the FC toolbar should match the site's quiet button voice.
+	.fc-button {
+		border-radius: 0;
+		font-weight: 600;
+		letter-spacing: 0.04em;
+		text-transform: none;
 	}
 }

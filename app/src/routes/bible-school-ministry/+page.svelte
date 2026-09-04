@@ -22,9 +22,9 @@
 		<div class="row mb-5">
 			<div class="col-lg-10 mx-auto">
 				<div class="alert alert-info border-0 shadow-sm" role="alert">
-					<h5 class="alert-heading fw-bold">
+					<h2 class="alert-heading fw-bold h5">
 						<i class="fas fa-graduation-cap me-2"></i>Учебный блок 2026 года
-					</h5>
+					</h2>
 					<p class="mb-0">
 						Библейская школа Американского объединения объявляет набор на второй год обучения.
 						Программа состоит из четырёх независимых учебных блоков, что даёт возможность
@@ -60,7 +60,7 @@
 			<div class="col-lg-10 mx-auto">
 				<div class="ratio ratio-16x9 rounded-4 overflow-hidden shadow-lg">
 					<iframe
-						src="https://www.youtube.com/embed/ns7FX08MlH4"
+						src="https://www.youtube-nocookie.com/embed/ns7FX08MlH4"
 						title="Видео о Библейской школе"
 						allowfullscreen
 						allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -74,7 +74,7 @@
 		<div class="row mb-5">
 			<div class="col-lg-10 mx-auto">
 				<div class="alert alert-primary border-0 shadow-sm" role="alert">
-					<h5 class="alert-heading fw-bold">О учебном блоке 2026 года</h5>
+					<h2 class="alert-heading fw-bold h5">О учебном блоке 2026 года</h2>
 					<p class="mb-0">
 						Учебная программа рассчитана на четыре года и состоит из четырёх независимых учебных
 						блоков, что даёт возможность поступления в начале каждого учебного года.
@@ -98,7 +98,7 @@
 						<div class="card h-100 border-0 text-center shadow-sm">
 							<div class="card-body p-4">
 								<div class="badge bg-primary mb-3" style="font-size: 1rem;">1-я сессия</div>
-								<h4 class="fw-bold mb-3">26-29 марта</h4>
+								<h3 class="fw-bold h4 mb-3">26-29 марта</h3>
 								<p class="text-muted mb-0">
 									<i class="fas fa-map-marker-alt me-2"></i><strong>Sacramento, CA</strong>
 								</p>
@@ -109,7 +109,7 @@
 						<div class="card h-100 border-0 text-center shadow-sm">
 							<div class="card-body p-4">
 								<div class="badge bg-primary mb-3" style="font-size: 1rem;">2-я сессия</div>
-								<h4 class="fw-bold mb-3">23-26 июля</h4>
+								<h3 class="fw-bold h4 mb-3">23-26 июля</h3>
 								<p class="text-muted mb-0">
 									<i class="fas fa-map-marker-alt me-2"></i><strong>Vancouver, WA</strong>
 								</p>
@@ -120,7 +120,7 @@
 						<div class="card h-100 border-0 text-center shadow-sm">
 							<div class="card-body p-4">
 								<div class="badge bg-primary mb-3" style="font-size: 1rem;">3-я сессия</div>
-								<h4 class="fw-bold mb-3">10-13 декабря</h4>
+								<h3 class="fw-bold h4 mb-3">10-13 декабря</h3>
 								<p class="text-muted mb-0">
 									<i class="fas fa-map-marker-alt me-2"></i><strong>Philadelphia, PA</strong>
 								</p>
@@ -141,7 +141,7 @@
 
 			<div class="card border-0 shadow-sm">
 				<div class="card-body p-5">
-					<h4 class="fw-bold mb-4">Процесс поступления</h4>
+					<h3 class="fw-bold h4 mb-4">Процесс поступления</h3>
 					<p class="lead">
 						<strong>Регистрация открыта с 1 по 28 февраля 2026 года.</strong>
 					</p>
@@ -151,7 +151,7 @@
 						зачислении.
 					</p>
 
-					<h5 class="fw-bold mb-3 mt-5">Требования к кандидатам:</h5>
+					<h4 class="fw-bold h5 mb-3 mt-5">Требования к кандидатам:</h4>
 					<ul class="list-unstyled">
 						<li class="mb-2">
 							<i class="fas fa-check-circle text-primary me-2"></i>Братья, имеющие базовую
@@ -188,7 +188,7 @@
 					<div class="col-md-6">
 						<div class="card h-100 border-0 shadow-sm">
 							<div class="card-body p-4">
-								<h4 class="fw-bold mb-4">Первый курс</h4>
+								<h3 class="fw-bold h4 mb-4">Первый курс</h3>
 								<ul class="list-unstyled">
 									<li class="mb-2">
 										<i class="fas fa-book text-primary me-2"></i>Герменевтика: Практическая работа с
@@ -217,7 +217,7 @@
 						<div class="card h-100 border-primary border-3 shadow">
 							<div class="card-body bg-white p-4">
 								<div class="d-flex justify-content-between align-items-center mb-4">
-									<h4 class="fw-bold mb-0">Второй курс</h4>
+									<h3 class="fw-bold h4 mb-0">Второй курс</h3>
 									<span class="badge bg-primary">Набор 2026</span>
 								</div>
 								<ul class="list-unstyled">
@@ -246,7 +246,7 @@
 					<div class="col-md-6">
 						<div class="card h-100 border-0 shadow-sm">
 							<div class="card-body p-4">
-								<h4 class="fw-bold mb-4">Третий курс</h4>
+								<h3 class="fw-bold h4 mb-4">Третий курс</h3>
 								<ul class="list-unstyled">
 									<li class="mb-2">
 										<i class="fas fa-book text-primary me-2"></i>Гомилетика: Текстовая и
@@ -273,7 +273,7 @@
 					<div class="col-md-6">
 						<div class="card h-100 border-0 shadow-sm">
 							<div class="card-body p-4">
-								<h4 class="fw-bold mb-4">Четвёртый курс</h4>
+								<h3 class="fw-bold h4 mb-4">Четвёртый курс</h3>
 								<ul class="list-unstyled">
 									<li class="mb-2">
 										<i class="fas fa-book text-primary me-2"></i>Гомилетика: Экспозиционная
@@ -309,7 +309,7 @@
 								>
 									<i class="fas fa-dollar-sign fa-2x text-success"></i>
 								</div>
-								<h5 class="fw-bold mb-3">Стоимость обучения</h5>
+								<h3 class="fw-bold h5 mb-3">Стоимость обучения</h3>
 								<p class="display-6 text-success fw-bold mb-2">$1,000</p>
 								<p class="text-muted small mb-0">в год</p>
 							</div>
@@ -324,7 +324,7 @@
 								>
 									<i class="fas fa-bus fa-2x text-info"></i>
 								</div>
-								<h5 class="fw-bold mb-3">Транспортные расходы</h5>
+								<h3 class="fw-bold h5 mb-3">Транспортные расходы</h3>
 								<p class="mb-0">
 									Рекомендуется покрывать из церковной кассы для снижения финансовой нагрузки на
 									студентов
@@ -381,7 +381,7 @@
 	}
 
 	.section-header h2 {
-		color: #2c3e50;
+		color: var(--bs-dark, #2c2b29);
 	}
 
 	.lead {

@@ -1,38 +1,23 @@
-import { db } from '$lib/server/db';
-import { youthEvents } from '$lib/server/db/schema';
 import { env } from '$env/dynamic/private';
-
-import { lt, gte, or, and, isNull } from 'drizzle-orm/expressions';
+import { youthEvents } from '$lib/server/db/schema';
+import { gte, or, asc } from 'drizzle-orm';
 import { formatDate } from '$lib/helpers';
+import type { PageServerLoad } from './$types';
 
-export async function load() {
-	const today = new Date().toISOString(); // Convert Date to ISO string
-
-	// Archive: Events where `endAt` is before today (or `startAt` if `endAt` is null)
-	const archivedEvents = (
-		await db
-			.select()
-			.from(youthEvents)
-			.where(
-				or(
-					lt(youthEvents.endAt, today),
-					and(isNull(youthEvents.endAt), lt(youthEvents.startAt, today))
-				)
-			)
-			.orderBy(youthEvents.startAt, 'desc')
-	).map((a) => ({ startAtString: formatDate(a.startAt), ...a })); // Order archive descending
+export const load: PageServerLoad = async ({ locals, setHeaders }) => {
+	setHeaders({ 'cache-control': 'public, max-age=0, s-maxage=300, stale-while-revalidate=3600' });
+	const today = new Date().toISOString().split('T')[0];
 
 	const upcomingEvents = (
-		await db
+		await locals.db
 			.select()
 			.from(youthEvents)
 			.where(or(gte(youthEvents.startAt, today), gte(youthEvents.endAt, today)))
-			.orderBy(youthEvents.startAt, 'asc')
-	).map((a) => ({ startAtString: formatDate(a.startAt), ...a })); // Order by soonest start date
+			.orderBy(asc(youthEvents.startAt))
+	).map((a) => ({ startAtString: formatDate(a.startAt), ...a }));
 
 	return {
 		upcomingEvents,
-		archivedEvents,
 		media_url: env.MEDIA_URL
 	};
-}
+};
