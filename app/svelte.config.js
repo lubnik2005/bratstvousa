@@ -1,22 +1,29 @@
 import { mdsvex } from 'mdsvex';
-// This was the original svelte adapter
-// import adapter from '@sveltejs/adapter-auto';
-// import adapter from "svelte-kit-sst";
-
-import adapter from '@sveltejs/adapter-node';
+import adapter from '@sveltejs/adapter-cloudflare';
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
+
+// When DEV_REMOTE=true (via `npm run dev:remote`), point the dev platform proxy
+// at PRODUCTION D1 + R2 through Wrangler remote bindings. Otherwise dev uses the
+// default local emulated bindings from wrangler.toml.
+const useRemoteBindings = process.env.DEV_REMOTE === 'true';
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
-	// Consult https://svelte.dev/docs/kit/integrations
-	// for more information about preprocessors
 	preprocess: [vitePreprocess(), mdsvex()],
 
 	kit: {
-		// adapter-auto only supports some environments, see https://svelte.dev/docs/kit/adapter-auto for a list.
-		// If your environment is not supported, or you settled on a specific environment, switch out the adapter.
-		// See https://svelte.dev/docs/kit/adapters for more information about adapters.
-		adapter: adapter()
+		adapter: adapter({
+			routes: {
+				include: ['/*'],
+				exclude: ['<all>']
+			},
+			...(useRemoteBindings && {
+				platformProxy: {
+					configPath: 'wrangler.remote.toml',
+					remoteBindings: true
+				}
+			})
+		})
 	},
 
 	extensions: ['.svelte', '.svx']

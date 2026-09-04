@@ -2,7 +2,7 @@ import type { RequestEvent } from '@sveltejs/kit';
 import { eq } from 'drizzle-orm';
 import { sha256 } from '@oslojs/crypto/sha2';
 import { encodeBase64url, encodeHexLowerCase } from '@oslojs/encoding';
-import { db } from '$lib/server/db';
+import type { AppDatabase } from '$lib/server/db';
 import * as table from '$lib/server/db/schema';
 
 const DAY_IN_MS = 1000 * 60 * 60 * 24;
@@ -15,7 +15,11 @@ export function generateSessionToken(): string {
 	return token;
 }
 
-export async function createSession(token: string, userId: string): Promise<table.Session> {
+export async function createSession(
+	db: AppDatabase,
+	token: string,
+	userId: string
+): Promise<table.Session> {
 	const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
 	const session: table.Session = {
 		id: sessionId,
@@ -26,14 +30,16 @@ export async function createSession(token: string, userId: string): Promise<tabl
 	return session;
 }
 
-export async function validateSessionToken(token: string): Promise<{
+export async function validateSessionToken(
+	db: AppDatabase,
+	token: string
+): Promise<{
 	session: table.Session | null;
 	user: { id: string; username: string } | null;
 }> {
 	const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
 	const [result] = await db
 		.select({
-			// Adjust user table here to tweak returned data
 			user: { id: table.user.id, username: table.user.username },
 			session: table.session
 		})
@@ -66,7 +72,7 @@ export async function validateSessionToken(token: string): Promise<{
 
 export type SessionValidationResult = Awaited<ReturnType<typeof validateSessionToken>>;
 
-export async function invalidateSession(sessionId: string): Promise<void> {
+export async function invalidateSession(db: AppDatabase, sessionId: string): Promise<void> {
 	await db.delete(table.session).where(eq(table.session.id, sessionId));
 }
 

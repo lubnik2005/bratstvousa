@@ -21,7 +21,10 @@ Thumbs.db
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 
-*storybook.log
-
 # sst
 .sst
+
+# Local build/dev junk
+.wrangler
+_image-backups
+audits
