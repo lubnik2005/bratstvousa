@@ -2,7 +2,7 @@
 	export let data;
 
 	const heroImage = `${data.media_url}upfiles/page/north-west-youth-camp-2025-200.png`;
-	const registerUrl = '/youth-ministry/zimnii-molodeznyi-lager-szr/registration';
+	const registerUrl = '/youth-ministry/zimnii-molodeznyi-lager-szr-2026/registration';
 
 	const facts = [
 		{ label: 'Дата', value: '14 октября 2026' },

@@ -3,7 +3,7 @@ import { eq } from 'drizzle-orm';
 import { campRegistrations, youthLeaders } from '$lib/server/db/schema';
 import type { Actions, PageServerLoad } from './$types';
 
-const EVENT_SLUG = 'zimnii-molodeznyi-lager-szr';
+const EVENT_SLUG = 'zimnii-molodeznyi-lager-szr-2026';
 const CAMP_AMOUNT = 350;
 
 const isEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
