@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
-	import Header from '$lib/components/Header.svelte';
 	import type { PageData, ActionData } from './$types';
 
 	export let data: PageData;
@@ -14,22 +13,41 @@
 		string,
 		string
 	>;
+
+	// Demo Stripe payment step (client-side simulation — no real Stripe yet).
+	let paying = false;
+	let paid = false;
+	function payDemo() {
+		paying = true;
+		setTimeout(() => {
+			paying = false;
+			paid = true;
+		}, 1200);
+	}
 </script>
 
 <svelte:head>
 	<title>Регистрация — Зимний молодежный лагерь СЗР</title>
 </svelte:head>
 
-<Header title="Регистрация на лагерь" subtitle="Зимний молодежный лагерь СЗР" />
+<section class="reg-hero">
+	<p class="reg-eyebrow">Северо-Западный регион · 2026</p>
+	<h1 class="reg-title">Регистрация на лагерь</h1>
+	<p class="reg-sub">Зимний молодежный лагерь СЗР · 14 октября 2026</p>
+</section>
 
 <div class="container-xxl py-6">
 	<div class="container">
-		<div class="measure-wide mx-auto">
-			{#if form?.message}
-				<div class="alert alert-success" role="alert">{form.message}</div>
-			{:else}
+		<div class="reg-shell mx-auto">
+			<ol class="reg-steps">
+				<li class:active={!form?.registered} class:done={form?.registered}>1. Данные</li>
+				<li class:active={form?.registered && !paid} class:done={paid}>2. Оплата</li>
+				<li class:active={paid}>3. Готово</li>
+			</ol>
+
+			{#if !form?.registered}
+				<!-- STEP 1: registration form -->
 				<form method="post" use:enhance>
-					<!-- honeypot -->
 					<input
 						type="text"
 						name="middle_name"
@@ -39,47 +57,38 @@
 						aria-hidden="true"
 					/>
 
-					<div class="mb-3">
-						<label class="form-label" for="firstName">Имя</label>
-						<input
-							class="form-control"
-							id="firstName"
-							name="firstName"
-							value={values.firstName ?? ''}
-						/>
-						{#if errors.firstName}<div class="text-danger small mt-1">{errors.firstName}</div>{/if}
+					<div class="reg-grid">
+						<div class="field">
+							<label class="form-label" for="firstName">Имя</label>
+							<input class="form-control" id="firstName" name="firstName" value={values.firstName ?? ''} />
+							{#if errors.firstName}<div class="field-error">{errors.firstName}</div>{/if}
+						</div>
+						<div class="field">
+							<label class="form-label" for="lastName">Фамилия</label>
+							<input class="form-control" id="lastName" name="lastName" value={values.lastName ?? ''} />
+							{#if errors.lastName}<div class="field-error">{errors.lastName}</div>{/if}
+						</div>
 					</div>
 
-					<div class="mb-3">
-						<label class="form-label" for="lastName">Фамилия</label>
-						<input class="form-control" id="lastName" name="lastName" value={values.lastName ?? ''} />
-						{#if errors.lastName}<div class="text-danger small mt-1">{errors.lastName}</div>{/if}
-					</div>
-
-					<div class="mb-3">
+					<div class="field">
 						<label class="form-label" for="church">Церковь</label>
 						<input class="form-control" id="church" name="church" value={values.church ?? ''} />
-						{#if errors.church}<div class="text-danger small mt-1">{errors.church}</div>{/if}
+						{#if errors.church}<div class="field-error">{errors.church}</div>{/if}
 					</div>
 
-					<div class="mb-3">
-						<label class="form-label" for="email">Email</label>
-						<input
-							class="form-control"
-							id="email"
-							name="email"
-							type="email"
-							value={values.email ?? ''}
-						/>
-						{#if errors.email}<div class="text-danger small mt-1">{errors.email}</div>{/if}
+					<div class="reg-grid">
+						<div class="field">
+							<label class="form-label" for="email">Email</label>
+							<input class="form-control" id="email" name="email" type="email" value={values.email ?? ''} />
+							{#if errors.email}<div class="field-error">{errors.email}</div>{/if}
+						</div>
+						<div class="field">
+							<label class="form-label" for="phone">Телефон</label>
+							<input class="form-control" id="phone" name="phone" value={values.phone ?? ''} />
+						</div>
 					</div>
 
-					<div class="mb-3">
-						<label class="form-label" for="phone">Телефон</label>
-						<input class="form-control" id="phone" name="phone" value={values.phone ?? ''} />
-					</div>
-
-					<div class="mb-4">
+					<div class="field">
 						<label class="form-label" for="leaderId">Ответственный за молодежь</label>
 						<select class="form-select" id="leaderId" name="leaderId">
 							<option value="">— Выберите —</option>
@@ -89,12 +98,174 @@
 								</option>
 							{/each}
 						</select>
-						{#if errors.leaderId}<div class="text-danger small mt-1">{errors.leaderId}</div>{/if}
+						{#if errors.leaderId}<div class="field-error">{errors.leaderId}</div>{/if}
 					</div>
 
-					<button class="btn btn-primary" type="submit">Отправить заявку</button>
+					<button class="btn btn-primary reg-submit" type="submit">
+						Продолжить к оплате · ${data.amount}
+					</button>
 				</form>
+			{:else if !paid}
+				<!-- STEP 2: demo Stripe payment -->
+				<div class="pay-card">
+					<div class="pay-head">
+						<span>Оплата участия</span>
+						<strong>${form.amount}</strong>
+					</div>
+					<p class="pay-note">
+						Заявка принята для <strong>{form.name}</strong>. Оплатите участие, чтобы завершить
+						регистрацию.
+					</p>
+
+					<div class="field">
+						<label class="form-label" for="card">Номер карты</label>
+						<input class="form-control" id="card" placeholder="4242 4242 4242 4242" />
+					</div>
+					<div class="reg-grid">
+						<div class="field">
+							<label class="form-label" for="exp">Срок</label>
+							<input class="form-control" id="exp" placeholder="12 / 26" />
+						</div>
+						<div class="field">
+							<label class="form-label" for="cvc">CVC</label>
+							<input class="form-control" id="cvc" placeholder="123" />
+						</div>
+					</div>
+
+					<button class="btn btn-primary reg-submit" on:click={payDemo} disabled={paying}>
+						{paying ? 'Обработка…' : `Оплатить $${form.amount}`}
+					</button>
+					<p class="pay-demo">Демонстрационная оплата — платёж не списывается.</p>
+				</div>
+			{:else}
+				<!-- STEP 3: done -->
+				<div class="reg-done">
+					<div class="reg-check">✓</div>
+					<h2>Оплата прошла успешно</h2>
+					<p>
+						Спасибо! Ваша заявка отправлена ответственному за молодежь на подтверждение. Вы получите
+						письмо, когда её одобрят.
+					</p>
+				</div>
 			{/if}
 		</div>
 	</div>
 </div>
+
+<style>
+	.reg-hero {
+		background: var(--bs-dark, #2c2b29);
+		color: var(--bs-paper, #f6f2ea);
+		text-align: center;
+		padding: 4.5rem 1.5rem 3.5rem;
+		margin-top: calc(-1 * var(--nav-offset, 0px));
+	}
+	.reg-eyebrow {
+		text-transform: uppercase;
+		letter-spacing: 0.18em;
+		font-size: 0.78rem;
+		color: var(--bs-secondary, #a28c6a);
+		margin: 0 0 0.75rem;
+	}
+	.reg-title {
+		font-family: var(--bs-font-serif, 'Lora'), serif;
+		font-size: clamp(2rem, 5vw, 3.25rem);
+		margin: 0;
+	}
+	.reg-sub {
+		color: rgba(246, 242, 234, 0.75);
+		margin: 0.75rem 0 0;
+	}
+	.reg-shell {
+		max-width: 44rem;
+		background: var(--bs-paper, #f6f2ea);
+		border: 1px solid var(--bs-rule, #ddd5c8);
+		padding: 2.25rem;
+	}
+	.reg-steps {
+		list-style: none;
+		display: flex;
+		gap: 1.25rem;
+		padding: 0;
+		margin: 0 0 2rem;
+		font-size: 0.82rem;
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+		color: var(--bs-ink-muted, #736a5f);
+		border-bottom: 1px solid var(--bs-rule, #ddd5c8);
+		padding-bottom: 1rem;
+	}
+	.reg-steps li.active {
+		color: var(--bs-primary, #5a4a42);
+		font-weight: 600;
+	}
+	.reg-steps li.done {
+		color: var(--bs-secondary, #a28c6a);
+	}
+	.reg-grid {
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		gap: 1rem;
+	}
+	@media (max-width: 575.98px) {
+		.reg-grid {
+			grid-template-columns: 1fr;
+		}
+	}
+	.field {
+		margin-bottom: 1rem;
+	}
+	.field-error {
+		color: #b3261e;
+		font-size: 0.82rem;
+		margin-top: 0.25rem;
+	}
+	.reg-submit {
+		width: 100%;
+		margin-top: 0.75rem;
+		padding: 0.7rem 1rem;
+	}
+	.pay-card {
+		border: 1px solid var(--bs-rule, #ddd5c8);
+		background: var(--bs-paper-sunk, #efe9df);
+		padding: 1.75rem;
+	}
+	.pay-head {
+		display: flex;
+		justify-content: space-between;
+		align-items: baseline;
+		font-size: 1.1rem;
+		margin-bottom: 0.75rem;
+	}
+	.pay-head strong {
+		font-family: var(--bs-font-serif, 'Lora'), serif;
+		font-size: 1.5rem;
+	}
+	.pay-note {
+		color: var(--bs-ink-muted, #736a5f);
+		margin-bottom: 1.5rem;
+	}
+	.pay-demo {
+		text-align: center;
+		font-size: 0.78rem;
+		color: var(--bs-ink-muted, #736a5f);
+		margin: 0.75rem 0 0;
+	}
+	.reg-done {
+		text-align: center;
+		padding: 1.5rem 0;
+	}
+	.reg-check {
+		width: 3.5rem;
+		height: 3.5rem;
+		border-radius: 50%;
+		background: var(--bs-secondary, #a28c6a);
+		color: #fff;
+		font-size: 1.75rem;
+		line-height: 3.5rem;
+		margin: 0 auto 1rem;
+	}
+	.reg-done h2 {
+		font-family: var(--bs-font-serif, 'Lora'), serif;
+	}
+</style>
