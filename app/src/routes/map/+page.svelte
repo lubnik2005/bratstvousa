@@ -1,10 +1,12 @@
-<script>
+<script lang="ts">
 	import { onMount } from 'svelte';
 	import 'leaflet/dist/leaflet.css';
+	import Header from '$lib/components/Header.svelte';
+	import type * as Leaflet from 'leaflet';
 	export let data;
 
-	let map;
-	let L;
+	let map: Leaflet.Map | null = null;
+	let L: typeof Leaflet;
 
 	onMount(async () => {
 		const leaflet = await import('leaflet');
@@ -13,25 +15,28 @@
 		const container = document.getElementById('map');
 		if (container) {
 			map = L.map(container).setView([37.8, -96], 4);
-			L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-				attribution: `&copy;<a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>,
-            &copy;<a href="https://carto.com/attributions" target="_blank">CARTO</a>`,
-				subdomains: 'abcd',
-				maxZoom: 14
+			L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+				attribution:
+					'&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors',
+				maxZoom: 19
 			}).addTo(map);
 
-			// Define a custom icon
+			// Self-hosted marker icon (static/img/markers) — no external CDN deps.
 			const customIcon = L.icon({
-				iconUrl: 'https://leafletjs.com/examples/custom-icons/leaf-red.png', // Your custom icon URL
-				iconSize: [38, 95], // Size of the icon
-				iconAnchor: [22, 94], // Point of the icon which corresponds to marker's location
-				popupAnchor: [-3, -76] // Point from which the popup should open
+				iconUrl: '/img/markers/marker-icon.png',
+				shadowUrl: '/img/markers/marker-shadow.png',
+				iconSize: [25, 41],
+				iconAnchor: [12, 41],
+				popupAnchor: [1, -34],
+				shadowSize: [41, 41]
 			});
 
 			// Add a marker at Los Angeles, CA
 			for (let index = 0; index < data.churches.length; index++) {
 				const church = data.churches[index];
-				L.marker([church.latitude, church.longitude]).addTo(map).bindPopup(`
+				if (!(church.latitude && church.longitude)) continue;
+				L.marker([Number(church.latitude), Number(church.longitude)], { icon: customIcon })
+					.addTo(map).bindPopup(`
 				<div class="church-card">
 					<h4>${church.state}, ${church.city}</h4>
 					<p>${church.name_line_1} ${church.name_line_2}</p>
@@ -60,12 +65,7 @@
 </script>
 
 <svelte:head>
-	<link
-		rel="stylesheet"
-		href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
-		integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
-		crossorigin=""
-	/>
+	<title>Карта Домов Молитвы — Американское Объединение МСЦ ЕХБ</title>
 </svelte:head>
-<div style="height: 500px" />
+<Header title="Карта Домов Молитвы" />
 <div id="map" style="height: 600px; width: 100%;"></div>

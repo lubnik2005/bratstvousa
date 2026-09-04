@@ -1,10 +1,11 @@
-<script>
+<script lang="ts">
 	import { onMount } from 'svelte';
 	import 'leaflet/dist/leaflet.css';
-	export let churches;
+	import type * as Leaflet from 'leaflet';
+	export let churches: Array<Record<string, any>>;
 
-	let map;
-	let L;
+	let map: Leaflet.Map | null = null;
+	let L: typeof Leaflet;
 
 	onMount(async () => {
 		const leaflet = await import('leaflet');
@@ -13,75 +14,40 @@
 		const container = document.getElementById('map');
 		if (container) {
 			map = L.map(container).setView([37.8, -96], 4);
-			L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-				attribution: `&copy;<a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>,
-            &copy;<a href="https://carto.com/attributions" target="_blank">CARTO</a>`,
-				subdomains: 'abcd',
-				maxZoom: 20
+			L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+				attribution:
+					'&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> contributors',
+				maxZoom: 19
 			}).addTo(map);
 
+			// Self-hosted marker assets (static/img/markers) — no external CDN deps.
+			const shadowUrl = '/img/markers/marker-shadow.png';
+			const makeIcon = (iconUrl: string) =>
+				new L.Icon({
+					iconUrl,
+					shadowUrl,
+					iconSize: [25, 41],
+					iconAnchor: [12, 41],
+					popupAnchor: [1, -34],
+					shadowSize: [41, 41]
+				});
+
 			const icons = {
-				// Define a custom icon
-				churchIcon: L.icon({
-					// iconUrl: 'https://leafletjs.com/examples/custom-icons/leaf-red.png', // Your custom icon URL
-					iconUrl: 'https://www.svgrepo.com/show/176337/church-pin.svg',
-					iconSize: [38, 95], // Size of the icon
-					iconAnchor: [19, 65],
-					// iconAnchor: [22, 94], // Point of the icon which corresponds to marker's location
-					popupAnchor: [-3, -76] // Point from which the popup should open
-				}),
-
-				central: new L.Icon({
-					iconUrl:
-						'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png',
-					shadowUrl:
-						'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-					iconSize: [25, 41],
-					iconAnchor: [12, 41],
-					popupAnchor: [1, -34],
-					shadowSize: [41, 41]
-				}),
-
-				east: new L.Icon({
-					iconUrl:
-						'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
-					shadowUrl:
-						'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-					iconSize: [25, 41],
-					iconAnchor: [12, 41],
-					popupAnchor: [1, -34],
-					shadowSize: [41, 41]
-				}),
-
-				california: new L.Icon({
-					iconUrl:
-						'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-gold.png',
-					shadowUrl:
-						'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-					iconSize: [25, 41],
-					iconAnchor: [12, 41],
-					popupAnchor: [1, -34],
-					shadowSize: [41, 41]
-				}),
-
-				'north-west': new L.Icon({
-					iconUrl:
-						'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-violet.png',
-					shadowUrl:
-						'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-					iconSize: [25, 41],
-					iconAnchor: [12, 41],
-					popupAnchor: [1, -34],
-					shadowSize: [41, 41]
-				})
+				// Fallback for churches whose region is unset/unknown.
+				churchIcon: makeIcon('/img/markers/marker-icon.png'),
+				central: makeIcon('/img/markers/marker-icon-green.png'),
+				east: makeIcon('/img/markers/marker-icon-red.png'),
+				california: makeIcon('/img/markers/marker-icon-gold.png'),
+				'north-west': makeIcon('/img/markers/marker-icon-violet.png')
 			};
 
 			// Add a marker at Los Angeles, CA
 			for (let index = 0; index < churches.length; index++) {
 				const church = churches[index];
 				if (!(church.longitude && church.latitude)) continue;
-				L.marker([church.latitude, church.longitude], { icon: icons[church.region] }).addTo(map)
-					.bindPopup(`
+				const regionIcon =
+					(icons as Record<string, Leaflet.Icon>)[church.region] ?? icons.churchIcon;
+				L.marker([church.latitude, church.longitude], { icon: regionIcon }).addTo(map).bindPopup(`
 				<div class="church-card">
 					<h4>${church.state ?? ''}, ${church.city ?? ''}</h4>
 					<p>${church.name_line_1 ?? ''} ${church.name_line_2 ?? ''}</p>
@@ -110,12 +76,4 @@
 	}
 </script>
 
-<svelte:head>
-	<link
-		rel="stylesheet"
-		href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
-		integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
-		crossorigin=""
-	/>
-</svelte:head>
 <div id="map" style="height: 600px; width: 100%;"></div>
