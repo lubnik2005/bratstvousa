@@ -1,7 +1,7 @@
 import { and, desc, eq, gte, isNotNull, or, sql, type SQL } from 'drizzle-orm';
 import type { AppDatabase } from '.';
 import { eventSchemas, newsArticleSchemas, settings } from './schema';
-import { formatDate } from '$lib/helpers';
+import { formatDate, formatDateRange } from '$lib/helpers';
 
 type EventTable = (typeof eventSchemas)[number];
 type ArticleTable = (typeof newsArticleSchemas)[number];
@@ -18,7 +18,11 @@ export async function getMinistryEvents(
 
 	const rows = await db.select().from(events).where(finalWhere).orderBy(events.startAt);
 
-	return rows.map((a) => ({ startAtString: formatDate(a.startAt), ...a }));
+	return rows.map((a) => ({
+		startAtString: formatDate(a.startAt),
+		dateRange: formatDateRange(a.startAt, a.endAt),
+		...a
+	}));
 }
 
 export async function getMinistryNewsArticles(db: AppDatabase, article: ArticleTable) {

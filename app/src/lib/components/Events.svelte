@@ -13,9 +13,9 @@
 				{#each events as event}
 					<li class="event-item">
 						<div class="event-when">
-							<span class="event-day">{event.startAtString.split('/')[0]}</span>
+							<span class="event-day">{Number(event.startAt?.split('-')[2] ?? '')}</span>
 							<span class="event-rest">
-								{event.startAtString.split('/').slice(1).join(' / ')}
+								{event.dateRange ?? event.startAtString}
 							</span>
 						</div>
 						<div class="event-body">

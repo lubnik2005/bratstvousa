@@ -5,7 +5,7 @@
 	const registerUrl = '/youth-ministry/zimnii-molodeznyi-lager-szr-2026/registration';
 
 	const facts = [
-		{ label: 'Дата', value: '14 октября 2026' },
+		{ label: 'Дата', value: '15–18 октября 2026' },
 		{ label: 'Регион', value: 'Северо-Западный' },
 		{ label: 'Возраст', value: 'Молодёжь 16+' },
 		{ label: 'Стоимость', value: '$350' }
@@ -47,7 +47,7 @@
 	<title>Зимний молодежный лагерь СЗР 2026</title>
 	<meta
 		name="description"
-		content="Зимний молодежный лагерь Северо-Западного региона — 14 октября 2026. Регистрация открыта."
+		content="Зимний молодежный лагерь Северо-Западного региона — 15–18 октября 2026. Регистрация открыта."
 	/>
 </svelte:head>
 
@@ -61,7 +61,7 @@
 		</p>
 		<div class="camp-hero__actions">
 			<a class="btn btn-light btn-lg" href={registerUrl}>Зарегистрироваться</a>
-			<span class="camp-hero__date">14 октября 2026</span>
+			<span class="camp-hero__date">15–18 октября 2026</span>
 		</div>
 	</div>
 </section>

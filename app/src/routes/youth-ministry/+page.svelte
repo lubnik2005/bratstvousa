@@ -94,7 +94,7 @@
 								{/if}
 							{/if}
 							<div class="event-meta mt-3">
-								<span class="eyebrow mb-0">{event.startAtString}</span>
+								<span class="eyebrow mb-0">{event.dateRange ?? event.startAtString}</span>
 								{#if event.region && regionLabels[event.region]}
 									<span class="event-region">{regionLabels[event.region]}</span>
 								{/if}

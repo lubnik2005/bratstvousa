@@ -1,7 +1,7 @@
 import { env } from '$env/dynamic/private';
 import { youthEvents } from '$lib/server/db/schema';
 import { gte, or, asc } from 'drizzle-orm';
-import { formatDate } from '$lib/helpers';
+import { formatDate, formatDateRange } from '$lib/helpers';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ locals, setHeaders }) => {
@@ -14,7 +14,11 @@ export const load: PageServerLoad = async ({ locals, setHeaders }) => {
 			.from(youthEvents)
 			.where(or(gte(youthEvents.startAt, today), gte(youthEvents.endAt, today)))
 			.orderBy(asc(youthEvents.startAt))
-	).map((a) => ({ startAtString: formatDate(a.startAt), ...a }));
+	).map((a) => ({
+		startAtString: formatDate(a.startAt),
+		dateRange: formatDateRange(a.startAt, a.endAt),
+		...a
+	}));
 
 	return {
 		upcomingEvents,

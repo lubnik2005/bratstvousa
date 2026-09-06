@@ -9,6 +9,7 @@
 		region: string | null;
 		featuredImage: string | null;
 		startAtString?: string | null;
+		dateRange?: string | null;
 		description?: string | null;
 		content?: string | null;
 		editorjs?: unknown;
@@ -64,8 +65,8 @@
 								{/if}
 							{/if}
 							<div class="event-meta mt-3">
-								{#if event.startAtString}
-									<span class="eyebrow mb-0">{event.startAtString}</span>
+								{#if event.dateRange ?? event.startAtString}
+									<span class="eyebrow mb-0">{event.dateRange ?? event.startAtString}</span>
 								{/if}
 								{#if event.region && regionLabels[event.region]}
 									<span class="event-region">{regionLabels[event.region]}</span>
