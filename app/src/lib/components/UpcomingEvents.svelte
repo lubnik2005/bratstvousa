@@ -56,11 +56,21 @@
 							{#if event.featuredImage}
 								{#if hasEventContent(event)}
 									<a class="event-figure d-block" href={`/${ministry_slug}/${event.slug}`}>
-										<img src={`${media_url}${event.featuredImage}`} alt={event.title} />
+										<img
+											src={`${media_url}${event.featuredImage}`}
+											alt={event.title}
+											loading="lazy"
+											decoding="async"
+										/>
 									</a>
 								{:else}
 									<span class="event-figure d-block">
-										<img src={`${media_url}${event.featuredImage}`} alt={event.title} />
+										<img
+											src={`${media_url}${event.featuredImage}`}
+											alt={event.title}
+											loading="lazy"
+											decoding="async"
+										/>
 									</span>
 								{/if}
 							{/if}

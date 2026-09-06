@@ -18,7 +18,12 @@
 				<div class="col-lg-4 col-md-6">
 					<article class="news-entry">
 						<a class="news-figure" href="news/{article.slug}" aria-label={article.title}>
-							<img src="{data.media_url}{article.featuredImage}" alt="" />
+							<img
+								src="{data.media_url}{article.featuredImage}"
+								alt=""
+								loading="lazy"
+								decoding="async"
+							/>
 						</a>
 						<p class="eyebrow news-date">{article.date_string}</p>
 						<a class="news-title" href="news/{article.slug}">{article.title}</a>

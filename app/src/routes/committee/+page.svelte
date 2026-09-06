@@ -129,10 +129,26 @@
 
 <svelte:head>
 	<title>Состав Совета — Американское Объединение МСЦ ЕХБ</title>
+	<link
+		fetchpriority="high"
+		rel="preload"
+		as="image"
+		href="{data.media_url}img/committee-2818.webp"
+		type="image/webp"
+	/>
 </svelte:head>
 
 <div class="page-hero-band">
-	<img src="{data.media_url}img/committee-2818.webp" class="page-hero-img" alt="Состав Совета" />
+	<img
+		src="{data.media_url}img/committee-2818.webp"
+		class="page-hero-img"
+		alt="Состав Совета"
+		width="1600"
+		height="788"
+		fetchpriority="high"
+		loading="eager"
+		decoding="async"
+	/>
 </div>
 
 <Header title="Состав Совета" />
@@ -147,6 +163,8 @@
 							class="member-img"
 							src="{data.media_url}{member.image}"
 							alt="{member.last_name} {member.first_name}"
+							loading="lazy"
+							decoding="async"
 						/>
 						<figcaption>
 							<p class="member-name">{member.last_name}<br />{member.first_name}</p>

@@ -76,6 +76,8 @@
 						<img
 							src="{data.media_url}{image.id}/conversions/{image.name}-gallery_thumbnails.jpg"
 							alt={image.fileName}
+							loading="lazy"
+							decoding="async"
 						/>
 					</a>
 				{/each}

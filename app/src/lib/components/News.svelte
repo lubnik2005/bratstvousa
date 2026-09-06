@@ -26,7 +26,12 @@
 									href={`/news/${article.slug}`}
 									aria-label={article.title}
 								>
-									<img src={`${media_url}${article.featuredImage}`} alt="" />
+									<img
+										src={`${media_url}${article.featuredImage}`}
+										alt=""
+										loading="lazy"
+										decoding="async"
+									/>
 								</a>
 							{/if}
 							<p class="eyebrow mb-1 mt-3">{article.dateString}</p>
