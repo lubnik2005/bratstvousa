@@ -3,6 +3,7 @@ import { eventSchemas } from '$lib/server/db/schema';
 import { eq } from 'drizzle-orm';
 import { env } from '$env/dynamic/private';
 import { error } from '@sveltejs/kit';
+import { formatDateRange } from '$lib/helpers';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ params: { slug }, locals }) => {
@@ -50,6 +51,7 @@ export const load: PageServerLoad = async ({ params: { slug }, locals }) => {
 		`src="${env.MEDIA_URL}upfiles/photos/`
 	);
 	event.editorjs_rendered = parseEditorJS(event.editorjs);
+	event.dateRange = formatDateRange(event.startAt, event.endAt);
 
 	return { event };
 };
