@@ -268,7 +268,6 @@
 		color: var(--bs-paper, #f6f2ea);
 		text-align: center;
 		padding: 4.5rem 1.5rem 3.5rem;
-		margin-top: calc(-1 * var(--nav-offset, 0px));
 	}
 	.reg-eyebrow {
 		text-transform: uppercase;
@@ -281,6 +280,7 @@
 		font-family: var(--bs-font-serif, 'Lora'), serif;
 		font-size: clamp(2rem, 5vw, 3.25rem);
 		margin: 0;
+		color: var(--bs-paper, #f6f2ea);
 	}
 	.reg-sub {
 		color: rgba(246, 242, 234, 0.75);
