@@ -1,24 +1,20 @@
-// src/routes/[ministry]/youth-leaders-seminar-ao-2026/registration/+page.server.ts
-import { db } from '$lib/server/db';
 import { formSubmissions, churches } from '$lib/server/db/schema';
 import type { Actions, PageServerLoad } from './$types';
 import { fail } from '@sveltejs/kit';
 import { desc } from 'drizzle-orm';
 
-export const load: PageServerLoad = async () => {
-	const churchesList = await db.select().from(churches).orderBy(desc(churches.state));
+export const load: PageServerLoad = async ({ locals }) => {
+	const churchesList = await locals.db.select().from(churches).orderBy(desc(churches.state));
 
-	// Sort by state, then city
-	const sortedChurches = churchesList.sort((a: any, b: any) => {
-		const stateA = a.city.split(', ')[1];
-		const stateB = b.city.split(', ')[1];
+	const sortedChurches = churchesList.sort((a, b) => {
+		const stateA = a.city?.split(', ')[1] ?? '';
+		const stateB = b.city?.split(', ')[1] ?? '';
 
 		if (stateA < stateB) return -1;
 		if (stateA > stateB) return 1;
 
-		// If states are the same, compare cities
-		const cityA = a.city.split(', ')[0];
-		const cityB = b.city.split(', ')[0];
+		const cityA = a.city?.split(', ')[0] ?? '';
+		const cityB = b.city?.split(', ')[0] ?? '';
 		return cityA.localeCompare(cityB);
 	});
 
@@ -32,11 +28,11 @@ const clean = (s: FormDataEntryValue | null | undefined) =>
 	(typeof s === 'string' ? s.trim() : '') || '';
 
 export const actions: Actions = {
-	default: async ({ request }) => {
+	default: async ({ request, locals }) => {
+		const db = locals.db;
 		console.log('Seminar 2026 registration submission started');
 		const fd = await request.formData();
 
-		// Honeypot check
 		if (clean(fd.get('middle_name'))) {
 			console.log('Honeypot triggered');
 			return {
@@ -59,7 +55,6 @@ export const actions: Actions = {
 
 		const errors: Record<string, string> = {};
 
-		// Validation
 		if (!fields.firstName) errors.firstName = 'Пожалуйста, введите ваше имя.';
 		if (!fields.lastName) errors.lastName = 'Пожалуйста, введите вашу фамилию.';
 		if (!fields.phone) errors.phone = 'Пожалуйста, введите ваш телефон.';
@@ -80,11 +75,10 @@ export const actions: Actions = {
 			return fail(400, { form: { errors, fields } });
 		}
 
-		// Determine final values
 		const finalChurch = fields.church === 'other' ? fields.churchOther : fields.church;
 		const finalRole = fields.role === 'other' ? fields.roleOther : fields.role;
 
-		// Persist to database
+		const now = new Date().toISOString();
 		const formData = {
 			formName: '2026-youth-leaders-seminar-ao',
 			firstName: fields.firstName,
@@ -100,12 +94,8 @@ export const actions: Actions = {
 		};
 
 		try {
-			const returnedFormData = await db
-				.insert(formSubmissions)
-				.values({ ...formData, createdAt: new Date(), updatedAt: new Date() })
-				.returning();
-
-			console.log('Form submitted successfully:', returnedFormData);
+			await db.insert(formSubmissions).values({ ...formData, createdAt: now, updatedAt: now });
+			console.log('Form submitted successfully');
 
 			return {
 				message:

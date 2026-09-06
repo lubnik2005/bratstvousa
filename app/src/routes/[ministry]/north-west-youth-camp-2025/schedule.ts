@@ -1,3 +1,11 @@
+type TimeBlock = {
+	start?: string;
+	end?: string;
+	title: string;
+	speaker?: string;
+	inline?: boolean;
+	notes?: string;
+};
 type DaySchedule = { key: string; label: string; rows: TimeBlock[]; dateNote?: string };
 
 export const schedule: DaySchedule[] = [

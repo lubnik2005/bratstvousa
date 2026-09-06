@@ -1,4 +1,5 @@
-export const email_template = (props) => `
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const email_template = (props: Record<string, any>) => `
 <html lang='ru'>
 	<head>
 		<meta charset='UTF-8' />

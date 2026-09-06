@@ -5,6 +5,15 @@ declare global {
 		interface Locals {
 			user: import('$lib/server/auth').SessionValidationResult['user'];
 			session: import('$lib/server/auth').SessionValidationResult['session'];
+			db: import('drizzle-orm/d1').DrizzleD1Database;
+		}
+		interface Platform {
+			env: {
+				DB: D1Database;
+				R2: R2Bucket;
+				MAILCHANNELS_API_KEY?: string;
+				MEDIA_URL?: string;
+			};
 		}
 	}
 }

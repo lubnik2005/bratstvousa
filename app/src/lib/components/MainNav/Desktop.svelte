@@ -1,34 +1,37 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { page } from '$app/stores';
 	export let media_url;
 	export let menu_items;
 
+	// Home page has a full-bleed video hero. There the navbar starts fully
+	// transparent (just the menu text over the video) and becomes the normal
+	// opaque paper bar once the user scrolls past the threshold. On every other
+	// page the navbar is always opaque.
+	const SCROLL_THRESHOLD = 80;
+	$: isHome = $page.url.pathname === '/';
+
+	// Tracked reactively so the `class:nav-transparent` directive drives the
+	// class. (Toggling via classList imperatively caused Svelte to tree-shake
+	// the scoped .nav-transparent styles as "unused".)
+	let scrollY = 0;
+	$: navTransparent = isHome && scrollY <= SCROLL_THRESHOLD;
+
 	onMount(() => {
-		// Fixed Navbar
-		window.addEventListener('scroll', () => {
-			const fixedTop: HTMLElement | null = document.querySelector('.responsive-fixed-top');
-			if (!fixedTop) return;
-			if (window.innerWidth < 992) {
-				if (window.scrollY > 45) {
-					fixedTop.classList.add('bg-white', 'shadow');
-				} else {
-					fixedTop.classList.remove('bg-white', 'shadow');
-				}
-			} else {
-				if (window.scrollY > 45) {
-					fixedTop.classList.add('bg-white', 'shadow');
-					fixedTop.style.top = '0';
-				} else {
-					fixedTop.classList.remove('bg-white', 'shadow');
-					fixedTop.style.top = '0';
-				}
-			}
-		});
+		const onScroll = () => {
+			scrollY = window.scrollY;
+		};
+		onScroll();
+		window.addEventListener('scroll', onScroll, { passive: true });
+		return () => window.removeEventListener('scroll', onScroll);
 	});
 </script>
 
 <!-- Navbar Start -->
-<div class="container-fluid responsive-fixed-top whole-navbar d-none d-lg-block px-0">
+<div
+	class="container-fluid responsive-fixed-top whole-navbar d-none d-lg-block px-0"
+	class:nav-transparent={navTransparent}
+>
 	<!-- Mobile only -->
 	<div class="d-lg-none text-center">
 		<h1 class="text-primary ms-2 p-2" style="font-size:1.4rem">Американское Объединение МСЦ ЕХБ</h1>
@@ -76,6 +79,7 @@
 			class="navbar-toggler me-4"
 			data-bs-toggle="collapse"
 			data-bs-target="#navbarCollapse"
+			aria-label="Открыть меню"
 		>
 			<span class="navbar-toggler-icon"></span>
 		</button>
@@ -164,9 +168,11 @@
 
 <style>
 	.responsive-fixed-top {
-		background: linear-gradient(180deg, #fff, #ffffffcb 53%, #ffffff7c);
+		background: var(--bs-paper, #f6f2ea);
+		border-bottom: 1px solid var(--bs-rule, #ddd5c8);
 		transition:
 			background 0.3s,
+			border-color 0.3s,
 			box-shadow 0.3s;
 		z-index: 1000;
 		width: 100%;
@@ -174,9 +180,28 @@
 		position: fixed;
 	}
 
-	.bg-white-on-scroll {
-		background: white !important;
-		box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+	/* Home hero: navbar fully transparent over the video, showing only the menu
+	   text. Reverts to the opaque paper bar (rule above) once scrolled. */
+	.responsive-fixed-top.nav-transparent {
+		background: transparent;
+		border-bottom-color: transparent;
+		box-shadow: none;
+	}
+
+	/* Hide the logo + wordmark while transparent — just the menu text remains. */
+	.responsive-fixed-top.nav-transparent :global(.navbar-brand) {
+		visibility: hidden;
+	}
+
+	/* Light, legible menu text over the moving video. */
+	.responsive-fixed-top.nav-transparent :global(.navbar-nav .nav-link) {
+		color: #f6f2ea !important;
+		text-shadow: 0 1px 6px rgba(0, 0, 0, 0.55);
+	}
+
+	.responsive-fixed-top.nav-transparent :global(.navbar-nav .nav-link:hover),
+	.responsive-fixed-top.nav-transparent :global(.navbar-nav .nav-link:focus) {
+		color: #ffffff !important;
 	}
 
 	/* Navbar needs relative positioning to contain the mega menu dropdown */
@@ -205,12 +230,13 @@
 		transform: none !important;
 		width: 100% !important;
 		max-width: none !important;
-		padding: 24px 40px;
-		background: #fff;
-		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+		padding: 2.5rem 2.5rem 3rem;
+		background: var(--bs-paper, #f6f2ea);
+		box-shadow: none;
 		border-radius: 0;
 		border: none;
-		border-top: 1px solid #eee;
+		border-top: 1px solid var(--bs-rule, #ddd5c8);
+		border-bottom: 1px solid var(--bs-rule, #ddd5c8);
 		margin-top: 0;
 	}
 
@@ -230,65 +256,73 @@
 	.mega-grid {
 		display: grid;
 		grid-template-columns: repeat(3, 1fr);
-		gap: 16px;
+		gap: 2rem 2.5rem;
 	}
 
-	/* Individual card - simplified without icons */
+	/* Individual card - quiet, hairline accent only */
 	.mega-card {
-		padding: 16px;
-		background: #fafafa;
-		border-left: 3px solid var(--accent-color, #666);
-		border-radius: 4px;
-		transition: all 0.2s ease;
-	}
-
-	.mega-card:hover {
-		background: #fff;
-		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+		padding: 0 0 0 1rem;
+		background: none;
+		border-left: 2px solid var(--accent-color, #a28c6a);
+		border-radius: 0;
+		transition: border-color 0.2s ease;
 	}
 
 	/* Card title */
 	.mega-card-title {
-		font-size: 0.95rem;
+		font-family: var(--bs-font-serif, 'Lora', serif);
+		font-size: 1.05rem;
 		font-weight: 600;
-		color: #333;
+		color: var(--bs-dark, #2c2b29);
 		display: block;
-		margin-bottom: 6px;
+		margin-bottom: 0.35rem;
 		line-height: 1.3;
 		text-decoration: none;
+		transition: color 0.2s ease;
 	}
 
-	.mega-card-title:hover {
-		color: var(--accent-color, #333);
-		text-decoration: underline;
+	.mega-card-title:hover,
+	.mega-card-title:focus-visible {
+		color: var(--accent-color, #5a4a42);
 	}
 
 	/* Card description */
 	.mega-card-desc {
-		font-size: 0.8rem;
-		color: #666;
+		font-size: 0.85rem;
+		color: var(--bs-ink-muted, #736a5f);
 		margin: 0;
-		line-height: 1.5;
+		line-height: 1.6;
 	}
 
 	/* Subcategory links */
 	.mega-card-links {
-		margin-top: 10px;
-		padding-top: 8px;
-		border-top: 1px solid #e5e5e5;
+		margin-top: 0.85rem;
+		padding-top: 0.6rem;
+		border-top: 1px solid var(--bs-rule, #ddd5c8);
 		display: flex;
-		flex-wrap: wrap;
-		gap: 6px 16px;
+		flex-flow: row wrap;
+		align-items: baseline;
+		gap: 0.35rem 1rem;
 	}
 
 	.mega-card-links a {
 		font-size: 0.8rem;
-		color: var(--accent-color, #555);
-		text-decoration: none;
+		letter-spacing: 0.01em;
+		white-space: nowrap;
+		color: var(--accent-color, #5a4a42);
+		text-decoration: underline;
+		text-underline-offset: 3px;
+		text-decoration-thickness: 1px;
+		text-decoration-color: var(--bs-rule, #ddd5c8);
+		transition:
+			color 0.2s ease,
+			text-decoration-color 0.2s ease;
 	}
 
-	.mega-card-links a:hover {
-		text-decoration: underline;
+	.mega-card-links a:hover,
+	.mega-card-links a:focus-visible {
+		color: var(--accent-color, #5a4a42);
+		text-decoration-color: var(--accent-color, #5a4a42);
 	}
 
 	/* Responsive: 2 columns on medium screens */

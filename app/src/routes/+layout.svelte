@@ -2,158 +2,120 @@
 	// import MainNav from '$lib/components/MainNav.svelte';
 	import MainNav from '$lib/components/MainNav/Main.svelte';
 	import { onMount } from 'svelte';
+	import { page } from '$app/stores';
 	export let data;
 	export let children;
+
+	// Home has a full-bleed video hero that must sit under the transparent navbar.
+	$: isHome = $page.url.pathname === '/';
 	onMount(() => {
-		// Fixed Navbar
-		window.addEventListener('scroll', () => {
-			const fixedTop: HTMLElement | null = document.querySelector('.fixed-top');
-			if (!fixedTop) return;
-			if (window.innerWidth < 992) {
-				if (window.scrollY > 45) {
-					fixedTop.classList.add('bg-white', 'shadow');
-				} else {
-					fixedTop.classList.remove('bg-white', 'shadow');
-				}
-			} else {
-				if (window.scrollY > 45) {
-					fixedTop.classList.add('bg-white', 'shadow');
-					fixedTop.style.top = '0';
-				} else {
-					fixedTop.classList.remove('bg-white', 'shadow');
-					fixedTop.style.top = '0';
-				}
-			}
-		});
+		// Keep --nav-offset in sync with the fixed desktop navbar's real height.
+		// The navbar wraps to two lines between 992px and ~1150px, so its height
+		// is not constant; #main-content uses var(--nav-offset) to stay clear of it.
+		const navbar: HTMLElement | null = document.querySelector('.responsive-fixed-top');
+		const updateNavOffset = () => {
+			if (!navbar) return;
+			// Only offset on desktop, where the navbar is position: fixed. Below 992px
+			// the mobile header is in normal flow and needs no offset.
+			const offset = window.innerWidth >= 992 ? navbar.offsetHeight : 0;
+			document.documentElement.style.setProperty('--nav-offset', `${offset}px`);
+		};
+		updateNavOffset();
+		const ro =
+			typeof ResizeObserver !== 'undefined' && navbar ? new ResizeObserver(updateNavOffset) : null;
+		ro?.observe(navbar as Element);
+		window.addEventListener('resize', updateNavOffset);
 	});
 </script>
 
 <MainNav media_url={data.media_url} />
 
-{@render children()}
+<main id="main-content" class:home-hero={isHome}>
+	{@render children()}
+</main>
 
 <!-- Footer Start -->
-<div class="container-fluid bg-dark footer mt-0 pt-5">
-	<div class="container py-5">
-		<div class="row g-5">
-			<div class="col-lg-3 col-md-6">
-				<h1 class="fw-bold text-primary text-light mb-4">МСЦ ЕХБ</h1>
-				<p>Американское объединение</p>
-				<div class="d-flex pt-2">
-					<!-- <a class="btn btn-square btn-outline-light rounded-circle me-1" href="" -->
-					<!-- 	><i class="fab fa-twitter"></i></a -->
-					<!-- > -->
-					<!-- <a class="btn btn-square btn-outline-light rounded-circle me-1" href="" -->
-					<!-- 	><i class="fab fa-facebook-f"></i></a -->
-					<!-- > -->
-					<!-- <a class="btn btn-square btn-outline-light rounded-circle me-1" href="" -->
-					<!-- 	><i class="fab fa-instagram"></i></a -->
-					<!-- > -->
-					<!-- class="btn btn-square btn-outline-light rounded-circle me-1" -->
-					<a
-						class="btn btn-outline-light rounded-circle me-1"
-						target="_blank"
-						rel="noopener noreferrer"
-						aria-label="YouTube канал Братства"
-						href="https://www.youtube.com/@bratstvousa"><i class="fab fa-youtube"></i></a
-					>
-				</div>
-			</div>
-			<div class="col-lg-3 col-md-6">
-				<h4 class="text-light mb-4">Quick Links</h4>
-				<!-- <a class="btn btn-link" href="">Youtube Channel</a> -->
+<footer class="container-fluid bg-dark footer mt-0 pt-5">
+	<!-- Decorative cross monogram watermark (behind content, subtle texture) -->
+	<svg
+		class="footer-cross"
+		viewBox="0 0 100 140"
+		aria-hidden="true"
+		focusable="false"
+		xmlns="http://www.w3.org/2000/svg"
+	>
+		<path d="M42 0 h16 v46 h42 v16 h-42 v78 h-16 v-78 h-42 v-16 h42 z" fill="currentColor" />
+	</svg>
+	<!-- Top link bar (mirrors the bottom copyright bar — the "sandwich" top slice) -->
+	<div class="container-fluid footer-linkbar">
+		<div class="container">
+			<nav class="footer-linkbar-row" aria-label="Ссылки в подвале">
 				<a
-					class="btn btn-link"
+					class="footer-link-inline"
 					target="_blank"
 					rel="noopener noreferrer"
 					href="https://awakeningmission.org/">Awakening Mission</a
 				>
 				<a
-					class="btn btn-link"
+					class="footer-link-inline"
 					target="_blank"
 					rel="noopener noreferrer"
 					href="https://missionrem.org/">Mission REM</a
 				>
 				<a
-					class="btn btn-link"
+					class="footer-link-inline"
 					target="_blank"
 					rel="noopener noreferrer"
 					href="https://mscmusic.org/">MSC Music</a
 				>
 				<a
-					class="btn btn-link"
+					class="footer-link-inline"
 					target="_blank"
 					rel="noopener noreferrer"
 					href="https://iosifnichita.com/">Iosif Nichita</a
 				>
-				<form action={data.donation_url} method="post" target="_blank">
-					<input type="hidden" name="cmd" value="_xclick" />
-					<input type="hidden" name="tokenuid" value={data.donation_tokenuid} />
-
-					<button name="submit" type="submit" class="btn btn-link">Пожертвовать</button>
-				</form>
-				<!-- <a class="btn btn-link" target="_blank" href="/participation">Participating in Webdev</a> -->
-			</div>
-			<div class="col-lg-3 col-md-6">
-				<h4 class="text-light mb-4">Privacy Policy</h4>
-				<p class="text-muted">
-					We are committed to protecting your privacy. We do not collect, store, or process any
-					personal information or data about our users during general use of our platform. Any
-					interaction with our service is entirely anonymous, and no identifiable or
-					non-identifiable data is gathered from your use of our platform. <a
-						href="/privacy-policy"
-						class="text-decoration-underline"
-						style="color: #b3b3b3;">Read our Privacy Policy</a
-					>
-				</p>
-			</div>
-			<!-- <div class="col-lg-3 col-md-6"> -->
-			<!-- 	<h4 class="text-light mb-4">Donate</h4> -->
-			<!-- 	<a class="btn btn-link" href="">Venmo</a> -->
-			<!-- 	<a class="btn btn-link" href="">PayPal</a> -->
-			<!-- 	<a class="btn btn-link" href="">Cash App</a> -->
-			<!-- </div> -->
-			<div class="col-lg-3 col-md-6">
-				<h4 class="text-light mb-4">Контакт</h4>
-				<a
-					class="btn btn-link"
-					style="text-transform: lowercase;"
-					href="mailto:info@bratstvousa.com">info@bratstvousa.com</a
+				<a class="footer-link-inline footer-link-email" href="mailto:info@bratstvousa.com"
+					>info@bratstvousa.com</a
 				>
-			</div>
+			</nav>
+		</div>
+	</div>
 
-			<!-- <div class="col-lg-3 col-md-6"> -->
-			<!-- 	<h4 class="text-light mb-4">Рассылка</h4> -->
-			<!-- 	<p> -->
-			<!-- 		Получайте свежие новости, специальные предложения и полезную информацию прямо на вашу -->
-			<!-- 		электронную почту. -->
-			<!-- 	</p> -->
-			<!-- 	<div class="position-relative mx-auto" style="max-width: 400px;"> -->
-			<!-- 		<input -->
-			<!-- 			class="form-control w-100 bg-transparent py-3 pe-5 ps-4" -->
-			<!-- 			type="text" -->
-			<!-- 			placeholder="Ваш email" -->
-			<!-- 		/> -->
-			<!-- 		<button type="button" class="btn btn-primary position-absolute end-0 top-0 me-2 mt-2 py-2" -->
-			<!-- 			>Подписаться</button -->
-			<!-- 		> -->
-			<!-- 	</div> -->
-			<!-- </div> -->
+	<div class="footer-body container py-5">
+		<!-- Brand (left) — the open middle of the sandwich -->
+		<div class="footer-brand">
+			<h2 class="footer-wordmark text-light mb-2">МСЦ ЕХБ</h2>
+			<p class="footer-muted mb-3">Американское объединение</p>
+			<p class="footer-scripture mb-4">
+				«Господь — Пастырь мой; я ни в чём не буду нуждаться»
+				<span class="footer-scripture-cite">Псалом 22:1</span>
+			</p>
+			<a
+				class="footer-social"
+				target="_blank"
+				rel="noopener noreferrer"
+				aria-label="YouTube канал Братства"
+				href="https://www.youtube.com/@bratstvousa"><i class="fab fa-youtube"></i></a
+			>
 		</div>
 	</div>
 	<div class="container-fluid copyright">
 		<div class="container">
-			<div class="row">
-				<div class="col-md-6 text-md-start mb-md-0 mb-3 text-center">
-					&copy; <a href="#">Bratstvo USA</a>, All Right Reserved.
-				</div>
+			<div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
+				<div class="text-md-start text-center">&copy; Bratstvo USA, All Rights Reserved.</div>
+				<a href="/privacy-policy" class="copyright-link">Privacy Policy</a>
 			</div>
 		</div>
 	</div>
-</div>
+</footer>
 <!-- Footer End -->
 
 <!-- Back to Top -->
-<a href="#" class="btn btn-lg btn-primary rounded-circle back-to-top"
-	><i class="bi bi-arrow-up"></i></a
+<button
+	type="button"
+	class="btn btn-primary back-to-top"
+	aria-label="Наверх"
+	on:click={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
 >
+	<i class="bi bi-arrow-up"></i>
+</button>

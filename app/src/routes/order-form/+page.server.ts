@@ -1,37 +1,33 @@
-// +page.server.ts
 import { sendEmail } from '$lib/email';
-import type { Actions } from './$types';
+import type { Actions, PageServerLoad } from './$types';
 import { fail } from '@sveltejs/kit';
-
-import { db } from '$lib/server/db';
 import { env } from '$env/dynamic/private';
-import { churches, formSubmissions, FormSubmission } from '$lib/server/db/schema';
+import { churches, formSubmissions } from '$lib/server/db/schema';
 import { desc, eq } from 'drizzle-orm';
 import { email_template } from './email';
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
-import { v4 as uuidv4 } from 'uuid';
 import { admin_paths } from '$lib/admin/path';
 
-export async function load() {
+export const load: PageServerLoad = async ({ locals }) => {
+	const allChurches = await locals.db.select().from(churches).orderBy(desc(churches.state));
 	return {
-		churches: (await db.select().from(churches).orderBy(desc(churches.state))).sort((a, b) => {
-			const stateA = a.city.split(', ')[1];
-			const stateB = b.city.split(', ')[1];
+		churches: allChurches.sort((a, b) => {
+			const stateA = a.city?.split(', ')[1] ?? '';
+			const stateB = b.city?.split(', ')[1] ?? '';
 
 			if (stateA < stateB) return -1;
 			if (stateA > stateB) return 1;
 
-			// If states are the same, compare cities
-			const cityA = a.city.split(', ')[0];
-			const cityB = b.city.split(', ')[0];
+			const cityA = a.city?.split(', ')[0] ?? '';
+			const cityB = b.city?.split(', ')[0] ?? '';
 			return cityA.localeCompare(cityB);
 		}),
 		media_url: env.MEDIA_URL
 	};
-}
+};
 
 export const actions: Actions = {
-	default: async ({ request }) => {
+	default: async ({ request, locals }) => {
+		const db = locals.db;
 		const data = await request.formData();
 
 		const address = (data.get('address') as string | null)?.trim() || '';
@@ -49,12 +45,6 @@ export const actions: Actions = {
 			return fail(400, { error: 'Проверьте обязательные поля', success: false });
 		}
 
-		const totalQty = qty_rus + qty_rus_eng + qty_rus_eng_rom;
-		const totalCost = totalQty * 5;
-
-		// TODO: persist or notify (DB, email, Slack, etc.)
-		// Example: send an email via SES API (recommended over SMTP in SvelteKit)
-
 		const churchId = data.get('church') !== 'other' ? Number(data.get('church')) : null;
 		let church_name = null;
 		if (churchId) {
@@ -66,11 +56,11 @@ export const actions: Actions = {
 
 		const formData = {
 			formName: '2025-brothers-fellowship-meetings-request-form',
-			firstName: data.get('first_name'),
-			lastName: data.get('last_name'),
-			middleName: data.get('middle_name'),
-			email: data.get('email'),
-			phone: data.get('phone'),
+			firstName: data.get('first_name') as string | null,
+			lastName: data.get('last_name') as string | null,
+			middleName: data.get('middle_name') as string | null,
+			email: data.get('email') as string | null,
+			phone: data.get('phone') as string | null,
 			church_name,
 			churchId,
 			address,
@@ -83,7 +73,7 @@ export const actions: Actions = {
 			)
 		};
 
-		const to = env.MAIL_INFO_USER;
+		const to = env.MAIL_INFO_USER ?? '';
 		const subject = `${formData.firstName} ${formData.lastName} - Заявка на печатные экземпляры`;
 
 		const content = formData.content;
@@ -92,9 +82,8 @@ export const actions: Actions = {
 			...content,
 			church_name
 		});
-		const result = await sendEmail(to, subject, html);
+		await sendEmail(to, subject, html);
 
 		return { success: true };
-		// or: throw redirect(303, '/thanks');
 	}
 };

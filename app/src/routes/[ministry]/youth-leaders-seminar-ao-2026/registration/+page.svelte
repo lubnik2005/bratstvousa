@@ -63,7 +63,7 @@
 	$: churchOptions = [
 		...filteredChurches,
 		{ id: 'other', name_line_1: 'Другое (ввести вручную)', isOther: true }
-	];
+	] as any[];
 
 	$: churchIsOther = churchValue === 'other';
 

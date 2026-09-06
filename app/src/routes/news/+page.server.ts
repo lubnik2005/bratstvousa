@@ -1,39 +1,20 @@
-import { db, isMockDb } from '$lib/server/db';
-import { bibleEducationNewsArticles, eventSchemas, newsArticles } from '$lib/server/db/schema';
-import { desc, eq, isNotNull, count, sql } from 'drizzle-orm';
 import { env } from '$env/dynamic/private';
 import { formatDate } from '$lib/helpers';
-import { unionAll } from 'drizzle-orm/pg-core';
-import { newsArticlesSchema, newsArticlesSchemaOrdered } from '$lib/server/db/queries';
+import { getAllNewsArticlesOrdered } from '$lib/server/db/queries';
+import type { PageServerLoad } from './$types';
 
-export async function load({ params, url }) {
-	// Get the page parameter from the query string, default to page 1
+export const load: PageServerLoad = async ({ locals, url, setHeaders }) => {
+	setHeaders({ 'cache-control': 'public, max-age=0, s-maxage=300, stale-while-revalidate=3600' });
 	const page = Number(url.searchParams.get('page')) || 1;
 	const perPage = 30;
 	const offset = (page - 1) * perPage;
 
-	let news_articles: any[];
-	let news_articles_count: number;
-
-	// Mock database branch
-	if (isMockDb) {
-		const allArticles = await newsArticlesSchemaOrdered();
-		news_articles_count = allArticles.length;
-		news_articles = allArticles.slice(offset, offset + perPage).map((a) => ({
-			date_string: formatDate(a.date),
-			...a
-		}));
-	} else {
-		// Real database branch
-		// Query the total count for pagination controls
-		news_articles_count = (await db.select({ count: count() }).from(newsArticlesSchemaOrdered()))[0]
-			.count;
-		// Query the database for the current page
-		news_articles = (await newsArticlesSchemaOrdered().limit(perPage).offset(offset)).map((a) => ({
-			date_string: formatDate(a.date),
-			...a
-		}));
-	}
+	const allArticles = await getAllNewsArticlesOrdered(locals.db);
+	const news_articles_count = allArticles.length;
+	const news_articles = allArticles.slice(offset, offset + perPage).map((a) => ({
+		date_string: formatDate(a.date),
+		...a
+	}));
 
 	return {
 		news_articles,
@@ -42,4 +23,4 @@ export async function load({ params, url }) {
 		news_articles_count,
 		media_url: env.MEDIA_URL
 	};
-}
+};

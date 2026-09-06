@@ -68,7 +68,7 @@
 	const percent = Math.round((registered / CAPACITY) * 100);
 
 	// Video embed
-	const videoSrc = 'https://www.youtube.com/embed/lOJpVaNHg-Y?si=g8w_doDC1-Gc_IE0';
+	const videoSrc = 'https://www.youtube-nocookie.com/embed/lOJpVaNHg-Y?si=g8w_doDC1-Gc_IE0';
 
 	// Helpers
 	const fmtTime = (t?: string) => (t ? t : '');
@@ -123,20 +123,21 @@
 					<div>Зарегистрировано: <strong>{registered}</strong> из <strong>{CAPACITY}</strong></div>
 					<div>{percent}%</div>
 				</div>
-				<div class="progress" style="height: 10px;" aria-label="Заполненность регистрации">
+				<div class="progress" style="height: 10px;">
 					<div
 						class="progress-bar"
 						role="progressbar"
+						aria-label="Заполненность регистрации"
 						aria-valuenow={registered}
 						aria-valuemin="0"
 						aria-valuemax={CAPACITY}
 						style:width={percent + '%'}
-					/>
+					></div>
 				</div>
 				{#if remaining > 0}
 					<div class="text-muted small mt-1">Осталось мест: {remaining}</div>
 				{:else}
-					<div class="text-danger small mt-1">Регистрация заполнена.</div>
+					<div class="registration-full small mt-1">Регистрация заполнена.</div>
 				{/if}
 			</div>
 
@@ -162,7 +163,7 @@
 					allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
 					allowfullscreen
 					referrerpolicy="strict-origin-when-cross-origin"
-				/>
+				></iframe>
 			</div>
 		</div>
 	</div>
@@ -256,14 +257,16 @@
 	.capacity {
 		max-width: 520px;
 	}
+	.registration-full {
+		color: #b02733;
+	}
 
 	/* Video */
 	.video-wrap {
 		max-width: 900px;
 		width: 100%;
-		border-radius: 14px;
 		overflow: hidden;
-		box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+		border: 1px solid var(--bs-rule);
 	}
 	.video-wrap iframe {
 		width: 100%;
@@ -272,10 +275,13 @@
 		display: block;
 	}
 
-	/* Schedule table polishing */
-	.schedule-table {
-		border-radius: 0.75rem;
-		overflow: hidden;
+	/* Schedule table */
+	.schedule-table :global(thead th) {
+		color: var(--bs-dark);
+		font-family: var(--bs-font-serif);
+		font-weight: 600;
+		border-bottom: 1px solid var(--bs-rule-strong);
+		background: transparent;
 	}
 	.time {
 		white-space: nowrap;

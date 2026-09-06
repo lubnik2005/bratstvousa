@@ -1,8 +1,18 @@
 import { sequence } from '@sveltejs/kit/hooks';
 import * as auth from '$lib/server/auth.js';
+import { createDb } from '$lib/server/db';
 import type { Handle } from '@sveltejs/kit';
 import { i18n } from '$lib/i18n';
+
 const handleParaglide: Handle = i18n.handle();
+
+const handleDb: Handle = async ({ event, resolve }) => {
+	if (!event.platform?.env?.DB) {
+		throw new Error('D1 database binding (DB) not found. Check wrangler.toml configuration.');
+	}
+	event.locals.db = createDb(event.platform.env.DB);
+	return resolve(event);
+};
 
 const handleAuth: Handle = async ({ event, resolve }) => {
 	const sessionToken = event.cookies.get(auth.sessionCookieName);
@@ -12,7 +22,7 @@ const handleAuth: Handle = async ({ event, resolve }) => {
 		return resolve(event);
 	}
 
-	const { session, user } = await auth.validateSessionToken(sessionToken);
+	const { session, user } = await auth.validateSessionToken(event.locals.db, sessionToken);
 	if (session) {
 		auth.setSessionTokenCookie(event, sessionToken, session.expiresAt);
 	} else {
@@ -28,19 +38,19 @@ const handleAuth: Handle = async ({ event, resolve }) => {
 const handleSecurityHeaders: Handle = async ({ event, resolve }) => {
 	const response = await resolve(event);
 
-	// Security headers for Best Practices score
 	response.headers.set('X-Frame-Options', 'SAMEORIGIN');
 	response.headers.set('X-Content-Type-Options', 'nosniff');
 	response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
 	response.headers.set('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
-
-	// HSTS - enforce HTTPS (start with 1 day, increase after testing)
 	response.headers.set('Strict-Transport-Security', 'max-age=86400; includeSubDomains');
-
-	// COOP - isolate the browsing context
 	response.headers.set('Cross-Origin-Opener-Policy', 'same-origin');
 
 	return response;
 };
 
-export const handle: Handle = sequence(handleParaglide, handleAuth, handleSecurityHeaders);
+export const handle: Handle = sequence(
+	handleParaglide,
+	handleDb,
+	handleAuth,
+	handleSecurityHeaders
+);

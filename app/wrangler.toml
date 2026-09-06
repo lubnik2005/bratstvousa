@@ -1,0 +1,19 @@
+name = "bratstvousa"
+compatibility_date = "2024-12-01"
+compatibility_flags = ["nodejs_compat"]
+pages_build_output_dir = ".svelte-kit/cloudflare"
+
+# D1 Database binding
+[[d1_databases]]
+binding = "DB"
+database_name = "bratstvousa-db"
+database_id = "fdf9adc7-0fa2-420e-b492-64b497e740c9"
+migrations_dir = "drizzle"
+
+# R2 Bucket binding
+[[r2_buckets]]
+binding = "R2"
+bucket_name = "bratstvousa-media"
+
+[vars]
+MEDIA_URL = "https://pub-f95e54e3085c46a2b6db3bd4f9c7fb42.r2.dev/"

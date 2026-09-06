@@ -1,6 +1,4 @@
-// src/routes/[ministry]/north-west-youth-camp-2025/registration/+page.server.ts
 import { fail } from '@sveltejs/kit';
-import { db } from '$lib/server/db';
 import { formSubmissions } from '$lib/server/db/schema';
 import type { Actions, PageServerLoad } from './$types';
 
@@ -11,7 +9,8 @@ const clean = (s: FormDataEntryValue | null | undefined) =>
 	(typeof s === 'string' ? s.trim() : '') || '';
 
 export const actions: Actions = {
-	default: async ({ request }) => {
+	default: async ({ request, locals }) => {
+		const db = locals.db;
 		const fd = await request.formData();
 
 		// honeypot
@@ -38,14 +37,13 @@ export const actions: Actions = {
 		if (!fields.email) errors.email = 'Please enter your email.';
 		if (!fields.church) errors.church = 'Please enter your church.';
 		else if (!isEmail(fields.email)) errors.email = 'Please enter a valid email.';
-		// if (!fields.consent) errors.consent = 'Please confirm you filled out the consent form.';
 		if (!fields.paid) errors.paid = 'Please confirm that you paid with memo "camp2025".';
 
 		if (Object.keys(errors).length) {
 			return fail(400, { form: { errors, fields } });
 		}
 
-		// Persist
+		const now = new Date().toISOString();
 		const formData = {
 			formName: '2025-youth-north-west-camp',
 			firstName: fields.firstName,
@@ -60,10 +58,7 @@ export const actions: Actions = {
 			}
 		};
 
-		await db
-			.insert(formSubmissions)
-			.values({ ...formData, createdAt: new Date(), updatedAt: new Date() })
-			.returning();
+		await db.insert(formSubmissions).values({ ...formData, createdAt: now, updatedAt: now });
 
 		return {
 			message:

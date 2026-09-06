@@ -40,7 +40,7 @@
 
 	/*** SvelteKit enhance state ***/
 	let f: any;
-	$: f = form ?? data?.form ?? {};
+	$: f = form ?? {};
 
 	let submitting = false;
 	const onEnhance = () => {
@@ -236,7 +236,7 @@
 							</div>
 							<button
 								type="button"
-								class="btn btn-sm btn-outline-secondary ms-auto"
+								class="btn btn-sm btn-outline-primary ms-auto"
 								on:click={() => copy(CASHAPP, 'cashapp')}
 								aria-label="Скопировать идентификатор Cash App"
 							>
@@ -257,7 +257,7 @@
 							</div>
 							<button
 								type="button"
-								class="btn btn-sm btn-outline-secondary ms-auto"
+								class="btn btn-sm btn-outline-primary ms-auto"
 								on:click={() => copy(ZELLE, 'zelle')}
 								aria-label="Скопировать email Zelle"
 							>
@@ -340,7 +340,7 @@
 				<div class="visually-hidden" aria-hidden="true">
 					<label>
 						Не заполняйте это поле
-						<input name="middle_name" autocomplete="off" />
+						<input name="middle_name" autocomplete="off" tabindex="-1" />
 					</label>
 				</div>
 
@@ -461,7 +461,7 @@
 						Я заполнил(а) и отправил(а)
 						<button
 							type="button"
-							class="btn btn-link p-0 align-baseline"
+							class="btn btn-link text-decoration-underline p-0 align-baseline"
 							on:click={openConsentModal}
 						>
 							форму согласия YoungLife (Guest Consent & Release)
@@ -498,7 +498,11 @@
 						for="consent_rules"
 					>
 						Я прочитал(а) и согласен(на) с
-						<button type="button" class="btn btn-link p-0 align-baseline" on:click={openRulesModal}>
+						<button
+							type="button"
+							class="btn btn-link text-decoration-underline p-0 align-baseline"
+							on:click={openRulesModal}
+						>
 							правилами лагеря
 						</button>.
 					</label>
@@ -552,7 +556,8 @@
 		</form>
 
 		<footer class="small text-muted my-4">
-			Нужна помощь? Напишите на <a href={'mailto:' + ZELLE}>{ZELLE}</a>.
+			Нужна помощь? Напишите на
+			<a href={'mailto:' + ZELLE} class="text-decoration-underline">{ZELLE}</a>.
 		</footer>
 	</div>
 </div>

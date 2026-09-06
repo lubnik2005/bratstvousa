@@ -70,16 +70,19 @@
 
 <Header title="Заявка на печатные экземпляры" />
 
-<div class="container-fluid">
+<div class="container-xxl py-6">
 	<div class="container">
 		<div class="row g-4">
 			<div class="col-lg-8">
-				<form class="card border-0 shadow-sm" method="post" use:enhance>
+				<form class="form-panel" method="post" use:enhance>
 					<div class="card-body">
 						<div class="row">
 							<div class="col-md-4">
-								<label class="form-label">Имя <span class="text-danger">*</span></label>
+								<label class="form-label" for="first_name"
+									>Имя <span class="text-danger">*</span></label
+								>
 								<input
+									id="first_name"
 									name="first_name"
 									type="text"
 									class="form-control"
@@ -88,8 +91,11 @@
 								/>
 							</div>
 							<div class="col-md-4">
-								<label class="form-label">Фамилия <span class="text-danger">*</span></label>
+								<label class="form-label" for="last_name"
+									>Фамилия <span class="text-danger">*</span></label
+								>
 								<input
+									id="last_name"
 									name="last_name"
 									type="text"
 									class="form-control"
@@ -98,8 +104,9 @@
 								/>
 							</div>
 							<div class="col-md-4">
-								<label class="form-label">Отчество</label>
+								<label class="form-label" for="middle_name">Отчество</label>
 								<input
+									id="middle_name"
 									name="middle_name"
 									type="text"
 									class="form-control"
@@ -109,8 +116,11 @@
 						</div>
 
 						<div class="mt-3">
-							<label class="form-label">Церковь <span class="text-danger">*</span></label>
+							<label class="form-label" for="church"
+								>Церковь <span class="text-danger">*</span></label
+							>
 							<select
+								id="church"
 								name="church"
 								class="form-select"
 								bind:value={selectedChurch}
@@ -137,10 +147,11 @@
 						<!-- New Church Field (Conditional) -->
 						{#if useNewChurch}
 							<div class="mt-3">
-								<label class="form-label"
+								<label class="form-label" for="new_church"
 									>Введите название церкви <span class="text-danger">*</span></label
 								>
 								<input
+									id="new_church"
 									name="new_church"
 									type="text"
 									class="form-control"
@@ -150,8 +161,9 @@
 							</div>
 						{/if}
 						<div class="mb-3">
-							<label class="form-label fw-semibold">Адрес доставки</label>
+							<label class="form-label fw-semibold" for="address">Адрес доставки</label>
 							<input
+								id="address"
 								class="form-control"
 								type="text"
 								name="address"
@@ -163,8 +175,9 @@
 
 						<div class="row g-3">
 							<div class="col-md-3">
-								<label class="form-label fw-semibold">Телефон</label>
+								<label class="form-label fw-semibold" for="phone">Телефон</label>
 								<input
+									id="phone"
 									class="form-control"
 									type="tel"
 									name="phone"
@@ -174,8 +187,9 @@
 								/>
 							</div>
 							<div class="col-md-3">
-								<label class="form-label fw-semibold">Электронная почта</label>
+								<label class="form-label fw-semibold" for="email">Электронная почта</label>
 								<input
+									id="email"
 									class="form-control"
 									type="email"
 									name="email"
@@ -189,13 +203,14 @@
 						<hr class="my-4" />
 
 						<div class="mb-2">
-							<label class="form-label fw-semibold">Количество экземпляров</label>
+							<span class="form-label fw-semibold">Количество экземпляров</span>
 						</div>
 
 						<div class="row g-3">
 							<div class="col-md-4">
-								<label class="form-label small text-muted">Русский (RUS)</label>
+								<label class="form-label small qty-label" for="qty_rus">Русский (RUS)</label>
 								<input
+									id="qty_rus"
 									class="form-control"
 									type="number"
 									name="qty_rus"
@@ -205,8 +220,11 @@
 								/>
 							</div>
 							<div class="col-md-4">
-								<label class="form-label small text-muted">Русско-английский (RUS/ENG)</label>
+								<label class="form-label small qty-label" for="qty_rus_eng"
+									>Русско-английский (RUS/ENG)</label
+								>
 								<input
+									id="qty_rus_eng"
 									class="form-control"
 									type="number"
 									name="qty_rus_eng"
@@ -216,10 +234,11 @@
 								/>
 							</div>
 							<div class="col-md-4">
-								<label class="form-label small text-muted"
+								<label class="form-label small qty-label" for="qty_rus_eng_rom"
 									>Русско-англо-румынский (RUS/ENG/ROM)</label
 								>
 								<input
+									id="qty_rus_eng_rom"
 									class="form-control"
 									type="number"
 									name="qty_rus_eng_rom"
@@ -243,10 +262,10 @@
 							</div>
 						</div>
 
-						<div class="form-check mt-2">
+						<p class="small text-muted mt-2">
 							Цена одного экземпляра — $5.00. Реквизиты для платежа будут высланы на вашу
 							электронную почту.
-						</div>
+						</p>
 
 						{#if form?.error}
 							<div class="alert alert-danger mt-3">{form.error}</div>
@@ -256,24 +275,53 @@
 						{/if}
 					</div>
 
-					<div class="card-footer d-flex gap-2 border-0 bg-white px-4 pb-4 pt-0">
+					<div class="d-flex gap-2 px-4 pb-4 pt-0">
 						<button class="btn btn-primary" type="submit">Отправить заявку</button>
 					</div>
 				</form>
 			</div>
 
 			<div class="col-lg-4">
-				<div class="card border-0 shadow-sm">
-					<div class="card-body">
-						<h3 class="h6">Напоминание о сроках</h3>
-						<ul class="small text-muted mb-0">
-							<li>Старт в сентябре 2025 — подать заявку до <strong>1 сентября</strong>.</li>
-							<li>Старт в январе 2026 — подать заявку до <strong>1 декабря</strong>.</li>
-							<li>Реквизиты для оплаты придут на вашу электронную почту.</li>
-						</ul>
-					</div>
-				</div>
+				<aside class="reminder-panel">
+					<p class="eyebrow">Напоминание о сроках</p>
+					<ul class="reminder-list">
+						<li>Старт в сентябре 2025 — подать заявку до <strong>1 сентября</strong>.</li>
+						<li>Старт в январе 2026 — подать заявку до <strong>1 декабря</strong>.</li>
+						<li>Реквизиты для оплаты придут на вашу электронную почту.</li>
+					</ul>
+				</aside>
 			</div>
 		</div>
 	</div>
 </div>
+
+<style>
+	.form-panel {
+		border: 1px solid var(--bs-rule);
+		border-top: 2px solid var(--bs-secondary);
+		background: var(--bs-paper);
+	}
+	.qty-label {
+		color: var(--bs-ink-muted);
+	}
+	.reminder-panel {
+		padding: 1.75rem;
+		background: var(--bs-paper-sunk);
+		border: 1px solid var(--bs-rule);
+		border-top: 2px solid var(--bs-secondary);
+	}
+	.reminder-panel :global(.eyebrow) {
+		color: var(--bs-ink-muted);
+	}
+	.reminder-list {
+		list-style: none;
+		padding: 0;
+		margin: 1rem 0 0;
+		color: var(--bs-ink-muted);
+		font-size: 0.92rem;
+		line-height: 1.7;
+	}
+	.reminder-list li + li {
+		margin-top: 0.5rem;
+	}
+</style>

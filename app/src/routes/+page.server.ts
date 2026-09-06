@@ -1,20 +1,16 @@
-import { db } from '$lib/server/db';
-import { newsArticles, eventSchemas, Event } from '$lib/server/db/schema';
 import { env } from '$env/dynamic/private';
-import { lte, desc, asc, or, sql, eq, gte, isNull, and, lt } from 'drizzle-orm';
-import { unionAll } from 'drizzle-orm/pg-core';
-import {
-	eventsSchema,
-	eventsSchemaOrdered,
-	newsArticlesSchemaOrdered
-} from '$lib/server/db/queries';
+import { getAllEventsOrdered, getAllNewsArticlesOrdered } from '$lib/server/db/queries';
+import type { PageServerLoad } from './$types';
 
-export async function load() {
-	const today = new Date().toISOString(); // Convert Date to ISO string
-	const events = await eventsSchemaOrdered().limit(5);
-	const news_articles = await newsArticlesSchemaOrdered().limit(4);
+export const load: PageServerLoad = async ({ locals, setHeaders }) => {
+	setHeaders({
+		'cache-control': 'public, max-age=0, s-maxage=300, stale-while-revalidate=3600'
+	});
 
-	events.map((event: Event) => {
+	const events = (await getAllEventsOrdered(locals.db)).slice(0, 5);
+	const news_articles = (await getAllNewsArticlesOrdered(locals.db)).slice(0, 4);
+
+	events.map((event: any) => {
 		event.month_short = new Intl.DateTimeFormat('ru-RU', { month: 'short' })
 			.format(new Date(event.startAt))
 			.toUpperCase()
@@ -48,4 +44,4 @@ export async function load() {
 		news_articles,
 		media_url: env.MEDIA_URL
 	};
-}
+};

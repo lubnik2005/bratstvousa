@@ -60,12 +60,8 @@
 {#if data?.images?.length > 0}
 	<div class="container-xxl py-5">
 		<div class="container">
-			<div class="row g-0 gx-5 align-items-end">
-				<div class="col-lg-5">
-					<div class="section-header mb-5 text-start" style="max-width: 500px;">
-						<h1 class="display-5 mb-3">Галерия</h1>
-					</div>
-				</div>
+			<div class="section-header mb-5 text-start">
+				<h2 class="display-5 mb-0">Галерея</h2>
 			</div>
 		</div>
 
@@ -80,6 +76,8 @@
 						<img
 							src="{data.media_url}{image.id}/conversions/{image.name}-gallery_thumbnails.jpg"
 							alt={image.fileName}
+							loading="lazy"
+							decoding="async"
 						/>
 					</a>
 				{/each}
@@ -91,21 +89,17 @@
 {#if data?.audios.length}
 	<div class="container-xxl py-5">
 		<div class="container">
-			<div class="row g-0 gx-5 align-items-end">
-				<div class="col-lg-5">
-					<div class="section-header mb-5 text-start" style="max-width: 500px;">
-						<h1 class="display-5 mb-3">Аудио Галерия</h1>
-					</div>
-				</div>
+			<div class="section-header mb-5 text-start">
+				<h2 class="display-5 mb-0">Аудио галерея</h2>
 			</div>
 		</div>
 
 		<div class="row">
 			{#each data.audios as audio}
-				<div class="col-lg-5" style="outline:solid red 1px">
+				<div class="col-lg-5">
 					<h3>{audio.fileName}</h3>
 					<audio controls style="width:100%">
-						<source src="{data.media_url}{audio.id}/{audio.fileName}" type={audio.mime_type} />
+						<source src="{data.media_url}{audio.id}/{audio.fileName}" type={audio.mimeType} />
 						Your browser does not support the audio element.
 					</audio>
 				</div>

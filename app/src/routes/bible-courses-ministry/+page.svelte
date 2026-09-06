@@ -1,12 +1,14 @@
 <script>
 	import GenericPage from '$lib/components/GenericPage.svelte';
 	import Header from '$lib/components/Header.svelte';
-	import Main from '$lib/components/MainNav/Main.svelte';
-	import { regionToLabel } from '$lib/helpers';
 	export let data;
 	const media_url = data.media_url;
 	const ministry_slug = 'bible-courses-ministry';
 </script>
+
+<svelte:head>
+	<title>Библейские курсы — Американское Объединение МСЦ ЕХБ</title>
+</svelte:head>
 
 <Header
 	title="Библейские Курсы"
@@ -27,7 +29,7 @@
 			</div>
 		</div>
 
-		<!-- 📝 Two-Column Layout (Text + Leader Info) -->
+		<!-- Two-column layout: text + leader info -->
 		<div class="row">
 			<div class="col-lg-8">
 				<p class="text-dark">
@@ -54,16 +56,10 @@
 				</p>
 			</div>
 			<div class="col-lg-4">
-				<div class="card border-0 p-4 text-center shadow-lg">
-					<img
-						class="img-fluid rounded shadow"
-						src="{media_url}upfiles/photos/Диакону.jpg"
-						alt="Диакону Дмитрий"
-					/>
-					<h5 class="fw-bold mt-3">Диакону Дмитрий</h5>
-					<a href="mailto:bibleeducation@bratstvousa.com" class="text-muted"
-						>bibleeducation@bratstvousa.com</a
-					>
+				<div class="leader-card" style="--leader-accent: var(--bs-accent-bible);">
+					<img src="{media_url}upfiles/photos/Диакону.jpg" alt="Диакону Дмитрий" />
+					<p class="leader-name">Диакону Дмитрий</p>
+					<a href="mailto:bibleeducation@bratstvousa.com">bibleeducation@bratstvousa.com</a>
 				</div>
 			</div>
 		</div>
