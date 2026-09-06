@@ -182,6 +182,7 @@
 		font-size: clamp(2.25rem, 5vw, 4rem);
 		font-weight: 600;
 		margin: 0 0 1rem;
+		color: #f6f2ea;
 		text-shadow: 0 2px 14px rgba(0, 0, 0, 0.5);
 	}
 	.camp-hero__lead {
