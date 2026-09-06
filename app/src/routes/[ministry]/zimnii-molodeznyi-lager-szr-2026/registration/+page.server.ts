@@ -1,6 +1,6 @@
 import { fail } from '@sveltejs/kit';
-import { eq } from 'drizzle-orm';
-import { campRegistrations, youthLeaders } from '$lib/server/db/schema';
+import { eq, desc } from 'drizzle-orm';
+import { campRegistrations, youthLeaders, churches } from '$lib/server/db/schema';
 import type { Actions, PageServerLoad } from './$types';
 
 const EVENT_SLUG = 'zimnii-molodeznyi-lager-szr-2026';
@@ -18,6 +18,24 @@ const DEMO_LEADERS = [
 	{ id: 4, name: 'Бадулин Павел' }
 ];
 
+// Demo fallback churches until the real DB is reachable in this environment.
+const DEMO_CHURCHES = [
+	{ id: 1, label: 'МСЦ ЕХБ Спокан (Spokane, WA)' },
+	{ id: 2, label: 'МСЦ ЕХБ Сакраменто (Sacramento, CA)' },
+	{ id: 3, label: 'МСЦ ЕХБ Портленд (Portland, OR)' }
+];
+
+const churchLabel = (c: {
+	name_line_1: string | null;
+	name_line_2: string | null;
+	address_line_1: string | null;
+	address_line_2: string | null;
+}) => {
+	const name = [c.name_line_1, c.name_line_2].filter(Boolean).join(' ').trim();
+	const addr = [c.address_line_1, c.address_line_2].filter(Boolean).join(' ').trim();
+	return addr ? `${name} (${addr})` : name;
+};
+
 export const load: PageServerLoad = async ({ locals }) => {
 	let leaders: { id: number; name: string }[] = [];
 	try {
@@ -31,7 +49,22 @@ export const load: PageServerLoad = async ({ locals }) => {
 		console.warn('youth_leaders query failed, using demo leaders:', err);
 	}
 
-	return { leaders: leaders.length ? leaders : DEMO_LEADERS, amount: CAMP_AMOUNT };
+	let churchList: { id: number; label: string }[] = [];
+	try {
+		const rows = await locals.db.select().from(churches).orderBy(desc(churches.state));
+		churchList = rows
+			.map((c) => ({ id: c.id, label: churchLabel(c) }))
+			.filter((c) => c.label)
+			.sort((a, b) => a.label.localeCompare(b.label, 'ru'));
+	} catch (err) {
+		console.warn('churches query failed, using demo churches:', err);
+	}
+
+	return {
+		leaders: leaders.length ? leaders : DEMO_LEADERS,
+		churches: churchList.length ? churchList : DEMO_CHURCHES,
+		amount: CAMP_AMOUNT
+	};
 };
 
 export const actions: Actions = {
@@ -44,10 +77,15 @@ export const actions: Actions = {
 			return { form: { message: 'Спасибо! Если это отправлено по ошибке, ничего делать не нужно.' } };
 		}
 
+		const churchSelected = clean(fd.get('church'));
+		const churchOther = clean(fd.get('churchOther'));
+		// If "Другое" was chosen, use the free-text value; otherwise the selected label.
+		const churchValue = churchSelected === 'other' ? churchOther : churchSelected;
+
 		const fields = {
 			firstName: clean(fd.get('firstName')),
 			lastName: clean(fd.get('lastName')),
-			church: clean(fd.get('church')),
+			church: churchValue,
 			email: clean(fd.get('email')),
 			phone: clean(fd.get('phone')),
 			leaderId: clean(fd.get('leaderId'))
@@ -56,7 +94,9 @@ export const actions: Actions = {
 		const errors: Record<string, string> = {};
 		if (!fields.firstName) errors.firstName = 'Укажите имя.';
 		if (!fields.lastName) errors.lastName = 'Укажите фамилию.';
-		if (!fields.church) errors.church = 'Укажите церковь.';
+		if (!fields.church)
+			errors.church =
+				churchSelected === 'other' ? 'Введите название церкви.' : 'Выберите церковь.';
 		if (!fields.email) errors.email = 'Укажите email.';
 		else if (!isEmail(fields.email)) errors.email = 'Укажите корректный email.';
 		if (!fields.leaderId) errors.leaderId = 'Выберите ответственного за молодежь.';

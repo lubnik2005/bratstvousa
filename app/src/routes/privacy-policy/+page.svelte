@@ -50,6 +50,13 @@
 				If you have any questions or concerns about our Privacy Policy, please feel free to contact
 				us.
 			</p>
+
+			<h2>Camp registrations</h2>
+			<p>
+				For event and camp registrations, a dedicated notice applies: your information is never
+				sold, and you may request removal of your data after the event. See the
+				<a href="/youth-ministry/zimnii-molodeznyi-lager-szr-2026/privacy">camp privacy notice</a>.
+			</p>
 		</div>
 	</div>
 </div>

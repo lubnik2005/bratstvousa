@@ -24,6 +24,64 @@
 			paid = true;
 		}, 1200);
 	}
+
+	// ---- Church searchable combobox ----
+	// `churchSelected` holds the hidden submit value: a church label, or 'other'.
+	const initialChurch =
+		form?.form && 'fields' in form.form ? ((form.form.fields.church as string) ?? '') : '';
+	let churchSelected = initialChurch;
+	let churchOther = '';
+	let churchQuery = churchSelected && churchSelected !== 'other' ? churchSelected : '';
+	let churchOpen = false;
+	let churchActive = -1;
+
+	$: churchMatches = churchQuery.trim()
+		? data.churches.filter((c) =>
+				c.label.toLowerCase().includes(churchQuery.trim().toLowerCase())
+			)
+		: data.churches;
+
+	function pickChurch(label: string) {
+		churchSelected = label;
+		churchQuery = label;
+		churchOpen = false;
+		churchActive = -1;
+	}
+	function pickOther() {
+		churchSelected = 'other';
+		churchQuery = 'Другое (ввести своё)';
+		churchOpen = false;
+		churchActive = -1;
+	}
+	function onChurchInput(e: Event) {
+		churchQuery = (e.target as HTMLInputElement).value;
+		churchSelected = churchQuery; // free text counts as a selectable label
+		churchOpen = true;
+		churchActive = -1;
+	}
+	function onChurchKeydown(e: KeyboardEvent) {
+		if (!churchOpen && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) {
+			churchOpen = true;
+			return;
+		}
+		const max = churchMatches.length; // +0..max-1 for churches, index === max => "Другое"
+		if (e.key === 'ArrowDown') {
+			e.preventDefault();
+			churchActive = churchActive >= max ? 0 : churchActive + 1;
+		} else if (e.key === 'ArrowUp') {
+			e.preventDefault();
+			churchActive = churchActive <= 0 ? max : churchActive - 1;
+		} else if (e.key === 'Enter') {
+			if (churchOpen && churchActive >= 0) {
+				e.preventDefault();
+				if (churchActive === max) pickOther();
+				else pickChurch(churchMatches[churchActive].label);
+			}
+		} else if (e.key === 'Escape') {
+			churchOpen = false;
+			churchActive = -1;
+		}
+	}
 </script>
 
 <svelte:head>
@@ -71,8 +129,55 @@
 					</div>
 
 					<div class="field">
-						<label class="form-label" for="church">Церковь</label>
-						<input class="form-control" id="church" name="church" value={values.church ?? ''} />
+						<label class="form-label" for="churchInput">Церковь</label>
+						<div class="combo">
+							<input
+								class="form-control"
+								id="churchInput"
+								autocomplete="off"
+								placeholder="Начните вводить название…"
+								value={churchQuery}
+								on:input={onChurchInput}
+								on:focus={() => (churchOpen = true)}
+								on:keydown={onChurchKeydown}
+								role="combobox"
+								aria-expanded={churchOpen}
+								aria-controls="church-listbox"
+							/>
+							{#if churchOpen}
+								<ul class="combo-list" id="church-listbox" role="listbox">
+									{#each churchMatches as c, i (c.id)}
+										<li
+											role="option"
+											aria-selected={churchActive === i}
+											class:active={churchActive === i}
+											on:mousedown|preventDefault={() => pickChurch(c.label)}
+										>
+											{c.label}
+										</li>
+									{/each}
+									<li
+										role="option"
+										aria-selected={churchActive === churchMatches.length}
+										class="combo-other"
+										class:active={churchActive === churchMatches.length}
+										on:mousedown|preventDefault={pickOther}
+									>
+										Другое (ввести своё)
+									</li>
+								</ul>
+							{/if}
+						</div>
+						<!-- hidden submit values -->
+						<input type="hidden" name="church" value={churchSelected} />
+						{#if churchSelected === 'other'}
+							<input
+								class="form-control mt-2"
+								name="churchOther"
+								placeholder="Название вашей церкви"
+								bind:value={churchOther}
+							/>
+						{/if}
 						{#if errors.church}<div class="field-error">{errors.church}</div>{/if}
 					</div>
 
@@ -104,6 +209,11 @@
 					<button class="btn btn-primary reg-submit" type="submit">
 						Продолжить к оплате · ${data.amount}
 					</button>
+					<p class="reg-privacy">
+						Отправляя форму, вы соглашаетесь с
+						<a href="/youth-ministry/zimnii-molodeznyi-lager-szr-2026/privacy">политикой
+							конфиденциальности лагеря</a>. Ваши данные никогда не будут проданы.
+					</p>
 				</form>
 			{:else if !paid}
 				<!-- STEP 2: demo Stripe payment -->
@@ -224,6 +334,48 @@
 		width: 100%;
 		margin-top: 0.75rem;
 		padding: 0.7rem 1rem;
+	}
+	.reg-privacy {
+		font-size: 0.8rem;
+		color: var(--bs-ink-muted, #736a5f);
+		margin: 0.75rem 0 0;
+		text-align: center;
+	}
+	.combo {
+		position: relative;
+	}
+	.combo-list {
+		position: absolute;
+		z-index: 20;
+		top: calc(100% + 2px);
+		left: 0;
+		right: 0;
+		max-height: 16rem;
+		overflow-y: auto;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+		background: var(--bs-paper, #f6f2ea);
+		border: 1px solid var(--bs-rule, #ddd5c8);
+		box-shadow: 0 6px 24px rgba(44, 43, 41, 0.12);
+	}
+	.combo-list li {
+		padding: 0.55rem 0.85rem;
+		cursor: pointer;
+		font-size: 0.92rem;
+		border-bottom: 1px solid var(--bs-rule, #ddd5c8);
+	}
+	.combo-list li:last-child {
+		border-bottom: none;
+	}
+	.combo-list li.active,
+	.combo-list li:hover {
+		background: var(--bs-paper-sunk, #efe9df);
+		color: var(--bs-primary, #5a4a42);
+	}
+	.combo-other {
+		font-style: italic;
+		color: var(--bs-secondary, #a28c6a);
 	}
 	.pay-card {
 		border: 1px solid var(--bs-rule, #ddd5c8);
