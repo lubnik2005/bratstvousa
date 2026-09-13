@@ -3,9 +3,11 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\URL;
 use OwenIt\Auditing\Contracts\Auditable;
 use Pktharindu\NovaPermissions\Traits\HasRoles;
 
@@ -56,5 +58,26 @@ class User extends Authenticatable implements Auditable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Send the password reset notification, building the reset URL from
+     * Nova's named route instead of Laravel's default "password.reset"
+     * (which is not registered — Nova registers "nova.pages.password.reset").
+     * Without this override the reset notification throws
+     * RouteNotFoundException: Route [password.reset] not defined.
+     */
+    public function sendPasswordResetNotification($token): void
+    {
+        $notification = new ResetPassword($token);
+
+        $notification->createUrlUsing(function ($notifiable, string $token) {
+            return URL::route('nova.pages.password.reset', [
+                'token' => $token,
+                'email' => $notifiable->getEmailForPasswordReset(),
+            ]);
+        });
+
+        $this->notify($notification);
     }
 }
