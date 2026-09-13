@@ -1,0 +1,38 @@
+# Production compose for the Laravel Nova admin panel.
+#
+# The runtime image bundles nginx + php-fpm (via supervisor), so this is a
+# single-service stack. Content lives in Cloudflare D1 (remote) and media in
+# Cloudflare R2 (remote); the only local state is the plumbing SQLite DB
+# (Nova users/roles/permissions/audits/sessions) + Laravel storage, both on
+# named volumes so they survive redeploys.
+#
+# Usage on the Linode:
+#   docker compose -f docker-compose.prod.yml pull
+#   docker compose -f docker-compose.prod.yml up -d
+
+services:
+  app:
+    image: ghcr.io/lubnik2005/bratstvousa-admin:latest
+    restart: unless-stopped
+    env_file:
+      - .env.production
+    ports:
+      # Host 127.0.0.1:8080 -> container 8080. Only bound to loopback; the
+      # host nginx (or cloudflared) terminates TLS and proxies to this.
+      - "127.0.0.1:8080:8080"
+    volumes:
+      # Mount ONLY the data subdir, not the whole database/ dir, so the
+      # image-shipped migrations (database/migrations-plumbing) are never
+      # shadowed by stale volume contents. The SQLite file lives in here.
+      - plumbing-db:/var/www/html/database/data
+      - storage:/var/www/html/storage
+    healthcheck:
+      test: ["CMD", "sh", "-c", "curl -fsS http://localhost:8080/login >/dev/null || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  plumbing-db:
+  storage:

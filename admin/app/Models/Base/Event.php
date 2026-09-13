@@ -15,6 +15,14 @@ class Event extends Model implements Auditable, HasMedia
     use InteractsWithMedia;
     use \OwenIt\Auditing\Auditable;
 
+    /**
+     * Content lives in the shared Cloudflare D1 database (default connection is
+     * the local "plumbing" SQLite for Nova auth/roles/permissions/audits).
+     *
+     * @var string
+     */
+    protected $connection = 'd1';
+
     protected $casts = [
         'start_at' => 'date',
         'end_at' => 'date',

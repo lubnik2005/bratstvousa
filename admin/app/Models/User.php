@@ -17,6 +17,14 @@ class User extends Authenticatable implements Auditable
     use \OwenIt\Auditing\Auditable;
 
     /**
+     * Nova auth lives in the local "plumbing" SQLite DB, not the shared
+     * Cloudflare D1. Keeps admin login fast + transactional.
+     *
+     * @var string
+     */
+    protected $connection = 'plumbing';
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>

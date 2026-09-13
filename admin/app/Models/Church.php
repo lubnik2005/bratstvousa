@@ -9,5 +9,7 @@ class Church extends Model implements Auditable
 {
     use \OwenIt\Auditing\Auditable;
 
+    protected $connection = 'd1';
+
     protected $casts = ['longitude' => 'float', 'latitude' => 'float'];
 }

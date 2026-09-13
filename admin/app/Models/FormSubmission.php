@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class FormSubmission extends Model
 {
+    protected $connection = 'd1';
 
     /**
      * Get the attributes that should be cast.
