@@ -40,6 +40,9 @@ class CampRegistration extends Model implements Auditable
     protected $casts = [
         'leader_id' => 'integer',
         'amount' => 'integer',
+        'approved_at' => 'datetime',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     /**
