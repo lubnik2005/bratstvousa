@@ -23,6 +23,7 @@
 	let showConsentModal = false;
 	let showRulesModal = false;
 	let embedError = '';
+	let consentGateError = '';
 	let consentApi: unknown = null;
 	let consentForm: { on: (event: string, cb: (e: { entryId?: string }) => void) => void } | null =
 		null;
@@ -196,7 +197,21 @@
 
 			{#if !form?.registered}
 				<!-- STEP 1: registration form -->
-				<form method="post" use:enhance>
+				<form
+					method="post"
+					use:enhance={({ cancel }) => {
+						// Defensive guard: never submit unless both required
+						// acknowledgements are complete (disabled/required checkboxes
+						// alone don't reliably block submission).
+						if (!didSubmitConsent || !didAckRules) {
+							cancel();
+							consentGateError =
+								'Пожалуйста, заполните форму согласия YoungLife и подтвердите правила лагеря.';
+							return;
+						}
+						consentGateError = '';
+					}}
+				>
 					<input
 						type="text"
 						name="middle_name"
@@ -353,7 +368,8 @@
 								id="consent_form"
 								name="consent_form"
 								required
-								disabled={!didSubmitConsent}
+								checked={didSubmitConsent}
+								on:click|preventDefault={openConsentModal}
 							/>
 							<span>
 								Я заполнил(а) форму согласия YoungLife (<button
@@ -370,7 +386,8 @@
 								id="consent_rules"
 								name="consent_rules"
 								required
-								disabled={!didAckRules}
+								checked={didAckRules}
+								on:click|preventDefault={openRulesModal}
 							/>
 							<span>
 								Я прочитал(а) и согласен(на) с правилами лагеря (<button
@@ -382,7 +399,17 @@
 						</label>
 					</div>
 
-					<button class="btn btn-primary reg-submit" type="submit"> Отправить заявку </button>
+					{#if consentGateError}
+						<p class="consent-gate-error">{consentGateError}</p>
+					{/if}
+
+					<button
+						class="btn btn-primary reg-submit"
+						type="submit"
+						disabled={!didSubmitConsent || !didAckRules}
+					>
+						Отправить заявку
+					</button>
 					<p class="reg-privacy">
 						Отправляя форму, вы соглашаетесь с
 						<a href="/youth-ministry/zimnii-molodeznyi-lager-szr-2026/privacy"
@@ -622,6 +649,11 @@
 		color: #b3261e;
 		font-size: 0.82rem;
 		margin-top: 0.25rem;
+	}
+	.consent-gate-error {
+		color: #b02a37;
+		font-size: 0.9rem;
+		margin: 0 0 0.75rem;
 	}
 	.reg-submit {
 		width: 100%;
