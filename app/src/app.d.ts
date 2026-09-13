@@ -11,7 +11,6 @@ declare global {
 			env: {
 				DB: D1Database;
 				R2: R2Bucket;
-				MAILCHANNELS_API_KEY?: string;
 				MEDIA_URL?: string;
 			};
 		}

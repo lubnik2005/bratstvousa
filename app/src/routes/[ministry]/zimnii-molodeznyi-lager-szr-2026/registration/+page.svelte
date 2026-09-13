@@ -14,17 +14,6 @@
 		string
 	>;
 
-	// Demo Stripe payment step (client-side simulation — no real Stripe yet).
-	let paying = false;
-	let paid = false;
-	function payDemo() {
-		paying = true;
-		setTimeout(() => {
-			paying = false;
-			paid = true;
-		}, 1200);
-	}
-
 	// ---- Church searchable combobox ----
 	// `churchSelected` holds the hidden submit value: a church label, or 'other'.
 	const initialChurch =
@@ -36,9 +25,7 @@
 	let churchActive = -1;
 
 	$: churchMatches = churchQuery.trim()
-		? data.churches.filter((c) =>
-				c.label.toLowerCase().includes(churchQuery.trim().toLowerCase())
-			)
+		? data.churches.filter((c) => c.label.toLowerCase().includes(churchQuery.trim().toLowerCase()))
 		: data.churches;
 
 	function pickChurch(label: string) {
@@ -99,8 +86,7 @@
 		<div class="reg-shell mx-auto">
 			<ol class="reg-steps">
 				<li class:active={!form?.registered} class:done={form?.registered}>1. Данные</li>
-				<li class:active={form?.registered && !paid} class:done={paid}>2. Оплата</li>
-				<li class:active={paid}>3. Готово</li>
+				<li class:active={form?.registered}>2. Готово</li>
 			</ol>
 
 			{#if !form?.registered}
@@ -118,12 +104,22 @@
 					<div class="reg-grid">
 						<div class="field">
 							<label class="form-label" for="firstName">Имя</label>
-							<input class="form-control" id="firstName" name="firstName" value={values.firstName ?? ''} />
+							<input
+								class="form-control"
+								id="firstName"
+								name="firstName"
+								value={values.firstName ?? ''}
+							/>
 							{#if errors.firstName}<div class="field-error">{errors.firstName}</div>{/if}
 						</div>
 						<div class="field">
 							<label class="form-label" for="lastName">Фамилия</label>
-							<input class="form-control" id="lastName" name="lastName" value={values.lastName ?? ''} />
+							<input
+								class="form-control"
+								id="lastName"
+								name="lastName"
+								value={values.lastName ?? ''}
+							/>
 							{#if errors.lastName}<div class="field-error">{errors.lastName}</div>{/if}
 						</div>
 					</div>
@@ -184,7 +180,13 @@
 					<div class="reg-grid">
 						<div class="field">
 							<label class="form-label" for="email">Email</label>
-							<input class="form-control" id="email" name="email" type="email" value={values.email ?? ''} />
+							<input
+								class="form-control"
+								id="email"
+								name="email"
+								type="email"
+								value={values.email ?? ''}
+							/>
 							{#if errors.email}<div class="field-error">{errors.email}</div>{/if}
 						</div>
 						<div class="field">
@@ -206,55 +208,34 @@
 						{#if errors.leaderId}<div class="field-error">{errors.leaderId}</div>{/if}
 					</div>
 
-					<button class="btn btn-primary reg-submit" type="submit">
-						Продолжить к оплате · ${data.amount}
-					</button>
+					<button class="btn btn-primary reg-submit" type="submit"> Отправить заявку </button>
 					<p class="reg-privacy">
 						Отправляя форму, вы соглашаетесь с
-						<a href="/youth-ministry/zimnii-molodeznyi-lager-szr-2026/privacy">политикой
-							конфиденциальности лагеря</a>. Ваши данные никогда не будут проданы.
+						<a href="/youth-ministry/zimnii-molodeznyi-lager-szr-2026/privacy"
+							>политикой конфиденциальности лагеря</a
+						>. Ваши данные никогда не будут проданы.
 					</p>
 				</form>
-			{:else if !paid}
-				<!-- STEP 2: demo Stripe payment -->
-				<div class="pay-card">
-					<div class="pay-head">
-						<span>Оплата участия</span>
-						<strong>${form.amount}</strong>
-					</div>
-					<p class="pay-note">
-						Заявка принята для <strong>{form.name}</strong>. Оплатите участие, чтобы завершить
-						регистрацию.
-					</p>
-
-					<div class="field">
-						<label class="form-label" for="card">Номер карты</label>
-						<input class="form-control" id="card" placeholder="4242 4242 4242 4242" />
-					</div>
-					<div class="reg-grid">
-						<div class="field">
-							<label class="form-label" for="exp">Срок</label>
-							<input class="form-control" id="exp" placeholder="12 / 26" />
-						</div>
-						<div class="field">
-							<label class="form-label" for="cvc">CVC</label>
-							<input class="form-control" id="cvc" placeholder="123" />
-						</div>
-					</div>
-
-					<button class="btn btn-primary reg-submit" on:click={payDemo} disabled={paying}>
-						{paying ? 'Обработка…' : `Оплатить $${form.amount}`}
-					</button>
-					<p class="pay-demo">Демонстрационная оплата — платёж не списывается.</p>
-				</div>
 			{:else}
-				<!-- STEP 3: done -->
+				<!-- STEP 2: submitted -->
 				<div class="reg-done">
 					<div class="reg-check">✓</div>
-					<h2>Оплата прошла успешно</h2>
+					<h2>Заявка отправлена</h2>
 					<p>
-						Спасибо! Ваша заявка отправлена ответственному за молодежь на подтверждение. Вы получите
-						письмо, когда её одобрят.
+						Спасибо, <strong>{form.name}</strong>! Ваша заявка отправлена ответственному за молодежь
+						на подтверждение.
+					</p>
+
+					{#if form.confirmationCode}
+						<div class="reg-code">
+							<span class="reg-code-label">Ваш регистрационный код</span>
+							<span class="reg-code-value">{form.confirmationCode}</span>
+						</div>
+					{/if}
+
+					<p class="reg-next">
+						Как только заявку одобрят, вы получите ещё одно письмо со ссылкой для завершения
+						регистрации и оплаты. Сохраните код выше — он понадобится при оплате.
 					</p>
 				</div>
 			{/if}
@@ -377,31 +358,34 @@
 		font-style: italic;
 		color: var(--bs-secondary, #a28c6a);
 	}
-	.pay-card {
-		border: 1px solid var(--bs-rule, #ddd5c8);
+	.reg-code {
+		display: inline-flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 0.35rem;
+		margin: 1.5rem auto;
+		padding: 1rem 2rem;
+		border: 1px dashed var(--bs-secondary, #a28c6a);
 		background: var(--bs-paper-sunk, #efe9df);
-		padding: 1.75rem;
 	}
-	.pay-head {
-		display: flex;
-		justify-content: space-between;
-		align-items: baseline;
-		font-size: 1.1rem;
-		margin-bottom: 0.75rem;
+	.reg-code-label {
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+		font-size: 0.72rem;
+		color: var(--bs-ink-muted, #736a5f);
 	}
-	.pay-head strong {
+	.reg-code-value {
 		font-family: var(--bs-font-serif, 'Lora'), serif;
-		font-size: 1.5rem;
+		font-size: 1.75rem;
+		font-weight: 700;
+		letter-spacing: 0.12em;
+		color: var(--bs-primary, #5a4a42);
 	}
-	.pay-note {
+	.reg-next {
 		color: var(--bs-ink-muted, #736a5f);
-		margin-bottom: 1.5rem;
-	}
-	.pay-demo {
-		text-align: center;
-		font-size: 0.78rem;
-		color: var(--bs-ink-muted, #736a5f);
-		margin: 0.75rem 0 0;
+		font-size: 0.92rem;
+		max-width: 32rem;
+		margin: 0 auto;
 	}
 	.reg-done {
 		text-align: center;

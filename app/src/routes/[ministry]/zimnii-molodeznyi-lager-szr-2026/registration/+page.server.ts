@@ -1,6 +1,12 @@
 import { fail } from '@sveltejs/kit';
 import { eq, desc } from 'drizzle-orm';
 import { campRegistrations, youthLeaders, churches } from '$lib/server/db/schema';
+import {
+	generateConfirmationCode,
+	generateApprovalToken,
+	sendRegistrantThankYou,
+	sendLeaderApprovalRequest
+} from '$lib/server/email/camp';
 import type { Actions, PageServerLoad } from './$types';
 
 const EVENT_SLUG = 'zimnii-molodeznyi-lager-szr-2026';
@@ -68,13 +74,15 @@ export const load: PageServerLoad = async ({ locals }) => {
 };
 
 export const actions: Actions = {
-	default: async ({ request, locals }) => {
+	default: async ({ request, locals, url }) => {
 		const db = locals.db;
 		const fd = await request.formData();
 
 		// honeypot
 		if (clean(fd.get('middle_name'))) {
-			return { form: { message: 'Спасибо! Если это отправлено по ошибке, ничего делать не нужно.' } };
+			return {
+				form: { message: 'Спасибо! Если это отправлено по ошибке, ничего делать не нужно.' }
+			};
 		}
 
 		const churchSelected = clean(fd.get('church'));
@@ -95,8 +103,7 @@ export const actions: Actions = {
 		if (!fields.firstName) errors.firstName = 'Укажите имя.';
 		if (!fields.lastName) errors.lastName = 'Укажите фамилию.';
 		if (!fields.church)
-			errors.church =
-				churchSelected === 'other' ? 'Введите название церкви.' : 'Выберите церковь.';
+			errors.church = churchSelected === 'other' ? 'Введите название церкви.' : 'Выберите церковь.';
 		if (!fields.email) errors.email = 'Укажите email.';
 		else if (!isEmail(fields.email)) errors.email = 'Укажите корректный email.';
 		if (!fields.leaderId) errors.leaderId = 'Выберите ответственного за молодежь.';
@@ -105,7 +112,13 @@ export const actions: Actions = {
 			return fail(400, { form: { errors, fields } });
 		}
 
+		// Generate the confirmation code + approval token at submission time.
+		// The code is emailed to the registrant now and re-used at payment (Zeffy)
+		// after approval; on rejection it is simply never used.
+		const confirmationCode = generateConfirmationCode();
+		const approvalToken = generateApprovalToken();
 		const now = new Date().toISOString();
+
 		try {
 			await db.insert(campRegistrations).values({
 				eventSlug: EVENT_SLUG,
@@ -115,22 +128,74 @@ export const actions: Actions = {
 				email: fields.email,
 				phone: fields.phone,
 				leaderId: Number(fields.leaderId),
-				status: 'pending_payment',
+				status: 'awaiting_approval',
 				paymentStatus: 'unpaid',
 				amount: CAMP_AMOUNT,
+				confirmationCode,
+				approvalToken,
 				createdAt: now,
 				updatedAt: now
 			});
 		} catch (err) {
-			// Demo mode: youth_leaders may not be seeded yet (FK), don't block the flow.
-			console.warn('camp registration insert skipped (demo):', err);
+			console.error('camp registration insert failed:', err);
+			return fail(500, {
+				form: {
+					message: 'Не удалось сохранить регистрацию. Попробуйте ещё раз.',
+					fields
+				}
+			});
 		}
 
-		// Proceed to the (demo) payment step.
+		// Look up the assigned leader's contact details server-side only.
+		// Phone/email are never exposed to the browser.
+		let leader: { name: string; email: string | null } | undefined;
+		try {
+			const rows = await db
+				.select({ name: youthLeaders.name, email: youthLeaders.email })
+				.from(youthLeaders)
+				.where(eq(youthLeaders.id, Number(fields.leaderId)))
+				.limit(1);
+			leader = rows[0];
+		} catch (err) {
+			console.error('leader lookup failed:', err);
+		}
+
+		const registrant = {
+			firstName: fields.firstName,
+			lastName: fields.lastName,
+			email: fields.email,
+			phone: fields.phone,
+			church: fields.church,
+			confirmationCode
+		};
+
+		// Emails are best-effort: a delivery failure must not lose the saved
+		// registration, so failures are logged rather than surfaced.
+		try {
+			await sendRegistrantThankYou(registrant);
+		} catch (err) {
+			console.error('registrant thank-you email failed:', err);
+		}
+
+		if (leader?.email) {
+			const approvalUrl = `${url.origin}/camp-approval?token=${approvalToken}`;
+			try {
+				await sendLeaderApprovalRequest({
+					leaderEmail: leader.email,
+					leaderName: leader.name,
+					registrant,
+					approvalUrl
+				});
+			} catch (err) {
+				console.error('leader approval-request email failed:', err);
+			}
+		} else {
+			console.error('no leader email for leaderId', fields.leaderId);
+		}
+
 		return {
-			paid: false,
 			registered: true,
-			amount: CAMP_AMOUNT,
+			confirmationCode,
 			name: `${fields.firstName} ${fields.lastName}`,
 			fields: {}
 		};

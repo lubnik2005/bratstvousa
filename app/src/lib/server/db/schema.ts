@@ -190,6 +190,11 @@ export const youthLeaders = sqliteTable('youth_leaders', {
 	id: integer('id').primaryKey({ autoIncrement: true }),
 	name: text('name').notNull(),
 	email: text('email'),
+	// Contact phone. Server-side only — never exposed to the public.
+	phone: text('phone'),
+	// City / location label (e.g. "Vancouver: Hazel Dell"). Name + city may be
+	// shown publicly; phone + email must stay server-side.
+	city: text('city'),
 	region: text('region'),
 	churchId: integer('church_id'),
 	active: integer('active', { mode: 'boolean' }).default(true).notNull(),
@@ -220,6 +225,10 @@ export const campRegistrations = sqliteTable('camp_registrations', {
 	paymentStatus: text('payment_status').default('unpaid').notNull(),
 	amount: integer('amount'),
 	stripeSessionId: text('stripe_session_id'),
+	// Human-readable registration code (e.g. "CAMP-7K3QF"), generated at
+	// submission. Given to the registrant to enter in Zeffy so payments can be
+	// reconciled back to a registration later.
+	confirmationCode: text('confirmation_code'),
 	approvalToken: text('approval_token'),
 	approvedBy: text('approved_by'),
 	approvedAt: text('approved_at'),
