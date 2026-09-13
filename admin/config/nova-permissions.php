@@ -463,5 +463,28 @@ return [
             'group' => 'Youth Leaders',
         ],
         // Youth Leaders End
+
+        // Camp Registrations Start
+        'view camp_registrations' => [
+            'display_name' => 'View camp registrations',
+            'description' => 'Can view camp registrations',
+            'group' => 'Camp Registrations',
+        ],
+        'create camp_registrations' => [
+            'display_name' => 'Create camp registrations',
+            'description' => 'Can create camp registrations',
+            'group' => 'Camp Registrations',
+        ],
+        'edit camp_registrations' => [
+            'display_name' => 'Edit camp registrations',
+            'description' => 'Can edit camp registrations',
+            'group' => 'Camp Registrations',
+        ],
+        'delete camp_registrations' => [
+            'display_name' => 'Delete camp registrations',
+            'description' => 'Can delete camp registrations',
+            'group' => 'Camp Registrations',
+        ],
+        // Camp Registrations End
     ],
 ];

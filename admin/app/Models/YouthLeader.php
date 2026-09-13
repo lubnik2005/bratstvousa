@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use OwenIt\Auditing\Contracts\Auditable;
 
 class YouthLeader extends Model implements Auditable
@@ -32,4 +33,12 @@ class YouthLeader extends Model implements Auditable
         'active' => 'boolean',
         'church_id' => 'integer',
     ];
+
+    /**
+     * Camp registrations this leader is responsible for approving.
+     */
+    public function campRegistrations(): HasMany
+    {
+        return $this->hasMany(CampRegistration::class, 'leader_id');
+    }
 }
