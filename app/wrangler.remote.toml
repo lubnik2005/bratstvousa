@@ -21,4 +21,4 @@ bucket_name = "bratstvousa-media"
 remote = true
 
 [vars]
-MEDIA_URL = "https://pub-f95e54e3085c46a2b6db3bd4f9c7fb42.r2.dev/"
+MEDIA_URL = "https://media.bratstvousa.com/"
