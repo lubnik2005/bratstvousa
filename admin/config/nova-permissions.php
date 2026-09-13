@@ -440,5 +440,28 @@ return [
             'description' => 'Can delete family news articles',
             'group' => 'Family News Articles',
         ],
+
+        // Youth Leaders Start
+        'view youth_leaders' => [
+            'display_name' => 'View youth leaders',
+            'description' => 'Can view youth leaders',
+            'group' => 'Youth Leaders',
+        ],
+        'create youth_leaders' => [
+            'display_name' => 'Create youth leaders',
+            'description' => 'Can create youth leaders',
+            'group' => 'Youth Leaders',
+        ],
+        'edit youth_leaders' => [
+            'display_name' => 'Edit youth leaders',
+            'description' => 'Can edit youth leaders',
+            'group' => 'Youth Leaders',
+        ],
+        'delete youth_leaders' => [
+            'display_name' => 'Delete youth leaders',
+            'description' => 'Can delete youth leaders',
+            'group' => 'Youth Leaders',
+        ],
+        // Youth Leaders End
     ],
 ];
