@@ -327,7 +327,7 @@
 						</select>
 						{#if errors.leaderId}<div class="field-error">{errors.leaderId}</div>{/if}
 						<p class="field-note">
-							Не из нашей организации? Напишите нам на
+							Не из нашего региона? Напишите нам на
 							<a href="mailto:youth@bratstvousa.com">youth@bratstvousa.com</a>, чтобы связаться с
 							нами по поводу участия, и выберите <strong>Vadym Neyman</strong> в качестве ответственного.
 						</p>
