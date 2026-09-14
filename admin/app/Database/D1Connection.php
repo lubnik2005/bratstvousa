@@ -32,4 +32,35 @@ class D1Connection extends BaseD1Connection
             yield $row;
         }
     }
+
+    /**
+     * Cloudflare D1 over HTTP has NO interactive transactions. The renoki-co/l1
+     * driver only fakes begin/commit and never overrides rollBack(), so when
+     * Nova wraps a create/update in DB::transaction() and anything fails,
+     * Laravel calls rollBack() which falls through to the real in-memory SQLite
+     * PDO with no active transaction and throws "There is no active
+     * transaction" (500) — masking the real error.
+     *
+     * We make begin/commit/rollBack manage ONLY the internal transaction
+     * counter and never touch the underlying PDO.
+     */
+    public function beginTransaction(): void
+    {
+        $this->transactions = 1;
+    }
+
+    public function commit(): void
+    {
+        $this->transactions = 0;
+    }
+
+    public function rollBack($toLevel = null): void
+    {
+        $this->transactions = 0;
+    }
+
+    public function transactionLevel()
+    {
+        return $this->transactions ?? 0;
+    }
 }
