@@ -1,5 +1,6 @@
 <script lang="ts">
 	import Header from '$lib/components/Header.svelte';
+	import Turnstile from '$lib/components/Turnstile.svelte';
 	export let data;
 	export let form;
 
@@ -332,6 +333,10 @@
 							Я согласен с правилами поступления <span class="text-danger">*</span>
 						</label>
 					</div>
+				</div>
+
+				<div class="my-4">
+					<Turnstile action="enroll" />
 				</div>
 
 				<button type="submit" class="btn btn-primary my-4">Отправить</button>

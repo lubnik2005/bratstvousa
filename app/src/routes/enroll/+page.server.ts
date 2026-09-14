@@ -1,7 +1,9 @@
+import { fail } from '@sveltejs/kit';
 import { env } from '$env/dynamic/private';
 import { churches, formSubmissions } from '$lib/server/db/schema';
 import { desc, eq } from 'drizzle-orm';
 import { sendEmail } from '$lib/email';
+import { verifyTurnstile, TURNSTILE_ERROR_MESSAGE } from '$lib/server/turnstile';
 import { email_template } from './email';
 import type { Actions, PageServerLoad } from './$types';
 
@@ -27,6 +29,18 @@ export const actions: Actions = {
 	default: async ({ request, locals, platform }) => {
 		const db = locals.db;
 		const data = await request.formData();
+
+		// Bot protection: verify the Cloudflare Turnstile token before anything else.
+		const ts = await verifyTurnstile(
+			data.get('cf-turnstile-response') as string | null,
+			platform?.env?.TURNSTILE_SECRET_KEY,
+			request.headers.get('cf-connecting-ip'),
+			'enroll',
+			platform?.env?.TURNSTILE_HOSTNAMES
+		);
+		if (!ts.ok) {
+			return fail(403, { success: false, error: TURNSTILE_ERROR_MESSAGE });
+		}
 
 		// Handle photo upload to R2
 		const personalPhoto = data.get('personal_photo') as File | null;

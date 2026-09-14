@@ -1,5 +1,6 @@
 import { fail } from '@sveltejs/kit';
 import { formSubmissions } from '$lib/server/db/schema';
+import { verifyTurnstile, TURNSTILE_ERROR_MESSAGE } from '$lib/server/turnstile';
 import type { Actions, PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async () => ({});
@@ -9,9 +10,21 @@ const clean = (s: FormDataEntryValue | null | undefined) =>
 	(typeof s === 'string' ? s.trim() : '') || '';
 
 export const actions: Actions = {
-	default: async ({ request, locals }) => {
+	default: async ({ request, locals, platform }) => {
 		const db = locals.db;
 		const fd = await request.formData();
+
+		// Cloudflare Turnstile gate (before honeypot/validation)
+		const ts = await verifyTurnstile(
+			fd.get('cf-turnstile-response') as string | null,
+			platform?.env?.TURNSTILE_SECRET_KEY,
+			request.headers.get('cf-connecting-ip'),
+			'camp_2025',
+			platform?.env?.TURNSTILE_HOSTNAMES
+		);
+		if (!ts.ok) {
+			return fail(403, { form: { message: TURNSTILE_ERROR_MESSAGE } });
+		}
 
 		// honeypot
 		if (clean(fd.get('middle_name'))) {

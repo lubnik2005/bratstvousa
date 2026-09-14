@@ -29,7 +29,10 @@
 	}
 
 	import { enhance } from '$app/forms';
+	import Turnstile from '$lib/components/Turnstile.svelte';
 	export let form; // action result (errors/success)
+
+	let turnstile: Turnstile | undefined;
 
 	function submitForm(e: Event) {
 		e.preventDefault();
@@ -74,7 +77,16 @@
 	<div class="container">
 		<div class="row g-4">
 			<div class="col-lg-8">
-				<form class="form-panel" method="post" use:enhance>
+				<form
+					class="form-panel"
+					method="post"
+					use:enhance={() => {
+						return async ({ update }) => {
+							await update();
+							turnstile?.reset();
+						};
+					}}
+				>
 					<div class="card-body">
 						<div class="row">
 							<div class="col-md-4">
@@ -275,6 +287,9 @@
 						{/if}
 					</div>
 
+					<div class="px-4 pt-0">
+						<Turnstile bind:this={turnstile} action="order_form" />
+					</div>
 					<div class="d-flex gap-2 px-4 pb-4 pt-0">
 						<button class="btn btn-primary" type="submit">Отправить заявку</button>
 					</div>

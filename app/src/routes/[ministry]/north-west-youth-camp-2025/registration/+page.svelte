@@ -2,9 +2,12 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import { onMount } from 'svelte';
+	import Turnstile from '$lib/components/Turnstile.svelte';
 
 	export let data;
 	export let form: any = {};
+
+	let turnstile: Turnstile | undefined;
 
 	/*** Content & constants ***/
 	const EVENT_TITLE = 'Христианский молодёжный лагерь — СЗР';
@@ -48,6 +51,7 @@
 		return async ({ update }: { update: () => Promise<void> }) => {
 			submitting = false;
 			await update();
+			turnstile?.reset();
 		};
 	};
 
@@ -534,6 +538,10 @@
 					{#if f?.errors?.paid}
 						<div class="invalid d-block">{f.errors.paid}</div>
 					{/if}
+				</div>
+
+				<div class="my-3">
+					<Turnstile bind:this={turnstile} action="camp_2025" />
 				</div>
 
 				<button class="btn btn-primary btn-lg" type="submit" disabled={submitting}>

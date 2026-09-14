@@ -7,6 +7,7 @@ import {
 	sendRegistrantThankYou,
 	sendLeaderApprovalRequest
 } from '$lib/server/email/camp';
+import { verifyTurnstile, TURNSTILE_ERROR_MESSAGE } from '$lib/server/turnstile';
 import type { Actions, PageServerLoad } from './$types';
 
 const EVENT_SLUG = 'zimnii-molodeznyi-lager-szr-2026';
@@ -74,9 +75,21 @@ export const load: PageServerLoad = async ({ locals }) => {
 };
 
 export const actions: Actions = {
-	default: async ({ request, locals, url }) => {
+	default: async ({ request, locals, url, platform }) => {
 		const db = locals.db;
 		const fd = await request.formData();
+
+		// Turnstile: verify before any processing.
+		const ts = await verifyTurnstile(
+			fd.get('cf-turnstile-response') as string | null,
+			platform?.env?.TURNSTILE_SECRET_KEY,
+			request.headers.get('cf-connecting-ip'),
+			'camp_2026',
+			platform?.env?.TURNSTILE_HOSTNAMES
+		);
+		if (!ts.ok) {
+			return fail(403, { form: { message: TURNSTILE_ERROR_MESSAGE } });
+		}
 
 		// honeypot
 		if (clean(fd.get('middle_name'))) {

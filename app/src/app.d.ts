@@ -12,6 +12,9 @@ declare global {
 				DB: D1Database;
 				R2: R2Bucket;
 				MEDIA_URL?: string;
+				TURNSTILE_SECRET_KEY?: string;
+				TURNSTILE_HOSTNAMES?: string;
+				PUBLIC_TURNSTILE_SITE_KEY?: string;
 			};
 		}
 	}

@@ -1,7 +1,10 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import { onMount } from 'svelte';
+	import Turnstile from '$lib/components/Turnstile.svelte';
 	import type { PageData, ActionData } from './$types';
+
+	let turnstile: Turnstile | undefined;
 
 	export let data: PageData;
 	export let form: ActionData;
@@ -210,6 +213,10 @@
 							return;
 						}
 						consentGateError = '';
+						return async ({ update }) => {
+							await update();
+							turnstile?.reset();
+						};
 					}}
 				>
 					<input
@@ -407,6 +414,10 @@
 					{#if consentGateError}
 						<p class="consent-gate-error">{consentGateError}</p>
 					{/if}
+
+					<div class="my-3">
+						<Turnstile bind:this={turnstile} action="camp_2026" />
+					</div>
 
 					<button
 						class="btn btn-primary reg-submit"

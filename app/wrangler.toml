@@ -17,3 +17,7 @@ bucket_name = "bratstvousa-media"
 
 [vars]
 MEDIA_URL = "https://media.bratstvousa.com/"
+# Cloudflare Turnstile (bot/spam protection). Site key is public.
+# The secret key is stored as a Pages secret (TURNSTILE_SECRET_KEY), never committed.
+PUBLIC_TURNSTILE_SITE_KEY = "0x4AAAAAAEzKpCgc4kC9UW8O"
+TURNSTILE_HOSTNAMES = "www.bratstvousa.com,bratstvousa.com"

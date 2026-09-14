@@ -6,6 +6,7 @@ import { churches, formSubmissions } from '$lib/server/db/schema';
 import { desc, eq } from 'drizzle-orm';
 import { email_template } from './email';
 import { admin_paths } from '$lib/admin/path';
+import { verifyTurnstile, TURNSTILE_ERROR_MESSAGE } from '$lib/server/turnstile';
 
 export const load: PageServerLoad = async ({ locals }) => {
 	const allChurches = await locals.db.select().from(churches).orderBy(desc(churches.state));
@@ -26,9 +27,20 @@ export const load: PageServerLoad = async ({ locals }) => {
 };
 
 export const actions: Actions = {
-	default: async ({ request, locals }) => {
+	default: async ({ request, locals, platform }) => {
 		const db = locals.db;
 		const data = await request.formData();
+
+		const ts = await verifyTurnstile(
+			data.get('cf-turnstile-response') as string | null,
+			platform?.env?.TURNSTILE_SECRET_KEY,
+			request.headers.get('cf-connecting-ip'),
+			'order_form',
+			platform?.env?.TURNSTILE_HOSTNAMES
+		);
+		if (!ts.ok) {
+			return fail(403, { error: TURNSTILE_ERROR_MESSAGE, success: false });
+		}
 
 		const address = (data.get('address') as string | null)?.trim() || '';
 		const phone = (data.get('phone') as string | null)?.trim() || '';
