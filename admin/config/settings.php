@@ -38,7 +38,11 @@ return [
             'type' => Spatie\LaravelSettings\SettingsRepositories\DatabaseSettingsRepository::class,
             'model' => null,
             'table' => null,
-            'connection' => null,
+            // Store settings in the shared Cloudflare D1 `settings` table (the
+            // same one the SvelteKit frontend reads), so admin edits update the
+            // live site. Falls back to the default (plumbing) connection if the
+            // env var is unset.
+            'connection' => env('SETTINGS_CONNECTION', 'd1'),
         ],
         'redis' => [
             'type' => Spatie\LaravelSettings\SettingsRepositories\RedisSettingsRepository::class,
@@ -51,9 +55,14 @@ return [
      * The encoder and decoder will determine how settings are stored and
      * retrieved in the database. By default, `json_encode` and `json_decode`
      * are used.
+     *
+     * We use a RAW (identity) codec because the shared Cloudflare D1 `settings`
+     * table stores payloads as plain strings (the SvelteKit frontend reads them
+     * raw and renders with {@html}). Referenced as [class, method] arrays so
+     * `php artisan config:cache` still works (closures are not cacheable).
      */
-    'encoder' => null,
-    'decoder' => null,
+    'encoder' => [\App\Settings\RawSettingsCodec::class, 'encode'],
+    'decoder' => [\App\Settings\RawSettingsCodec::class, 'decode'],
 
     /*
      * The contents of settings classes can be cached through your application,

@@ -83,7 +83,12 @@ export const settings = sqliteTable('settings', {
 	group: text('group'),
 	name: text('name'),
 	payload: text('payload'),
-	locked: integer('locked', { mode: 'boolean' })
+	locked: integer('locked', { mode: 'boolean' }),
+	// Nullable timestamps: the Laravel Nova admin (spatie/laravel-settings)
+	// reads/writes this same table and expects created_at/updated_at columns.
+	// Kept nullable so ALTER TABLE ADD COLUMN succeeds on existing D1 rows.
+	createdAt: text('created_at'),
+	updatedAt: text('updated_at')
 });
 
 export const medias = sqliteTable('media', {
