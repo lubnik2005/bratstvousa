@@ -53,7 +53,7 @@ function layout(bodyHtml: string): string {
 			${bodyHtml}
 		</div>
 		<p style="text-align:center;color:#a1a1aa;font-size:12px;margin-top:16px;">
-			Bratstvo USA &middot; Зимний молодёжный лагерь СЗР 2026
+			Bratstvo USA &middot; Осенний молодёжный лагерь СЗР 2026
 		</p>
 	</div>
 </body>
@@ -76,7 +76,7 @@ export async function sendRegistrantThankYou(registrant: RegistrantInfo) {
 	const html = layout(`
 		<h1 style="font-size:20px;margin:0 0 16px;">Спасибо за регистрацию, ${name}!</h1>
 		<p style="font-size:15px;line-height:1.6;margin:0 0 16px;">
-			Мы получили вашу заявку на участие в зимнем молодёжном лагере СЗР 2026.
+			Мы получили вашу заявку на участие в осеннем молодёжном лагере СЗР 2026.
 			Ваш ответственный за молодёжь рассмотрит заявку и подтвердит её.
 		</p>
 		<p style="font-size:15px;line-height:1.6;margin:0 0 8px;">Ваш регистрационный код:</p>
@@ -120,7 +120,7 @@ export async function sendLeaderApprovalRequest(req: LeaderApprovalRequest) {
 		<h1 style="font-size:20px;margin:0 0 16px;">Новая заявка на лагерь</h1>
 		<p style="font-size:15px;line-height:1.6;margin:0 0 16px;">
 			Здравствуйте, ${escapeHtml(req.leaderName)}! Поступила новая заявка на участие
-			в зимнем молодёжном лагере СЗР 2026, назначенная на вас.
+			в осеннем молодёжном лагере СЗР 2026, назначенная на вас.
 		</p>
 		<table style="border-collapse:collapse;margin:0 0 24px;">${rows}</table>
 		<a href="${escapeHtml(req.approvalUrl)}"
@@ -148,7 +148,7 @@ export async function sendRegistrantApproved(info: ApprovedInfo) {
 	const html = layout(`
 		<h1 style="font-size:20px;margin:0 0 16px;">Ваша заявка одобрена, ${name}!</h1>
 		<p style="font-size:15px;line-height:1.6;margin:0 0 16px;">
-			Отличные новости — ваша заявка на зимний молодёжный лагерь СЗР 2026
+			Отличные новости — ваша заявка на осенний молодёжный лагерь СЗР 2026
 			была одобрена. Остался последний шаг: завершить регистрацию оплатой.
 		</p>
 		<p style="font-size:15px;line-height:1.6;margin:0 0 8px;">
@@ -185,7 +185,7 @@ export async function sendUnmatchedPayment(info: UnmatchedPaymentInfo) {
 		<h1 style="font-size:20px;margin:0 0 16px;">Не удалось связать ваш платёж с регистрацией</h1>
 		<p style="font-size:15px;line-height:1.6;margin:0 0 16px;">${greeting}</p>
 		<p style="font-size:15px;line-height:1.6;margin:0 0 16px;">
-			Мы получили вашу оплату за Зимний молодёжный лагерь СЗР 2026, но не смогли
+			Мы получили вашу оплату за Осенний молодёжный лагерь СЗР 2026, но не смогли
 			связать её ни с одной регистрацией. Без действующей регистрации участие в
 			лагере невозможно.
 		</p>
@@ -195,5 +195,5 @@ export async function sendUnmatchedPayment(info: UnmatchedPaymentInfo) {
 			помогли разобраться и оформить вашу регистрацию.
 		</p>
 	`);
-	return sendEmail(info.email, 'Проблема с оплатой — Зимний молодёжный лагерь СЗР 2026', html);
+	return sendEmail(info.email, 'Проблема с оплатой — Осенний молодёжный лагерь СЗР 2026', html);
 }

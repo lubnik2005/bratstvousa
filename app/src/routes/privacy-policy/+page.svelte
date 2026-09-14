@@ -55,7 +55,7 @@
 			<p>
 				For event and camp registrations, a dedicated notice applies: your information is never
 				sold, and you may request removal of your data after the event. See the
-				<a href="/youth-ministry/zimnii-molodeznyi-lager-szr-2026/privacy">camp privacy notice</a>.
+				<a href="/youth-ministry/osennii-molodeznyi-lager-szr-2026/privacy">camp privacy notice</a>.
 			</p>
 		</div>
 	</div>

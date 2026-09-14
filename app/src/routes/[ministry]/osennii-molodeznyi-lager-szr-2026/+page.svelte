@@ -2,7 +2,7 @@
 	export let data;
 
 	const heroImage = `${data.media_url}upfiles/page/north-west-youth-camp-2025-200.png`;
-	const registerUrl = '/youth-ministry/zimnii-molodeznyi-lager-szr-2026/registration';
+	const registerUrl = '/youth-ministry/osennii-molodeznyi-lager-szr-2026/registration';
 
 	const facts = [
 		{ label: 'Дата', value: '15–18 октября 2026' },
@@ -25,7 +25,7 @@
 		{
 			day: 'День 3',
 			title: 'Активности и отдых',
-			text: 'Зимние активности на свежем воздухе, свидетельства, костёр и время в малых группах.'
+			text: 'Осенние активности на свежем воздухе, свидетельства, костёр и время в малых группах.'
 		},
 		{
 			day: 'День 4',
@@ -44,10 +44,10 @@
 </script>
 
 <svelte:head>
-	<title>Зимний молодежный лагерь СЗР 2026</title>
+	<title>Осенний молодежный лагерь СЗР 2026</title>
 	<meta
 		name="description"
-		content="Зимний молодежный лагерь Северо-Западного региона — 15–18 октября 2026. Регистрация открыта."
+		content="Осенний молодежный лагерь Северо-Западного региона — 15–18 октября 2026. Регистрация открыта."
 	/>
 </svelte:head>
 
@@ -55,9 +55,9 @@
 	<div class="camp-hero__overlay"></div>
 	<div class="camp-hero__content container">
 		<p class="camp-hero__eyebrow">Северо-Западный регион · 2026</p>
-		<h1 class="camp-hero__title">Зимний молодежный лагерь СЗР</h1>
+		<h1 class="camp-hero__title">Осенний молодежный лагерь СЗР</h1>
 		<p class="camp-hero__lead">
-			Четыре дня общения, Слова Божьего и зимних приключений для молодёжи.
+			Четыре дня общения, Слова Божьего и осенних приключений для молодёжи.
 		</p>
 		<div class="camp-hero__actions">
 			<a class="btn btn-light btn-lg" href={registerUrl}>Зарегистрироваться</a>
@@ -84,22 +84,20 @@
 				<p class="eyebrow">О лагере</p>
 				<h2 class="camp-section-title">Время, отделённое для Господа</h2>
 				<p>
-					Зимний молодежный лагерь Северо-Западного региона — это возможность отойти от
-					повседневной суеты, укрепиться в вере и провести время в кругу единомышленников.
-					Нас ждут вдохновляющие проповеди, живое общение и незабываемые зимние активности.
+					Осенний молодежный лагерь Северо-Западного региона — это возможность отойти от
+					повседневной суеты, укрепиться в вере и провести время в кругу единомышленников. Нас ждут
+					вдохновляющие проповеди, живое общение и незабываемые осенние активности.
 				</p>
-				<p class="text-muted">
-					Места ограничены — рекомендуем зарегистрироваться заранее.
-				</p>
+				<p class="text-muted">Места ограничены — рекомендуем зарегистрироваться заранее.</p>
 			</div>
 			<div class="col-lg-6">
-				<img class="camp-about__img" src={heroImage} alt="Зимний молодежный лагерь" />
+				<img class="camp-about__img" src={heroImage} alt="Осенний молодежный лагерь" />
 			</div>
 		</div>
 
 		<!-- Program -->
 		<div class="camp-program">
-			<div class="text-center mb-5">
+			<div class="mb-5 text-center">
 				<p class="eyebrow">Программа</p>
 				<h2 class="camp-section-title">Что вас ждёт</h2>
 			</div>

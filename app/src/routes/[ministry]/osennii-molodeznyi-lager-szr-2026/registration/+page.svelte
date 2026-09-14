@@ -202,13 +202,13 @@
 </script>
 
 <svelte:head>
-	<title>Регистрация — Зимний молодежный лагерь СЗР</title>
+	<title>Регистрация — Осенний молодежный лагерь СЗР</title>
 </svelte:head>
 
 <section class="reg-hero">
 	<p class="reg-eyebrow">Северо-Западный регион · 2026</p>
 	<h1 class="reg-title">Регистрация на лагерь</h1>
-	<p class="reg-sub">Зимний молодежный лагерь СЗР · 14 октября 2026</p>
+	<p class="reg-sub">Осенний молодежный лагерь СЗР · 14 октября 2026</p>
 </section>
 
 <div class="container-xxl py-6">
@@ -451,7 +451,7 @@
 					</button>
 					<p class="reg-privacy">
 						Отправляя форму, вы соглашаетесь с
-						<a href="/youth-ministry/zimnii-molodeznyi-lager-szr-2026/privacy"
+						<a href="/youth-ministry/osennii-molodeznyi-lager-szr-2026/privacy"
 							>политикой конфиденциальности лагеря</a
 						>. Ваши данные никогда не будут проданы.
 					</p>
@@ -554,7 +554,7 @@
 					></button>
 				</div>
 				<div class="modal-body">
-					<p class="text-muted">Зимний молодежный лагерь СЗР • <strong>14 октября 2026</strong></p>
+					<p class="text-muted">Осенний молодежный лагерь СЗР • <strong>14 октября 2026</strong></p>
 
 					<article>
 						<h2 class="h5 mb-3">Общие положения</h2>

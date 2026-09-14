@@ -212,7 +212,7 @@ class ZeffySyncPayments extends Command
         try {
             $greeting = $firstName ? 'Здравствуйте, '.$firstName.'!' : 'Здравствуйте!';
             $html = '<p>'.$greeting.'</p>'
-                .'<p>Мы получили вашу оплату за Зимний молодёжный лагерь СЗР 2026, '
+                .'<p>Мы получили вашу оплату за Осенний молодёжный лагерь СЗР 2026, '
                 .'но не смогли связать её с регистрацией.</p>'
                 .'<p>Без регистрации участие в лагере невозможно. Пожалуйста, свяжитесь '
                 .'с Вадимом Нейманом, написав на <a href="mailto:youth@bratstvousa.com">youth@bratstvousa.com</a>, '
@@ -220,7 +220,7 @@ class ZeffySyncPayments extends Command
                 .'<p>С благословением,<br>Команда Bratstvo USA</p>';
 
             Mail::html($html, function ($message) use ($email) {
-                $message->to($email)->subject('Проблема с оплатой — Зимний молодёжный лагерь СЗР 2026');
+                $message->to($email)->subject('Проблема с оплатой — Осенний молодёжный лагерь СЗР 2026');
             });
         } catch (\Throwable $e) {
             Log::error('zeffy:sync unmatched email failed', ['email' => $email, 'error' => $e->getMessage()]);
