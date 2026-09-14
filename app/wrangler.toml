@@ -21,3 +21,5 @@ MEDIA_URL = "https://media.bratstvousa.com/"
 # The secret key is stored as a Pages secret (TURNSTILE_SECRET_KEY), never committed.
 PUBLIC_TURNSTILE_SITE_KEY = "0x4AAAAAAEzKpCgc4kC9UW8O"
 TURNSTILE_HOSTNAMES = "www.bratstvousa.com,bratstvousa.com"
+# Zeffy ticketing link sent to approved camp registrants (public URL).
+ZEFFY_URL = "https://www.zeffy.com/en-US/ticketing/pnw-youth-camp--2026"

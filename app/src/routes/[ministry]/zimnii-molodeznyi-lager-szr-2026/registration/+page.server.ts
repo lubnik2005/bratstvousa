@@ -1,5 +1,5 @@
 import { fail } from '@sveltejs/kit';
-import { eq, desc } from 'drizzle-orm';
+import { eq, desc, and, sql } from 'drizzle-orm';
 import { campRegistrations, youthLeaders, churches } from '$lib/server/db/schema';
 import {
 	generateConfirmationCode,
@@ -123,6 +123,29 @@ export const actions: Actions = {
 
 		if (Object.keys(errors).length) {
 			return fail(400, { form: { errors, fields } });
+		}
+
+		// One registration per event per email. Compare case-insensitively
+		// (lowercase + trim). A previously rejected registration is allowed to
+		// re-register, so only pending_payment/awaiting_approval/approved block.
+		const normalizedEmail = fields.email.trim().toLowerCase();
+		try {
+			const existing = await db
+				.select({ status: campRegistrations.status })
+				.from(campRegistrations)
+				.where(
+					and(
+						eq(campRegistrations.eventSlug, EVENT_SLUG),
+						sql`lower(${campRegistrations.email}) = ${normalizedEmail}`
+					)
+				);
+			const hasActive = existing.some((r) => r.status !== 'rejected');
+			if (hasActive) {
+				errors.email = 'На этот адрес уже зарегистрирован участник на это мероприятие.';
+				return fail(400, { form: { errors, fields } });
+			}
+		} catch (err) {
+			console.error('camp dedup check failed:', err);
 		}
 
 		// Generate the confirmation code + approval token at submission time.
