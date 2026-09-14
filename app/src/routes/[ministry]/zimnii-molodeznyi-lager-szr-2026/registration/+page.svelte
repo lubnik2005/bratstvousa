@@ -107,6 +107,18 @@
 		showRulesModal = false;
 	}
 
+	function confirmConsentAlreadyFilled() {
+		didSubmitConsent = true;
+		try {
+			localStorage.setItem(CONSENT_SUBMITTED_KEY, '1');
+		} catch {
+			/* localStorage unavailable — non-fatal */
+		}
+		const chk = document.getElementById('consent_form') as HTMLInputElement | null;
+		if (chk) chk.checked = true;
+		showConsentModal = false;
+	}
+
 	function onKeydownModal(e: KeyboardEvent) {
 		if (e.key === 'Escape') {
 			showConsentModal = false;
@@ -490,6 +502,18 @@
 						Если форма не отображается, можно открыть её
 						<a href={CONSENT_URL} target="_blank" rel="noopener">по ссылке</a>.
 					</div>
+				</div>
+				<div class="modal-footer">
+					<button
+						type="button"
+						class="btn btn-outline-secondary"
+						on:click={confirmConsentAlreadyFilled}
+					>
+						Я уже заполнил(а) форму
+					</button>
+					<button type="button" class="btn btn-light" on:click={() => (showConsentModal = false)}>
+						Закрыть
+					</button>
 				</div>
 			</div>
 		</div>
