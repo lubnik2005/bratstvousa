@@ -208,7 +208,7 @@
 <section class="reg-hero">
 	<p class="reg-eyebrow">Северо-Западный регион · 2026</p>
 	<h1 class="reg-title">Регистрация на лагерь</h1>
-	<p class="reg-sub">Осенний молодежный лагерь СЗР · 14 октября 2026</p>
+	<p class="reg-sub">Осенний молодежный лагерь СЗР · 15–18 октября 2026</p>
 </section>
 
 <div class="container-xxl py-6">
@@ -554,7 +554,9 @@
 					></button>
 				</div>
 				<div class="modal-body">
-					<p class="text-muted">Осенний молодежный лагерь СЗР • <strong>14 октября 2026</strong></p>
+					<p class="text-muted">
+						Осенний молодежный лагерь СЗР • <strong>15–18 октября 2026</strong>
+					</p>
 
 					<article>
 						<h2 class="h5 mb-3">Общие положения</h2>
