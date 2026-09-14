@@ -35,12 +35,15 @@ class CampRegistration extends Model implements Auditable
         'approval_token',
         'approved_by',
         'approved_at',
+        'zeffy_payment_id',
+        'paid_at',
     ];
 
     protected $casts = [
         'leader_id' => 'integer',
         'amount' => 'integer',
         'approved_at' => 'datetime',
+        'paid_at' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];

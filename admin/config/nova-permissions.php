@@ -486,5 +486,28 @@ return [
             'group' => 'Camp Registrations',
         ],
         // Camp Registrations End
+
+        // Zeffy Payments Start
+        'view zeffy_payments' => [
+            'display_name' => 'View zeffy payments',
+            'description' => 'Can view zeffy payments',
+            'group' => 'Zeffy Payments',
+        ],
+        'create zeffy_payments' => [
+            'display_name' => 'Create zeffy payments',
+            'description' => 'Can create zeffy payments',
+            'group' => 'Zeffy Payments',
+        ],
+        'edit zeffy_payments' => [
+            'display_name' => 'Edit zeffy payments',
+            'description' => 'Can edit zeffy payments',
+            'group' => 'Zeffy Payments',
+        ],
+        'delete zeffy_payments' => [
+            'display_name' => 'Delete zeffy payments',
+            'description' => 'Can delete zeffy payments',
+            'group' => 'Zeffy Payments',
+        ],
+        // Zeffy Payments End
     ],
 ];

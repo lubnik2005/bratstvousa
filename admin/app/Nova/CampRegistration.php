@@ -162,6 +162,14 @@ class CampRegistration extends Resource
             DateTime::make('Approved At', 'approved_at')
                 ->onlyOnDetail(),
 
+            Text::make('Zeffy Payment', 'zeffy_payment_id')
+                ->onlyOnDetail()
+                ->help('Zeffy payment id linked to this registration (set when payment is reconciled).'),
+
+            DateTime::make('Paid At', 'paid_at')
+                ->exceptOnForms()
+                ->help('When the Zeffy payment was reconciled.'),
+
             DateTime::make('Registered', 'created_at')
                 ->sortable()
                 ->exceptOnForms(),
