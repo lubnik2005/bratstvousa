@@ -237,6 +237,10 @@ export const campRegistrations = sqliteTable('camp_registrations', {
 	approvalToken: text('approval_token'),
 	approvedBy: text('approved_by'),
 	approvedAt: text('approved_at'),
+	// Zeffy payment reconciliation. zeffyPaymentId links the paid Zeffy payment
+	// (idempotency); paidAt is when payment_status flipped to 'paid'.
+	zeffyPaymentId: text('zeffy_payment_id'),
+	paidAt: text('paid_at'),
 	createdAt: text('created_at')
 		.default(sql`(datetime('now'))`)
 		.notNull(),
@@ -246,3 +250,42 @@ export const campRegistrations = sqliteTable('camp_registrations', {
 });
 
 export type CampRegistration = typeof campRegistrations.$inferSelect;
+
+// All Zeffy payments seen (via webhook or the hourly API reconciliation job),
+// keyed by zeffyPaymentId for idempotency across both paths.
+// matchStatus: matched | unmatched | refunded.
+export const zeffyPayments = sqliteTable('zeffy_payments', {
+	id: integer('id').primaryKey({ autoIncrement: true }),
+	zeffyPaymentId: text('zeffy_payment_id').notNull().unique(),
+	status: text('status'),
+	amount: integer('amount'),
+	currency: text('currency'),
+	buyerEmail: text('buyer_email'),
+	buyerFirstName: text('buyer_first_name'),
+	buyerLastName: text('buyer_last_name'),
+	confirmationCode: text('confirmation_code'),
+	matchedRegistrationId: integer('matched_registration_id'),
+	matchStatus: text('match_status').default('unmatched').notNull(),
+	rawJson: text('raw_json'),
+	createdAt: text('created_at')
+		.default(sql`(datetime('now'))`)
+		.notNull(),
+	updatedAt: text('updated_at')
+		.default(sql`(datetime('now'))`)
+		.notNull()
+});
+
+export type ZeffyPayment = typeof zeffyPayments.$inferSelect;
+
+// Webhook idempotency log: one row per Zeffy event id (stable across retries).
+export const zeffyEvents = sqliteTable('zeffy_events', {
+	id: integer('id').primaryKey({ autoIncrement: true }),
+	eventId: text('event_id').notNull().unique(),
+	type: text('type'),
+	receivedAt: text('received_at')
+		.default(sql`(datetime('now'))`)
+		.notNull(),
+	processed: integer('processed', { mode: 'boolean' }).default(false).notNull()
+});
+
+export type ZeffyEvent = typeof zeffyEvents.$inferSelect;

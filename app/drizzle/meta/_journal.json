@@ -29,6 +29,13 @@
       "when": 1789343251141,
       "tag": "0003_zippy_talkback",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1789365343991,
+      "tag": "0004_lonely_katie_power",
+      "breakpoints": true
     }
   ]
 }

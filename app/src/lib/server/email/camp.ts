@@ -166,3 +166,34 @@ export async function sendRegistrantApproved(info: ApprovedInfo) {
 	`);
 	return sendEmail(r.email, 'Заявка одобрена — завершите регистрацию', html);
 }
+
+export interface UnmatchedPaymentInfo {
+	email: string;
+	firstName?: string | null;
+}
+
+/**
+ * Sent when a Zeffy payment cannot be linked to any camp registration.
+ * The payer WAS charged, so this is not a "payment failed" message — it tells
+ * them we couldn't link the payment and that they must have a registration to
+ * attend, directing them to contact Vadim Neyman.
+ */
+export async function sendUnmatchedPayment(info: UnmatchedPaymentInfo) {
+	const name = escapeHtml(info.firstName || '').trim();
+	const greeting = name ? `Здравствуйте, ${name}!` : 'Здравствуйте!';
+	const html = layout(`
+		<h1 style="font-size:20px;margin:0 0 16px;">Не удалось связать ваш платёж с регистрацией</h1>
+		<p style="font-size:15px;line-height:1.6;margin:0 0 16px;">${greeting}</p>
+		<p style="font-size:15px;line-height:1.6;margin:0 0 16px;">
+			Мы получили вашу оплату за Зимний молодёжный лагерь СЗР 2026, но не смогли
+			связать её ни с одной регистрацией. Без действующей регистрации участие в
+			лагере невозможно.
+		</p>
+		<p style="font-size:15px;line-height:1.6;margin:0 0 16px;">
+			Пожалуйста, свяжитесь с Вадимом Нейманом, написав на
+			<a href="mailto:youth@bratstvousa.com">youth@bratstvousa.com</a>, чтобы мы
+			помогли разобраться и оформить вашу регистрацию.
+		</p>
+	`);
+	return sendEmail(info.email, 'Проблема с оплатой — Зимний молодёжный лагерь СЗР 2026', html);
+}
