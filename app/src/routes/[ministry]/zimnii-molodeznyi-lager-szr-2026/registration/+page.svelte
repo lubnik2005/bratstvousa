@@ -32,8 +32,17 @@
 		null;
 
 	onMount(() => {
-		didSubmitConsent = localStorage.getItem(CONSENT_SUBMITTED_KEY) === '1';
-		didAckRules = localStorage.getItem(RULES_ACK_KEY) === '1';
+		// Each visit must start fresh: a page refresh should NOT keep the consent
+		// and rules checkboxes selected. Clear any previously persisted flags so
+		// the user re-confirms consent + rules on every load.
+		didSubmitConsent = false;
+		didAckRules = false;
+		try {
+			localStorage.removeItem(CONSENT_SUBMITTED_KEY);
+			localStorage.removeItem(RULES_ACK_KEY);
+		} catch {
+			// ignore storage errors (e.g. privacy mode)
+		}
 	});
 
 	function loadCognitoScript(): Promise<void> {
