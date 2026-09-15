@@ -13,3 +13,6 @@ Schedule::command('zeffy:sync')->hourly()->withoutOverlapping();
 
 // Retry emails logged as failed (Resend free-tier safety net).
 Schedule::command('emails:retry')->hourly()->withoutOverlapping();
+
+// Release expired Camp Paradise bed holds hourly.
+Schedule::command('paradise:release-holds')->hourly()->withoutOverlapping();

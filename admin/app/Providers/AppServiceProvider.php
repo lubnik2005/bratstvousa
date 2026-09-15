@@ -49,7 +49,7 @@ class AppServiceProvider extends ServiceProvider
         // purge any already-built "d1" connection so it is rebuilt with our
         // subclass on next use.
         $db = $this->app->make('db');
-        $db->extend('d1', function ($config, $name) {
+        $d1Resolver = function ($config, $name) {
             $config['name'] = $name;
 
             return new \App\Database\D1Connection(
@@ -61,7 +61,13 @@ class AppServiceProvider extends ServiceProvider
                 ),
                 $config,
             );
-        });
+        };
+        $db->extend('d1', $d1Resolver);
         $db->purge('d1');
+
+        // The Camp Paradise app has its own D1 database on a second connection.
+        // Same subclass (cursor() + transaction neutralization) applies.
+        $db->extend('d1_paradise', $d1Resolver);
+        $db->purge('d1_paradise');
     }
 }

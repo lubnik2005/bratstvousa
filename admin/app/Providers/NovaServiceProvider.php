@@ -2,11 +2,11 @@
 
 namespace App\Providers;
 
+use Dniccum\NovaDocumentation\NovaDocumentation;
+use Ferdiunal\NovaSettings\NovaSettings;
 use Illuminate\Support\Facades\Gate;
 use Laravel\Nova\Nova;
 use Laravel\Nova\NovaApplicationServiceProvider;
-use Dniccum\NovaDocumentation\NovaDocumentation;
-use Ferdiunal\NovaSettings\NovaSettings;
 
 class NovaServiceProvider extends NovaApplicationServiceProvider
 {
@@ -18,6 +18,18 @@ class NovaServiceProvider extends NovaApplicationServiceProvider
     public function boot()
     {
         parent::boot();
+
+        // Nova's default auto-discovery only scans the top level of app/Nova,
+        // not subdirectories. Explicitly register the Camp Paradise resources
+        // that live under app/Nova/Paradise.
+        Nova::resources([
+            \App\Nova\Paradise\Event::class,
+            \App\Nova\Paradise\Room::class,
+            \App\Nova\Paradise\Cot::class,
+            \App\Nova\Paradise\Reservation::class,
+            \App\Nova\Paradise\Form::class,
+            \App\Nova\Paradise\FormAnswer::class,
+        ]);
     }
 
     /**

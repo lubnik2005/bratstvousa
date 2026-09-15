@@ -532,5 +532,108 @@ return [
             'group' => 'Email Log',
         ],
         // Email Log End
+
+        // Camp Paradise Start
+        'view paradise_events' => [
+            'display_name' => 'View paradise events',
+            'description' => 'Can view paradise events',
+            'group' => 'Camp Paradise',
+        ],
+        'create paradise_events' => [
+            'display_name' => 'Create paradise events',
+            'description' => 'Can create paradise events',
+            'group' => 'Camp Paradise',
+        ],
+        'edit paradise_events' => [
+            'display_name' => 'Edit paradise events',
+            'description' => 'Can edit paradise events',
+            'group' => 'Camp Paradise',
+        ],
+        'delete paradise_events' => [
+            'display_name' => 'Delete paradise events',
+            'description' => 'Can delete paradise events',
+            'group' => 'Camp Paradise',
+        ],
+        'view paradise_rooms' => [
+            'display_name' => 'View paradise rooms',
+            'description' => 'Can view paradise rooms',
+            'group' => 'Camp Paradise',
+        ],
+        'create paradise_rooms' => [
+            'display_name' => 'Create paradise rooms',
+            'description' => 'Can create paradise rooms',
+            'group' => 'Camp Paradise',
+        ],
+        'edit paradise_rooms' => [
+            'display_name' => 'Edit paradise rooms',
+            'description' => 'Can edit paradise rooms',
+            'group' => 'Camp Paradise',
+        ],
+        'delete paradise_rooms' => [
+            'display_name' => 'Delete paradise rooms',
+            'description' => 'Can delete paradise rooms',
+            'group' => 'Camp Paradise',
+        ],
+        'view paradise_cots' => [
+            'display_name' => 'View paradise beds',
+            'description' => 'Can view paradise beds',
+            'group' => 'Camp Paradise',
+        ],
+        'create paradise_cots' => [
+            'display_name' => 'Create paradise beds',
+            'description' => 'Can create paradise beds',
+            'group' => 'Camp Paradise',
+        ],
+        'edit paradise_cots' => [
+            'display_name' => 'Edit paradise beds',
+            'description' => 'Can edit paradise beds',
+            'group' => 'Camp Paradise',
+        ],
+        'delete paradise_cots' => [
+            'display_name' => 'Delete paradise beds',
+            'description' => 'Can delete paradise beds',
+            'group' => 'Camp Paradise',
+        ],
+        'view paradise_reservations' => [
+            'display_name' => 'View paradise reservations',
+            'description' => 'Can view paradise reservations',
+            'group' => 'Camp Paradise',
+        ],
+        'create paradise_reservations' => [
+            'display_name' => 'Create paradise reservations',
+            'description' => 'Can create paradise reservations',
+            'group' => 'Camp Paradise',
+        ],
+        'edit paradise_reservations' => [
+            'display_name' => 'Edit paradise reservations',
+            'description' => 'Can edit paradise reservations',
+            'group' => 'Camp Paradise',
+        ],
+        'delete paradise_reservations' => [
+            'display_name' => 'Delete paradise reservations',
+            'description' => 'Can delete paradise reservations',
+            'group' => 'Camp Paradise',
+        ],
+        'view paradise_forms' => [
+            'display_name' => 'View paradise forms',
+            'description' => 'Can view paradise forms',
+            'group' => 'Camp Paradise',
+        ],
+        'create paradise_forms' => [
+            'display_name' => 'Create paradise forms',
+            'description' => 'Can create paradise forms',
+            'group' => 'Camp Paradise',
+        ],
+        'edit paradise_forms' => [
+            'display_name' => 'Edit paradise forms',
+            'description' => 'Can edit paradise forms',
+            'group' => 'Camp Paradise',
+        ],
+        'delete paradise_forms' => [
+            'display_name' => 'Delete paradise forms',
+            'description' => 'Can delete paradise forms',
+            'group' => 'Camp Paradise',
+        ],
+        // Camp Paradise End
     ],
 ];

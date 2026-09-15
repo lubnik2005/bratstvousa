@@ -42,6 +42,20 @@ return [
             ],
         ],
 
+        // Separate Cloudflare D1 database for the Camp Paradise app. Its own
+        // database id; token/account default to the shared Cloudflare account
+        // credentials unless overridden.
+        'd1_paradise' => [
+            'driver' => 'd1',
+            'prefix' => '',
+            'database' => env('CLOUDFLARE_D1_PARADISE_DATABASE_ID'),
+            'api' => env('CLOUDFLARE_D1_API', 'https://api.cloudflare.com/client/v4'),
+            'auth' => [
+                'token' => env('CLOUDFLARE_D1_PARADISE_TOKEN', env('CLOUDFLARE_TOKEN')),
+                'account_id' => env('CLOUDFLARE_D1_PARADISE_ACCOUNT_ID', env('CLOUDFLARE_ACCOUNT_ID')),
+            ],
+        ],
+
         'sqlite' => [
             'driver' => 'sqlite',
             'url' => env('DB_URL'),
