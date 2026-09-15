@@ -1,0 +1,238 @@
+<script lang="ts">
+	import { onDestroy } from 'svelte';
+	import { enhance } from '$app/forms';
+	import { goto } from '$app/navigation';
+	import Turnstile from '$lib/components/Turnstile.svelte';
+	import type { PageData, ActionData } from './$types';
+
+	export let data: PageData;
+	export let form: ActionData;
+
+	let turnstile: Turnstile;
+	let submitting = false;
+
+	// Payment state (after a successful hold).
+	let paying = false;
+	let payError = '';
+	let secondsLeft = 300;
+	let timer: ReturnType<typeof setInterval> | undefined;
+
+	const dollars = (cents: number) => `$${(cents / 100).toFixed(2)}`;
+
+	$: selectedRoom = data.rooms.find((r) => r.id === data.roomId) ?? null;
+
+	function startCountdown() {
+		secondsLeft = 300;
+		timer = setInterval(() => {
+			secondsLeft -= 1;
+			if (secondsLeft <= 0) clearInterval(timer);
+		}, 1000);
+	}
+
+	// When a hold succeeds, boot Stripe.js and mount the Payment Element.
+	$: if (form?.held && form?.clientSecret && !paying) {
+		paying = true;
+		startCountdown();
+		void mountStripe(form.clientSecret, form.code as string);
+	}
+
+	async function mountStripe(clientSecret: string, code: string) {
+		try {
+			await loadStripeJs();
+			// @ts-expect-error Stripe global from CDN
+			const stripe = Stripe(data.publicStripeKey);
+			const elements = stripe.elements({ clientSecret });
+			const paymentElement = elements.create('payment');
+			paymentElement.mount('#payment-element');
+
+			const payBtn = document.getElementById('pay-btn') as HTMLButtonElement;
+			payBtn.addEventListener('click', async () => {
+				payBtn.disabled = true;
+				payError = '';
+				const { error: err } = await stripe.confirmPayment({
+					elements,
+					redirect: 'if_required'
+				});
+				if (err) {
+					payError = err.message ?? 'Payment failed. Please try again.';
+					payBtn.disabled = false;
+					return;
+				}
+				await goto(`/reservation/${code}`);
+			});
+		} catch (e) {
+			payError = 'Could not load the payment form. Please refresh.';
+			console.error(e);
+		}
+	}
+
+	function loadStripeJs(): Promise<void> {
+		return new Promise((resolve, reject) => {
+			// @ts-expect-error Stripe global
+			if (typeof Stripe !== 'undefined') return resolve();
+			const s = document.createElement('script');
+			s.src = 'https://js.stripe.com/v3';
+			s.onload = () => resolve();
+			s.onerror = () => reject(new Error('stripe.js failed'));
+			document.head.appendChild(s);
+		});
+	}
+
+	$: mm = Math.floor(Math.max(secondsLeft, 0) / 60);
+	$: ss = String(Math.max(secondsLeft, 0) % 60).padStart(2, '0');
+
+	onDestroy(() => timer && clearInterval(timer));
+</script>
+
+<svelte:head>
+	<title>{data.event.name} — Register</title>
+</svelte:head>
+
+<div class="container py-5" style="max-width: 720px;">
+	<a href="/" class="text-decoration-none small">&larr; All camps</a>
+	<h1 class="h3 mt-2 mb-1">{data.event.name}</h1>
+	<p class="text-muted">{data.capacity.available} of {data.capacity.total} beds available</p>
+
+	{#if paying && form?.clientSecret}
+		<!-- STEP 5: payment -->
+		<div class="card border-0 shadow-sm">
+			<div class="card-body">
+				<div class="d-flex justify-content-between align-items-center mb-3">
+					<h2 class="h5 mb-0">Payment</h2>
+					<span class="badge text-bg-warning">Bed held · {mm}:{ss}</span>
+				</div>
+				{#if selectedRoom}
+					<p class="text-muted small">
+						{selectedRoom.name} · {dollars(selectedRoom.price)}
+					</p>
+				{/if}
+				<div id="payment-element" class="mb-3"></div>
+				{#if payError}<div class="alert alert-danger py-2">{payError}</div>{/if}
+				<button id="pay-btn" class="btn btn-primary w-100" disabled={secondsLeft <= 0}>
+					{secondsLeft <= 0 ? 'Hold expired — please start over' : 'Pay now'}
+				</button>
+			</div>
+		</div>
+	{:else if !data.sex}
+		<!-- STEP 1: who is this for -->
+		<h2 class="h5 mt-4">Who is registering?</h2>
+		<div class="d-flex gap-3 mt-3">
+			<a href="?sex=m" class="btn btn-outline-primary flex-fill py-3">Male</a>
+			<a href="?sex=f" class="btn btn-outline-primary flex-fill py-3">Female</a>
+		</div>
+	{:else if !data.roomId}
+		<!-- STEP 2: pick a room -->
+		<h2 class="h5 mt-4">Choose a room</h2>
+		<a href="?" class="small text-decoration-none">&larr; change</a>
+		<div class="list-group mt-2">
+			{#each data.rooms as room (room.id)}
+				<a
+					href={`?sex=${data.sex}&room=${room.id}`}
+					class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+					class:disabled={room.available === 0}
+				>
+					<span>
+						<strong>{room.name}</strong>
+						<small class="text-muted d-block text-capitalize">{room.type}{room.location ? ` · ${room.location}` : ''}</small>
+					</span>
+					<span class="text-end">
+						<span class="d-block">{dollars(room.price)}</span>
+						<small class:text-danger={room.available === 0} class="text-muted">
+							{room.available === 0 ? 'Full' : `${room.available} left`}
+						</small>
+					</span>
+				</a>
+			{:else}
+				<p class="text-muted">No rooms available for this selection.</p>
+			{/each}
+		</div>
+	{:else}
+		<!-- STEP 3+4: pick bed + details -->
+		<h2 class="h5 mt-4">Pick a bed &amp; enter details</h2>
+		<a href={`?sex=${data.sex}`} class="small text-decoration-none">&larr; change room</a>
+
+		<form method="post" action="?/hold" class="mt-3" use:enhance={() => {
+			submitting = true;
+			return async ({ update }) => {
+				await update({ reset: false });
+				submitting = false;
+				turnstile?.reset();
+			};
+		}}>
+			<input type="hidden" name="eventId" value={data.event.id} />
+			<input type="hidden" name="roomId" value={data.roomId} />
+			<input type="hidden" name="sex" value={data.sex} />
+			<!-- honeypot -->
+			<input
+				type="text"
+				name="middle_name"
+				tabindex="-1"
+				autocomplete="off"
+				aria-hidden="true"
+				style="position:absolute;left:-9999px"
+			/>
+
+			<fieldset class="mb-3">
+				<legend class="h6">Bed</legend>
+				{#each data.beds as bed (bed.id)}
+					<div class="form-check">
+						<input
+							class="form-check-input"
+							type="radio"
+							name="cotId"
+							id={`cot-${bed.id}`}
+							value={bed.id}
+							disabled={bed.taken}
+							required
+						/>
+						<label class="form-check-label" for={`cot-${bed.id}`}>
+							{bed.description || `Bed ${bed.id}`}
+							{#if bed.taken}<span class="text-muted">(taken)</span>{/if}
+						</label>
+					</div>
+				{:else}
+					<p class="text-muted">No beds in this room.</p>
+				{/each}
+				{#if form?.errors?.bed}<div class="text-danger small">{form.errors.bed}</div>{/if}
+			</fieldset>
+
+			<div class="row g-2">
+				<div class="col">
+					<label class="form-label" for="firstName">First name</label>
+					<input class="form-control" id="firstName" name="firstName" required
+						value={form?.fields?.firstName ?? ''} />
+					{#if form?.errors?.firstName}<div class="text-danger small">{form.errors.firstName}</div>{/if}
+				</div>
+				<div class="col">
+					<label class="form-label" for="lastName">Last name</label>
+					<input class="form-control" id="lastName" name="lastName" required
+						value={form?.fields?.lastName ?? ''} />
+					{#if form?.errors?.lastName}<div class="text-danger small">{form.errors.lastName}</div>{/if}
+				</div>
+			</div>
+			<div class="mb-3 mt-2">
+				<label class="form-label" for="email">Email</label>
+				<input class="form-control" id="email" name="email" type="email" required
+					value={form?.fields?.email ?? ''} />
+				{#if form?.errors?.email}<div class="text-danger small">{form.errors.email}</div>{/if}
+			</div>
+
+			{#each data.forms as f (f.id)}
+				<div class="form-check mb-2">
+					<input class="form-check-input" type="checkbox" name={`form_${f.id}`} id={`form-${f.id}`} required />
+					<label class="form-check-label" for={`form-${f.id}`}>I agree to the {f.name}.</label>
+					{#if form?.errors?.[`form_${f.id}`]}<div class="text-danger small">{form.errors[`form_${f.id}`]}</div>{/if}
+				</div>
+			{/each}
+
+			<Turnstile bind:this={turnstile} action="paradise_register" />
+
+			{#if form?.message}<div class="alert alert-danger py-2 mt-3">{form.message}</div>{/if}
+
+			<button class="btn btn-primary w-100 mt-3" type="submit" disabled={submitting}>
+				{submitting ? 'Holding your bed…' : 'Hold bed & continue to payment'}
+			</button>
+			<p class="text-muted small mt-2 mb-0">Your bed is held for 5 minutes while you pay.</p>
+		</form>
+	{/if}
+</div>

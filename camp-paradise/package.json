@@ -1,0 +1,43 @@
+{
+	"name": "camp-paradise",
+	"version": "0.0.1",
+	"type": "module",
+	"scripts": {
+		"build": "vite build",
+		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+		"db:generate": "drizzle-kit generate",
+		"db:migrate:local": "wrangler d1 migrations apply camp-paradise-db --local",
+		"db:migrate:prod": "wrangler d1 migrations apply camp-paradise-db --remote",
+		"db:studio": "drizzle-kit studio",
+		"dev": "vite dev",
+		"format": "prettier --write .",
+		"lint": "prettier --check . && eslint .",
+		"preview": "wrangler pages dev"
+	},
+	"devDependencies": {
+		"@sveltejs/adapter-cloudflare": "^7.2.9",
+		"@sveltejs/kit": "^2.12.0",
+		"@sveltejs/vite-plugin-svelte": "^4.0.0",
+		"autoprefixer": "^10.4.20",
+		"drizzle-kit": "^0.22.0",
+		"eslint": "^9.7.0",
+		"eslint-config-prettier": "^9.1.0",
+		"eslint-plugin-svelte": "^2.36.0",
+		"globals": "^15.0.0",
+		"postcss": "^8.4.49",
+		"prettier": "^3.3.2",
+		"prettier-plugin-svelte": "^3.2.6",
+		"svelte": "^5.2.11",
+		"svelte-check": "^4.0.0",
+		"typescript": "^5.0.0",
+		"typescript-eslint": "^8.0.0",
+		"vite": "^5.4.11",
+		"wrangler": "^4.0.0"
+	},
+	"dependencies": {
+		"@sveltestrap/sveltestrap": "^6.2.7",
+		"bootstrap": "^5.3.3",
+		"drizzle-orm": "^0.33.0"
+	}
+}
