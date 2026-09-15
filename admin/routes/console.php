@@ -10,3 +10,6 @@ Artisan::command('inspire', function () {
 
 // Reconcile Zeffy payments hourly (safety net for the SvelteKit webhook).
 Schedule::command('zeffy:sync')->hourly()->withoutOverlapping();
+
+// Retry emails logged as failed (Resend free-tier safety net).
+Schedule::command('emails:retry')->hourly()->withoutOverlapping();

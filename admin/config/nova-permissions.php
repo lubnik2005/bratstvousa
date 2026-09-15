@@ -509,5 +509,28 @@ return [
             'group' => 'Zeffy Payments',
         ],
         // Zeffy Payments End
+
+        // Email Log Start
+        'view email_log' => [
+            'display_name' => 'View email log',
+            'description' => 'Can view email log',
+            'group' => 'Email Log',
+        ],
+        'create email_log' => [
+            'display_name' => 'Create email log',
+            'description' => 'Can create email log',
+            'group' => 'Email Log',
+        ],
+        'edit email_log' => [
+            'display_name' => 'Edit email log',
+            'description' => 'Can edit email log',
+            'group' => 'Email Log',
+        ],
+        'delete email_log' => [
+            'display_name' => 'Delete email log',
+            'description' => 'Can delete email log',
+            'group' => 'Email Log',
+        ],
+        // Email Log End
     ],
 ];
