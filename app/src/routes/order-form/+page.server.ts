@@ -94,7 +94,7 @@ export const actions: Actions = {
 			...content,
 			church_name
 		});
-		await sendEmail(to, subject, html);
+		await sendEmail(db, to, subject, html);
 
 		return { success: true };
 	}

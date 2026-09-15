@@ -289,3 +289,25 @@ export const zeffyEvents = sqliteTable('zeffy_events', {
 });
 
 export type ZeffyEvent = typeof zeffyEvents.$inferSelect;
+
+// Log of every outbound email attempt (from both the SvelteKit app and the
+// Laravel admin). The Laravel hourly scheduler retries rows with status
+// 'failed' (up to a max attempt count) so transient Resend failures / free-tier
+// rate limits don't silently drop mail. status: sent | failed.
+export const emailLog = sqliteTable('email_log', {
+	id: integer('id').primaryKey({ autoIncrement: true }),
+	toEmail: text('to_email').notNull(),
+	subject: text('subject').notNull(),
+	html: text('html').notNull(),
+	status: text('status').default('failed').notNull(),
+	attempts: integer('attempts').default(0).notNull(),
+	lastError: text('last_error'),
+	createdAt: text('created_at')
+		.default(sql`(datetime('now'))`)
+		.notNull(),
+	updatedAt: text('updated_at')
+		.default(sql`(datetime('now'))`)
+		.notNull()
+});
+
+export type EmailLog = typeof emailLog.$inferSelect;

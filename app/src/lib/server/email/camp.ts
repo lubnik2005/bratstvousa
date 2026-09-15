@@ -1,4 +1,5 @@
 import { sendEmail } from '$lib/email';
+import type { AppDatabase } from '$lib/server/db';
 
 /**
  * Camp registration email workflow.
@@ -70,7 +71,7 @@ export interface RegistrantInfo {
 }
 
 /** Email #1a: thank-you to the registrant, sent immediately at submission. */
-export async function sendRegistrantThankYou(registrant: RegistrantInfo) {
+export async function sendRegistrantThankYou(db: AppDatabase, registrant: RegistrantInfo) {
 	const name = escapeHtml(registrant.firstName);
 	const code = escapeHtml(registrant.confirmationCode);
 	const html = layout(`
@@ -87,7 +88,7 @@ export async function sendRegistrantThankYou(registrant: RegistrantInfo) {
 			Сохраните код выше — он понадобится при оплате.
 		</p>
 	`);
-	return sendEmail(registrant.email, 'Регистрация в лагерь получена', html);
+	return sendEmail(db, registrant.email, 'Регистрация в лагерь получена', html);
 }
 
 export interface LeaderApprovalRequest {
@@ -98,7 +99,7 @@ export interface LeaderApprovalRequest {
 }
 
 /** Email #1b: approval request to the assigned youth leader. */
-export async function sendLeaderApprovalRequest(req: LeaderApprovalRequest) {
+export async function sendLeaderApprovalRequest(db: AppDatabase, req: LeaderApprovalRequest) {
 	const r = req.registrant;
 	const rows = [
 		['Имя', `${r.firstName} ${r.lastName}`],
@@ -132,7 +133,7 @@ export async function sendLeaderApprovalRequest(req: LeaderApprovalRequest) {
 			участник получит письмо со ссылкой для оплаты.
 		</p>
 	`);
-	return sendEmail(req.leaderEmail, 'Новая заявка на лагерь — требуется одобрение', html);
+	return sendEmail(db, req.leaderEmail, 'Новая заявка на лагерь — требуется одобрение', html);
 }
 
 export interface ApprovedInfo {
@@ -141,7 +142,7 @@ export interface ApprovedInfo {
 }
 
 /** Email #2: sent to the registrant when the leader approves. */
-export async function sendRegistrantApproved(info: ApprovedInfo) {
+export async function sendRegistrantApproved(db: AppDatabase, info: ApprovedInfo) {
 	const r = info.registrant;
 	const name = escapeHtml(r.firstName);
 	const code = escapeHtml(r.confirmationCode);
@@ -164,7 +165,7 @@ export async function sendRegistrantApproved(info: ApprovedInfo) {
 			могли связать ваш платёж с заявкой.
 		</p>
 	`);
-	return sendEmail(r.email, 'Заявка одобрена — завершите регистрацию', html);
+	return sendEmail(db, r.email, 'Заявка одобрена — завершите регистрацию', html);
 }
 
 export interface UnmatchedPaymentInfo {
@@ -178,7 +179,7 @@ export interface UnmatchedPaymentInfo {
  * them we couldn't link the payment and that they must have a registration to
  * attend, directing them to contact Vadim Neyman.
  */
-export async function sendUnmatchedPayment(info: UnmatchedPaymentInfo) {
+export async function sendUnmatchedPayment(db: AppDatabase, info: UnmatchedPaymentInfo) {
 	const name = escapeHtml(info.firstName || '').trim();
 	const greeting = name ? `Здравствуйте, ${name}!` : 'Здравствуйте!';
 	const html = layout(`
@@ -195,5 +196,5 @@ export async function sendUnmatchedPayment(info: UnmatchedPaymentInfo) {
 			помогли разобраться и оформить вашу регистрацию.
 		</p>
 	`);
-	return sendEmail(info.email, 'Проблема с оплатой — Осенний молодёжный лагерь СЗР 2026', html);
+	return sendEmail(db, info.email, 'Проблема с оплатой — Осенний молодёжный лагерь СЗР 2026', html);
 }

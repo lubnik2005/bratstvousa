@@ -208,7 +208,7 @@ export const actions: Actions = {
 		// Emails are best-effort: a delivery failure must not lose the saved
 		// registration, so failures are logged rather than surfaced.
 		try {
-			await sendRegistrantThankYou(registrant);
+			await sendRegistrantThankYou(db, registrant);
 		} catch (err) {
 			console.error('registrant thank-you email failed:', err);
 		}
@@ -216,7 +216,7 @@ export const actions: Actions = {
 		if (leader?.email) {
 			const approvalUrl = `${url.origin}/camp-approval?token=${approvalToken}`;
 			try {
-				await sendLeaderApprovalRequest({
+				await sendLeaderApprovalRequest(db, {
 					leaderEmail: leader.email,
 					leaderName: leader.name,
 					registrant,

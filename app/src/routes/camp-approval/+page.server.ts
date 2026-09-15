@@ -99,7 +99,7 @@ export const actions: Actions = {
 		if (reg.email && reg.confirmationCode) {
 			const zeffyUrl = env.ZEFFY_URL ?? '#';
 			try {
-				await sendRegistrantApproved({
+				await sendRegistrantApproved(db, {
 					registrant: {
 						firstName: reg.firstName,
 						lastName: reg.lastName,

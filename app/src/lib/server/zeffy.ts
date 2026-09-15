@@ -261,7 +261,7 @@ export async function applyPayment(
 
 	if (!alreadyProcessed && buyerEmail) {
 		try {
-			await sendUnmatchedPayment({
+			await sendUnmatchedPayment(db, {
 				email: buyerEmail,
 				firstName: payment.buyer?.first_name ?? null
 			});

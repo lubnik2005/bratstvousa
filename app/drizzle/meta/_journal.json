@@ -36,6 +36,13 @@
       "when": 1789365343991,
       "tag": "0004_lonely_katie_power",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1789487138760,
+      "tag": "0005_sparkling_harpoon",
+      "breakpoints": true
     }
   ]
 }
