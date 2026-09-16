@@ -13,6 +13,7 @@ import {
 import { generateConfirmationCode } from '$lib/server/email/paradise';
 import { makeStripe } from '$lib/server/paradise/payments';
 import { verifyTurnstile, TURNSTILE_ERROR_MESSAGE } from '$lib/server/turnstile';
+import { readSession, setSession, clearSession } from '$lib/server/paradise/session';
 import {
 	paradiseReservations,
 	paradiseEventRooms,
@@ -23,16 +24,25 @@ import type { Actions, PageServerLoad } from './$types';
 const clean = (v: FormDataEntryValue | null): string => (typeof v === 'string' ? v.trim() : '');
 const isEmail = (v: string): boolean => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 
-export const load: PageServerLoad = async ({ params, url, locals, setHeaders }) => {
+const sessionSecret = (platform: App.Platform | undefined): string =>
+	platform?.env?.SESSION_SECRET ?? 'dev-insecure-session-secret-change-me';
+
+export const load: PageServerLoad = async ({
+	params,
+	url,
+	locals,
+	cookies,
+	platform,
+	setHeaders
+}) => {
 	const db = locals.db;
 	const id = Number(params.event);
 	if (!Number.isInteger(id)) throw error(404, 'Event not found');
 
-	// Edge-cache the camp page briefly so navigation feels instant; short
-	// s-maxage keeps live bed availability from going stale.
-	setHeaders({
-		'cache-control': 'public, max-age=0, s-maxage=30, stale-while-revalidate=120'
-	});
+	// This page varies by the registration cookie (who is registering), so it
+	// must never be shared from the edge cache — otherwise one person's step
+	// could leak to another. The public home page is still cached.
+	setHeaders({ 'cache-control': 'private, no-cache' });
 
 	const event = await getPublishedEvent(db, id);
 	if (!event) throw error(404, 'Event not found');
@@ -45,7 +55,7 @@ export const load: PageServerLoad = async ({ params, url, locals, setHeaders }) 
 			event,
 			registrationState: regState,
 			capacity: { total: 0, taken: 0, available: 0 },
-			sex: null,
+			identity: null,
 			rooms: [],
 			roomId: null,
 			beds: [],
@@ -54,16 +64,20 @@ export const load: PageServerLoad = async ({ params, url, locals, setHeaders }) 
 		};
 	}
 
-	const sexParam = url.searchParams.get('sex');
-	const sex = sexParam === 'm' || sexParam === 'f' ? sexParam : null;
+	// Identity comes ONLY from the signed cookie set at the "start" step — not
+	// from a URL param — so room/bed availability can't be scraped by flipping
+	// ?sex. Without a valid session, no rooms or beds are fetched at all.
+	const identity = await readSession(cookies, sessionSecret(platform), id);
+	const sex = identity?.sex ?? null;
+
 	const roomParam = url.searchParams.get('room');
-	const roomId = roomParam && /^\d+$/.test(roomParam) ? Number(roomParam) : null;
+	const roomId = sex && roomParam && /^\d+$/.test(roomParam) ? Number(roomParam) : null;
 
 	// Run the independent lookups in parallel to cut serial D1 round-trips.
 	const [capacity, rooms, beds, forms] = await Promise.all([
 		eventCapacity(db, id),
 		sex ? roomsForEvent(db, id, sex) : Promise.resolve([]),
-		roomId ? bedsForRoom(db, id, roomId) : Promise.resolve([]),
+		roomId ? bedsForRoom(db, id, roomId, { freeOnly: true }) : Promise.resolve([]),
 		requiredForms(db)
 	]);
 
@@ -71,7 +85,7 @@ export const load: PageServerLoad = async ({ params, url, locals, setHeaders }) 
 		event,
 		registrationState: 'open' as const,
 		capacity,
-		sex,
+		identity,
 		rooms,
 		roomId,
 		beds,
@@ -81,8 +95,12 @@ export const load: PageServerLoad = async ({ params, url, locals, setHeaders }) 
 };
 
 export const actions: Actions = {
-	hold: async ({ request, locals, platform }) => {
+	// Step 1: capture the camper identity (name/email/sex) behind a Turnstile
+	// check and store it in a signed cookie. No DB write happens here — this
+	// just unlocks the room/bed views for this browser session.
+	start: async ({ request, locals, params, cookies, platform }) => {
 		const db = locals.db;
+		const id = Number(params.event);
 		const fd = await request.formData();
 
 		const ts = await verifyTurnstile(
@@ -94,17 +112,13 @@ export const actions: Actions = {
 		);
 		if (!ts.ok) return fail(403, { message: TURNSTILE_ERROR_MESSAGE });
 
-		// Honeypot: silently accept without writing.
-		if (clean(fd.get('middle_name'))) return { held: true, code: 'PARADISE-XXXXX' };
+		// Honeypot: pretend success without setting a session.
+		if (clean(fd.get('middle_name'))) return { started: true };
 
-		const eventId = Number(fd.get('eventId'));
-		const roomId = Number(fd.get('roomId'));
-		const cotId = Number(fd.get('cotId'));
-
-		// Reject holds on camps whose registration window is not open.
-		const heldEvent = Number.isInteger(eventId) ? await getPublishedEvent(db, eventId) : null;
-		if (!heldEvent || registrationState(heldEvent) !== 'open')
+		const event = Number.isInteger(id) ? await getPublishedEvent(db, id) : null;
+		if (!event || registrationState(event) !== 'open')
 			return fail(400, { message: 'Registration is closed for this camp.' });
+
 		const firstName = clean(fd.get('firstName'));
 		const lastName = clean(fd.get('lastName'));
 		const email = clean(fd.get('email'));
@@ -116,6 +130,51 @@ export const actions: Actions = {
 		if (!lastName) errors.lastName = 'Last name is required.';
 		if (!isEmail(email)) errors.email = 'A valid email is required.';
 		if (sex !== 'm' && sex !== 'f') errors.sex = 'Please choose who this is for.';
+		if (Object.keys(errors).length) return fail(400, { errors, fields });
+
+		await setSession(
+			cookies,
+			{ eventId: id, firstName, lastName, email, sex: sex as 'm' | 'f' },
+			sessionSecret(platform)
+		);
+		return { started: true };
+	},
+
+	// "Start over": drop the identity cookie and return to step 1.
+	reset: async ({ cookies }) => {
+		clearSession(cookies);
+		return { reset: true };
+	},
+
+	hold: async ({ request, locals, params, cookies, platform }) => {
+		const db = locals.db;
+		const id = Number(params.event);
+		const fd = await request.formData();
+
+		// Identity must come from the signed session established at step 1 —
+		// it is never taken from posted form fields.
+		const identity = await readSession(cookies, sessionSecret(platform), id);
+		if (!identity)
+			return fail(400, {
+				message: 'Your registration session expired. Please start again.',
+				expired: true
+			});
+
+		// Honeypot: silently accept without writing.
+		if (clean(fd.get('middle_name'))) return { held: true, code: 'PARADISE-XXXXX' };
+
+		const eventId = id;
+		const roomId = Number(fd.get('roomId'));
+		const cotId = Number(fd.get('cotId'));
+
+		// Reject holds on camps whose registration window is not open.
+		const heldEvent = Number.isInteger(eventId) ? await getPublishedEvent(db, eventId) : null;
+		if (!heldEvent || registrationState(heldEvent) !== 'open')
+			return fail(400, { message: 'Registration is closed for this camp.' });
+
+		const { firstName, lastName, email, sex } = identity;
+
+		const errors: Record<string, string> = {};
 		if (!Number.isInteger(roomId) || !Number.isInteger(cotId)) errors.bed = 'Please select a bed.';
 
 		const forms = await requiredForms(db);
@@ -123,10 +182,10 @@ export const actions: Actions = {
 			if (!fd.get(`form_${form.id}`)) errors[`form_${form.id}`] = `Please agree to ${form.name}.`;
 		}
 
-		if (Object.keys(errors).length) return fail(400, { errors, fields });
+		if (Object.keys(errors).length) return fail(400, { errors });
 
 		if (!(await isBedFree(db, eventId, cotId)))
-			return fail(400, { message: 'That bed was just taken. Please pick another.', fields });
+			return fail(400, { message: 'That bed was just taken. Please pick another.' });
 
 		// Per-event room price (cents).
 		const priceRows = await db
@@ -182,7 +241,7 @@ export const actions: Actions = {
 			platform?.env?.STRIPE_SECRET_KEY,
 			platform?.env?.STRIPE_WEBHOOK_SECRET
 		);
-		if (!stripe) return fail(500, { message: 'Payments are not configured yet.', fields });
+		if (!stripe) return fail(500, { message: 'Payments are not configured yet.' });
 
 		const intent = await stripe.createPaymentIntent(price, {
 			reservationId,

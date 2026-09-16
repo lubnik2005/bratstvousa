@@ -14,6 +14,7 @@ declare global {
 				STRIPE_SECRET_KEY?: string;
 				STRIPE_WEBHOOK_SECRET?: string;
 				PUBLIC_STRIPE_KEY?: string;
+				SESSION_SECRET?: string;
 			};
 		}
 	}

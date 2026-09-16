@@ -8,8 +8,9 @@
 	export let data: PageData;
 	export let form: ActionData;
 
-	let turnstile: Turnstile;
+	let startTurnstile: Turnstile;
 	let submitting = false;
+	let starting = false;
 
 	// Payment state (after a successful hold).
 	let paying = false;
@@ -19,6 +20,7 @@
 
 	const dollars = (cents: number) => `$${(cents / 100).toFixed(2)}`;
 
+	$: identity = data.identity;
 	$: selectedRoom = data.rooms.find((r) => r.id === data.roomId) ?? null;
 
 	type FormQuestion = {
@@ -140,17 +142,30 @@
 			</a>
 		</div>
 	{:else}
-		<p class="text-muted mb-3">
-			<i class="bi bi-people me-1"></i>{data.capacity.available} of {data.capacity.total} beds available
-		</p>
-
 		<!-- step indicator -->
 		<div class="cp-steps mb-4">
-			<span class="cp-step" class:is-muted={data.sex}>1 · Camper</span>
-			<span class="cp-step" class:is-muted={!data.sex || data.roomId}>2 · Room</span>
-			<span class="cp-step" class:is-muted={!data.roomId || paying}>3 · Details</span>
+			<span class="cp-step" class:is-muted={identity}>1 · Details</span>
+			<span class="cp-step" class:is-muted={!identity || data.roomId}>2 · Room</span>
+			<span class="cp-step" class:is-muted={!data.roomId || paying}>3 · Bed</span>
 			<span class="cp-step" class:is-muted={!paying}>4 · Payment</span>
 		</div>
+
+		{#if identity && !paying}
+			<!-- Who is registering, with a way to start over. Availability is only
+			     ever shown to a named camper — never to anonymous URL visitors. -->
+			<div class="d-flex justify-content-between align-items-center mb-3 small">
+				<span class="text-muted">
+					<i class="bi bi-person-check me-1 text-success"></i>
+					Registering <strong>{identity.firstName} {identity.lastName}</strong>
+					· {identity.email}
+				</span>
+				<form method="post" action="?/reset" use:enhance class="m-0">
+					<button type="submit" class="btn btn-link btn-sm p-0 text-decoration-none">
+						Start over
+					</button>
+				</form>
+			</div>
+		{/if}
 
 		{#if paying && form?.clientSecret}
 			<!-- STEP 4: payment -->
@@ -172,74 +187,25 @@
 					{secondsLeft <= 0 ? 'Hold expired — please start over' : 'Pay now'}
 				</button>
 			</div>
-		{:else if !data.sex}
-			<!-- STEP 1: who is this for -->
+		{:else if !identity}
+			<!-- STEP 1: your details (required before any availability is shown) -->
 			<div class="cp-card p-4">
-				<h2 class="h5 mb-3">Who is registering?</h2>
-				<div class="d-flex gap-3">
-					<a href="?sex=m" class="btn btn-outline-primary flex-fill py-3 rounded-pill">
-						<i class="bi bi-gender-male me-1"></i>Male
-					</a>
-					<a href="?sex=f" class="btn btn-outline-primary flex-fill py-3 rounded-pill">
-						<i class="bi bi-gender-female me-1"></i>Female
-					</a>
-				</div>
-			</div>
-		{:else if !data.roomId}
-			<!-- STEP 2: pick a room -->
-			<div class="cp-card p-4">
-				<div class="d-flex justify-content-between align-items-center mb-3">
-					<h2 class="h5 mb-0">Choose a room</h2>
-					<a href="?" class="small text-decoration-none">&larr; change</a>
-				</div>
-				<div class="list-group list-group-flush">
-					{#each data.rooms as room (room.id)}
-						<a
-							href={`?sex=${data.sex}&room=${room.id}`}
-							class="list-group-item list-group-item-action d-flex justify-content-between align-items-center px-0"
-							class:disabled={room.available === 0}
-						>
-							<span>
-								<strong>{room.name}</strong>
-								<small class="text-muted d-block text-capitalize"
-									>{room.type}{room.location ? ` · ${room.location}` : ''}</small
-								>
-							</span>
-							<span class="text-end">
-								<span class="d-block fw-semibold">{dollars(room.price)}</span>
-								<small class:text-danger={room.available === 0} class="text-muted">
-									{room.available === 0 ? 'Full' : `${room.available} left`}
-								</small>
-							</span>
-						</a>
-					{:else}
-						<p class="text-muted mb-0">No rooms available for this selection.</p>
-					{/each}
-				</div>
-			</div>
-		{:else}
-			<!-- STEP 3: pick bed + details -->
-			<div class="cp-card p-4">
-				<div class="d-flex justify-content-between align-items-center mb-3">
-					<h2 class="h5 mb-0">Pick a bed &amp; enter details</h2>
-					<a href={`?sex=${data.sex}`} class="small text-decoration-none">&larr; change room</a>
-				</div>
-
+				<h2 class="h5 mb-1">Your details</h2>
+				<p class="text-muted small mb-3">
+					Tell us who's coming. We'll then show the rooms available for the camper.
+				</p>
 				<form
 					method="post"
-					action="?/hold"
+					action="?/start"
 					use:enhance={() => {
-						submitting = true;
+						starting = true;
 						return async ({ update }) => {
 							await update({ reset: false });
-							submitting = false;
-							turnstile?.reset();
+							starting = false;
+							startTurnstile?.reset();
 						};
 					}}
 				>
-					<input type="hidden" name="eventId" value={data.event.id} />
-					<input type="hidden" name="roomId" value={data.roomId} />
-					<input type="hidden" name="sex" value={data.sex} />
 					<!-- honeypot -->
 					<input
 						type="text"
@@ -249,30 +215,6 @@
 						aria-hidden="true"
 						style="position:absolute;left:-9999px"
 					/>
-
-					<fieldset class="mb-3">
-						<legend class="h6">Bed</legend>
-						{#each data.beds as bed (bed.id)}
-							<div class="form-check">
-								<input
-									class="form-check-input"
-									type="radio"
-									name="cotId"
-									id={`cot-${bed.id}`}
-									value={bed.id}
-									disabled={bed.taken}
-									required
-								/>
-								<label class="form-check-label" for={`cot-${bed.id}`}>
-									{bed.description || `Bed ${bed.id}`}
-									{#if bed.taken}<span class="text-muted">(taken)</span>{/if}
-								</label>
-							</div>
-						{:else}
-							<p class="text-muted">No beds in this room.</p>
-						{/each}
-						{#if form?.errors?.bed}<div class="text-danger small">{form.errors.bed}</div>{/if}
-					</fieldset>
 
 					<div class="row g-2">
 						<div class="col">
@@ -302,6 +244,7 @@
 								</div>{/if}
 						</div>
 					</div>
+
 					<div class="mb-3 mt-2">
 						<label class="form-label" for="email">Email</label>
 						<input
@@ -314,6 +257,137 @@
 						/>
 						{#if form?.errors?.email}<div class="text-danger small">{form.errors.email}</div>{/if}
 					</div>
+
+					<fieldset class="mb-3">
+						<legend class="form-label mb-2">Who is this for?</legend>
+						<div class="d-flex gap-3">
+							<div class="form-check">
+								<input
+									class="form-check-input"
+									type="radio"
+									name="sex"
+									id="sex-m"
+									value="m"
+									required
+								/>
+								<label class="form-check-label" for="sex-m">
+									<i class="bi bi-gender-male me-1"></i>Male
+								</label>
+							</div>
+							<div class="form-check">
+								<input
+									class="form-check-input"
+									type="radio"
+									name="sex"
+									id="sex-f"
+									value="f"
+									required
+								/>
+								<label class="form-check-label" for="sex-f">
+									<i class="bi bi-gender-female me-1"></i>Female
+								</label>
+							</div>
+						</div>
+						{#if form?.errors?.sex}<div class="text-danger small">{form.errors.sex}</div>{/if}
+					</fieldset>
+
+					<Turnstile bind:this={startTurnstile} action="paradise_register" />
+
+					{#if form?.message}<div class="alert alert-danger py-2 mt-3">{form.message}</div>{/if}
+
+					<button class="btn btn-primary w-100 mt-3 rounded-pill" type="submit" disabled={starting}>
+						{starting ? 'Just a moment…' : 'Continue to rooms'}
+					</button>
+				</form>
+			</div>
+		{:else if !data.roomId}
+			<!-- STEP 2: pick a room (availability shown as a flag only, never a count) -->
+			<div class="cp-card p-4">
+				<h2 class="h5 mb-3">Choose a room</h2>
+				<div class="list-group list-group-flush">
+					{#each data.rooms as room (room.id)}
+						<a
+							href={`?room=${room.id}`}
+							class="list-group-item list-group-item-action d-flex justify-content-between align-items-center px-0"
+							class:disabled={!room.available}
+						>
+							<span>
+								<strong>{room.name}</strong>
+								<small class="text-muted d-block text-capitalize"
+									>{room.type}{room.location ? ` · ${room.location}` : ''}</small
+								>
+							</span>
+							<span class="text-end">
+								<span class="d-block fw-semibold">{dollars(room.price)}</span>
+								<small class:text-danger={!room.available} class="text-muted">
+									{room.available ? 'Available' : 'Full'}
+								</small>
+							</span>
+						</a>
+					{:else}
+						<p class="text-muted mb-0">No rooms available for this selection.</p>
+					{/each}
+				</div>
+			</div>
+		{:else}
+			<!-- STEP 3: pick bed + agreements -->
+			<div class="cp-card p-4">
+				<div class="d-flex justify-content-between align-items-center mb-3">
+					<h2 class="h5 mb-0">Pick a bed &amp; agree to the forms</h2>
+					<a href="?" class="small text-decoration-none">&larr; change room</a>
+				</div>
+
+				{#if form && 'expired' in form && form.expired}
+					<div class="alert alert-warning py-2">
+						Your registration session expired. Please <a href="?/reset" data-sveltekit-reload
+							>start again</a
+						>.
+					</div>
+				{/if}
+
+				<form
+					method="post"
+					action="?/hold"
+					use:enhance={() => {
+						submitting = true;
+						return async ({ update }) => {
+							await update({ reset: false });
+							submitting = false;
+						};
+					}}
+				>
+					<input type="hidden" name="roomId" value={data.roomId} />
+					<!-- honeypot -->
+					<input
+						type="text"
+						name="middle_name"
+						tabindex="-1"
+						autocomplete="off"
+						aria-hidden="true"
+						style="position:absolute;left:-9999px"
+					/>
+
+					<fieldset class="mb-3">
+						<legend class="h6">Bed</legend>
+						{#each data.beds as bed (bed.id)}
+							<div class="form-check">
+								<input
+									class="form-check-input"
+									type="radio"
+									name="cotId"
+									id={`cot-${bed.id}`}
+									value={bed.id}
+									required
+								/>
+								<label class="form-check-label" for={`cot-${bed.id}`}>
+									{bed.description || `Bed ${bed.id}`}
+								</label>
+							</div>
+						{:else}
+							<p class="text-muted">No beds in this room.</p>
+						{/each}
+						{#if form?.errors?.bed}<div class="text-danger small">{form.errors.bed}</div>{/if}
+					</fieldset>
 
 					{#each data.forms as f (f.id)}
 						{@const parsed = parseForm(f.questions)}
@@ -395,8 +469,6 @@
 							</div>
 						</div>
 					{/each}
-
-					<Turnstile bind:this={turnstile} action="paradise_register" />
 
 					{#if form?.message}<div class="alert alert-danger py-2 mt-3">{form.message}</div>{/if}
 

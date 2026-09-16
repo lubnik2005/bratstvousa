@@ -164,26 +164,31 @@ export async function roomsForEvent(db: AppDatabase, eventId: number, sex: 'm' |
 			paradiseRooms,
 			and(eq(paradiseRooms.id, paradiseEventRooms.roomId), isNull(paradiseRooms.deletedAt))
 		)
-		.where(
-			and(
-				eq(paradiseEventRooms.eventId, eventId),
-				inArray(paradiseRooms.sex, [sex, 'c'])
-			)
-		)
+		.where(and(eq(paradiseEventRooms.eventId, eventId), inArray(paradiseRooms.sex, [sex, 'c'])))
 		.orderBy(paradiseRooms.name);
 
-	// Attach available bed counts per room.
+	// Attach only a boolean availability flag per room — never expose exact
+	// counts, so browsing rooms can't reveal how full a cabin is.
 	const result = [];
 	for (const room of rooms) {
 		const beds = await bedsForRoom(db, eventId, room.id);
-		const available = beds.filter((b) => !b.taken).length;
-		result.push({ ...room, beds: beds.length, available });
+		const available = beds.some((b) => !b.taken);
+		result.push({ ...room, available });
 	}
 	return result;
 }
 
-/** All beds in a room for an event, each flagged taken/free. */
-export async function bedsForRoom(db: AppDatabase, eventId: number, roomId: number) {
+/**
+ * Beds in a room for an event. Each is flagged taken/free; pass
+ * `freeOnly: true` to return only the free beds (so taken beds — and thus the
+ * count of who's already in a cabin — are never sent to the client).
+ */
+export async function bedsForRoom(
+	db: AppDatabase,
+	eventId: number,
+	roomId: number,
+	opts: { freeOnly?: boolean } = {}
+) {
 	const cots = await db
 		.select({ id: paradiseCots.id, description: paradiseCots.description })
 		.from(paradiseCots)
@@ -202,7 +207,8 @@ export async function bedsForRoom(db: AppDatabase, eventId: number, roomId: numb
 		);
 	const taken = new Set(takenRows.map((r) => r.cotId));
 
-	return cots.map((c) => ({ id: c.id, description: c.description, taken: taken.has(c.id) }));
+	const beds = cots.map((c) => ({ id: c.id, description: c.description, taken: taken.has(c.id) }));
+	return opts.freeOnly ? beds.filter((b) => !b.taken) : beds;
 }
 
 /** Is a specific bed currently free for an event? (used at hold + confirm time). */
