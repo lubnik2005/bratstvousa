@@ -23,10 +23,16 @@ import type { Actions, PageServerLoad } from './$types';
 const clean = (v: FormDataEntryValue | null): string => (typeof v === 'string' ? v.trim() : '');
 const isEmail = (v: string): boolean => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 
-export const load: PageServerLoad = async ({ params, url, locals }) => {
+export const load: PageServerLoad = async ({ params, url, locals, setHeaders }) => {
 	const db = locals.db;
 	const id = Number(params.event);
 	if (!Number.isInteger(id)) throw error(404, 'Event not found');
+
+	// Edge-cache the camp page briefly so navigation feels instant; short
+	// s-maxage keeps live bed availability from going stale.
+	setHeaders({
+		'cache-control': 'public, max-age=0, s-maxage=30, stale-while-revalidate=120'
+	});
 
 	const event = await getPublishedEvent(db, id);
 	if (!event) throw error(404, 'Event not found');
@@ -48,17 +54,18 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 		};
 	}
 
-	const capacity = await eventCapacity(db, id);
-
 	const sexParam = url.searchParams.get('sex');
 	const sex = sexParam === 'm' || sexParam === 'f' ? sexParam : null;
-	const rooms = sex ? await roomsForEvent(db, id, sex) : [];
-
 	const roomParam = url.searchParams.get('room');
 	const roomId = roomParam && /^\d+$/.test(roomParam) ? Number(roomParam) : null;
-	const beds = roomId ? await bedsForRoom(db, id, roomId) : [];
 
-	const forms = await requiredForms(db);
+	// Run the independent lookups in parallel to cut serial D1 round-trips.
+	const [capacity, rooms, beds, forms] = await Promise.all([
+		eventCapacity(db, id),
+		sex ? roomsForEvent(db, id, sex) : Promise.resolve([]),
+		roomId ? bedsForRoom(db, id, roomId) : Promise.resolve([]),
+		requiredForms(db)
+	]);
 
 	return {
 		event,
