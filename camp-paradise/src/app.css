@@ -188,3 +188,45 @@ a {
 .cp-rules p:last-child {
 	margin-bottom: 0;
 }
+
+/* Headline stats */
+.cp-stat {
+	font-family: 'Fraunces', Georgia, serif;
+	font-size: clamp(1.75rem, 4vw, 2.75rem);
+	font-weight: 700;
+	line-height: 1;
+	color: var(--cp-primary-dark);
+}
+
+/* Bed-capacity progress bar (used on the featured hero) */
+.cp-progress {
+	height: 0.5rem;
+	border-radius: 999px;
+	background: rgba(255, 255, 255, 0.35);
+	overflow: hidden;
+}
+.cp-progress-bar {
+	height: 100%;
+	border-radius: 999px;
+	background: #fff;
+	transition: width 0.4s ease;
+}
+
+/* How-it-works timeline steps */
+.cp-timeline-step {
+	padding: 1rem;
+}
+.cp-timeline-num {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 3rem;
+	height: 3rem;
+	border-radius: 999px;
+	font-family: 'Fraunces', Georgia, serif;
+	font-size: 1.35rem;
+	font-weight: 700;
+	color: #fff;
+	background: linear-gradient(135deg, var(--cp-primary), var(--cp-primary-dark));
+	box-shadow: 0 8px 20px rgba(0, 167, 111, 0.3);
+}

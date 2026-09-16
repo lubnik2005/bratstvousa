@@ -29,6 +29,85 @@ export async function listPublishedEvents(db: AppDatabase) {
 		.orderBy(paradiseEvents.startOn);
 }
 
+export type RegistrationState = 'open' | 'upcoming' | 'closed';
+
+/**
+ * Where an event sits in its lifecycle, based on the registration window.
+ * - open: registration has started (or has no start) and has not yet ended.
+ *   A null end falls back to the camp's end_on; if that is also null, it stays open.
+ * - upcoming: registration has a start that is still in the future.
+ * - closed: registration has ended, or the camp itself is over.
+ */
+export function registrationState(
+	event: {
+		startOn: string | null;
+		endOn: string | null;
+		registrationStartAt: string | null;
+		registrationEndAt: string | null;
+	},
+	now: Date = new Date()
+): RegistrationState {
+	const t = now.getTime();
+	const parse = (s: string | null) => {
+		if (!s) return null;
+		// Stored as 'YYYY-MM-DD HH:MM:SS' (UTC). Normalise to ISO so Date parses it.
+		const ms = new Date(s.replace(' ', 'T') + 'Z').getTime();
+		return Number.isNaN(ms) ? null : ms;
+	};
+
+	const regStart = parse(event.registrationStartAt);
+	const regEnd = parse(event.registrationEndAt);
+	const campEnd = parse(event.endOn);
+
+	if (regStart !== null && t < regStart) return 'upcoming';
+
+	const effectiveEnd = regEnd ?? campEnd;
+	if (effectiveEnd !== null && t >= effectiveEnd) return 'closed';
+
+	return 'open';
+}
+
+/** Published events whose registration window is currently open (soonest first). */
+export async function listOpenEvents(db: AppDatabase) {
+	const rows = await listPublishedEvents(db);
+	const now = new Date();
+	return rows.filter((e) => registrationState(e, now) === 'open');
+}
+
+/** Published events announced but not yet open for registration (soonest first). */
+export async function listUpcomingEvents(db: AppDatabase) {
+	const rows = await listPublishedEvents(db);
+	const now = new Date();
+	return rows.filter((e) => registrationState(e, now) === 'upcoming');
+}
+
+/** Past/closed published events (most recent first), for the history strip. */
+export async function listPastEvents(db: AppDatabase, limit = 8) {
+	const rows = await listPublishedEvents(db);
+	const now = new Date();
+	return rows
+		.filter((e) => registrationState(e, now) === 'closed')
+		.sort((a, b) => (b.startOn ?? '').localeCompare(a.startOn ?? ''))
+		.slice(0, limit)
+		.map((e) => ({ id: e.id, name: e.name, startOn: e.startOn, endOn: e.endOn }));
+}
+
+/** Headline stats: total camps run and unique campers served. */
+export async function siteStats(db: AppDatabase) {
+	const campersRows = await db
+		.select({ campers: sql<number>`count(distinct lower(${paradiseReservations.email}))` })
+		.from(paradiseReservations)
+		.where(eq(paradiseReservations.status, 'confirmed'));
+	const campsRows = await db
+		.select({ camps: sql<number>`count(*)` })
+		.from(paradiseEvents)
+		.where(eq(paradiseEvents.status, 'published'));
+	return {
+		campers: Number(campersRows[0]?.campers ?? 0),
+		camps: Number(campsRows[0]?.camps ?? 0)
+	};
+}
+
 /** A single published event by id. */
 export async function getPublishedEvent(db: AppDatabase, eventId: number) {
 	const rows = await db

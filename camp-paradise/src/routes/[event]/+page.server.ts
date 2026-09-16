@@ -7,7 +7,8 @@ import {
 	roomsForEvent,
 	bedsForRoom,
 	isBedFree,
-	requiredForms
+	requiredForms,
+	registrationState
 } from '$lib/server/paradise/queries';
 import { generateConfirmationCode } from '$lib/server/email/paradise';
 import { makeStripe } from '$lib/server/paradise/payments';
@@ -30,6 +31,23 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 	const event = await getPublishedEvent(db, id);
 	if (!event) throw error(404, 'Event not found');
 
+	// Registration is only allowed while the window is open. Closed/upcoming
+	// camps still render (friendlier for bookmarked links) but hide the wizard.
+	const regState = registrationState(event);
+	if (regState !== 'open') {
+		return {
+			event,
+			registrationState: regState,
+			capacity: { total: 0, taken: 0, available: 0 },
+			sex: null,
+			rooms: [],
+			roomId: null,
+			beds: [],
+			forms: [],
+			publicStripeKey: ''
+		};
+	}
+
 	const capacity = await eventCapacity(db, id);
 
 	const sexParam = url.searchParams.get('sex');
@@ -44,6 +62,7 @@ export const load: PageServerLoad = async ({ params, url, locals }) => {
 
 	return {
 		event,
+		registrationState: 'open' as const,
 		capacity,
 		sex,
 		rooms,
@@ -74,6 +93,11 @@ export const actions: Actions = {
 		const eventId = Number(fd.get('eventId'));
 		const roomId = Number(fd.get('roomId'));
 		const cotId = Number(fd.get('cotId'));
+
+		// Reject holds on camps whose registration window is not open.
+		const heldEvent = Number.isInteger(eventId) ? await getPublishedEvent(db, eventId) : null;
+		if (!heldEvent || registrationState(heldEvent) !== 'open')
+			return fail(400, { message: 'Registration is closed for this camp.' });
 		const firstName = clean(fd.get('firstName'));
 		const lastName = clean(fd.get('lastName'));
 		const email = clean(fd.get('email'));
