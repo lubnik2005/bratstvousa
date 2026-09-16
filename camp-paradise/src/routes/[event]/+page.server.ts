@@ -12,7 +12,11 @@ import {
 import { generateConfirmationCode } from '$lib/server/email/paradise';
 import { makeStripe } from '$lib/server/paradise/payments';
 import { verifyTurnstile, TURNSTILE_ERROR_MESSAGE } from '$lib/server/turnstile';
-import { paradiseReservations, paradiseEventRooms } from '$lib/server/db/schema';
+import {
+	paradiseReservations,
+	paradiseEventRooms,
+	paradiseFormAnswers
+} from '$lib/server/db/schema';
 import type { Actions, PageServerLoad } from './$types';
 
 const clean = (v: FormDataEntryValue | null): string => (typeof v === 'string' ? v.trim() : '');
@@ -81,8 +85,7 @@ export const actions: Actions = {
 		if (!lastName) errors.lastName = 'Last name is required.';
 		if (!isEmail(email)) errors.email = 'A valid email is required.';
 		if (sex !== 'm' && sex !== 'f') errors.sex = 'Please choose who this is for.';
-		if (!Number.isInteger(roomId) || !Number.isInteger(cotId))
-			errors.bed = 'Please select a bed.';
+		if (!Number.isInteger(roomId) || !Number.isInteger(cotId)) errors.bed = 'Please select a bed.';
 
 		const forms = await requiredForms(db);
 		for (const form of forms) {
@@ -122,6 +125,27 @@ export const actions: Actions = {
 			})
 			.returning({ id: paradiseReservations.id });
 		const reservationId = inserted[0].id;
+
+		// Persist each signed agreement / form as a paradise_form_answers row.
+		const signedOn = new Date().toISOString();
+		for (const form of forms) {
+			const answers: Record<string, unknown> = { agreed: true };
+			const questions = Array.isArray(form.questions) ? form.questions : [];
+			for (const q of questions) {
+				const key = (q as { key?: string })?.key;
+				if (typeof key === 'string' && key) {
+					answers[key] = clean(fd.get(`form_${form.id}_${key}`));
+				}
+			}
+			await db.insert(paradiseFormAnswers).values({
+				formId: form.id,
+				eventId,
+				reservationId,
+				email,
+				answers,
+				signedOn
+			});
+		}
 
 		const stripe = makeStripe(
 			platform?.env?.STRIPE_SECRET_KEY,

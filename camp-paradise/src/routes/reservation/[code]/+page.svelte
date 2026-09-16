@@ -21,14 +21,22 @@
 </svelte:head>
 
 <div class="container py-5" style="max-width: 560px;">
-	<a href="/" class="text-decoration-none small">&larr; Home</a>
-	<div class="card border-0 shadow-sm mt-3">
-		<div class="card-body">
+	<a href="/" class="text-decoration-none small text-success fw-semibold">
+		<i class="bi bi-arrow-left me-1"></i>Home
+	</a>
+	<div class="cp-card mt-3 overflow-hidden">
+		{#if status === 'confirmed'}
+			<div class="cp-hero text-center py-4">
+				<i class="bi bi-check-circle-fill fs-1"></i>
+				<p class="mb-0 mt-2 fw-semibold">You're all set — see you at camp!</p>
+			</div>
+		{/if}
+		<div class="p-4">
 			<div class="d-flex justify-content-between align-items-start">
 				<h1 class="h4 mb-0">{data.eventName}</h1>
 				<span class="badge {badge[status] ?? 'text-bg-light'} text-capitalize">{status}</span>
 			</div>
-			<p class="text-muted mt-1">Confirmation code</p>
+			<p class="text-muted mt-1 mb-1">Confirmation code</p>
 			<p class="h5 font-monospace">{r.confirmationCode}</p>
 
 			<hr />
@@ -44,12 +52,16 @@
 			</dl>
 
 			{#if form?.refunded}
-				<div class="alert alert-success mt-3 mb-0">Your reservation has been cancelled and refunded.</div>
+				<div class="alert alert-success mt-3 mb-0">
+					Your reservation has been cancelled and refunded.
+				</div>
 			{:else if data.refundable}
 				<hr />
 				<form method="post" action="?/refund" use:enhance>
 					{#if form?.message}<div class="alert alert-danger py-2">{form.message}</div>{/if}
-					<button class="btn btn-outline-danger w-100" type="submit">Cancel &amp; request refund</button>
+					<button class="btn btn-outline-danger w-100 rounded-pill" type="submit">
+						Cancel &amp; request refund
+					</button>
 				</form>
 			{/if}
 		</div>

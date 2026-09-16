@@ -1,0 +1,190 @@
+/* Camp Paradise theme — tropical green.
+   Brand palette: #00A76F main · #007867 deep · #5BE49B mint · #C8FAD6 lighter · #212B36 ink */
+
+:root {
+	--cp-primary: #00a76f;
+	--cp-primary-dark: #007867;
+	--cp-primary-darker: #004b50;
+	--cp-mint: #5be49b;
+	--cp-mint-soft: #c8fad6;
+	--cp-ink: #212b36;
+	--cp-sand: #f6fbf7;
+
+	/* Bootstrap variable overrides */
+	--bs-primary: #00a76f;
+	--bs-primary-rgb: 0, 167, 111;
+	--bs-link-color: #007867;
+	--bs-link-color-rgb: 0, 120, 103;
+	--bs-link-hover-color: #004b50;
+	--bs-body-color: #212b36;
+	--bs-body-bg: #f6fbf7;
+	--bs-body-font-family: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+	--bs-border-radius: 0.75rem;
+	--bs-border-radius-lg: 1.1rem;
+}
+
+body {
+	font-family: var(--bs-body-font-family);
+	background-color: var(--cp-sand);
+	color: var(--cp-ink);
+}
+
+h1,
+h2,
+h3,
+.display-1,
+.display-2,
+.display-3,
+.display-4,
+.display-5,
+.display-6,
+.cp-display {
+	font-family: 'Fraunces', Georgia, 'Times New Roman', serif;
+	letter-spacing: -0.01em;
+}
+
+/* Buttons */
+.btn-primary {
+	--bs-btn-bg: var(--cp-primary);
+	--bs-btn-border-color: var(--cp-primary);
+	--bs-btn-hover-bg: var(--cp-primary-dark);
+	--bs-btn-hover-border-color: var(--cp-primary-dark);
+	--bs-btn-active-bg: var(--cp-primary-darker);
+	--bs-btn-active-border-color: var(--cp-primary-darker);
+	--bs-btn-disabled-bg: var(--cp-primary);
+	--bs-btn-disabled-border-color: var(--cp-primary);
+	box-shadow: 0 8px 20px -8px rgba(0, 167, 111, 0.6);
+}
+
+.btn-outline-primary {
+	--bs-btn-color: var(--cp-primary-dark);
+	--bs-btn-border-color: var(--cp-primary);
+	--bs-btn-hover-bg: var(--cp-primary);
+	--bs-btn-hover-border-color: var(--cp-primary);
+	--bs-btn-active-bg: var(--cp-primary-dark);
+	--bs-btn-active-border-color: var(--cp-primary-dark);
+}
+
+.text-primary {
+	color: var(--cp-primary-dark) !important;
+}
+.bg-primary {
+	background-color: var(--cp-primary) !important;
+}
+
+a {
+	text-decoration-thickness: 1px;
+	text-underline-offset: 2px;
+}
+
+/* Focus ring in brand color */
+.form-control:focus,
+.form-check-input:focus,
+.btn:focus-visible {
+	border-color: var(--cp-mint);
+	box-shadow: 0 0 0 0.2rem rgba(0, 167, 111, 0.25);
+}
+.form-check-input:checked {
+	background-color: var(--cp-primary);
+	border-color: var(--cp-primary);
+}
+
+/* Hero */
+.cp-hero {
+	position: relative;
+	overflow: hidden;
+	background:
+		radial-gradient(1200px 400px at 80% -10%, rgba(91, 228, 155, 0.5), transparent 60%),
+		linear-gradient(135deg, #007867 0%, #00a76f 55%, #12c98a 100%);
+	color: #fff;
+}
+.cp-hero::after {
+	content: '';
+	position: absolute;
+	inset: 0;
+	background-image: radial-gradient(rgba(255, 255, 255, 0.14) 1px, transparent 1px);
+	background-size: 22px 22px;
+	opacity: 0.5;
+	pointer-events: none;
+}
+.cp-hero .container {
+	position: relative;
+	z-index: 1;
+}
+
+/* Cards */
+.cp-card {
+	border: 1px solid rgba(0, 120, 103, 0.1);
+	border-radius: var(--bs-border-radius-lg);
+	background: #fff;
+	box-shadow: 0 18px 40px -28px rgba(0, 75, 80, 0.45);
+	transition:
+		transform 0.18s ease,
+		box-shadow 0.18s ease;
+}
+.cp-card.cp-clickable:hover {
+	transform: translateY(-4px);
+	box-shadow: 0 26px 50px -26px rgba(0, 75, 80, 0.55);
+}
+
+.cp-badge-avail {
+	background: var(--cp-mint-soft);
+	color: var(--cp-primary-darker);
+}
+
+/* Navbar */
+.cp-navbar {
+	background: rgba(255, 255, 255, 0.9);
+	backdrop-filter: saturate(150%) blur(8px);
+	border-bottom: 1px solid rgba(0, 120, 103, 0.12);
+}
+.cp-navbar .navbar-brand {
+	font-family: 'Fraunces', serif;
+	font-weight: 700;
+	color: var(--cp-primary-dark);
+}
+.cp-brand-logo {
+	height: 34px;
+	width: auto;
+}
+
+/* Footer */
+.cp-footer {
+	background: var(--cp-ink);
+	color: rgba(255, 255, 255, 0.75);
+}
+.cp-footer a {
+	color: var(--cp-mint);
+}
+
+/* Wizard step chip */
+.cp-steps {
+	display: flex;
+	gap: 0.5rem;
+	flex-wrap: wrap;
+}
+.cp-step {
+	font-size: 0.8rem;
+	font-weight: 600;
+	color: var(--cp-primary-dark);
+	background: var(--cp-mint-soft);
+	border-radius: 999px;
+	padding: 0.25rem 0.75rem;
+}
+.cp-step.is-muted {
+	color: #6c757d;
+	background: #eef2f0;
+}
+
+/* Rules body text */
+.cp-rules {
+	background: var(--cp-sand);
+	border: 1px solid rgba(0, 120, 103, 0.12);
+	border-radius: var(--bs-border-radius);
+	padding: 1rem 1.25rem;
+	max-height: 260px;
+	overflow-y: auto;
+}
+.cp-rules p:last-child {
+	margin-bottom: 0;
+}
