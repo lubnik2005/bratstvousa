@@ -53,7 +53,16 @@ export async function issueLoginCode(db: AppDatabase, emailRaw: string): Promise
 	const expiresAt = new Date(Date.now() + CODE_TTL_MS).toISOString().replace('T', ' ').slice(0, 19);
 
 	await db.insert(paradiseLoginCodes).values({ email, codeHash, expiresAt });
-	await sendLoginCode(db, email, code);
+
+	// A send failure must never surface a 500 to the client (that would both
+	// break the UX and leak that the email path was reached). Log server-side
+	// and still return a neutral success.
+	try {
+		await sendLoginCode(db, email, code);
+	} catch (err) {
+		console.error('sendLoginCode failed', err);
+	}
+
 	return { ok: true };
 }
 
