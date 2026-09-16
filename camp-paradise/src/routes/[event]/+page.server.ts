@@ -17,7 +17,7 @@ import { generateConfirmationCode } from '$lib/server/email/paradise';
 import { issueLoginCode, verifyLoginCode } from '$lib/server/paradise/auth';
 import { makeStripe } from '$lib/server/paradise/payments';
 import { verifyTurnstile, TURNSTILE_ERROR_MESSAGE } from '$lib/server/turnstile';
-import { readSession, setSession, clearSession } from '$lib/server/paradise/session';
+import { readSession, setSession } from '$lib/server/paradise/session';
 import {
 	paradiseReservations,
 	paradiseEventRooms,
@@ -213,12 +213,6 @@ export const actions: Actions = {
 			sessionSecret(platform)
 		);
 		return { signedIn: true };
-	},
-
-	// "Start over" / sign out: drop the session cookie and return to step 1.
-	reset: async ({ cookies }) => {
-		clearSession(cookies);
-		return { reset: true };
 	},
 
 	hold: async ({ request, locals, params, cookies, platform }) => {

@@ -126,7 +126,7 @@
 </svelte:head>
 
 <div class="container py-5" style="max-width: 760px;">
-	<a href="/" class="text-decoration-none small text-success fw-semibold">
+	<a href="/camps" class="text-decoration-none small text-success fw-semibold">
 		<i class="bi bi-arrow-left me-1"></i>All camps
 	</a>
 	<h1 class="h3 mt-2 mb-1">{data.event.name}</h1>
@@ -148,14 +148,14 @@
 					Registration for this camp has ended. Browse our open camps to find your next session.
 				</p>
 			{/if}
-			<a href="/" class="btn btn-primary rounded-pill px-4">
+			<a href="/camps" class="btn btn-primary rounded-pill px-4">
 				<i class="bi bi-arrow-left me-1"></i>Browse open camps
 			</a>
 		</div>
 	{:else}
 		<!-- step indicator -->
 		<div class="cp-steps mb-4">
-			<span class="cp-step" class:is-muted={identity}>1 · Details</span>
+			<span class="cp-step" class:is-muted={identity}>1 · Sign in</span>
 			<span class="cp-step" class:is-muted={!identity || data.roomId}>2 · Room</span>
 			<span class="cp-step" class:is-muted={!data.roomId || paying}>3 · Bed</span>
 			<span class="cp-step" class:is-muted={!paying}>4 · Payment</span>
@@ -170,11 +170,9 @@
 					Registering <strong>{identity.firstName} {identity.lastName}</strong>
 					· {identity.email}
 				</span>
-				<form method="post" action="?/reset" use:enhance class="m-0">
-					<button type="submit" class="btn btn-link btn-sm p-0 text-decoration-none">
-						Start over
-					</button>
-				</form>
+				{#if data.roomId}
+					<a href="?" class="btn btn-link btn-sm p-0 text-decoration-none">Start over</a>
+				{/if}
 			</div>
 		{/if}
 
@@ -408,8 +406,9 @@
 
 				{#if form && 'expired' in form && form.expired}
 					<div class="alert alert-warning py-2">
-						Your registration session expired. Please <a href="?/reset" data-sveltekit-reload
-							>start again</a
+						Your registration session expired. Please <a
+							href="/?next=/{data.event.id}"
+							data-sveltekit-reload>start again</a
 						>.
 					</div>
 				{/if}

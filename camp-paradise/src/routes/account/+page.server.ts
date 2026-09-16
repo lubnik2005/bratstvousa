@@ -1,5 +1,5 @@
 import { redirect } from '@sveltejs/kit';
-import { reservationsForEmail } from '$lib/server/paradise/queries';
+import { reservationsForEmail, listOpenEvents, eventCapacity } from '$lib/server/paradise/queries';
 import { readSession, clearSession } from '$lib/server/paradise/session';
 import type { Actions, PageServerLoad } from './$types';
 
@@ -9,14 +9,19 @@ const sessionSecret = (platform: App.Platform | undefined) =>
 export const load: PageServerLoad = async ({ locals, cookies, platform, setHeaders }) => {
 	const identity = await readSession(cookies, sessionSecret(platform));
 	if (!identity) {
-		throw redirect(303, '/login?next=/account');
+		throw redirect(303, '/?next=/account');
 	}
 
 	setHeaders({ 'cache-control': 'private, no-cache' });
 
 	const reservations = await reservationsForEmail(locals.db, identity.email);
 
-	return { camper: identity, reservations };
+	const openRaw = await listOpenEvents(locals.db);
+	const open = await Promise.all(
+		openRaw.map(async (e) => ({ ...e, ...(await eventCapacity(locals.db, e.id)) }))
+	);
+
+	return { camper: identity, reservations, open };
 };
 
 export const actions: Actions = {

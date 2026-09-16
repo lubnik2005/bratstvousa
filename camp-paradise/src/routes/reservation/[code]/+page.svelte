@@ -21,8 +21,8 @@
 </svelte:head>
 
 <div class="container py-5" style="max-width: 560px;">
-	<a href="/" class="text-decoration-none small text-success fw-semibold">
-		<i class="bi bi-arrow-left me-1"></i>Home
+	<a href="/camps" class="text-decoration-none small text-success fw-semibold">
+		<i class="bi bi-arrow-left me-1"></i>All camps
 	</a>
 	<div class="cp-card mt-3 overflow-hidden">
 		{#if status === 'confirmed'}

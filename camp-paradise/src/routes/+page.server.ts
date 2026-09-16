@@ -1,83 +1,145 @@
+import { fail, redirect } from '@sveltejs/kit';
 import {
-	listOpenEvents,
-	listUpcomingEvents,
-	listPastEvents,
-	eventCapacity,
-	siteStats
+	findAttendeeByEmail,
+	upsertAttendee,
+	markAttendeeLogin
 } from '$lib/server/paradise/queries';
-import type { PageServerLoad } from './$types';
+import { issueLoginCode, verifyLoginCode } from '$lib/server/paradise/auth';
+import { verifyTurnstile, TURNSTILE_ERROR_MESSAGE } from '$lib/server/turnstile';
+import { readSession, setSession, clearSession } from '$lib/server/paradise/session';
+import type { Actions, PageServerLoad } from './$types';
 
-type OpenEvent = {
-	id: number;
-	name: string;
-	startOn: string | null;
-	endOn: string | null;
-	registrationEndAt: string | null;
-	description: string | null;
-	total: number;
-	available: number;
+const clean = (v: FormDataEntryValue | null): string => (typeof v === 'string' ? v.trim() : '');
+const isEmail = (v: string): boolean => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+
+const sessionSecret = (platform: App.Platform | undefined): string =>
+	platform?.env?.SESSION_SECRET ?? 'dev-insecure-session-secret-change-me';
+
+// Keep the post-login redirect target on-site only, to avoid open-redirects.
+const safeNext = (raw: string | null): string => {
+	if (raw && raw.startsWith('/') && !raw.startsWith('//')) return raw;
+	return '/camps';
 };
 
-type UpcomingEvent = {
-	id: number;
-	name: string;
-	startOn: string | null;
-	endOn: string | null;
-	registrationStartAt: string | null;
-	description: string | null;
+export const load: PageServerLoad = async ({ url, locals, cookies, platform, setHeaders }) => {
+	setHeaders({ 'cache-control': 'private, no-cache' });
+	const next = safeNext(url.searchParams.get('next'));
+
+	// Already signed in? Skip straight to the destination.
+	const identity = await readSession(cookies, sessionSecret(platform));
+	if (identity) throw redirect(303, next);
+
+	return { next };
 };
 
-type PastEvent = { id: number; name: string; startOn: string | null; endOn: string | null };
+export const actions: Actions = {
+	// Step 1: email + Turnstile -> email a 6-digit code. Neutral response.
+	requestCode: async ({ request, locals, platform }) => {
+		const db = locals.db;
+		const fd = await request.formData();
 
-export const load: PageServerLoad = async ({ locals, setHeaders }) => {
-	// Cache the rendered home page at Cloudflare's edge so navigations are
-	// instant instead of re-running D1 queries on every request. Kept short so
-	// bed availability stays reasonably fresh; stale-while-revalidate serves the
-	// cached copy instantly while refreshing in the background.
-	setHeaders({
-		'cache-control': 'public, max-age=0, s-maxage=60, stale-while-revalidate=300'
-	});
+		const ts = await verifyTurnstile(
+			fd.get('cf-turnstile-response') as string | null,
+			platform?.env?.TURNSTILE_SECRET_KEY,
+			request.headers.get('cf-connecting-ip'),
+			'paradise_login',
+			platform?.env?.TURNSTILE_HOSTNAMES
+		);
+		if (!ts.ok) return fail(403, { message: TURNSTILE_ERROR_MESSAGE });
 
-	let open: OpenEvent[] = [];
-	let upcoming: UpcomingEvent[] = [];
-	let past: PastEvent[] = [];
-	let stats = { campers: 0, camps: 0 };
+		const email = clean(fd.get('email'));
 
-	try {
-		// Independent queries run in parallel to minimise serial D1 round-trips.
-		const [openRows, upcomingRows, pastRows, statsRow] = await Promise.all([
-			listOpenEvents(locals.db),
-			listUpcomingEvents(locals.db),
-			listPastEvents(locals.db, 8),
-			siteStats(locals.db)
-		]);
+		// Honeypot: pretend a code was sent.
+		if (clean(fd.get('middle_name'))) return { codeSent: true, email };
 
-		const caps = await Promise.all(openRows.map((e) => eventCapacity(locals.db, e.id)));
-		open = openRows.map((e, i) => ({
-			id: e.id,
-			name: e.name,
-			startOn: e.startOn,
-			endOn: e.endOn,
-			registrationEndAt: e.registrationEndAt,
-			description: e.description,
-			total: caps[i].total,
-			available: caps[i].available
-		}));
+		if (!isEmail(email)) return fail(400, { emailError: 'A valid email is required.', email });
 
-		upcoming = upcomingRows.map((e) => ({
-			id: e.id,
-			name: e.name,
-			startOn: e.startOn,
-			endOn: e.endOn,
-			registrationStartAt: e.registrationStartAt,
-			description: e.description
-		}));
+		await issueLoginCode(db, email);
+		return { codeSent: true, email };
+	},
 
-		past = pastRows;
-		stats = statsRow;
-	} catch (err) {
-		console.error('load home failed:', err);
+	// Step 2: verify the code. Known camper -> sign in; new email -> profile.
+	verifyCode: async ({ request, locals, cookies, platform }) => {
+		const db = locals.db;
+		const fd = await request.formData();
+
+		const email = clean(fd.get('email'));
+		const code = clean(fd.get('code'));
+		if (!isEmail(email)) return fail(400, { codeError: 'Something went wrong. Start again.' });
+		if (!/^\d{6}$/.test(code)) return fail(400, { codeError: 'Enter the 6-digit code.', email });
+
+		const result = await verifyLoginCode(db, email, code);
+		if (!result.ok) {
+			const msg =
+				result.reason === 'expired'
+					? 'That code has expired. Request a new one.'
+					: result.reason === 'too_many_attempts'
+						? 'Too many attempts. Request a new code.'
+						: 'That code is incorrect.';
+			return fail(400, { codeError: msg, email });
+		}
+
+		const attendee = await findAttendeeByEmail(db, email);
+		if (attendee) {
+			await markAttendeeLogin(db, attendee.id);
+			await setSession(
+				cookies,
+				{
+					attendeeId: attendee.id,
+					firstName: attendee.firstName,
+					lastName: attendee.lastName,
+					email: attendee.email,
+					sex: attendee.sex as 'm' | 'f'
+				},
+				sessionSecret(platform)
+			);
+			return { signedIn: true };
+		}
+
+		return { needsProfile: true, email };
+	},
+
+	// Step 3 (new campers): create the account and sign in.
+	profile: async ({ request, locals, cookies, platform }) => {
+		const db = locals.db;
+		const fd = await request.formData();
+
+		const email = clean(fd.get('email'));
+		const firstName = clean(fd.get('firstName'));
+		const lastName = clean(fd.get('lastName'));
+		const sex = clean(fd.get('sex'));
+
+		const fields = { firstName, lastName };
+		const errors: Record<string, string> = {};
+		if (!isEmail(email)) errors.profile = 'Something went wrong. Start again.';
+		if (!firstName) errors.firstName = 'First name is required.';
+		if (!lastName) errors.lastName = 'Last name is required.';
+		if (sex !== 'm' && sex !== 'f') errors.sex = 'Please choose who this is for.';
+		if (Object.keys(errors).length) return fail(400, { profileErrors: errors, fields, email });
+
+		const attendee = await upsertAttendee(db, {
+			email,
+			firstName,
+			lastName,
+			sex: sex as 'm' | 'f'
+		});
+		await setSession(
+			cookies,
+			{
+				attendeeId: attendee.id,
+				firstName: attendee.firstName,
+				lastName: attendee.lastName,
+				email: attendee.email,
+				sex: attendee.sex as 'm' | 'f'
+			},
+			sessionSecret(platform)
+		);
+		return { signedIn: true };
+	},
+
+	// Start the sign-in over from the email step.
+	reset: async ({ cookies }) => {
+		clearSession(cookies);
+		return { reset: true };
 	}
-
-	return { open, upcoming, past, stats };
 };

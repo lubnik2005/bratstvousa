@@ -7,12 +7,12 @@
 
 <nav class="navbar navbar-expand-lg cp-navbar sticky-top">
 	<div class="container">
-		<a class="navbar-brand d-flex align-items-center gap-2" href="/">
+		<a class="navbar-brand d-flex align-items-center gap-2" href="/camps">
 			<img src="/logo-single.svg" alt="" class="cp-brand-logo" />
 			<span>Camp Paradise</span>
 		</a>
 		<div class="d-flex align-items-center gap-2">
-			<a href="/" class="btn btn-sm btn-outline-primary rounded-pill px-3">Camps</a>
+			<a href="/camps" class="btn btn-sm btn-outline-primary rounded-pill px-3">Camps</a>
 			{#if data.camper}
 				<a href="/account" class="btn btn-sm btn-primary rounded-pill px-3">
 					<i class="bi bi-person-circle me-1"></i>{data.camper.firstName}
@@ -23,7 +23,7 @@
 					</button>
 				</form>
 			{:else}
-				<a href="/login" class="btn btn-sm btn-primary rounded-pill px-3">Sign in</a>
+				<a href="/" class="btn btn-sm btn-primary rounded-pill px-3">Sign in</a>
 			{/if}
 		</div>
 	</div>
