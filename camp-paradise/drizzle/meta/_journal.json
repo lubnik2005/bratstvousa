@@ -8,6 +8,13 @@
       "when": 1789500894063,
       "tag": "0000_busy_giant_man",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1789531810959,
+      "tag": "0001_spicy_fantastic_four",
+      "breakpoints": true
     }
   ]
 }

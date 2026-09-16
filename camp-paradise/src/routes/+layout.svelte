@@ -1,6 +1,8 @@
 <script lang="ts">
 	import '../app.css';
+	import type { LayoutData } from './$types';
 	export let children: import('svelte').Snippet;
+	export let data: LayoutData;
 </script>
 
 <nav class="navbar navbar-expand-lg cp-navbar sticky-top">
@@ -9,7 +11,21 @@
 			<img src="/logo-single.svg" alt="" class="cp-brand-logo" />
 			<span>Camp Paradise</span>
 		</a>
-		<a href="/" class="btn btn-sm btn-outline-primary rounded-pill px-3">Camps</a>
+		<div class="d-flex align-items-center gap-2">
+			<a href="/" class="btn btn-sm btn-outline-primary rounded-pill px-3">Camps</a>
+			{#if data.camper}
+				<a href="/account" class="btn btn-sm btn-primary rounded-pill px-3">
+					<i class="bi bi-person-circle me-1"></i>{data.camper.firstName}
+				</a>
+				<form method="post" action="/account?/signout">
+					<button type="submit" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
+						Sign out
+					</button>
+				</form>
+			{:else}
+				<a href="/login" class="btn btn-sm btn-primary rounded-pill px-3">Sign in</a>
+			{/if}
+		</div>
 	</div>
 </nav>
 

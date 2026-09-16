@@ -1,29 +1,29 @@
 import type { Cookies } from '@sveltejs/kit';
 
 /**
- * Stateless, signed "registration session" stored in an HttpOnly cookie.
+ * Stateless, signed "camper session" stored in an HttpOnly cookie.
  *
- * Ties every room/bed lookup to a name + email + sex that the visitor has
- * already entered (and passed a Turnstile check for), so the room/bed
- * availability views can't be scraped by simply flipping a `?sex=` URL param.
+ * Represents a verified camper account: the email has been proven via a
+ * one-time login code, so every room/bed view and every reservation is tied
+ * to a real, verified identity (closing the availability-scraping hole and
+ * giving returning campers a persistent "My reservations" view).
  *
- * The payload is not encrypted (it only holds what the user just typed), but
- * it is HMAC-signed so it cannot be forged or tampered with. No DB row is
- * created until the user actually holds a bed.
+ * The payload is not encrypted (it only holds account profile fields), but it
+ * is HMAC-signed so it cannot be forged or tampered with.
  */
 
-export const REG_COOKIE = 'cp_reg';
-const TTL_MS = 30 * 60 * 1000; // 30 minutes
+export const REG_COOKIE = 'cp_session';
+const TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
-export type RegistrationIdentity = {
-	eventId: number;
+export type CamperIdentity = {
+	attendeeId: number;
 	firstName: string;
 	lastName: string;
 	email: string;
 	sex: 'm' | 'f';
 };
 
-type SessionPayload = RegistrationIdentity & { exp: number };
+type SessionPayload = CamperIdentity & { verified: true; exp: number };
 
 const encoder = new TextEncoder();
 
@@ -65,24 +65,22 @@ function safeEqual(a: string, b: string): boolean {
 	return diff === 0;
 }
 
-/** Produce the signed cookie value for an identity. */
-export async function signSession(identity: RegistrationIdentity, secret: string): Promise<string> {
-	const payload: SessionPayload = { ...identity, exp: Date.now() + TTL_MS };
+/** Produce the signed cookie value for a verified camper identity. */
+export async function signSession(identity: CamperIdentity, secret: string): Promise<string> {
+	const payload: SessionPayload = { ...identity, verified: true, exp: Date.now() + TTL_MS };
 	const body = base64urlEncode(encoder.encode(JSON.stringify(payload)));
 	const sig = await sign(body, secret);
 	return `${body}.${sig}`;
 }
 
 /**
- * Verify and decode the registration cookie. Returns the identity only if the
- * signature is valid, the session hasn't expired, and (when `eventId` is
- * supplied) it matches the event being viewed. Otherwise returns null.
+ * Verify and decode the camper cookie. Returns the identity only if the
+ * signature is valid and the session hasn't expired. Otherwise returns null.
  */
 export async function readSession(
 	cookies: Cookies,
-	secret: string,
-	eventId?: number
-): Promise<RegistrationIdentity | null> {
+	secret: string
+): Promise<CamperIdentity | null> {
 	const raw = cookies.get(REG_COOKIE);
 	if (!raw) return null;
 
@@ -104,10 +102,10 @@ export async function readSession(
 
 	if (typeof payload.exp !== 'number' || payload.exp < Date.now()) return null;
 	if (payload.sex !== 'm' && payload.sex !== 'f') return null;
-	if (typeof eventId === 'number' && payload.eventId !== eventId) return null;
+	if (typeof payload.attendeeId !== 'number') return null;
 
 	return {
-		eventId: payload.eventId,
+		attendeeId: payload.attendeeId,
 		firstName: payload.firstName,
 		lastName: payload.lastName,
 		email: payload.email,
@@ -115,10 +113,10 @@ export async function readSession(
 	};
 }
 
-/** Set the signed registration cookie. */
+/** Set the signed camper cookie. */
 export async function setSession(
 	cookies: Cookies,
-	identity: RegistrationIdentity,
+	identity: CamperIdentity,
 	secret: string
 ): Promise<void> {
 	const value = await signSession(identity, secret);
@@ -131,7 +129,7 @@ export async function setSession(
 	});
 }
 
-/** Clear the registration cookie ("start over"). */
+/** Clear the camper cookie ("sign out"). */
 export function clearSession(cookies: Cookies): void {
 	cookies.delete(REG_COOKIE, { path: '/' });
 }

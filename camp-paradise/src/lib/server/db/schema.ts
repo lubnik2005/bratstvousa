@@ -71,6 +71,7 @@ export const paradiseReservations = sqliteTable(
 		eventId: integer('event_id').notNull(),
 		roomId: integer('room_id').notNull(),
 		cotId: integer('cot_id').notNull(),
+		attendeeId: integer('attendee_id'),
 		firstName: text('first_name').notNull(),
 		lastName: text('last_name').notNull(),
 		email: text('email').notNull(),
@@ -104,6 +105,37 @@ export const paradiseFormAnswers = sqliteTable('paradise_form_answers', {
 	...timestamps
 });
 
+// A camper account, identified by a verified email (magic-code auth).
+export const paradiseAttendees = sqliteTable(
+	'paradise_attendees',
+	{
+		id: integer('id').primaryKey({ autoIncrement: true }),
+		email: text('email').notNull(),
+		firstName: text('first_name').notNull(),
+		lastName: text('last_name').notNull(),
+		sex: text('sex').notNull(), // m | f
+		verifiedAt: text('verified_at'),
+		lastLoginAt: text('last_login_at'),
+		...timestamps
+	},
+	(table) => ({
+		emailUnique: uniqueIndex('paradise_attendees_email_unique').on(table.email)
+	})
+);
+
+// A short-lived one-time login code (magic code) for email verification.
+export const paradiseLoginCodes = sqliteTable('paradise_login_codes', {
+	id: integer('id').primaryKey({ autoIncrement: true }),
+	email: text('email').notNull(),
+	codeHash: text('code_hash').notNull(),
+	expiresAt: text('expires_at').notNull(),
+	attempts: integer('attempts').default(0).notNull(),
+	consumedAt: text('consumed_at'),
+	createdAt: text('created_at')
+		.default(sql`(datetime('now'))`)
+		.notNull()
+});
+
 // Outbound email audit log (mirrors bratstvousa; enables retry).
 export const emailLog = sqliteTable('email_log', {
 	id: integer('id').primaryKey({ autoIncrement: true }),
@@ -128,4 +160,6 @@ export type ParadiseCot = typeof paradiseCots.$inferSelect;
 export type ParadiseForm = typeof paradiseForms.$inferSelect;
 export type ParadiseReservation = typeof paradiseReservations.$inferSelect;
 export type ParadiseFormAnswer = typeof paradiseFormAnswers.$inferSelect;
+export type ParadiseAttendee = typeof paradiseAttendees.$inferSelect;
+export type ParadiseLoginCode = typeof paradiseLoginCodes.$inferSelect;
 export type EmailLog = typeof emailLog.$inferSelect;

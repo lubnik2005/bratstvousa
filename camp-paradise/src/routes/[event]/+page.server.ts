@@ -8,9 +8,13 @@ import {
 	bedsForRoom,
 	isBedFree,
 	requiredForms,
-	registrationState
+	registrationState,
+	findAttendeeByEmail,
+	upsertAttendee,
+	markAttendeeLogin
 } from '$lib/server/paradise/queries';
 import { generateConfirmationCode } from '$lib/server/email/paradise';
+import { issueLoginCode, verifyLoginCode } from '$lib/server/paradise/auth';
 import { makeStripe } from '$lib/server/paradise/payments';
 import { verifyTurnstile, TURNSTILE_ERROR_MESSAGE } from '$lib/server/turnstile';
 import { readSession, setSession, clearSession } from '$lib/server/paradise/session';
@@ -67,7 +71,7 @@ export const load: PageServerLoad = async ({
 	// Identity comes ONLY from the signed cookie set at the "start" step — not
 	// from a URL param — so room/bed availability can't be scraped by flipping
 	// ?sex. Without a valid session, no rooms or beds are fetched at all.
-	const identity = await readSession(cookies, sessionSecret(platform), id);
+	const identity = await readSession(cookies, sessionSecret(platform));
 	const sex = identity?.sex ?? null;
 
 	const roomParam = url.searchParams.get('room');
@@ -95,10 +99,10 @@ export const load: PageServerLoad = async ({
 };
 
 export const actions: Actions = {
-	// Step 1: capture the camper identity (name/email/sex) behind a Turnstile
-	// check and store it in a signed cookie. No DB write happens here — this
-	// just unlocks the room/bed views for this browser session.
-	start: async ({ request, locals, params, cookies, platform }) => {
+	// Step 1a: the camper enters their email (behind Turnstile). We email a
+	// 6-digit sign-in code. The response is deliberately neutral so it never
+	// reveals whether an email is registered (no account enumeration).
+	requestCode: async ({ request, locals, params, cookies, platform }) => {
 		const db = locals.db;
 		const id = Number(params.event);
 		const fd = await request.formData();
@@ -112,35 +116,106 @@ export const actions: Actions = {
 		);
 		if (!ts.ok) return fail(403, { message: TURNSTILE_ERROR_MESSAGE });
 
-		// Honeypot: pretend success without setting a session.
-		if (clean(fd.get('middle_name'))) return { started: true };
+		const email = clean(fd.get('email'));
+
+		// Honeypot: pretend a code was sent without doing anything.
+		if (clean(fd.get('middle_name'))) return { codeSent: true, email };
+
+		if (!isEmail(email)) return fail(400, { emailError: 'A valid email is required.', email });
 
 		const event = Number.isInteger(id) ? await getPublishedEvent(db, id) : null;
 		if (!event || registrationState(event) !== 'open')
-			return fail(400, { message: 'Registration is closed for this camp.' });
+			return fail(400, { message: 'Registration is closed for this camp.', email });
 
-		const firstName = clean(fd.get('firstName'));
-		const lastName = clean(fd.get('lastName'));
-		const email = clean(fd.get('email'));
-		const sex = clean(fd.get('sex'));
-
-		const fields = { firstName, lastName, email };
-		const errors: Record<string, string> = {};
-		if (!firstName) errors.firstName = 'First name is required.';
-		if (!lastName) errors.lastName = 'Last name is required.';
-		if (!isEmail(email)) errors.email = 'A valid email is required.';
-		if (sex !== 'm' && sex !== 'f') errors.sex = 'Please choose who this is for.';
-		if (Object.keys(errors).length) return fail(400, { errors, fields });
-
-		await setSession(
-			cookies,
-			{ eventId: id, firstName, lastName, email, sex: sex as 'm' | 'f' },
-			sessionSecret(platform)
-		);
-		return { started: true };
+		// issueLoginCode is rate-limited internally; we ignore its result so the
+		// UI response is identical whether or not a code was actually sent.
+		await issueLoginCode(db, email);
+		return { codeSent: true, email };
 	},
 
-	// "Start over": drop the identity cookie and return to step 1.
+	// Step 1b: verify the 6-digit code. On success, if we already know this
+	// camper we sign them in; otherwise we ask for their profile (name/sex).
+	verifyCode: async ({ request, locals, cookies, platform }) => {
+		const db = locals.db;
+		const fd = await request.formData();
+
+		const email = clean(fd.get('email'));
+		const code = clean(fd.get('code'));
+		if (!isEmail(email)) return fail(400, { codeError: 'Something went wrong. Start again.' });
+		if (!/^\d{6}$/.test(code)) return fail(400, { codeError: 'Enter the 6-digit code.', email });
+
+		const result = await verifyLoginCode(db, email, code);
+		if (!result.ok) {
+			const msg =
+				result.reason === 'expired'
+					? 'That code has expired. Request a new one.'
+					: result.reason === 'too_many_attempts'
+						? 'Too many attempts. Request a new code.'
+						: 'That code is incorrect.';
+			return fail(400, { codeError: msg, email });
+		}
+
+		const attendee = await findAttendeeByEmail(db, email);
+		if (attendee) {
+			await markAttendeeLogin(db, attendee.id);
+			await setSession(
+				cookies,
+				{
+					attendeeId: attendee.id,
+					firstName: attendee.firstName,
+					lastName: attendee.lastName,
+					email: attendee.email,
+					sex: attendee.sex as 'm' | 'f'
+				},
+				sessionSecret(platform)
+			);
+			return { signedIn: true };
+		}
+
+		// New camper: email is verified, but we need a profile before continuing.
+		return { needsProfile: true, email };
+	},
+
+	// Step 1c (new campers only): collect name + sex, create the account, and
+	// sign in. Reaching this step already required a verified code above.
+	profile: async ({ request, locals, cookies, platform }) => {
+		const db = locals.db;
+		const fd = await request.formData();
+
+		const email = clean(fd.get('email'));
+		const firstName = clean(fd.get('firstName'));
+		const lastName = clean(fd.get('lastName'));
+		const sex = clean(fd.get('sex'));
+
+		const fields = { firstName, lastName };
+		const errors: Record<string, string> = {};
+		if (!isEmail(email)) errors.profile = 'Something went wrong. Start again.';
+		if (!firstName) errors.firstName = 'First name is required.';
+		if (!lastName) errors.lastName = 'Last name is required.';
+		if (sex !== 'm' && sex !== 'f') errors.sex = 'Please choose who this is for.';
+		if (Object.keys(errors).length) return fail(400, { profileErrors: errors, fields, email });
+
+		const attendee = await upsertAttendee(db, {
+			email,
+			firstName,
+			lastName,
+			sex: sex as 'm' | 'f'
+		});
+		await setSession(
+			cookies,
+			{
+				attendeeId: attendee.id,
+				firstName: attendee.firstName,
+				lastName: attendee.lastName,
+				email: attendee.email,
+				sex: attendee.sex as 'm' | 'f'
+			},
+			sessionSecret(platform)
+		);
+		return { signedIn: true };
+	},
+
+	// "Start over" / sign out: drop the session cookie and return to step 1.
 	reset: async ({ cookies }) => {
 		clearSession(cookies);
 		return { reset: true };
@@ -153,7 +228,7 @@ export const actions: Actions = {
 
 		// Identity must come from the signed session established at step 1 —
 		// it is never taken from posted form fields.
-		const identity = await readSession(cookies, sessionSecret(platform), id);
+		const identity = await readSession(cookies, sessionSecret(platform));
 		if (!identity)
 			return fail(400, {
 				message: 'Your registration session expired. Please start again.',
@@ -172,7 +247,7 @@ export const actions: Actions = {
 		if (!heldEvent || registrationState(heldEvent) !== 'open')
 			return fail(400, { message: 'Registration is closed for this camp.' });
 
-		const { firstName, lastName, email, sex } = identity;
+		const { attendeeId, firstName, lastName, email, sex } = identity;
 
 		const errors: Record<string, string> = {};
 		if (!Number.isInteger(roomId) || !Number.isInteger(cotId)) errors.bed = 'Please select a bed.';
@@ -204,6 +279,7 @@ export const actions: Actions = {
 				eventId,
 				roomId,
 				cotId,
+				attendeeId,
 				firstName,
 				lastName,
 				email,

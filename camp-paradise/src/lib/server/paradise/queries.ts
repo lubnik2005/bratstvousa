@@ -5,7 +5,8 @@ import {
 	paradiseRooms,
 	paradiseEventRooms,
 	paradiseCots,
-	paradiseReservations
+	paradiseReservations,
+	paradiseAttendees
 } from '$lib/server/db/schema';
 
 /**
@@ -231,6 +232,94 @@ export async function isBedFree(db: AppDatabase, eventId: number, cotId: number)
 export async function requiredForms(db: AppDatabase) {
 	const { paradiseForms } = await import('$lib/server/db/schema');
 	return db.select().from(paradiseForms).where(eq(paradiseForms.required, true));
+}
+
+/** Find an attendee account by email (case-insensitive). */
+export async function findAttendeeByEmail(db: AppDatabase, email: string) {
+	const normalized = email.trim().toLowerCase();
+	const rows = await db
+		.select()
+		.from(paradiseAttendees)
+		.where(eq(paradiseAttendees.email, normalized))
+		.limit(1);
+	return rows[0] ?? null;
+}
+
+/**
+ * Create the attendee account if it doesn't exist, or update its profile.
+ * Marks the account verified and stamps last_login_at. Returns the account row.
+ */
+export async function upsertAttendee(
+	db: AppDatabase,
+	profile: { email: string; firstName: string; lastName: string; sex: 'm' | 'f' }
+) {
+	const email = profile.email.trim().toLowerCase();
+	const now = sql`datetime('now')`;
+	const existing = await findAttendeeByEmail(db, email);
+	if (existing) {
+		const updated = await db
+			.update(paradiseAttendees)
+			.set({
+				firstName: profile.firstName,
+				lastName: profile.lastName,
+				sex: profile.sex,
+				verifiedAt: existing.verifiedAt ?? (now as unknown as string),
+				lastLoginAt: now as unknown as string,
+				updatedAt: now as unknown as string
+			})
+			.where(eq(paradiseAttendees.id, existing.id))
+			.returning();
+		return updated[0];
+	}
+	const inserted = await db
+		.insert(paradiseAttendees)
+		.values({
+			email,
+			firstName: profile.firstName,
+			lastName: profile.lastName,
+			sex: profile.sex,
+			verifiedAt: now as unknown as string,
+			lastLoginAt: now as unknown as string
+		})
+		.returning();
+	return inserted[0];
+}
+
+/** Stamp an existing attendee as verified + logged-in (no profile change). */
+export async function markAttendeeLogin(db: AppDatabase, attendeeId: number) {
+	const now = sql`datetime('now')`;
+	await db
+		.update(paradiseAttendees)
+		.set({
+			verifiedAt: now as unknown as string,
+			lastLoginAt: now as unknown as string,
+			updatedAt: now as unknown as string
+		})
+		.where(eq(paradiseAttendees.id, attendeeId));
+}
+
+/** All reservations for a camper email (most recent first), with event + room names. */
+export async function reservationsForEmail(db: AppDatabase, email: string) {
+	const normalized = email.trim().toLowerCase();
+	return db
+		.select({
+			id: paradiseReservations.id,
+			eventId: paradiseReservations.eventId,
+			eventName: paradiseEvents.name,
+			startOn: paradiseEvents.startOn,
+			endOn: paradiseEvents.endOn,
+			roomName: paradiseRooms.name,
+			cotId: paradiseReservations.cotId,
+			price: paradiseReservations.price,
+			status: paradiseReservations.status,
+			confirmationCode: paradiseReservations.confirmationCode,
+			createdAt: paradiseReservations.createdAt
+		})
+		.from(paradiseReservations)
+		.leftJoin(paradiseEvents, eq(paradiseEvents.id, paradiseReservations.eventId))
+		.leftJoin(paradiseRooms, eq(paradiseRooms.id, paradiseReservations.roomId))
+		.where(sql`lower(${paradiseReservations.email}) = ${normalized}`)
+		.orderBy(sql`${paradiseReservations.createdAt} desc`);
 }
 
 /** Look up a reservation by its confirmation code. */
