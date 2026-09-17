@@ -76,9 +76,11 @@ ENV DEBIAN_FRONTEND=noninteractive \
 RUN apt-get update && apt-get install -y --no-install-recommends \
         nginx supervisor gosu sqlite3 curl \
         libzip-dev libpng-dev libjpeg-dev libfreetype6-dev libonig-dev libxml2-dev \
-        ca-certificates \
+        libicu-dev ca-certificates \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install -j"$(nproc)" gd zip bcmath exif pcntl opcache \
+    # intl is required by Nova's Currency field (NumberFormatter); the Symfony
+    # polyfill throws MethodArgumentValueNotImplementedException without it.
+    && docker-php-ext-install -j"$(nproc)" gd zip bcmath exif pcntl opcache intl \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
