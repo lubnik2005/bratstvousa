@@ -123,25 +123,26 @@ export async function getPublishedEvent(db: AppDatabase, eventId: number) {
 
 /** Total beds and taken beds for an event (for capacity display). */
 export async function eventCapacity(db: AppDatabase, eventId: number) {
-	const totalRows = await db
-		.select({ total: sql<number>`count(*)` })
-		.from(paradiseCots)
-		.innerJoin(
-			paradiseEventRooms,
-			and(
-				eq(paradiseEventRooms.roomId, paradiseCots.roomId),
-				eq(paradiseEventRooms.eventId, eventId)
+	const [totalRows, takenRows] = await Promise.all([
+		db
+			.select({ total: sql<number>`count(*)` })
+			.from(paradiseCots)
+			.innerJoin(
+				paradiseEventRooms,
+				and(
+					eq(paradiseEventRooms.roomId, paradiseCots.roomId),
+					eq(paradiseEventRooms.eventId, eventId)
+				)
 			)
-		)
-		.innerJoin(
-			paradiseRooms,
-			and(eq(paradiseRooms.id, paradiseCots.roomId), isNull(paradiseRooms.deletedAt))
-		);
-
-	const takenRows = await db
-		.select({ taken: sql<number>`count(*)` })
-		.from(paradiseReservations)
-		.where(and(eq(paradiseReservations.eventId, eventId), bedBlockedCondition()));
+			.innerJoin(
+				paradiseRooms,
+				and(eq(paradiseRooms.id, paradiseCots.roomId), isNull(paradiseRooms.deletedAt))
+			),
+		db
+			.select({ taken: sql<number>`count(*)` })
+			.from(paradiseReservations)
+			.where(and(eq(paradiseReservations.eventId, eventId), bedBlockedCondition()))
+	]);
 
 	const total = Number(totalRows[0]?.total ?? 0);
 	const taken = Number(takenRows[0]?.taken ?? 0);
@@ -170,15 +171,40 @@ export async function roomsForEvent(db: AppDatabase, eventId: number, sex: 'm' |
 		.where(and(eq(paradiseEventRooms.eventId, eventId), inArray(paradiseRooms.sex, [sex, 'c'])))
 		.orderBy(paradiseRooms.name);
 
-	// Attach only a boolean availability flag per room — never expose exact
-	// counts, so browsing rooms can't reveal how full a cabin is.
-	const result = [];
-	for (const room of rooms) {
-		const beds = await bedsForRoom(db, eventId, room.id);
-		const available = beds.some((b) => !b.taken);
-		result.push({ ...room, available });
-	}
-	return result;
+	if (rooms.length === 0) return [];
+	const roomIds = rooms.map((r) => r.id);
+
+	// Two set-based queries (instead of 2 per room): cots per room and blocked
+	// reservations per room for this event. Only a boolean availability flag is
+	// returned — never expose exact counts, so browsing rooms can't reveal how
+	// full a cabin is.
+	const [cotRows, takenRows] = await Promise.all([
+		db
+			.select({ roomId: paradiseCots.roomId, n: sql<number>`count(*)` })
+			.from(paradiseCots)
+			.where(inArray(paradiseCots.roomId, roomIds))
+			.groupBy(paradiseCots.roomId),
+		db
+			.select({ roomId: paradiseReservations.roomId, n: sql<number>`count(*)` })
+			.from(paradiseReservations)
+			.where(
+				and(
+					eq(paradiseReservations.eventId, eventId),
+					inArray(paradiseReservations.roomId, roomIds),
+					bedBlockedCondition()
+				)
+			)
+			.groupBy(paradiseReservations.roomId)
+	]);
+
+	const cotsByRoom = new Map(cotRows.map((r) => [r.roomId, Number(r.n)]));
+	const takenByRoom = new Map(takenRows.map((r) => [r.roomId, Number(r.n)]));
+
+	return rooms.map((room) => {
+		const cots = cotsByRoom.get(room.id) ?? 0;
+		const taken = takenByRoom.get(room.id) ?? 0;
+		return { ...room, available: cots > taken };
+	});
 }
 
 /**
@@ -232,7 +258,6 @@ export async function isBedFree(db: AppDatabase, eventId: number, cotId: number)
 
 /** Required forms for an event's registration flow. */
 export async function requiredForms(db: AppDatabase) {
-	const { paradiseForms } = await import('$lib/server/db/schema');
 	return db.select().from(paradiseForms).where(eq(paradiseForms.required, true));
 }
 
