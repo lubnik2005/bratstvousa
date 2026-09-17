@@ -300,6 +300,10 @@ export const cashEligibilityRules = sqliteTable('cash_eligibility_rules', {
 	eventSlug: text('event_slug'),
 	amountCents: integer('amount_cents').notNull(),
 	discountCode: text('discount_code'),
+	// Zeffy campaign (ticketing form) this event's tickets must come from. When
+	// any active rule for an event has this set, a payment whose campaign_id is
+	// not among the configured ids is forced to REVIEW_REQUIRED (spec §22).
+	zeffyCampaignId: text('zeffy_campaign_id'),
 	active: integer('active', { mode: 'boolean' }).default(true).notNull(),
 	createdAt: text('created_at')
 		.default(sql`(datetime('now'))`)

@@ -50,6 +50,13 @@
       "when": 1789590705361,
       "tag": "0006_common_proemial_gods",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1789657519203,
+      "tag": "0007_nifty_invaders",
+      "breakpoints": true
     }
   ]
 }

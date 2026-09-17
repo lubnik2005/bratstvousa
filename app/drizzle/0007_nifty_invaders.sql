@@ -1,0 +1,1 @@
+ALTER TABLE `cash_eligibility_rules` ADD `zeffy_campaign_id` text;

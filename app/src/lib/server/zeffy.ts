@@ -380,13 +380,33 @@ export async function applyPayment(
 			zeffyPaymentId,
 			cashEligible: reg.cashEligible,
 			discountCode: ids.discountCode,
-			faceValueCents: ids.faceValueCents
+			faceValueCents: ids.faceValueCents,
+			campaignId: ids.campaignId
 		};
 		const extraEvents: Array<{ event: string; amountCents: number | null }> = [];
 
+		// --- Campaign guard (spec §22) ---
+		// If any active rule for this event pins a Zeffy campaign, the ticket must
+		// come from one of those campaigns; otherwise force staff review regardless
+		// of amount or cash eligibility (a CAMP- code used on a different form).
+		const allowedCampaigns = await findCampaignIdsForEvent(db, reg.eventSlug);
+		const campaignMismatch =
+			allowedCampaigns.length > 0 &&
+			(ids.campaignId == null || !allowedCampaigns.includes(ids.campaignId));
+		auditPayload.allowedCampaignIds = allowedCampaigns;
+		auditPayload.campaignMatch = allowedCampaigns.length > 0 ? !campaignMismatch : null;
+
 		let regUpdate: Record<string, unknown>;
 		let auditEvent: string;
-		if (amount > 0) {
+		if (campaignMismatch) {
+			regUpdate = {
+				paymentStatus: 'REVIEW_REQUIRED',
+				amountPaidCents: 0,
+				amountDueCents: priceCents
+			};
+			auditEvent = 'campaign_mismatch';
+			auditPayload.zeffyAmountCents = amount;
+		} else if (amount > 0) {
 			// Normal paid online checkout.
 			regUpdate = {
 				paymentMethod: 'ONLINE',
@@ -565,6 +585,29 @@ async function findRuleByCode(
 	} catch (err) {
 		console.warn('cash_eligibility_rules code lookup failed:', err);
 		return null;
+	}
+}
+
+/**
+ * Distinct Zeffy campaign ids pinned by active rules for an event. Empty array
+ * means "no campaign restriction configured". Best-effort.
+ */
+async function findCampaignIdsForEvent(db: AppDatabase, eventSlug: string): Promise<string[]> {
+	try {
+		const rows = await db
+			.select({ campaignId: cashEligibilityRules.zeffyCampaignId })
+			.from(cashEligibilityRules)
+			.where(
+				and(
+					eq(cashEligibilityRules.eventSlug, eventSlug),
+					eq(cashEligibilityRules.active, true),
+					sql`${cashEligibilityRules.zeffyCampaignId} IS NOT NULL AND ${cashEligibilityRules.zeffyCampaignId} <> ''`
+				)
+			);
+		return [...new Set(rows.map((r) => r.campaignId).filter((c): c is string => !!c))];
+	} catch (err) {
+		console.warn('cash_eligibility_rules campaign lookup failed:', err);
+		return [];
 	}
 }
 

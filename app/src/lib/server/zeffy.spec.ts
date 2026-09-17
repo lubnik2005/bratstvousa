@@ -98,6 +98,7 @@ function makeDb(): AppDatabase {
 			event_slug text,
 			amount_cents integer NOT NULL,
 			discount_code text,
+			zeffy_campaign_id text,
 			active integer DEFAULT true NOT NULL,
 			created_at text DEFAULT (datetime('now')) NOT NULL,
 			updated_at text DEFAULT (datetime('now')) NOT NULL
@@ -570,5 +571,109 @@ describe('applyPayment discount-code validation (cash_eligibility_rules)', () =>
 		const payload = ev?.payload as Payload;
 		expect(payload?.discountCode).toBeNull();
 		expect(payload?.leakedFromRuleId ?? null).toBeNull();
+	});
+});
+
+describe('applyPayment campaign validation (cash_eligibility_rules.zeffy_campaign_id)', () => {
+	const CAMP = '7351fd37-0000-0000-0000-000000000002';
+	let db: AppDatabase;
+	beforeEach(() => {
+		db = makeDb();
+	});
+
+	async function getReg(id: number) {
+		return (
+			await db.select().from(campRegistrations).where(eq(campRegistrations.id, id)).limit(1)
+		)[0];
+	}
+	async function getEvents(id: number) {
+		return db.select().from(registrationEvents).where(eq(registrationEvents.registrationId, id));
+	}
+	type Payload = Record<string, unknown> | null;
+
+	function checkout(id: string, amount: number, campaignId: string | null): ZeffyPaymentPayload {
+		return {
+			id,
+			status: 'succeeded',
+			amount,
+			campaign_id: campaignId,
+			buyer: { email: 'john@example.com' },
+			buyer_questions: [{ answer: 'CAMP-ABC12' }],
+			discount: amount === 0 ? { code: 'PNW-CASH-2026', amount: 17500 } : undefined,
+			items: [{ id: 'item-1', amount: 17500 }]
+		};
+	}
+
+	it('no campaign configured on any rule -> no restriction (paid online normally)', async () => {
+		await seedRule(db, { churchId: 12, zeffyCampaignId: null });
+		const id = await seedReg(db, { churchId: 12 });
+		await applyPayment(db, checkout('zp-open', 17500, 'some-other-campaign'));
+		const reg = await getReg(id);
+		expect(reg.paymentStatus).toBe('PAID');
+		expect(reg.paymentMethod).toBe('ONLINE');
+		const ev = (await getEvents(id)).find((e) => e.event === 'online_payment');
+		expect((ev?.payload as Payload)?.campaignMatch).toBeNull();
+	});
+
+	it('campaign matches -> normal cash DUE decision', async () => {
+		await seedRule(db, { churchId: 12, zeffyCampaignId: CAMP });
+		const id = await seedReg(db, { cashEligible: true, churchId: 12 });
+		await applyPayment(db, checkout('zp-ok', 0, CAMP));
+		const reg = await getReg(id);
+		expect(reg.paymentStatus).toBe('DUE');
+		expect(reg.paymentMethod).toBe('CASH');
+		expect(reg.zeffyCampaignId).toBe(CAMP);
+		const ev = (await getEvents(id)).find((e) => e.event === 'cash_due');
+		expect((ev?.payload as Payload)?.campaignMatch).toBe(true);
+	});
+
+	it('$0 from a different campaign -> REVIEW_REQUIRED even when cash eligible', async () => {
+		await seedRule(db, { churchId: 12, zeffyCampaignId: CAMP });
+		const id = await seedReg(db, { cashEligible: true, churchId: 12 });
+		await applyPayment(db, checkout('zp-wrong', 0, 'other-campaign'));
+		const reg = await getReg(id);
+		expect(reg.paymentStatus).toBe('REVIEW_REQUIRED');
+		expect(reg.paymentMethod).toBeNull();
+		expect(reg.amountDueCents).toBe(17500);
+		const evs = await getEvents(id);
+		expect(evs.map((e) => e.event)).toContain('campaign_mismatch');
+		expect(evs.map((e) => e.event)).not.toContain('cash_due');
+		const payload = evs.find((e) => e.event === 'campaign_mismatch')?.payload as Payload;
+		expect(payload?.campaignId).toBe('other-campaign');
+		expect(payload?.allowedCampaignIds).toEqual([CAMP]);
+		expect(payload?.campaignMatch).toBe(false);
+	});
+
+	it('paid amount from a different campaign -> REVIEW_REQUIRED, not PAID', async () => {
+		await seedRule(db, { churchId: 12, zeffyCampaignId: CAMP });
+		const id = await seedReg(db, { churchId: 12 });
+		await applyPayment(db, checkout('zp-wrong-paid', 5000, 'other-campaign'));
+		const reg = await getReg(id);
+		expect(reg.paymentStatus).toBe('REVIEW_REQUIRED');
+		expect(reg.amountPaidCents).toBe(0);
+		const payload = (await getEvents(id)).find((e) => e.event === 'campaign_mismatch')
+			?.payload as Payload;
+		expect(payload?.zeffyAmountCents).toBe(5000);
+	});
+
+	it('missing campaign_id on payload when one is required -> REVIEW_REQUIRED', async () => {
+		await seedRule(db, { churchId: 12, zeffyCampaignId: CAMP });
+		const id = await seedReg(db, { cashEligible: true, churchId: 12 });
+		await applyPayment(db, checkout('zp-nocamp', 0, null));
+		expect((await getReg(id)).paymentStatus).toBe('REVIEW_REQUIRED');
+	});
+
+	it('restriction applies event-wide: rule for another church pins the campaign', async () => {
+		await seedRule(db, { churchId: 12, zeffyCampaignId: CAMP });
+		const id = await seedReg(db, { churchId: 99 });
+		await applyPayment(db, checkout('zp-event-wide', 17500, 'other-campaign'));
+		expect((await getReg(id)).paymentStatus).toBe('REVIEW_REQUIRED');
+	});
+
+	it('inactive rule does not pin the campaign', async () => {
+		await seedRule(db, { churchId: 12, zeffyCampaignId: CAMP, active: false });
+		const id = await seedReg(db, { churchId: 12 });
+		await applyPayment(db, checkout('zp-inactive', 17500, 'other-campaign'));
+		expect((await getReg(id)).paymentStatus).toBe('PAID');
 	});
 });
