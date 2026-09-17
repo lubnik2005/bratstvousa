@@ -1,4 +1,4 @@
-import { and, eq, inArray, isNull, ne, or, gt, sql } from 'drizzle-orm';
+import { and, desc, eq, inArray, isNull, ne, or, gt, sql } from 'drizzle-orm';
 import type { AppDatabase } from '$lib/server/db';
 import {
 	paradiseEvents,
@@ -6,7 +6,9 @@ import {
 	paradiseEventRooms,
 	paradiseCots,
 	paradiseReservations,
-	paradiseAttendees
+	paradiseAttendees,
+	paradiseForms,
+	paradiseFormAnswers
 } from '$lib/server/db/schema';
 
 /**
@@ -323,6 +325,43 @@ export async function reservationsForEmail(db: AppDatabase, email: string) {
 }
 
 /** Look up a reservation by its confirmation code. */
+function formAnswerSelect(db: AppDatabase) {
+	return db
+		.select({
+			id: paradiseFormAnswers.id,
+			formId: paradiseFormAnswers.formId,
+			formName: paradiseForms.name,
+			eventId: paradiseFormAnswers.eventId,
+			eventName: paradiseEvents.name,
+			startOn: paradiseEvents.startOn,
+			endOn: paradiseEvents.endOn,
+			signedOn: paradiseFormAnswers.signedOn,
+			answers: paradiseFormAnswers.answers
+		})
+		.from(paradiseFormAnswers)
+		.leftJoin(paradiseForms, eq(paradiseForms.id, paradiseFormAnswers.formId))
+		.leftJoin(paradiseEvents, eq(paradiseEvents.id, paradiseFormAnswers.eventId));
+}
+
+/** All form answers (health forms etc.) signed by this camper email, newest first. */
+export async function formAnswersForEmail(db: AppDatabase, email: string) {
+	const normalized = email.trim().toLowerCase();
+	return formAnswerSelect(db)
+		.where(sql`lower(${paradiseFormAnswers.email}) = ${normalized}`)
+		.orderBy(desc(paradiseFormAnswers.signedOn), desc(paradiseFormAnswers.id));
+}
+
+/** A single form answer, only if it belongs to this camper email. */
+export async function formAnswerForEmail(db: AppDatabase, id: number, email: string) {
+	const normalized = email.trim().toLowerCase();
+	const rows = await formAnswerSelect(db)
+		.where(
+			and(eq(paradiseFormAnswers.id, id), sql`lower(${paradiseFormAnswers.email}) = ${normalized}`)
+		)
+		.limit(1);
+	return rows[0] ?? null;
+}
+
 export async function reservationByCode(db: AppDatabase, code: string) {
 	const rows = await db
 		.select()

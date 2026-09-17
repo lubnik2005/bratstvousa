@@ -3,6 +3,7 @@
 	import { enhance } from '$app/forms';
 	import { goto } from '$app/navigation';
 	import Turnstile from '$lib/components/Turnstile.svelte';
+	import HealthForm from '$lib/components/HealthForm.svelte';
 	import type { PageData, ActionData } from './$types';
 
 	export let data: PageData;
@@ -459,83 +460,87 @@
 
 					{#each data.forms as f (f.id)}
 						{@const parsed = parseForm(f.questions)}
-						<div class="mb-4 pt-3 border-top">
-							<h3 class="h6 mb-2">{f.name}</h3>
+						{#if f.id === 2 || f.name === 'Health Form'}
+							<HealthForm formId={f.id} formName={f.name} errors={form?.errors} />
+						{:else}
+							<div class="mb-4 pt-3 border-top">
+								<h3 class="h6 mb-2">{f.name}</h3>
 
-							{#if parsed.body.length}
-								<div class="cp-rules mb-3">
-									{#each parsed.body as para}
-										<p class="small mb-2">{para}</p>
-									{/each}
-								</div>
-							{/if}
+								{#if parsed.body.length}
+									<div class="cp-rules mb-3">
+										{#each parsed.body as para}
+											<p class="small mb-2">{para}</p>
+										{/each}
+									</div>
+								{/if}
 
-							{#each parsed.questions as q (q.key)}
-								{@const fieldName = `form_${f.id}_${q.key}`}
-								<div class="mb-3">
-									{#if q.type === 'checkbox'}
-										<div class="form-check">
-											<input
-												class="form-check-input"
-												type="checkbox"
-												name={fieldName}
-												id={fieldName}
-												value="yes"
-												required={q.required}
-											/>
-											<label class="form-check-label" for={fieldName}>{q.label}</label>
-										</div>
-									{:else}
-										<label class="form-label" for={fieldName}>{q.label}</label>
-										{#if q.type === 'textarea'}
-											<textarea
-												class="form-control"
-												name={fieldName}
-												id={fieldName}
-												rows="3"
-												required={q.required}
-											></textarea>
-										{:else if q.type === 'select'}
-											<select
-												class="form-select"
-												name={fieldName}
-												id={fieldName}
-												required={q.required}
-											>
-												<option value="" disabled selected>Choose…</option>
-												{#each q.options ?? [] as opt}
-													<option value={opt}>{opt}</option>
-												{/each}
-											</select>
+								{#each parsed.questions as q (q.key)}
+									{@const fieldName = `form_${f.id}_${q.key}`}
+									<div class="mb-3">
+										{#if q.type === 'checkbox'}
+											<div class="form-check">
+												<input
+													class="form-check-input"
+													type="checkbox"
+													name={fieldName}
+													id={fieldName}
+													value="yes"
+													required={q.required}
+												/>
+												<label class="form-check-label" for={fieldName}>{q.label}</label>
+											</div>
 										{:else}
-											<input
-												class="form-control"
-												type={q.type === 'date' ? 'date' : 'text'}
-												name={fieldName}
-												id={fieldName}
-												required={q.required}
-											/>
+											<label class="form-label" for={fieldName}>{q.label}</label>
+											{#if q.type === 'textarea'}
+												<textarea
+													class="form-control"
+													name={fieldName}
+													id={fieldName}
+													rows="3"
+													required={q.required}
+												></textarea>
+											{:else if q.type === 'select'}
+												<select
+													class="form-select"
+													name={fieldName}
+													id={fieldName}
+													required={q.required}
+												>
+													<option value="" disabled selected>Choose…</option>
+													{#each q.options ?? [] as opt}
+														<option value={opt}>{opt}</option>
+													{/each}
+												</select>
+											{:else}
+												<input
+													class="form-control"
+													type={q.type === 'date' ? 'date' : 'text'}
+													name={fieldName}
+													id={fieldName}
+													required={q.required}
+												/>
+											{/if}
 										{/if}
+									</div>
+								{/each}
+
+								<div class="form-check">
+									<input
+										class="form-check-input"
+										type="checkbox"
+										name={`form_${f.id}`}
+										id={`form-${f.id}`}
+										required
+									/>
+									<label class="form-check-label" for={`form-${f.id}`}>
+										I have read and agree to the {f.name}.
+									</label>
+									{#if form?.errors?.[`form_${f.id}`]}
+										<div class="text-danger small">{form.errors[`form_${f.id}`]}</div>
 									{/if}
 								</div>
-							{/each}
-
-							<div class="form-check">
-								<input
-									class="form-check-input"
-									type="checkbox"
-									name={`form_${f.id}`}
-									id={`form-${f.id}`}
-									required
-								/>
-								<label class="form-check-label" for={`form-${f.id}`}>
-									I have read and agree to the {f.name}.
-								</label>
-								{#if form?.errors?.[`form_${f.id}`]}
-									<div class="text-danger small">{form.errors[`form_${f.id}`]}</div>
-								{/if}
 							</div>
-						</div>
+						{/if}
 					{/each}
 
 					{#if form?.message}<div class="alert alert-danger py-2 mt-3">{form.message}</div>{/if}

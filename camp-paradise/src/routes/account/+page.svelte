@@ -34,6 +34,14 @@
 	}
 
 	$: openCamps = data.open ?? [];
+	$: healthForms = data.forms ?? [];
+
+	function ageLabel(answers: unknown): string {
+		const a = answers as { isMinor?: unknown } | null;
+		if (a?.isMinor === 'true' || a?.isMinor === true) return 'Minor';
+		if (a?.isMinor === 'false' || a?.isMinor === false) return 'Adult';
+		return '—';
+	}
 </script>
 
 <svelte:head>
@@ -116,6 +124,49 @@
 					{/if}
 				</div>
 			{/each}
+		</div>
+	{/if}
+
+	<h2 class="h5 mb-3 mt-5">Health forms</h2>
+
+	{#if healthForms.length === 0}
+		<div class="cp-card p-4 text-center text-muted small">
+			No forms signed yet. You'll sign the Health Form when you register for a camp.
+		</div>
+	{:else}
+		<div class="cp-card p-0 overflow-hidden">
+			<table class="table table-hover align-middle mb-0">
+				<thead class="table-light">
+					<tr>
+						<th>Form</th>
+						<th>Camp</th>
+						<th>Age</th>
+						<th>Signed on</th>
+						<th></th>
+					</tr>
+				</thead>
+				<tbody>
+					{#each healthForms as f (f.id)}
+						<tr>
+							<td class="fw-semibold">{f.formName ?? 'Form'}</td>
+							<td>
+								{f.eventName ?? 'Camp'}
+								<div class="text-muted small">{dateRange(f.startOn, f.endOn)}</div>
+							</td>
+							<td>{ageLabel(f.answers)}</td>
+							<td class="small">{longDate(f.signedOn) || '—'}</td>
+							<td class="text-end">
+								<a
+									href={`/account/forms/${f.id}`}
+									class="text-decoration-none small text-success fw-semibold"
+								>
+									View <i class="bi bi-arrow-right"></i>
+								</a>
+							</td>
+						</tr>
+					{/each}
+				</tbody>
+			</table>
 		</div>
 	{/if}
 

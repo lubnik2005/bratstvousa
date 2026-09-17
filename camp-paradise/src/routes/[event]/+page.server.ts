@@ -16,6 +16,7 @@ import {
 import { generateConfirmationCode } from '$lib/server/email/paradise';
 import { issueLoginCode, verifyLoginCode } from '$lib/server/paradise/auth';
 import { makeStripe } from '$lib/server/paradise/payments';
+import { isHealthForm, parseHealthForm } from '$lib/server/paradise/health-form';
 import { verifyTurnstile, TURNSTILE_ERROR_MESSAGE } from '$lib/server/turnstile';
 import { readSession, setSession } from '$lib/server/paradise/session';
 import {
@@ -247,8 +248,14 @@ export const actions: Actions = {
 		if (!Number.isInteger(roomId) || !Number.isInteger(cotId)) errors.bed = 'Please select a bed.';
 
 		const forms = await requiredForms(db);
+		const parsedAnswers = new Map<number, Record<string, unknown>>();
 		for (const form of forms) {
 			if (!fd.get(`form_${form.id}`)) errors[`form_${form.id}`] = `Please agree to ${form.name}.`;
+			if (isHealthForm(form)) {
+				const parsed = parseHealthForm(fd, form.id);
+				Object.assign(errors, parsed.errors);
+				parsedAnswers.set(form.id, parsed.answers);
+			}
 		}
 
 		if (Object.keys(errors).length) return fail(400, { errors });
@@ -289,12 +296,15 @@ export const actions: Actions = {
 		// Persist each signed agreement / form as a paradise_form_answers row.
 		const signedOn = new Date().toISOString();
 		for (const form of forms) {
-			const answers: Record<string, unknown> = { agreed: true };
-			const questions = Array.isArray(form.questions) ? form.questions : [];
-			for (const q of questions) {
-				const key = (q as { key?: string })?.key;
-				if (typeof key === 'string' && key) {
-					answers[key] = clean(fd.get(`form_${form.id}_${key}`));
+			let answers: Record<string, unknown> | undefined = parsedAnswers.get(form.id);
+			if (!answers) {
+				answers = { agreed: true };
+				const questions = Array.isArray(form.questions) ? form.questions : [];
+				for (const q of questions) {
+					const key = (q as { key?: string })?.key;
+					if (typeof key === 'string' && key) {
+						answers[key] = clean(fd.get(`form_${form.id}_${key}`));
+					}
 				}
 			}
 			await db.insert(paradiseFormAnswers).values({
