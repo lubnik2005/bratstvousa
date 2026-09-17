@@ -34,6 +34,7 @@ retro-actively change existing registrations (see "Adding a rule late" below).
 | **Event Slug** | The event's URL slug, e.g. `osennii-molodeznyi-lager-szr-2026` (the part of the registration URL after `/youth-ministry/`). |
 | **Amount** | The camp price for this church in dollars, e.g. `350.00`. This is what staff will collect. It is copied onto each registration at sign-up time, so changing it later does not change people who already registered. |
 | **Discount Code** | The Zeffy code, exactly as created in Zeffy. Used for reference and for a soft cross-check on the webhook. |
+| **Zeffy Campaign Id** | Optional but recommended. The UUID of the Zeffy ticketing form for this event. Find it in any **Zeffy Payment** → Raw JSON → `campaign_id`. Once set on any active rule for the event, payments that arrive from a *different* Zeffy form (e.g. someone typed their CAMP- code into last year's form) are flagged **Review required** instead of being accepted. |
 | **Active** | On. Turn off to stop new cash registrations from this church without deleting history. |
 
 4. Save. Repeat for each cash church.
@@ -55,9 +56,14 @@ Cash Eligible flag (not the code):
 
 | Registration | Zeffy total | Result |
 | --- | --- | --- |
+| any | any, but from a Zeffy campaign that is **not** listed on an active rule for the event | **Review required** — audit event `campaign_mismatch` (payment is not counted as paid even if money was taken) |
 | Cash Eligible = Yes | $0 | **Cash due**, Method = Cash, Due = Event Price |
 | Cash Eligible = No | $0 | **Review required** — code was leaked or misused |
 | anything | > $0 | **Paid**, Method = Online |
+
+The campaign check only applies when at least one active rule for the event
+has a **Zeffy Campaign Id**. If none do, payments from any Zeffy form are
+accepted (the old behaviour).
 
 If a cash-eligible person used the wrong code (or none — e.g. Zeffy had a free
 ticket type), they are still marked Cash due, and an audit event

@@ -18,10 +18,17 @@ for them by hand, link it by pasting the Zeffy Payment Id, set Payment to *Paid*
 if the amount was > $0, and check them in.
 
 **Payment badge says "Review required".**
-They used a 100% discount code but their church is not cash-eligible. Do not
+Usually they used a 100% discount code but their church is not cash-eligible. Do not
 admit for free. Either collect cash and run **Cash Received & Check In**, or run
 **Resolve Review** and pick *Waive* if an organiser confirms they should be free.
 See [Cash at Check-In](cash-at-check-in.md).
+
+It can also mean the payment came from the **wrong Zeffy form** (a different
+campaign than the one on the event's [eligibility rules](cash-eligibility-rules.md)).
+Open the linked **Zeffy Payment** and check its Amount: if they really paid the
+full price on the other form, Edit the registration to Method = Online, Payment =
+Paid, Paid = amount, Due = 0, then **Check In**. If it was $0, treat it as a
+leaked code.
 
 **Payment badge says "Pending".**
 The attendee never completed Zeffy checkout (no ticket exists). If they are

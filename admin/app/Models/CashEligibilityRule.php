@@ -25,6 +25,7 @@ class CashEligibilityRule extends Model implements Auditable
         'event_slug',
         'amount_cents',
         'discount_code',
+        'zeffy_campaign_id',
         'active',
     ];
 

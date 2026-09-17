@@ -80,6 +80,11 @@ class CashEligibilityRule extends Resource
                 ->rules('nullable', 'max:255')
                 ->help('Shared Zeffy 100%-off code for this group (reference only — never proof of eligibility). A shared code = multiple rows with the same value.'),
 
+            Text::make('Zeffy Campaign Id', 'zeffy_campaign_id')
+                ->rules('nullable', 'max:255')
+                ->hideFromIndex()
+                ->help('The Zeffy campaign (ticketing form) UUID for this event. When set on any active rule for the event, payments from other Zeffy campaigns are flagged "Review required" instead of being accepted. Copy it from a Zeffy Payment\'s raw JSON (campaign_id).'),
+
             Boolean::make('Active')
                 ->sortable()
                 ->help('Only active rules grant cash eligibility at registration time.'),

@@ -180,9 +180,26 @@ class ZeffySyncPayments extends Command
                 'source' => 'zeffy:sync',
                 'discount_code' => $ids['discountCode'],
                 'face_value_cents' => $ids['faceValueCents'],
+                'campaign_id' => $ids['campaignId'],
             ];
 
-            if ($amount > 0) {
+            // Campaign guard (spec §22): if any active rule for this event pins a
+            // Zeffy campaign, the ticket must come from one of them; otherwise force
+            // staff review regardless of amount or cash eligibility.
+            $allowedCampaigns = $this->findCampaignIdsForEvent($registration->event_slug);
+            $campaignMismatch = $allowedCampaigns !== []
+                && ($ids['campaignId'] === null || ! in_array($ids['campaignId'], $allowedCampaigns, true));
+            $auditPayload['allowed_campaign_ids'] = $allowedCampaigns;
+            $auditPayload['campaign_match'] = $allowedCampaigns !== [] ? ! $campaignMismatch : null;
+
+            if ($campaignMismatch) {
+                $registration->payment_status = 'REVIEW_REQUIRED';
+                $registration->amount_paid_cents = 0;
+                $registration->amount_due_cents = $priceCents;
+                $auditEvent = 'campaign_mismatch';
+                $auditAmount = $amount;
+                $auditPayload['zeffy_amount_cents'] = $amount;
+            } elseif ($amount > 0) {
                 // Normal paid online checkout.
                 $registration->payment_method = 'ONLINE';
                 $registration->payment_status = 'PAID';
@@ -319,6 +336,34 @@ class ZeffySyncPayments extends Command
             Log::warning('zeffy:sync rule lookup failed', ['error' => $e->getMessage()]);
 
             return null;
+        }
+    }
+
+    /**
+     * Distinct Zeffy campaign ids pinned by active rules for an event.
+     * Empty array = no campaign restriction configured.
+     *
+     * @return string[]
+     */
+    private function findCampaignIdsForEvent(?string $eventSlug): array
+    {
+        if (! $eventSlug) {
+            return [];
+        }
+
+        try {
+            return CashEligibilityRule::where('event_slug', $eventSlug)
+                ->where('active', true)
+                ->whereNotNull('zeffy_campaign_id')
+                ->where('zeffy_campaign_id', '<>', '')
+                ->pluck('zeffy_campaign_id')
+                ->unique()
+                ->values()
+                ->all();
+        } catch (\Throwable $e) {
+            Log::warning('zeffy:sync campaign lookup failed', ['error' => $e->getMessage()]);
+
+            return [];
         }
     }
 
