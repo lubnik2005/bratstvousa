@@ -4,11 +4,16 @@
 	export let data: PageData;
 
 	const badge: Record<string, string> = {
-		held: 'text-bg-warning',
-		confirmed: 'text-bg-success',
-		cancelled: 'text-bg-secondary',
-		refunded: 'text-bg-secondary'
+		held: 'bg-amber-100 text-amber-800',
+		confirmed: 'bg-mint/60 text-primary-600',
+		cancelled: 'bg-ink/10 text-ink-soft',
+		refunded: 'bg-ink/10 text-ink-soft'
 	};
+
+	const btn =
+		'inline-flex items-center justify-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-primary/25 transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-xl disabled:opacity-50 disabled:hover:translate-y-0';
+	const card = 'rounded-3xl bg-white p-6 shadow-xl shadow-ink/5 ring-1 ring-ink/5';
+	const link = 'text-sm font-semibold text-primary-600 hover:text-primary';
 
 	function longDate(s: string | null): string {
 		if (!s) return '';
@@ -48,76 +53,90 @@
 	<title>My reservations · Camp Paradise</title>
 </svelte:head>
 
-<div class="container py-5" style="max-width: 760px">
-	<div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+<div class="mx-auto max-w-3xl px-4 py-10 lg:py-14">
+	<div class="mb-8 flex flex-wrap items-center justify-between gap-3">
 		<div>
-			<h1 class="cp-display mb-1">Hi, {data.camper.firstName}</h1>
-			<p class="text-muted mb-0">{data.camper.email}</p>
+			<p class="eyebrow text-primary-600">My account</p>
+			<h1 class="text-3xl lg:text-4xl">Hi, {data.camper.firstName}</h1>
+			<p class="mt-1 text-sm text-ink-soft">{data.camper.email}</p>
 		</div>
 		<form method="post" action="?/signout">
-			<button type="submit" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
+			<button
+				type="submit"
+				class="rounded-full border border-ink/15 px-4 py-2 text-sm font-semibold text-ink transition hover:bg-ink/5"
+			>
 				Sign out
 			</button>
 		</form>
 	</div>
 
 	{#if openCamps.length > 0}
-		<h2 class="h5 mb-3">Open camps</h2>
-		<div class="row g-3 mb-5">
+		<h2 class="mb-3 text-xl">Open camps</h2>
+		<div class="mb-10 grid gap-4 sm:grid-cols-2">
 			{#each openCamps as c (c.id)}
-				<div class="col-sm-6">
-					<div class="cp-card p-4 h-100 d-flex flex-column">
-						<h3 class="h6 mb-1">{c.name}</h3>
-						<p class="text-muted small mb-2">{dateRange(c.startOn, c.endOn)}</p>
-						{#if c.available > 0}
-							<span class="cp-badge-avail mb-3">{c.available} of {c.total} beds open</span>
-						{:else}
-							<span class="badge text-bg-secondary mb-3">Full</span>
-						{/if}
-						<a
-							href={`/${c.id}`}
-							class="btn btn-primary rounded-pill px-4 mt-auto align-self-start"
-							class:disabled={c.available === 0}
+				<div class="{card} flex h-full flex-col">
+					<h3 class="text-lg">{c.name}</h3>
+					<p class="mb-2 text-sm text-ink-soft">{dateRange(c.startOn, c.endOn)}</p>
+					{#if c.available > 0}
+						<span
+							class="mb-4 self-start rounded-full bg-mint/60 px-3 py-1 text-xs font-semibold text-primary-600"
 						>
-							{c.available > 0 ? 'Register' : 'Sold out'}
-						</a>
-					</div>
+							{c.available} of {c.total} beds open
+						</span>
+					{:else}
+						<span
+							class="mb-4 self-start rounded-full bg-ink/10 px-3 py-1 text-xs font-semibold text-ink-soft"
+						>
+							Full
+						</span>
+					{/if}
+					<a
+						href={`/${c.id}`}
+						class="{btn} mt-auto self-start"
+						class:pointer-events-none={c.available === 0}
+						class:opacity-50={c.available === 0}
+					>
+						{c.available > 0 ? 'Register' : 'Sold out'}
+					</a>
 				</div>
 			{/each}
 		</div>
 	{/if}
 
-	<h2 class="h5 mb-3">My reservations</h2>
+	<h2 class="mb-3 text-xl">My reservations</h2>
 
 	{#if data.reservations.length === 0}
-		<div class="cp-card p-5 text-center">
-			<i class="bi bi-calendar-heart fs-1 text-success"></i>
-			<p class="mt-3 mb-4 text-muted">You don't have any reservations yet.</p>
-			<a href="/camps" class="btn btn-primary rounded-pill px-4">Browse camps</a>
+		<div class="{card} text-center">
+			<i class="bi bi-calendar-heart text-4xl text-primary"></i>
+			<p class="mt-3 mb-5 text-ink-soft">You don't have any reservations yet.</p>
+			<a href="/camps" class={btn}>Browse camps</a>
 		</div>
 	{:else}
-		<div class="d-flex flex-column gap-3">
+		<div class="flex flex-col gap-4">
 			{#each data.reservations as r (r.id)}
-				<div class="cp-card p-4">
-					<div class="d-flex justify-content-between align-items-start gap-3 flex-wrap">
+				<div class={card}>
+					<div class="flex flex-wrap items-start justify-between gap-3">
 						<div>
-							<h3 class="h6 mb-1">{r.eventName ?? 'Camp'}</h3>
-							<p class="text-muted small mb-1">{dateRange(r.startOn, r.endOn)}</p>
+							<h3 class="text-lg">{r.eventName ?? 'Camp'}</h3>
+							<p class="text-sm text-ink-soft">{dateRange(r.startOn, r.endOn)}</p>
 							{#if r.roomName}
-								<p class="small mb-0"><i class="bi bi-house-door me-1"></i>{r.roomName}</p>
+								<p class="mt-1 text-sm"><i class="bi bi-house-door mr-1"></i>{r.roomName}</p>
 							{/if}
 						</div>
-						<div class="text-end">
-							<span class="badge {badge[r.status] ?? 'text-bg-secondary'} mb-2">{r.status}</span>
-							<div class="fw-semibold">{dollars(r.price)}</div>
+						<div class="text-right">
+							<span
+								class="inline-block rounded-full px-3 py-1 text-xs font-semibold capitalize {badge[
+									r.status
+								] ?? 'bg-ink/10 text-ink-soft'}"
+							>
+								{r.status}
+							</span>
+							<div class="mt-2 font-semibold">{dollars(r.price)}</div>
 						</div>
 					</div>
 					{#if r.confirmationCode}
-						<div class="mt-3 pt-3 border-top">
-							<a
-								href={`/reservation/${r.confirmationCode}`}
-								class="text-decoration-none small text-success fw-semibold"
-							>
+						<div class="mt-4 border-t border-ink/10 pt-4">
+							<a href={`/reservation/${r.confirmationCode}`} class={link}>
 								View reservation <i class="bi bi-arrow-right"></i>
 							</a>
 						</div>
@@ -127,39 +146,36 @@
 		</div>
 	{/if}
 
-	<h2 class="h5 mb-3 mt-5">Health forms</h2>
+	<h2 class="mt-12 mb-3 text-xl">Health forms</h2>
 
 	{#if healthForms.length === 0}
-		<div class="cp-card p-4 text-center text-muted small">
+		<div class="{card} text-center text-sm text-ink-soft">
 			No forms signed yet. You'll sign the Health Form when you register for a camp.
 		</div>
 	{:else}
-		<div class="cp-card p-0 overflow-hidden">
-			<table class="table table-hover align-middle mb-0">
-				<thead class="table-light">
+		<div class="overflow-hidden rounded-3xl bg-white shadow-xl shadow-ink/5 ring-1 ring-ink/5">
+			<table class="w-full text-left text-sm">
+				<thead class="bg-sand-warm text-xs tracking-wide text-ink-soft uppercase">
 					<tr>
-						<th>Form</th>
-						<th>Camp</th>
-						<th>Age</th>
-						<th>Signed on</th>
-						<th></th>
+						<th class="px-4 py-3">Form</th>
+						<th class="px-4 py-3">Camp</th>
+						<th class="px-4 py-3">Age</th>
+						<th class="px-4 py-3">Signed on</th>
+						<th class="px-4 py-3"></th>
 					</tr>
 				</thead>
-				<tbody>
+				<tbody class="divide-y divide-ink/10">
 					{#each healthForms as f (f.id)}
-						<tr>
-							<td class="fw-semibold">{f.formName ?? 'Form'}</td>
-							<td>
+						<tr class="hover:bg-sand/60">
+							<td class="px-4 py-3 font-semibold">{f.formName ?? 'Form'}</td>
+							<td class="px-4 py-3">
 								{f.eventName ?? 'Camp'}
-								<div class="text-muted small">{dateRange(f.startOn, f.endOn)}</div>
+								<div class="text-xs text-ink-soft">{dateRange(f.startOn, f.endOn)}</div>
 							</td>
-							<td>{ageLabel(f.answers)}</td>
-							<td class="small">{longDate(f.signedOn) || '—'}</td>
-							<td class="text-end">
-								<a
-									href={`/account/forms/${f.id}`}
-									class="text-decoration-none small text-success fw-semibold"
-								>
+							<td class="px-4 py-3">{ageLabel(f.answers)}</td>
+							<td class="px-4 py-3">{longDate(f.signedOn) || '—'}</td>
+							<td class="px-4 py-3 text-right">
+								<a href={`/account/forms/${f.id}`} class={link}>
 									View <i class="bi bi-arrow-right"></i>
 								</a>
 							</td>
@@ -170,9 +186,7 @@
 		</div>
 	{/if}
 
-	<div class="mt-4">
-		<a href="/camps" class="text-decoration-none small text-success fw-semibold">
-			<i class="bi bi-arrow-left me-1"></i>Back to camps
-		</a>
+	<div class="mt-8">
+		<a href="/camps" class={link}><i class="bi bi-arrow-left mr-1"></i>Back to camps</a>
 	</div>
 </div>

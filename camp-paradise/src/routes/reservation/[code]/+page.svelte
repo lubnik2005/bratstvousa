@@ -6,10 +6,10 @@
 	export let form: ActionData;
 
 	const badge: Record<string, string> = {
-		held: 'text-bg-warning',
-		confirmed: 'text-bg-success',
-		cancelled: 'text-bg-secondary',
-		refunded: 'text-bg-secondary'
+		held: 'bg-amber-100 text-amber-800',
+		confirmed: 'bg-mint/60 text-primary-600',
+		cancelled: 'bg-ink/10 text-ink-soft',
+		refunded: 'bg-ink/10 text-ink-soft'
 	};
 
 	$: r = data.reservation;
@@ -20,46 +20,54 @@
 	<title>Reservation {r.confirmationCode}</title>
 </svelte:head>
 
-<div class="container py-5" style="max-width: 560px;">
-	<a href="/camps" class="text-decoration-none small text-success fw-semibold">
-		<i class="bi bi-arrow-left me-1"></i>All camps
+<div class="mx-auto max-w-xl px-4 py-10 lg:py-14">
+	<a href="/camps" class="text-sm font-semibold text-primary-600 hover:text-primary">
+		<i class="bi bi-arrow-left mr-1"></i>All camps
 	</a>
-	<div class="cp-card mt-3 overflow-hidden">
+	<div class="mt-4 overflow-hidden rounded-3xl bg-white shadow-xl shadow-ink/5 ring-1 ring-ink/5">
 		{#if status === 'confirmed'}
-			<div class="cp-hero text-center py-4">
-				<i class="bi bi-check-circle-fill fs-1"></i>
-				<p class="mb-0 mt-2 fw-semibold">You're all set — see you at camp!</p>
+			<div class="bg-forest-deep px-6 py-8 text-center text-white">
+				<i class="bi bi-check-circle-fill text-mint-bright text-4xl"></i>
+				<p class="text-mint mt-2 font-semibold">You're all set — see you at camp!</p>
 			</div>
 		{/if}
-		<div class="p-4">
-			<div class="d-flex justify-content-between align-items-start">
-				<h1 class="h4 mb-0">{data.eventName}</h1>
-				<span class="badge {badge[status] ?? 'text-bg-light'} text-capitalize">{status}</span>
+		<div class="p-6 sm:p-8">
+			<div class="flex items-start justify-between gap-3">
+				<h1 class="text-2xl">{data.eventName}</h1>
+				<span
+					class="rounded-full px-3 py-1 text-xs font-semibold capitalize {badge[status] ??
+						'bg-ink/10 text-ink-soft'}">{status}</span
+				>
 			</div>
-			<p class="text-muted mt-1 mb-1">Confirmation code</p>
-			<p class="h5 font-monospace">{r.confirmationCode}</p>
+			<p class="text-ink-soft mt-3 text-sm">Confirmation code</p>
+			<p class="font-display text-xl tracking-wide">{r.confirmationCode}</p>
 
-			<hr />
-			<dl class="row mb-0">
-				<dt class="col-5 text-muted fw-normal">Name</dt>
-				<dd class="col-7">{r.firstName} {r.lastName}</dd>
-				<dt class="col-5 text-muted fw-normal">Email</dt>
-				<dd class="col-7">{r.email}</dd>
-				<dt class="col-5 text-muted fw-normal">Room</dt>
-				<dd class="col-7">{data.roomName}</dd>
-				<dt class="col-5 text-muted fw-normal">Amount</dt>
-				<dd class="col-7">${(r.price / 100).toFixed(2)}</dd>
+			<dl class="mt-5 grid gap-x-6 gap-y-3 border-t border-ink/10 pt-5 sm:grid-cols-3">
+				<dt class="text-ink-soft text-sm">Name</dt>
+				<dd class="font-medium sm:col-span-2">{r.firstName} {r.lastName}</dd>
+				<dt class="text-ink-soft text-sm">Email</dt>
+				<dd class="font-medium sm:col-span-2">{r.email}</dd>
+				<dt class="text-ink-soft text-sm">Room</dt>
+				<dd class="font-medium sm:col-span-2">{data.roomName}</dd>
+				<dt class="text-ink-soft text-sm">Amount</dt>
+				<dd class="font-medium sm:col-span-2">${(r.price / 100).toFixed(2)}</dd>
 			</dl>
 
 			{#if form?.refunded}
-				<div class="alert alert-success mt-3 mb-0">
+				<div class="bg-mint/50 text-primary-600 mt-5 rounded-xl px-4 py-3 text-sm font-medium">
 					Your reservation has been cancelled and refunded.
 				</div>
 			{:else if data.refundable}
-				<hr />
-				<form method="post" action="?/refund" use:enhance>
-					{#if form?.message}<div class="alert alert-danger py-2">{form.message}</div>{/if}
-					<button class="btn btn-outline-danger w-100 rounded-pill" type="submit">
+				<form method="post" action="?/refund" use:enhance class="mt-5 border-t border-ink/10 pt-5">
+					{#if form?.message}
+						<div class="mb-3 rounded-xl bg-red-50 px-4 py-2 text-sm text-red-700">
+							{form.message}
+						</div>
+					{/if}
+					<button
+						class="inline-flex w-full items-center justify-center rounded-full border border-red-200 px-6 py-3 font-semibold text-red-700 transition-colors hover:bg-red-50"
+						type="submit"
+					>
 						Cancel &amp; request refund
 					</button>
 				</form>

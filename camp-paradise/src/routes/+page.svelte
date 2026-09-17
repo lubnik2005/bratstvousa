@@ -24,23 +24,33 @@
 	$: if (form && 'signedIn' in form && form.signedIn) {
 		void goto(data.next);
 	}
+
+	const btn =
+		'inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 font-semibold text-white shadow-lg shadow-primary/25 transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-xl disabled:opacity-50 disabled:hover:translate-y-0';
 </script>
 
 <svelte:head>
 	<title>Sign in — Camp Paradise</title>
 </svelte:head>
 
-<div class="container py-5" style="max-width: 460px;">
-	<div class="text-center mb-4">
-		<img src="/logo-single.svg" alt="Camp Paradise" width="52" height="52" class="mb-2" />
-		<h1 class="h3 mb-1">Camper sign in</h1>
-		<p class="text-muted small mb-0">Access your reservations and register for camps.</p>
+<div class="mx-auto max-w-md px-4 py-12 lg:py-16">
+	<div class="mb-6 text-center">
+		<img
+			src="/logo.png"
+			alt="Camp Paradise"
+			width="64"
+			height="64"
+			class="mx-auto mb-3 h-16 w-16"
+		/>
+		<p class="eyebrow text-primary-600">Camper portal</p>
+		<h1 class="mt-1 text-3xl font-semibold">Camper sign in</h1>
+		<p class="mt-2 text-sm text-ink-soft">Access your reservations and register for camps.</p>
 	</div>
 
-	<div class="cp-card p-4">
+	<div class="rounded-3xl bg-white p-6 shadow-xl shadow-ink/5 ring-1 ring-ink/5 sm:p-8">
 		{#if signInStep === 'email'}
-			<h2 class="h5 mb-1">Sign in with your email</h2>
-			<p class="text-muted small mb-3">
+			<h2 class="text-lg font-semibold">Sign in with your email</h2>
+			<p class="mt-1 mb-5 text-sm text-ink-soft">
 				Enter your email and we'll send you a 6-digit code. New here? You'll set up your details
 				next.
 			</p>
@@ -65,42 +75,36 @@
 					aria-hidden="true"
 					style="position:absolute;left:-9999px"
 				/>
-				<div class="mb-3">
-					<label class="form-label" for="email">Email</label>
-					<input
-						class="form-control"
-						id="email"
-						name="email"
-						type="email"
-						required
-						value={pendingEmail}
-					/>
+				<div class="mb-4">
+					<label class="mb-1 block text-sm font-medium" for="email">Email</label>
+					<input class="field" id="email" name="email" type="email" required value={pendingEmail} />
 					{#if form && 'emailError' in form && form.emailError}
-						<div class="text-danger small">{form.emailError}</div>
+						<div class="mt-1 text-sm text-red-600">{form.emailError}</div>
 					{/if}
 				</div>
 
 				<Turnstile bind:this={startTurnstile} action="paradise_login" />
 
 				{#if form && 'message' in form && form.message}
-					<div class="alert alert-danger py-2 mt-3">{form.message}</div>
+					<div class="mt-3 rounded-xl bg-red-50 px-4 py-2 text-sm text-red-700">{form.message}</div>
 				{/if}
 
-				<button class="btn btn-primary w-100 mt-3 rounded-pill" type="submit" disabled={starting}>
+				<button class="{btn} mt-4" type="submit" disabled={starting}>
 					{starting ? 'Sending…' : 'Email me a code'}
 				</button>
 			</form>
 		{:else if signInStep === 'code'}
-			<h2 class="h5 mb-1">Enter your code</h2>
-			<p class="text-muted small mb-3">
-				We emailed a 6-digit code to <strong>{pendingEmail}</strong>. It expires in 10 minutes.
+			<h2 class="text-lg font-semibold">Enter your code</h2>
+			<p class="mt-1 mb-5 text-sm text-ink-soft">
+				We emailed a 6-digit code to <strong class="text-ink">{pendingEmail}</strong>. It expires in
+				10 minutes.
 			</p>
 			<form method="post" action="?/verifyCode" use:enhance>
 				<input type="hidden" name="email" value={pendingEmail} />
-				<div class="mb-3">
-					<label class="form-label" for="code">6-digit code</label>
+				<div class="mb-4">
+					<label class="mb-1 block text-sm font-medium" for="code">6-digit code</label>
 					<input
-						class="form-control form-control-lg text-center"
+						class="field text-center font-display text-2xl tracking-[0.4em]"
 						id="code"
 						name="code"
 						inputmode="numeric"
@@ -108,102 +112,87 @@
 						maxlength="6"
 						pattern={'[0-9]{6}'}
 						required
-						style="letter-spacing:.4em"
 					/>
 					{#if form && 'codeError' in form && form.codeError}
-						<div class="text-danger small">{form.codeError}</div>
+						<div class="mt-1 text-sm text-red-600">{form.codeError}</div>
 					{/if}
 				</div>
-				<button class="btn btn-primary w-100 rounded-pill" type="submit"
-					>Verify &amp; continue</button
-				>
+				<button class={btn} type="submit">Verify &amp; continue</button>
 			</form>
-			<form method="post" action="?/requestCode" use:enhance class="mt-2 text-center">
+			<form method="post" action="?/requestCode" use:enhance class="mt-3 text-center">
 				<input type="hidden" name="email" value={pendingEmail} />
-				<button type="submit" class="btn btn-link btn-sm text-decoration-none">
+				<button type="submit" class="text-sm font-semibold text-primary-600 hover:text-primary">
 					Didn't get it? Send a new code
 				</button>
 			</form>
 		{:else}
 			<!-- New camper: collect profile after a verified code. -->
-			<h2 class="h5 mb-1">Set up your details</h2>
-			<p class="text-muted small mb-3">
-				Your email <strong>{pendingEmail}</strong> is verified. Tell us who you are.
+			<h2 class="text-lg font-semibold">Set up your details</h2>
+			<p class="mt-1 mb-5 text-sm text-ink-soft">
+				Your email <strong class="text-ink">{pendingEmail}</strong> is verified. Tell us who you are.
 			</p>
 			<form method="post" action="?/profile" use:enhance>
 				<input type="hidden" name="email" value={pendingEmail} />
-				<div class="row g-2">
-					<div class="col">
-						<label class="form-label" for="firstName">First name</label>
+				<div class="grid grid-cols-2 gap-3">
+					<div>
+						<label class="mb-1 block text-sm font-medium" for="firstName">First name</label>
 						<input
-							class="form-control"
+							class="field"
 							id="firstName"
 							name="firstName"
 							required
 							value={form && 'fields' in form ? (form.fields?.firstName ?? '') : ''}
 						/>
 						{#if form && 'profileErrors' in form && form.profileErrors?.firstName}
-							<div class="text-danger small">{form.profileErrors.firstName}</div>
+							<div class="mt-1 text-sm text-red-600">{form.profileErrors.firstName}</div>
 						{/if}
 					</div>
-					<div class="col">
-						<label class="form-label" for="lastName">Last name</label>
+					<div>
+						<label class="mb-1 block text-sm font-medium" for="lastName">Last name</label>
 						<input
-							class="form-control"
+							class="field"
 							id="lastName"
 							name="lastName"
 							required
 							value={form && 'fields' in form ? (form.fields?.lastName ?? '') : ''}
 						/>
 						{#if form && 'profileErrors' in form && form.profileErrors?.lastName}
-							<div class="text-danger small">{form.profileErrors.lastName}</div>
+							<div class="mt-1 text-sm text-red-600">{form.profileErrors.lastName}</div>
 						{/if}
 					</div>
 				</div>
 
-				<fieldset class="mb-3 mt-2">
-					<legend class="form-label mb-2">Who is this?</legend>
-					<div class="d-flex gap-3">
-						<div class="form-check">
-							<input
-								class="form-check-input"
-								type="radio"
-								name="sex"
-								id="sex-m"
-								value="m"
-								required
-							/>
-							<label class="form-check-label" for="sex-m">
-								<i class="bi bi-gender-male me-1"></i>Male
-							</label>
-						</div>
-						<div class="form-check">
-							<input
-								class="form-check-input"
-								type="radio"
-								name="sex"
-								id="sex-f"
-								value="f"
-								required
-							/>
-							<label class="form-check-label" for="sex-f">
-								<i class="bi bi-gender-female me-1"></i>Female
-							</label>
-						</div>
+				<fieldset class="mt-4 mb-5">
+					<legend class="mb-2 block text-sm font-medium">Who is this?</legend>
+					<div class="flex gap-3">
+						<label
+							class="flex flex-1 cursor-pointer items-center gap-2 rounded-2xl border border-ink/10 bg-sand px-4 py-3 text-sm font-medium has-[:checked]:border-primary has-[:checked]:bg-mint/40"
+							for="sex-m"
+						>
+							<input class="accent-primary" type="radio" name="sex" id="sex-m" value="m" required />
+							<i class="bi bi-gender-male text-primary-600"></i>Male
+						</label>
+						<label
+							class="flex flex-1 cursor-pointer items-center gap-2 rounded-2xl border border-ink/10 bg-sand px-4 py-3 text-sm font-medium has-[:checked]:border-primary has-[:checked]:bg-mint/40"
+							for="sex-f"
+						>
+							<input class="accent-primary" type="radio" name="sex" id="sex-f" value="f" required />
+							<i class="bi bi-gender-female text-primary-600"></i>Female
+						</label>
 					</div>
 					{#if form && 'profileErrors' in form && form.profileErrors?.sex}
-						<div class="text-danger small">{form.profileErrors.sex}</div>
+						<div class="mt-1 text-sm text-red-600">{form.profileErrors.sex}</div>
 					{/if}
 				</fieldset>
 
-				<button class="btn btn-primary w-100 mt-1 rounded-pill" type="submit"> Continue </button>
+				<button class={btn} type="submit">Continue</button>
 			</form>
 		{/if}
 	</div>
 
-	<p class="text-center text-muted small mt-3 mb-0">
-		<a href="/camps" class="text-decoration-none text-success fw-semibold">
-			<i class="bi bi-arrow-left me-1"></i>Back to camps
+	<p class="mt-5 text-center text-sm">
+		<a href="/camps" class="font-semibold text-primary-600 hover:text-primary">
+			<i class="bi bi-arrow-left mr-1"></i>Back to camps
 		</a>
 	</p>
 </div>

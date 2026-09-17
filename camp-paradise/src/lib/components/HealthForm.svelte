@@ -14,15 +14,15 @@
 	const err = (key: string) => errors?.[`form_${formId}_${key}`];
 </script>
 
-<div class="mb-4 pt-3 border-top">
-	<h3 class="h6 mb-3">{formName}</h3>
+<div class="mt-6 border-t border-ink/10 pt-5">
+	<h3 class="text-base font-semibold">{formName}</h3>
 
 	<!-- Age -->
-	<fieldset class="mb-3">
-		<legend class="fs-6 fw-semibold mb-1">Age</legend>
-		<div class="form-check">
+	<fieldset class="mt-4">
+		<legend class="mb-2 text-sm font-semibold">Age</legend>
+		<div class="flex items-center gap-2 py-1 text-sm">
 			<input
-				class="form-check-input"
+				class="accent-primary h-4 w-4"
 				type="radio"
 				name={name('isMinor')}
 				id={name('isMinor-true')}
@@ -30,11 +30,11 @@
 				bind:group={isMinor}
 				required
 			/>
-			<label class="form-check-label" for={name('isMinor-true')}>Under 18</label>
+			<label class="cursor-pointer" for={name('isMinor-true')}>Under 18</label>
 		</div>
-		<div class="form-check">
+		<div class="flex items-center gap-2 py-1 text-sm">
 			<input
-				class="form-check-input"
+				class="accent-primary h-4 w-4"
 				type="radio"
 				name={name('isMinor')}
 				id={name('isMinor-false')}
@@ -42,18 +42,18 @@
 				bind:group={isMinor}
 				required
 			/>
-			<label class="form-check-label" for={name('isMinor-false')}>18+</label>
+			<label class="cursor-pointer" for={name('isMinor-false')}>18+</label>
 		</div>
-		{#if err('isMinor')}<div class="text-danger small">{err('isMinor')}</div>{/if}
+		{#if err('isMinor')}<div class="mt-1 text-sm text-red-600">{err('isMinor')}</div>{/if}
 	</fieldset>
 
 	{#if isMinor === 'true'}
 		<!-- Medical Problems -->
-		<fieldset class="mb-3">
-			<legend class="fs-6 fw-semibold mb-1">Medical Problems</legend>
-			<div class="form-check">
+		<fieldset class="mt-4">
+			<legend class="mb-2 text-sm font-semibold">Medical Problems</legend>
+			<div class="flex items-center gap-2 py-1 text-sm">
 				<input
-					class="form-check-input"
+					class="accent-primary h-4 w-4"
 					type="radio"
 					name={name('hasMedicalProblems')}
 					id={name('hasMedicalProblems-false')}
@@ -61,13 +61,13 @@
 					bind:group={hasMedicalProblems}
 					required
 				/>
-				<label class="form-check-label" for={name('hasMedicalProblems-false')}
+				<label class="cursor-pointer" for={name('hasMedicalProblems-false')}
 					>No medical problems</label
 				>
 			</div>
-			<div class="form-check">
+			<div class="flex items-center gap-2 py-1 text-sm">
 				<input
-					class="form-check-input"
+					class="accent-primary h-4 w-4"
 					type="radio"
 					name={name('hasMedicalProblems')}
 					id={name('hasMedicalProblems-true')}
@@ -75,52 +75,54 @@
 					bind:group={hasMedicalProblems}
 					required
 				/>
-				<label class="form-check-label" for={name('hasMedicalProblems-true')}
+				<label class="cursor-pointer" for={name('hasMedicalProblems-true')}
 					>List of medical problems</label
 				>
 			</div>
-			{#if err('hasMedicalProblems')}<div class="text-danger small">
+			{#if err('hasMedicalProblems')}<div class="mt-1 text-sm text-red-600">
 					{err('hasMedicalProblems')}
 				</div>{/if}
 			{#if hasMedicalProblems === 'true'}
 				<textarea
-					class="form-control mt-2"
+					class="field mt-2"
 					name={name('medicalProblems')}
 					rows="3"
 					placeholder="List of medical problems"
 					required
 				></textarea>
-				{#if err('medicalProblems')}<div class="text-danger small">
+				{#if err('medicalProblems')}<div class="mt-1 text-sm text-red-600">
 						{err('medicalProblems')}
 					</div>{/if}
 			{/if}
 		</fieldset>
 
 		<!-- Immunizations -->
-		<fieldset class="mb-3">
-			<legend class="fs-6 fw-semibold mb-1">Immunizations</legend>
+		<fieldset class="mt-4">
+			<legend class="mb-2 text-sm font-semibold">Immunizations</legend>
 			{#each [['none', 'No immunizations'], ['up-to-date', 'Up to date including tetanus'], ['tetanus', 'Only tetanus']] as [val, label] (val)}
-				<div class="form-check">
+				<div class="flex items-center gap-2 py-1 text-sm">
 					<input
-						class="form-check-input"
+						class="accent-primary h-4 w-4"
 						type="radio"
 						name={name('immunizations')}
 						id={name(`immunizations-${val}`)}
 						value={val}
 						required
 					/>
-					<label class="form-check-label" for={name(`immunizations-${val}`)}>{label}</label>
+					<label class="cursor-pointer" for={name(`immunizations-${val}`)}>{label}</label>
 				</div>
 			{/each}
-			{#if err('immunizations')}<div class="text-danger small">{err('immunizations')}</div>{/if}
+			{#if err('immunizations')}<div class="mt-1 text-sm text-red-600">
+					{err('immunizations')}
+				</div>{/if}
 		</fieldset>
 
 		<!-- Allergies -->
-		<fieldset class="mb-3">
-			<legend class="fs-6 fw-semibold mb-1">Allergies</legend>
-			<div class="form-check">
+		<fieldset class="mt-4">
+			<legend class="mb-2 text-sm font-semibold">Allergies</legend>
+			<div class="flex items-center gap-2 py-1 text-sm">
 				<input
-					class="form-check-input"
+					class="accent-primary h-4 w-4"
 					type="radio"
 					name={name('hasAllergies')}
 					id={name('hasAllergies-false')}
@@ -128,11 +130,11 @@
 					bind:group={hasAllergies}
 					required
 				/>
-				<label class="form-check-label" for={name('hasAllergies-false')}>No Allergies</label>
+				<label class="cursor-pointer" for={name('hasAllergies-false')}>No Allergies</label>
 			</div>
-			<div class="form-check">
+			<div class="flex items-center gap-2 py-1 text-sm">
 				<input
-					class="form-check-input"
+					class="accent-primary h-4 w-4"
 					type="radio"
 					name={name('hasAllergies')}
 					id={name('hasAllergies-true')}
@@ -140,30 +142,32 @@
 					bind:group={hasAllergies}
 					required
 				/>
-				<label class="form-check-label" for={name('hasAllergies-true')}
+				<label class="cursor-pointer" for={name('hasAllergies-true')}
 					>List of allergies and reaction</label
 				>
 			</div>
-			{#if err('hasAllergies')}<div class="text-danger small">{err('hasAllergies')}</div>{/if}
+			{#if err('hasAllergies')}<div class="mt-1 text-sm text-red-600">
+					{err('hasAllergies')}
+				</div>{/if}
 			{#if hasAllergies === 'true'}
 				<textarea
-					class="form-control mt-2"
+					class="field mt-2"
 					name={name('allergies')}
 					rows="3"
 					placeholder="List of allergies and reaction"
 					required
 				></textarea>
-				{#if err('allergies')}<div class="text-danger small">{err('allergies')}</div>{/if}
+				{#if err('allergies')}<div class="mt-1 text-sm text-red-600">{err('allergies')}</div>{/if}
 			{/if}
 		</fieldset>
 
 		<!-- Medicine -->
-		<fieldset class="mb-3">
-			<legend class="fs-6 fw-semibold mb-0">Medicine</legend>
-			<p class="text-muted small mb-1">Medicine bringing to camp</p>
-			<div class="form-check">
+		<fieldset class="mt-4">
+			<legend class="text-sm font-semibold">Medicine</legend>
+			<p class="mb-2 text-xs text-ink-soft">Medicine bringing to camp</p>
+			<div class="flex items-center gap-2 py-1 text-sm">
 				<input
-					class="form-check-input"
+					class="accent-primary h-4 w-4"
 					type="radio"
 					name={name('hasMedicines')}
 					id={name('hasMedicines-false')}
@@ -171,11 +175,11 @@
 					bind:group={hasMedicines}
 					required
 				/>
-				<label class="form-check-label" for={name('hasMedicines-false')}>No Medicines</label>
+				<label class="cursor-pointer" for={name('hasMedicines-false')}>No Medicines</label>
 			</div>
-			<div class="form-check">
+			<div class="flex items-center gap-2 py-1 text-sm">
 				<input
-					class="form-check-input"
+					class="accent-primary h-4 w-4"
 					type="radio"
 					name={name('hasMedicines')}
 					id={name('hasMedicines-true')}
@@ -183,63 +187,69 @@
 					bind:group={hasMedicines}
 					required
 				/>
-				<label class="form-check-label" for={name('hasMedicines-true')}
+				<label class="cursor-pointer" for={name('hasMedicines-true')}
 					>Medicines (must be in original labeled bottle)</label
 				>
 			</div>
-			{#if err('hasMedicines')}<div class="text-danger small">{err('hasMedicines')}</div>{/if}
+			{#if err('hasMedicines')}<div class="mt-1 text-sm text-red-600">
+					{err('hasMedicines')}
+				</div>{/if}
 			{#if hasMedicines === 'true'}
-				<div class="row g-2 mt-2">
-					<div class="col-sm-6">
-						<label class="form-label small mb-1" for={name('medicineDose')}>Dose</label>
+				<div class="mt-3 grid gap-3 sm:grid-cols-2">
+					<div>
+						<label class="mb-1 block text-sm font-medium" for={name('medicineDose')}>Dose</label>
 						<input
-							class="form-control"
+							class="field"
 							type="text"
 							name={name('medicineDose')}
 							id={name('medicineDose')}
 							required
 						/>
-						{#if err('medicineDose')}<div class="text-danger small">{err('medicineDose')}</div>{/if}
+						{#if err('medicineDose')}<div class="mt-1 text-sm text-red-600">
+								{err('medicineDose')}
+							</div>{/if}
 					</div>
-					<div class="col-sm-6">
-						<label class="form-label small mb-1" for={name('medicineFrequency')}>How often</label>
+					<div>
+						<label class="mb-1 block text-sm font-medium" for={name('medicineFrequency')}
+							>How often</label
+						>
 						<input
-							class="form-control"
+							class="field"
 							type="text"
 							name={name('medicineFrequency')}
 							id={name('medicineFrequency')}
 							required
 						/>
-						{#if err('medicineFrequency')}<div class="text-danger small">
+						{#if err('medicineFrequency')}<div class="mt-1 text-sm text-red-600">
 								{err('medicineFrequency')}
 							</div>{/if}
 					</div>
 				</div>
 				<div class="mt-2">
-					<div class="small fw-semibold mb-1">Able to take on his/her own</div>
-					<div class="form-check form-check-inline">
+					<div class="mt-3 text-sm font-semibold">Able to take on his/her own</div>
+					<div class="mr-4 inline-flex items-center gap-2 py-1 text-sm">
 						<input
-							class="form-check-input"
+							class="accent-primary h-4 w-4"
 							type="radio"
 							name={name('medicineAbility')}
 							id={name('medicineAbility-true')}
 							value="true"
 							required
 						/>
-						<label class="form-check-label" for={name('medicineAbility-true')}>Yes</label>
+						<label class="cursor-pointer" for={name('medicineAbility-true')}>Yes</label>
 					</div>
-					<div class="form-check form-check-inline">
+					<div class="mr-4 inline-flex items-center gap-2 py-1 text-sm">
 						<input
-							class="form-check-input"
+							class="accent-primary h-4 w-4"
 							type="radio"
 							name={name('medicineAbility')}
 							id={name('medicineAbility-false')}
 							value="false"
 							required
 						/>
-						<label class="form-check-label" for={name('medicineAbility-false')}>No</label>
+						<label class="cursor-pointer" for={name('medicineAbility-false')}>No</label>
 					</div>
-					{#if err('medicineAbility')}<div class="text-danger small">
+					{#if err('medicineAbility')}<div class="mt-1 text-sm text-red-600">
 							{err('medicineAbility')}
 						</div>{/if}
 				</div>
@@ -248,18 +258,18 @@
 	{/if}
 
 	<!-- Waiver / consent -->
-	<div class="cp-rules mb-3">
+	<div class="rules-box mt-5 p-4">
 		{#if isMinor === 'true'}
-			<h4 class="h6 mb-2">Waiver and Release Form (Minor 0-17 years)</h4>
-			<p class="small fw-semibold mb-1">Liability Release</p>
-			<p class="small mb-2">
+			<h4 class="mb-2 text-sm font-semibold">Waiver and Release Form (Minor 0-17 years)</h4>
+			<p class="mt-3 text-sm font-semibold">Liability Release</p>
+			<p class="mt-3 text-sm">
 				I confirm that I am legally responsible or can legally consent for this minor. As such, I
 				hereby release the Baptist Christian Camp of California and its officials, agents,
 				volunteers, contractors and employees from liability for any claims (by me or any third
 				party) of personal injury or property damages in connection with the minor's participation.
 			</p>
-			<p class="small fw-semibold mb-1">Consent for Treatment</p>
-			<p class="small mb-2">
+			<p class="mt-3 text-sm font-semibold">Consent for Treatment</p>
+			<p class="mt-3 text-sm">
 				I confirm that I am legally responsible or can legally consent for this minor. As such, I
 				hereby give my consent for this minor to be treated by medical personnel in case of sudden
 				illness or injury while participating in any event, activity, or program facilitated by or
@@ -271,8 +281,8 @@
 				volunteers, contractors and employees from all liability that this minor may incur from
 				either self-administered medical treatment or treatment provided to him/her.
 			</p>
-			<p class="small fw-semibold mb-1">Photo Release</p>
-			<p class="small mb-0">
+			<p class="mt-3 text-sm font-semibold">Photo Release</p>
+			<p class="text-sm">
 				I hereby authorize the Baptist Christian Camp of California to publish the photographs taken
 				of this minor and this minor's name for use on the Baptist Christian Camp of California
 				website or other associated media and/or display photographs of this minor within the
@@ -286,9 +296,9 @@
 				whatsoever.
 			</p>
 		{:else}
-			<h4 class="h6 mb-2">Consent and Release Form (Adult 18 years +)</h4>
-			<p class="small fw-semibold mb-1">Liability Release</p>
-			<p class="small mb-2">
+			<h4 class="mb-2 text-sm font-semibold">Consent and Release Form (Adult 18 years +)</h4>
+			<p class="mt-3 text-sm font-semibold">Liability Release</p>
+			<p class="mt-3 text-sm">
 				I confirm that I am or will be 18 years of age or older on or before the first day of the
 				camp, event, activity, or program hosted by Baptist Christian Camp of California. I am
 				truthfully and accurately reporting my age for the purposes of this waiver. If I falsify my
@@ -299,8 +309,8 @@
 				me or any third party) of personal injury or property damages in connection with my
 				participation.
 			</p>
-			<p class="small fw-semibold mb-1">Consent for Treatment</p>
-			<p class="small mb-2">
+			<p class="mt-3 text-sm font-semibold">Consent for Treatment</p>
+			<p class="mt-3 text-sm">
 				I hereby give my consent to be treated by medical personnel in case of sudden illness or
 				injury while participating in any event, activity, or program facilitated by or associated
 				with Baptist Christian Camp of California. I understand that the Baptist Christian Camp of
@@ -311,8 +321,8 @@
 				employees from all liability that I may incur from either self-administered medical
 				treatment or treatment provided to me.
 			</p>
-			<p class="small fw-semibold mb-1">Photo Release</p>
-			<p class="small mb-0">
+			<p class="mt-3 text-sm font-semibold">Photo Release</p>
+			<p class="text-sm">
 				I hereby authorize the Baptist Christian Camp of California to publish the photographs taken
 				of me and my name for use on the Baptist Christian Camp of California website or other
 				associated media and/or display photographs of me within the facility. I release the Baptist
@@ -327,67 +337,73 @@
 		{/if}
 	</div>
 
-	<p class="small mb-2">
+	<p class="mt-4 text-sm">
 		I have read and understood the foregoing liability release, consent for treatment, and photo
 		release and agree to all the terms and conditions.
 	</p>
 
 	{#if isMinor === 'true'}
-		<div class="row g-2 mb-3">
-			<div class="col-12">
-				<label class="form-label small mb-1" for={name('minorFullName')}>Minor's Full Name</label>
+		<div class="mt-4 grid gap-3 sm:grid-cols-2">
+			<div class="sm:col-span-2">
+				<label class="mb-1 block text-sm font-medium" for={name('minorFullName')}
+					>Minor's Full Name</label
+				>
 				<input
-					class="form-control"
+					class="field"
 					type="text"
 					name={name('minorFullName')}
 					id={name('minorFullName')}
 					required
 				/>
-				{#if err('minorFullName')}<div class="text-danger small">{err('minorFullName')}</div>{/if}
+				{#if err('minorFullName')}<div class="mt-1 text-sm text-red-600">
+						{err('minorFullName')}
+					</div>{/if}
 			</div>
-			<div class="col-sm-6">
-				<label class="form-label small mb-1" for={name('guardianFullName')}
+			<div>
+				<label class="mb-1 block text-sm font-medium" for={name('guardianFullName')}
 					>Parent/Guardian Full Name</label
 				>
 				<input
-					class="form-control"
+					class="field"
 					type="text"
 					name={name('guardianFullName')}
 					id={name('guardianFullName')}
 					required
 				/>
-				{#if err('guardianFullName')}<div class="text-danger small">
+				{#if err('guardianFullName')}<div class="mt-1 text-sm text-red-600">
 						{err('guardianFullName')}
 					</div>{/if}
 			</div>
-			<div class="col-sm-6">
-				<label class="form-label small mb-1" for={name('guardianPhone')}
+			<div>
+				<label class="mb-1 block text-sm font-medium" for={name('guardianPhone')}
 					>Parent/Guardian Phone</label
 				>
 				<input
-					class="form-control"
+					class="field"
 					type="tel"
 					name={name('guardianPhone')}
 					id={name('guardianPhone')}
 					required
 				/>
-				{#if err('guardianPhone')}<div class="text-danger small">{err('guardianPhone')}</div>{/if}
+				{#if err('guardianPhone')}<div class="mt-1 text-sm text-red-600">
+						{err('guardianPhone')}
+					</div>{/if}
 			</div>
 		</div>
 	{/if}
 
-	<div class="form-check">
+	<div class="mt-4 flex items-start gap-2 text-sm">
 		<input
-			class="form-check-input"
+			class="accent-primary mt-1 h-4 w-4"
 			type="checkbox"
 			name={`form_${formId}`}
 			id={`form-${formId}`}
 			required
 		/>
-		<label class="form-check-label" for={`form-${formId}`}
+		<label class="cursor-pointer" for={`form-${formId}`}
 			>I have read and agree to the {formName}.</label
 		>
-		{#if errors?.[`form_${formId}`]}<div class="text-danger small">
+		{#if errors?.[`form_${formId}`]}<div class="mt-1 text-sm text-red-600">
 				{errors[`form_${formId}`]}
 			</div>{/if}
 	</div>

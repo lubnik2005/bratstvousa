@@ -120,95 +120,98 @@
 	$: ss = String(Math.max(secondsLeft, 0) % 60).padStart(2, '0');
 
 	onDestroy(() => timer && clearInterval(timer));
+
+	const btn =
+		'inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 font-semibold text-white shadow-lg shadow-primary/25 transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-xl disabled:opacity-50 disabled:hover:translate-y-0';
+	const card = 'rounded-3xl bg-white p-6 shadow-xl shadow-ink/5 ring-1 ring-ink/5 sm:p-8';
+	const chip = 'rounded-full bg-primary px-3 py-1 text-xs font-semibold text-white';
+	const chipMuted = 'rounded-full bg-ink/5 px-3 py-1 text-xs font-semibold text-ink-soft';
 </script>
 
 <svelte:head>
 	<title>{data.event.name} — Register</title>
 </svelte:head>
 
-<div class="container py-5" style="max-width: 760px;">
-	<a href="/camps" class="text-decoration-none small text-success fw-semibold">
-		<i class="bi bi-arrow-left me-1"></i>All camps
+<div class="mx-auto max-w-3xl px-4 py-10 lg:py-14">
+	<a href="/camps" class="text-sm font-semibold text-primary-600 hover:text-primary">
+		<i class="bi bi-arrow-left mr-1"></i>All camps
 	</a>
-	<h1 class="h3 mt-2 mb-1">{data.event.name}</h1>
+	<p class="eyebrow mt-6 text-primary-600">Registration</p>
+	<h1 class="mt-1 text-3xl lg:text-4xl">{data.event.name}</h1>
 
 	{#if data.registrationState !== 'open'}
-		<!-- Registration window is not open: show a friendly notice, no wizard. -->
-		<div class="cp-card p-5 text-center mt-4">
+		<div class="mt-6 rounded-3xl bg-white p-8 text-center shadow-xl shadow-ink/5 ring-1 ring-ink/5">
 			{#if data.registrationState === 'upcoming'}
-				<i class="bi bi-hourglass-split display-5 text-success d-block mb-3"></i>
-				<h2 class="h4 mb-2">Registration hasn't opened yet</h2>
-				<p class="text-muted mb-4" style="max-width: 32rem; margin-inline: auto">
+				<i class="bi bi-hourglass-split text-4xl text-primary-600"></i>
+				<h2 class="mt-3 text-2xl">Registration hasn't opened yet</h2>
+				<p class="mt-2 text-ink-soft">
 					This camp isn't open for registration just yet. Check back soon — we'll open sign-ups
 					here.
 				</p>
 			{:else}
-				<i class="bi bi-calendar-check display-5 text-success d-block mb-3"></i>
-				<h2 class="h4 mb-2">Registration is closed</h2>
-				<p class="text-muted mb-4" style="max-width: 32rem; margin-inline: auto">
+				<i class="bi bi-calendar-check text-4xl text-primary-600"></i>
+				<h2 class="mt-3 text-2xl">Registration is closed</h2>
+				<p class="mt-2 text-ink-soft">
 					Registration for this camp has ended. Browse our open camps to find your next session.
 				</p>
 			{/if}
-			<a href="/camps" class="btn btn-primary rounded-pill px-4">
-				<i class="bi bi-arrow-left me-1"></i>Browse open camps
-			</a>
+			<a href="/camps" class="{btn} mt-5">Browse open camps</a>
 		</div>
 	{:else}
-		<!-- step indicator -->
-		<div class="cp-steps mb-4">
-			<span class="cp-step" class:is-muted={identity}>1 · Sign in</span>
-			<span class="cp-step" class:is-muted={!identity || data.roomId}>2 · Room</span>
-			<span class="cp-step" class:is-muted={!data.roomId || paying}>3 · Bed</span>
-			<span class="cp-step" class:is-muted={!paying}>4 · Payment</span>
+		<div class="mt-6 flex flex-wrap gap-2">
+			<span class={identity ? chipMuted : chip}>1 · Sign in</span>
+			<span class={!identity || data.roomId ? chipMuted : chip}>2 · Room</span>
+			<span class={!data.roomId || paying ? chipMuted : chip}>3 · Bed</span>
+			<span class={!paying ? chipMuted : chip}>4 · Payment</span>
 		</div>
 
 		{#if identity && !paying}
-			<!-- Who is registering, with a way to start over. Availability is only
-			     ever shown to a named camper — never to anonymous URL visitors. -->
-			<div class="d-flex justify-content-between align-items-center mb-3 small">
-				<span class="text-muted">
-					<i class="bi bi-person-check me-1 text-success"></i>
-					Registering <strong>{identity.firstName} {identity.lastName}</strong>
-					· {identity.email}
+			<div
+				class="mt-4 flex flex-wrap items-center justify-between gap-2 rounded-2xl bg-mint/40 px-4 py-3 text-sm"
+			>
+				<span>
+					<i class="bi bi-person-check mr-1 text-primary-600"></i>
+					Registering <strong>{identity.firstName} {identity.lastName}</strong> · {identity.email}
 				</span>
 				{#if data.roomId}
-					<a href="?" class="btn btn-link btn-sm p-0 text-decoration-none">Start over</a>
+					<a href="?" class="font-semibold text-primary-600 hover:text-primary">Start over</a>
 				{/if}
 			</div>
 		{/if}
 
 		{#if paying && form?.clientSecret}
-			<!-- STEP 4: payment -->
-			<div class="cp-card p-4">
-				<div class="d-flex justify-content-between align-items-center mb-3">
-					<h2 class="h5 mb-0">Payment</h2>
-					<span class="badge text-bg-warning">
-						<i class="bi bi-clock-history me-1"></i>Bed held · {mm}:{ss}
+			<div class="mt-6 {card}">
+				<div class="flex items-center justify-between gap-3">
+					<h2 class="text-xl">Payment</h2>
+					<span class="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800">
+						<i class="bi bi-clock-history mr-1"></i>Bed held · {mm}:{ss}
 					</span>
 				</div>
 				{#if selectedRoom}
-					<p class="text-muted small">
+					<p class="mt-1 text-sm text-ink-soft">
 						{selectedRoom.name} · {dollars(selectedRoom.price)}
 					</p>
 				{/if}
-				<div id="payment-element" class="mb-3"></div>
-				{#if payError}<div class="alert alert-danger py-2">{payError}</div>{/if}
-				<button id="pay-btn" class="btn btn-primary w-100 rounded-pill" disabled={secondsLeft <= 0}>
+				<div id="payment-element" class="mt-4"></div>
+				{#if payError}
+					<div class="mt-3 rounded-xl bg-red-50 px-4 py-2 text-sm text-red-700">{payError}</div>
+				{/if}
+				<button id="pay-btn" class="{btn} mt-4 w-full" disabled={secondsLeft <= 0}>
 					{secondsLeft <= 0 ? 'Hold expired — please start over' : 'Pay now'}
 				</button>
 			</div>
 		{:else if !identity}
-			<!-- STEP 1: sign in with an emailed code (required before availability). -->
-			<div class="cp-card p-4">
+			<div class="mt-6 {card}">
 				{#if signInStep === 'email'}
-					<h2 class="h5 mb-1">Sign in to register</h2>
-					<p class="text-muted small mb-3">
+					<h2 class="text-xl">Sign in to register</h2>
+					<p class="mt-1 text-sm text-ink-soft">
 						Enter your email and we'll send you a 6-digit code. New here? You'll set up your details
 						next.
 					</p>
 					<form
 						method="post"
 						action="?/requestCode"
+						class="mt-4"
 						use:enhance={() => {
 							starting = true;
 							return async ({ update }) => {
@@ -218,7 +221,6 @@
 							};
 						}}
 					>
-						<!-- honeypot -->
 						<input
 							type="text"
 							name="middle_name"
@@ -227,196 +229,192 @@
 							aria-hidden="true"
 							style="position:absolute;left:-9999px"
 						/>
-						<div class="mb-3">
-							<label class="form-label" for="email">Email</label>
-							<input
-								class="form-control"
-								id="email"
-								name="email"
-								type="email"
-								required
-								value={pendingEmail}
-							/>
-							{#if form && 'emailError' in form && form.emailError}
-								<div class="text-danger small">{form.emailError}</div>
-							{/if}
-						</div>
-
-						<Turnstile bind:this={startTurnstile} action="paradise_register" />
-
-						{#if form && 'message' in form && form.message}
-							<div class="alert alert-danger py-2 mt-3">{form.message}</div>
+						<label class="mb-1 block text-sm font-medium" for="email">Email</label>
+						<input
+							class="field"
+							type="email"
+							id="email"
+							name="email"
+							required
+							value={pendingEmail}
+						/>
+						{#if form && 'emailError' in form && form.emailError}
+							<div class="mt-1 text-sm text-red-600">{form.emailError}</div>
 						{/if}
-
-						<button
-							class="btn btn-primary w-100 mt-3 rounded-pill"
-							type="submit"
-							disabled={starting}
-						>
+						<div class="mt-3">
+							<Turnstile bind:this={startTurnstile} action="paradise_register" />
+						</div>
+						{#if form && 'message' in form && form.message}
+							<div class="mt-3 rounded-xl bg-red-50 px-4 py-2 text-sm text-red-700">
+								{form.message}
+							</div>
+						{/if}
+						<button class="{btn} mt-4 w-full" type="submit" disabled={starting}>
 							{starting ? 'Sending…' : 'Email me a code'}
 						</button>
 					</form>
 				{:else if signInStep === 'code'}
-					<h2 class="h5 mb-1">Enter your code</h2>
-					<p class="text-muted small mb-3">
+					<h2 class="text-xl">Enter your code</h2>
+					<p class="mt-1 text-sm text-ink-soft">
 						We emailed a 6-digit code to <strong>{pendingEmail}</strong>. It expires in 10 minutes.
 					</p>
-					<form method="post" action="?/verifyCode" use:enhance>
+					<form method="post" action="?/verifyCode" class="mt-4" use:enhance>
 						<input type="hidden" name="email" value={pendingEmail} />
-						<div class="mb-3">
-							<label class="form-label" for="code">6-digit code</label>
-							<input
-								class="form-control form-control-lg text-center"
-								id="code"
-								name="code"
-								inputmode="numeric"
-								autocomplete="one-time-code"
-								maxlength="6"
-								pattern={'[0-9]{6}'}
-								required
-								style="letter-spacing:.4em"
-							/>
-							{#if form && 'codeError' in form && form.codeError}
-								<div class="text-danger small">{form.codeError}</div>
-							{/if}
-						</div>
-						<button class="btn btn-primary w-100 rounded-pill" type="submit"
-							>Verify &amp; continue</button
-						>
+						<label class="mb-1 block text-sm font-medium" for="code">6-digit code</label>
+						<input
+							class="field text-center font-display text-2xl tracking-[0.4em]"
+							type="text"
+							id="code"
+							name="code"
+							inputmode="numeric"
+							autocomplete="one-time-code"
+							maxlength="6"
+							pattern={'[0-9]{6}'}
+							required
+						/>
+						{#if form && 'codeError' in form && form.codeError}
+							<div class="mt-1 text-sm text-red-600">{form.codeError}</div>
+						{/if}
+						<button class="{btn} mt-4 w-full" type="submit">Verify &amp; continue</button>
 					</form>
-					<form method="post" action="?/requestCode" use:enhance class="mt-2 text-center">
+					<form method="post" action="?/requestCode" class="mt-3 text-center" use:enhance>
 						<input type="hidden" name="email" value={pendingEmail} />
-						<button type="submit" class="btn btn-link btn-sm text-decoration-none">
+						<button class="text-sm font-semibold text-primary-600 hover:text-primary" type="submit">
 							Didn't get it? Send a new code
 						</button>
 					</form>
 				{:else}
-					<!-- New camper: collect profile after a verified code. -->
-					<h2 class="h5 mb-1">Set up your details</h2>
-					<p class="text-muted small mb-3">
+					<h2 class="text-xl">Set up your details</h2>
+					<p class="mt-1 text-sm text-ink-soft">
 						Your email <strong>{pendingEmail}</strong> is verified. Tell us who's coming.
 					</p>
-					<form method="post" action="?/profile" use:enhance>
+					<form method="post" action="?/profile" class="mt-4 space-y-4" use:enhance>
 						<input type="hidden" name="email" value={pendingEmail} />
-						<div class="row g-2">
-							<div class="col">
-								<label class="form-label" for="firstName">First name</label>
+						<div class="grid grid-cols-2 gap-3">
+							<div>
+								<label class="mb-1 block text-sm font-medium" for="firstName">First name</label>
 								<input
-									class="form-control"
+									class="field"
+									type="text"
 									id="firstName"
 									name="firstName"
 									required
 									value={form && 'fields' in form ? (form.fields?.firstName ?? '') : ''}
 								/>
 								{#if form && 'profileErrors' in form && form.profileErrors?.firstName}
-									<div class="text-danger small">{form.profileErrors.firstName}</div>
+									<div class="mt-1 text-sm text-red-600">{form.profileErrors.firstName}</div>
 								{/if}
 							</div>
-							<div class="col">
-								<label class="form-label" for="lastName">Last name</label>
+							<div>
+								<label class="mb-1 block text-sm font-medium" for="lastName">Last name</label>
 								<input
-									class="form-control"
+									class="field"
+									type="text"
 									id="lastName"
 									name="lastName"
 									required
 									value={form && 'fields' in form ? (form.fields?.lastName ?? '') : ''}
 								/>
 								{#if form && 'profileErrors' in form && form.profileErrors?.lastName}
-									<div class="text-danger small">{form.profileErrors.lastName}</div>
+									<div class="mt-1 text-sm text-red-600">{form.profileErrors.lastName}</div>
 								{/if}
 							</div>
 						</div>
-
-						<fieldset class="mb-3 mt-2">
-							<legend class="form-label mb-2">Who is this for?</legend>
-							<div class="d-flex gap-3">
-								<div class="form-check">
+						<fieldset>
+							<legend class="mb-2 text-sm font-medium">Who is this for?</legend>
+							<div class="flex gap-3">
+								<label
+									class="flex flex-1 cursor-pointer items-center gap-2 rounded-2xl border border-ink/10 bg-sand px-4 py-3 text-sm font-medium has-[:checked]:border-primary has-[:checked]:bg-mint/40"
+								>
 									<input
-										class="form-check-input"
+										class="accent-primary"
 										type="radio"
 										name="sex"
 										id="sex-m"
 										value="m"
 										required
 									/>
-									<label class="form-check-label" for="sex-m">
-										<i class="bi bi-gender-male me-1"></i>Male
-									</label>
-								</div>
-								<div class="form-check">
+									<i class="bi bi-gender-male"></i> Male
+								</label>
+								<label
+									class="flex flex-1 cursor-pointer items-center gap-2 rounded-2xl border border-ink/10 bg-sand px-4 py-3 text-sm font-medium has-[:checked]:border-primary has-[:checked]:bg-mint/40"
+								>
 									<input
-										class="form-check-input"
+										class="accent-primary"
 										type="radio"
 										name="sex"
 										id="sex-f"
 										value="f"
 										required
 									/>
-									<label class="form-check-label" for="sex-f">
-										<i class="bi bi-gender-female me-1"></i>Female
-									</label>
-								</div>
+									<i class="bi bi-gender-female"></i> Female
+								</label>
 							</div>
 							{#if form && 'profileErrors' in form && form.profileErrors?.sex}
-								<div class="text-danger small">{form.profileErrors.sex}</div>
+								<div class="mt-1 text-sm text-red-600">{form.profileErrors.sex}</div>
 							{/if}
 						</fieldset>
-
-						<button class="btn btn-primary w-100 mt-1 rounded-pill" type="submit">
-							Continue to rooms
-						</button>
+						<button class="{btn} w-full" type="submit">Continue to rooms</button>
 					</form>
 				{/if}
 			</div>
 		{:else if !data.roomId}
-			<!-- STEP 2: pick a room (availability shown as a flag only, never a count) -->
-			<div class="cp-card p-4">
-				<h2 class="h5 mb-3">Choose a room</h2>
-				<div class="list-group list-group-flush">
+			<div class="mt-6 {card}">
+				<h2 class="text-xl">Choose a room</h2>
+				<p class="mt-1 text-sm text-ink-soft">Rooms are matched to who's registering.</p>
+				<div class="mt-4 divide-y divide-ink/10">
 					{#each data.rooms as room (room.id)}
 						<a
 							href={`?room=${room.id}`}
-							class="list-group-item list-group-item-action d-flex justify-content-between align-items-center px-0"
-							class:disabled={!room.available}
+							class="-mx-2 flex items-center justify-between gap-4 rounded-xl px-2 py-3 transition {room.available
+								? 'hover:bg-sand'
+								: 'pointer-events-none opacity-50'}"
 						>
-							<span>
-								<strong>{room.name}</strong>
-								<small class="text-muted d-block text-capitalize"
-									>{room.type}{room.location ? ` · ${room.location}` : ''}</small
-								>
-							</span>
-							<span class="text-end">
-								<span class="d-block fw-semibold">{dollars(room.price)}</span>
-								<small class:text-danger={!room.available} class="text-muted">
-									{room.available ? 'Available' : 'Full'}
-								</small>
-							</span>
+							<div>
+								<div class="font-semibold">{room.name}</div>
+								<div class="text-sm text-ink-soft capitalize">
+									{room.type}{room.location ? ` · ${room.location}` : ''}
+								</div>
+							</div>
+							<div class="flex items-center gap-3 text-right">
+								<span class="font-semibold">{dollars(room.price)}</span>
+								{#if room.available}
+									<span
+										class="rounded-full bg-mint/60 px-3 py-1 text-xs font-semibold text-primary-600"
+										>Available</span
+									>
+								{:else}
+									<span class="rounded-full bg-ink/10 px-3 py-1 text-xs font-semibold text-ink-soft"
+										>Full</span
+									>
+								{/if}
+							</div>
 						</a>
 					{:else}
-						<p class="text-muted mb-0">No rooms available for this selection.</p>
+						<p class="py-3 text-sm text-ink-soft">No rooms available for this selection.</p>
 					{/each}
 				</div>
 			</div>
 		{:else}
-			<!-- STEP 3: pick bed + agreements -->
-			<div class="cp-card p-4">
-				<div class="d-flex justify-content-between align-items-center mb-3">
-					<h2 class="h5 mb-0">Pick a bed &amp; agree to the forms</h2>
-					<a href="?" class="small text-decoration-none">&larr; change room</a>
+			<div class="mt-6 {card}">
+				<div class="flex flex-wrap items-baseline justify-between gap-2">
+					<h2 class="text-xl">Pick a bed &amp; agree to the forms</h2>
+					<a href="?" class="text-sm font-semibold text-primary-600 hover:text-primary"
+						>&larr; change room</a
+					>
 				</div>
-
 				{#if form && 'expired' in form && form.expired}
-					<div class="alert alert-warning py-2">
-						Your registration session expired. Please <a
-							href="/?next=/{data.event.id}"
-							data-sveltekit-reload>start again</a
+					<div class="mt-3 rounded-xl bg-amber-100 px-4 py-2 text-sm text-amber-800">
+						Your registration session expired. Please
+						<a href="/?next=/{data.event.id}" data-sveltekit-reload class="font-semibold underline"
+							>start again</a
 						>.
 					</div>
 				{/if}
-
 				<form
 					method="post"
 					action="?/hold"
+					class="mt-4"
 					use:enhance={() => {
 						submitting = true;
 						return async ({ update }) => {
@@ -426,7 +424,6 @@
 					}}
 				>
 					<input type="hidden" name="roomId" value={data.roomId} />
-					<!-- honeypot -->
 					<input
 						type="text"
 						name="middle_name"
@@ -435,27 +432,30 @@
 						aria-hidden="true"
 						style="position:absolute;left:-9999px"
 					/>
-
-					<fieldset class="mb-3">
-						<legend class="h6">Bed</legend>
-						{#each data.beds as bed (bed.id)}
-							<div class="form-check">
-								<input
-									class="form-check-input"
-									type="radio"
-									name="cotId"
-									id={`cot-${bed.id}`}
-									value={bed.id}
-									required
-								/>
-								<label class="form-check-label" for={`cot-${bed.id}`}>
+					<fieldset>
+						<legend class="mb-2 text-sm font-semibold">Bed</legend>
+						<div class="grid gap-2 sm:grid-cols-2">
+							{#each data.beds as bed (bed.id)}
+								<label
+									class="flex cursor-pointer items-center gap-2 rounded-2xl border border-ink/10 bg-sand px-4 py-3 text-sm font-medium has-[:checked]:border-primary has-[:checked]:bg-mint/40"
+								>
+									<input
+										class="accent-primary"
+										type="radio"
+										name="cotId"
+										id={`cot-${bed.id}`}
+										value={bed.id}
+										required
+									/>
 									{bed.description || `Bed ${bed.id}`}
 								</label>
-							</div>
-						{:else}
-							<p class="text-muted">No beds in this room.</p>
-						{/each}
-						{#if form?.errors?.bed}<div class="text-danger small">{form.errors.bed}</div>{/if}
+							{:else}
+								<p class="text-sm text-ink-soft">No beds in this room.</p>
+							{/each}
+						</div>
+						{#if form?.errors?.bed}
+							<div class="mt-1 text-sm text-red-600">{form.errors.bed}</div>
+						{/if}
 					</fieldset>
 
 					{#each data.forms as f (f.id)}
@@ -463,49 +463,43 @@
 						{#if f.id === 2 || f.name === 'Health Form'}
 							<HealthForm formId={f.id} formName={f.name} errors={form?.errors} />
 						{:else}
-							<div class="mb-4 pt-3 border-top">
-								<h3 class="h6 mb-2">{f.name}</h3>
-
+							<div class="mt-6 border-t border-ink/10 pt-5">
+								<h3 class="text-base font-semibold">{f.name}</h3>
 								{#if parsed.body.length}
-									<div class="cp-rules mb-3">
+									<div class="rules-box mt-3 space-y-2 p-4">
 										{#each parsed.body as para}
-											<p class="small mb-2">{para}</p>
+											<p>{para}</p>
 										{/each}
 									</div>
 								{/if}
-
 								{#each parsed.questions as q (q.key)}
 									{@const fieldName = `form_${f.id}_${q.key}`}
-									<div class="mb-3">
+									<div class="mt-3">
 										{#if q.type === 'checkbox'}
-											<div class="form-check">
+											<label class="flex items-start gap-2 text-sm">
 												<input
-													class="form-check-input"
+													class="accent-primary mt-1"
 													type="checkbox"
 													name={fieldName}
 													id={fieldName}
 													value="yes"
 													required={q.required}
 												/>
-												<label class="form-check-label" for={fieldName}>{q.label}</label>
-											</div>
+												<span>{q.label}</span>
+											</label>
 										{:else}
-											<label class="form-label" for={fieldName}>{q.label}</label>
+											<label class="mb-1 block text-sm font-medium" for={fieldName}>{q.label}</label
+											>
 											{#if q.type === 'textarea'}
 												<textarea
-													class="form-control"
+													class="field"
 													name={fieldName}
 													id={fieldName}
 													rows="3"
 													required={q.required}
 												></textarea>
 											{:else if q.type === 'select'}
-												<select
-													class="form-select"
-													name={fieldName}
-													id={fieldName}
-													required={q.required}
-												>
+												<select class="field" name={fieldName} id={fieldName} required={q.required}>
 													<option value="" disabled selected>Choose…</option>
 													{#each q.options ?? [] as opt}
 														<option value={opt}>{opt}</option>
@@ -513,7 +507,7 @@
 												</select>
 											{:else}
 												<input
-													class="form-control"
+													class="field"
 													type={q.type === 'date' ? 'date' : 'text'}
 													name={fieldName}
 													id={fieldName}
@@ -523,36 +517,34 @@
 										{/if}
 									</div>
 								{/each}
-
-								<div class="form-check">
+								<label class="mt-4 flex items-start gap-2 text-sm">
 									<input
-										class="form-check-input"
+										class="accent-primary mt-1"
 										type="checkbox"
 										name={`form_${f.id}`}
 										id={`form-${f.id}`}
 										required
 									/>
-									<label class="form-check-label" for={`form-${f.id}`}>
-										I have read and agree to the {f.name}.
-									</label>
-									{#if form?.errors?.[`form_${f.id}`]}
-										<div class="text-danger small">{form.errors[`form_${f.id}`]}</div>
-									{/if}
-								</div>
+									<span>I have read and agree to the {f.name}.</span>
+								</label>
+								{#if form?.errors?.[`form_${f.id}`]}
+									<div class="mt-1 text-sm text-red-600">{form.errors[`form_${f.id}`]}</div>
+								{/if}
 							</div>
 						{/if}
 					{/each}
 
-					{#if form?.message}<div class="alert alert-danger py-2 mt-3">{form.message}</div>{/if}
-
-					<button
-						class="btn btn-primary w-100 mt-3 rounded-pill"
-						type="submit"
-						disabled={submitting}
-					>
+					{#if form?.message}
+						<div class="mt-4 rounded-xl bg-red-50 px-4 py-2 text-sm text-red-700">
+							{form.message}
+						</div>
+					{/if}
+					<button class="{btn} mt-5 w-full" type="submit" disabled={submitting}>
 						{submitting ? 'Holding your bed…' : 'Hold bed & continue to payment'}
 					</button>
-					<p class="text-muted small mt-2 mb-0">Your bed is held for 5 minutes while you pay.</p>
+					<p class="mt-3 text-center text-xs text-ink-soft">
+						Your bed is held for 5 minutes while you pay.
+					</p>
 				</form>
 			</div>
 		{/if}
