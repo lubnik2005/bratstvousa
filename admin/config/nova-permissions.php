@@ -487,6 +487,29 @@ return [
         ],
         // Camp Registrations End
 
+        // Cash Eligibility Rules Start
+        'view cash_eligibility_rules' => [
+            'display_name' => 'View cash eligibility rules',
+            'description' => 'Can view cash eligibility rules',
+            'group' => 'Cash Eligibility Rules',
+        ],
+        'create cash_eligibility_rules' => [
+            'display_name' => 'Create cash eligibility rules',
+            'description' => 'Can create cash eligibility rules',
+            'group' => 'Cash Eligibility Rules',
+        ],
+        'edit cash_eligibility_rules' => [
+            'display_name' => 'Edit cash eligibility rules',
+            'description' => 'Can edit cash eligibility rules',
+            'group' => 'Cash Eligibility Rules',
+        ],
+        'delete cash_eligibility_rules' => [
+            'display_name' => 'Delete cash eligibility rules',
+            'description' => 'Can delete cash eligibility rules',
+            'group' => 'Cash Eligibility Rules',
+        ],
+        // Cash Eligibility Rules End
+
         // Zeffy Payments Start
         'view zeffy_payments' => [
             'display_name' => 'View zeffy payments',

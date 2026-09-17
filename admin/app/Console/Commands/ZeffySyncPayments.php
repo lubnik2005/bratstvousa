@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\CampRegistration;
+use App\Models\CashEligibilityRule;
 use App\Models\ZeffyPayment;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
@@ -131,6 +132,8 @@ class ZeffySyncPayments extends Command
         $buyer = $payment['buyer'] ?? [];
         $buyerEmail = $buyer['email'] ?? null;
         $code = $this->extractCampCode($payment);
+        $ids = $this->extractIdentifiers($payment);
+        $amount = (int) ($payment['amount'] ?? 0);
 
         $registration = null;
         if ($code) {
@@ -140,13 +143,106 @@ class ZeffySyncPayments extends Command
             $registration = CampRegistration::whereRaw('lower(email) = ?', [strtolower($buyerEmail)])->first();
         }
 
+        // Registration-code abuse guard (spec §23): if this registration is
+        // already linked to a different Zeffy payment, do not overwrite it.
+        if ($registration && $registration->zeffy_payment_id && $registration->zeffy_payment_id !== $zeffyId) {
+            ZeffyPayment::create([
+                'zeffy_payment_id' => $zeffyId,
+                'status' => $payment['status'] ?? null,
+                'amount' => $amount,
+                'currency' => $payment['currency'] ?? null,
+                'buyer_email' => $buyerEmail,
+                'buyer_first_name' => $buyer['first_name'] ?? null,
+                'buyer_last_name' => $buyer['last_name'] ?? null,
+                'confirmation_code' => $code,
+                'matched_registration_id' => $registration->id,
+                'match_status' => 'duplicate',
+                'raw_json' => json_encode($payment),
+            ]);
+            $this->recordEvent($registration->id, 'duplicate_registration_code', null, [
+                'zeffy_payment_id' => $zeffyId,
+                'existing_zeffy_payment_id' => $registration->zeffy_payment_id,
+            ]);
+            $unmatched++;
+
+            return;
+        }
+
         $matchStatus = $registration ? 'matched' : 'unmatched';
 
         if ($registration) {
-            $registration->payment_status = 'paid';
+            // Price snapshot in cents; fall back to legacy dollar amount * 100.
+            $priceCents = (int) ($registration->event_price_cents ?? (($registration->amount ?? 0) * 100));
+            $auditEvent = null;
+            $auditAmount = null;
+            $auditPayload = [
+                'zeffy_payment_id' => $zeffyId,
+                'source' => 'zeffy:sync',
+                'discount_code' => $ids['discountCode'],
+                'face_value_cents' => $ids['faceValueCents'],
+            ];
+
+            if ($amount > 0) {
+                // Normal paid online checkout.
+                $registration->payment_method = 'ONLINE';
+                $registration->payment_status = 'PAID';
+                $registration->amount_paid_cents = $amount;
+                $registration->amount_due_cents = 0;
+                $registration->paid_at = now()->toIso8601String();
+                $auditEvent = 'online_payment';
+                $auditAmount = $amount;
+            } else {
+                // $0 checkout. The registration's cash_eligible flag (set at
+                // registration from cash_eligibility_rules) is authoritative; the
+                // discount code on the payload is only an audit/validation signal.
+                $rule = $this->findRuleFor($registration);
+                $expectedCode = $rule?->discount_code;
+                $codeMatch = $expectedCode !== null
+                    && $ids['discountCode'] !== null
+                    && strcasecmp($expectedCode, $ids['discountCode']) === 0;
+                $auditPayload['expected_code'] = $expectedCode;
+                $auditPayload['code_match'] = $codeMatch;
+                $auditPayload['rule_id'] = $rule?->id;
+
+                if ($registration->cash_eligible) {
+                    // Authorized $0 checkout — cash due at check-in (spec §11).
+                    $registration->payment_method = 'CASH';
+                    $registration->payment_status = 'DUE';
+                    $registration->amount_paid_cents = 0;
+                    $registration->amount_due_cents = $priceCents;
+                    $auditEvent = 'cash_due';
+                    $auditAmount = $priceCents;
+
+                    if (! $codeMatch) {
+                        // Still DUE (eligibility wins), but flag the mismatch.
+                        $this->recordEvent($registration->id, 'discount_code_mismatch', $priceCents, $auditPayload);
+                    }
+                } else {
+                    // Unauthorized $0 checkout — do NOT mark paid (spec §8/§11).
+                    $registration->payment_status = 'REVIEW_REQUIRED';
+                    $registration->amount_paid_cents = 0;
+                    $registration->amount_due_cents = $priceCents;
+                    $auditEvent = 'unauthorized_zero_dollar';
+                    $auditAmount = $priceCents;
+
+                    // If the code belongs to some other church's active rule, note
+                    // where it leaked from (never used as proof of eligibility).
+                    $leaked = $this->findRuleByCode($ids['discountCode'], $registration->event_slug);
+                    if ($leaked) {
+                        $auditPayload['leaked_from_rule_id'] = $leaked->id;
+                        $auditPayload['leaked_from_church_id'] = $leaked->church_id;
+                    }
+                }
+            }
+
             $registration->zeffy_payment_id = $zeffyId;
-            $registration->paid_at = now()->toIso8601String();
+            $registration->zeffy_ticket_id = $ids['ticketId'];
+            $registration->zeffy_contact_id = $ids['contactId'];
+            $registration->zeffy_campaign_id = $ids['campaignId'];
+            $registration->zeffy_discount_code = $ids['discountCode'];
             $registration->save();
+
+            $this->recordEvent($registration->id, $auditEvent, $auditAmount, $auditPayload);
             $matched++;
         } else {
             $unmatched++;
@@ -155,7 +251,7 @@ class ZeffySyncPayments extends Command
         ZeffyPayment::create([
             'zeffy_payment_id' => $zeffyId,
             'status' => $payment['status'] ?? null,
-            'amount' => $payment['amount'] ?? null,
+            'amount' => $amount,
             'currency' => $payment['currency'] ?? null,
             'buyer_email' => $buyerEmail,
             'buyer_first_name' => $buyer['first_name'] ?? null,
@@ -168,6 +264,103 @@ class ZeffySyncPayments extends Command
 
         if (! $registration && $buyerEmail) {
             $this->sendUnmatchedEmail($buyerEmail, $buyer['first_name'] ?? null);
+        }
+    }
+
+    /**
+     * Extract Zeffy identifiers (ticket/contact/campaign/discount) from a payment
+     * payload. Mirrors extractZeffyIdentifiers() in the SvelteKit app.
+     *
+     * Real payload shapes (observed): `discount: {code, amount}`, top-level
+     * `contact` (uuid), `items[0].contact_id`, `items[0].amount` = ticket face
+     * value in cents even when the checkout total is $0.
+     *
+     * @param  array<string, mixed>  $payment
+     * @return array{ticketId: ?string, contactId: ?string, campaignId: ?string, discountCode: ?string, faceValueCents: ?int}
+     */
+    private function extractIdentifiers(array $payment): array
+    {
+        $items = $payment['items'] ?? [];
+        $firstItem = is_array($items[0] ?? null) ? $items[0] : [];
+        $buyer = is_array($payment['buyer'] ?? null) ? $payment['buyer'] : [];
+        $discount = is_array($payment['discount'] ?? null) ? $payment['discount'] : [];
+
+        $stringOrNull = static fn ($v): ?string => (is_string($v) || is_int($v)) ? (string) $v : null;
+        $faceValue = $firstItem['amount'] ?? null;
+
+        return [
+            'ticketId' => $stringOrNull($firstItem['ticket_id'] ?? $firstItem['id'] ?? null),
+            'contactId' => $stringOrNull(
+                $payment['contact'] ?? $payment['contact_id'] ?? $firstItem['contact_id'] ?? $buyer['contact_id'] ?? $buyer['id'] ?? null
+            ),
+            'campaignId' => $stringOrNull($payment['campaign_id'] ?? null),
+            'discountCode' => $stringOrNull(
+                $discount['code'] ?? $payment['discount_code'] ?? $payment['discountCode'] ?? $payment['promo_code'] ?? null
+            ),
+            'faceValueCents' => is_numeric($faceValue) ? (int) $faceValue : null,
+        ];
+    }
+
+    /**
+     * Active cash-eligibility rule for this registration's church + event.
+     */
+    private function findRuleFor(CampRegistration $registration): ?CashEligibilityRule
+    {
+        if (! $registration->church_id) {
+            return null;
+        }
+
+        try {
+            return CashEligibilityRule::where('church_id', $registration->church_id)
+                ->where('event_slug', $registration->event_slug)
+                ->where('active', true)
+                ->first();
+        } catch (\Throwable $e) {
+            Log::warning('zeffy:sync rule lookup failed', ['error' => $e->getMessage()]);
+
+            return null;
+        }
+    }
+
+    /**
+     * Any active rule (for the event) whose discount code matches, case-insensitively.
+     */
+    private function findRuleByCode(?string $code, string $eventSlug): ?CashEligibilityRule
+    {
+        if (! $code) {
+            return null;
+        }
+
+        try {
+            return CashEligibilityRule::whereRaw('upper(discount_code) = ?', [strtoupper($code)])
+                ->where('event_slug', $eventSlug)
+                ->where('active', true)
+                ->first();
+        } catch (\Throwable $e) {
+            Log::warning('zeffy:sync rule-by-code lookup failed', ['error' => $e->getMessage()]);
+
+            return null;
+        }
+    }
+
+    /**
+     * Append a row to the registration_events audit trail (best-effort).
+     *
+     * @param  array<string, mixed>  $payload
+     */
+    private function recordEvent(int $registrationId, string $event, ?int $amountCents, array $payload): void
+    {
+        try {
+            DB::connection('d1')->table('registration_events')->insert([
+                'registration_id' => $registrationId,
+                'event' => $event,
+                'amount_cents' => $amountCents,
+                'staff_user' => null,
+                'payload' => json_encode($payload),
+                'created_at' => now()->toIso8601String(),
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('zeffy:sync audit insert failed', ['error' => $e->getMessage()]);
         }
     }
 

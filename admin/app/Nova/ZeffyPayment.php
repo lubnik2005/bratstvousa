@@ -2,8 +2,8 @@
 
 namespace App\Nova;
 
+use App\Nova\Fields\SafeBadge;
 use Laravel\Nova\Actions\ExportAsCsv;
-use Laravel\Nova\Fields\Badge;
 use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Fields\Code;
 use Laravel\Nova\Fields\DateTime;
@@ -62,6 +62,7 @@ class ZeffyPayment extends Resource
         'matched' => 'Matched',
         'unmatched' => 'Unmatched',
         'refunded' => 'Refunded',
+        'duplicate' => 'Duplicate (code reused)',
     ];
 
     /**
@@ -91,10 +92,11 @@ class ZeffyPayment extends Resource
 
             ID::make()->sortable(),
 
-            Badge::make('Match', 'match_status')->map([
+            SafeBadge::make('Match', 'match_status')->map([
                 'matched' => 'success',
                 'unmatched' => 'danger',
                 'refunded' => 'warning',
+                'duplicate' => 'danger',
             ])->labels(self::$matchStatuses)->sortable(),
 
             Text::make('Code', 'confirmation_code')
