@@ -65,12 +65,12 @@
 					Наша молитва и наше искреннее желание — вместе трудиться, возрастать в благовестии и верно
 					нести Евангелие Иисуса Христа каждому человеку, которого Господь встречает на нашем пути.
 				</p>
-				<footer class="blockquote-footer">Павел Дмитриев</footer>
+				<footer class="blockquote-footer">Павел Юрьевич Дмитриев</footer>
 			</div>
 			<div class="col-lg-4">
 				<div class="leader-card" style="--leader-accent: var(--bs-accent-gospel);">
-					<img src="{data.media_url}upfiles/page/pavel-dmitriev.jpg" alt="Павел Дмитриев" />
-					<p class="leader-name">Павел <br />Дмитриев</p>
+					<img src="{data.media_url}upfiles/page/pavel-dmitriev.jpg" alt="Павел Юрьевич Дмитриев" />
+					<p class="leader-name">Павел Юрьевич <br />Дмитриев</p>
 					<a href="mailto:info@bratstvousa.com">info@bratstvousa.com</a>
 				</div>
 			</div>
