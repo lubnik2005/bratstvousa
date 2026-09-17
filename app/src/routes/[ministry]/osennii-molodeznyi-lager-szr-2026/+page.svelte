@@ -82,7 +82,7 @@
 
 		<!-- About + video -->
 		<div class="row g-5 align-items-center camp-about">
-			<div class="col-lg-7">
+			<div class="col-lg-6">
 				<p class="eyebrow">О лагере</p>
 				<h2 class="camp-section-title">Время, отделённое для Господа</h2>
 				<p>
@@ -96,7 +96,7 @@
 				</p>
 				<p class="text-muted">Места ограничены — рекомендуем зарегистрироваться заранее.</p>
 			</div>
-			<div class="col-lg-5">
+			<div class="col-lg-6">
 				<figure class="camp-video">
 					<!-- svelte-ignore a11y_media_has_caption -->
 					<video controls preload="metadata" poster={video.poster} playsinline>
@@ -335,13 +335,12 @@
 		margin-bottom: 4.5rem;
 	}
 	.camp-video {
-		margin: 0 auto;
-		max-width: 320px;
+		margin: 0;
 	}
 	.camp-video video {
 		display: block;
 		width: 100%;
-		aspect-ratio: 9 / 16;
+		aspect-ratio: 15 / 8;
 		object-fit: cover;
 		background: var(--bs-dark, #2c2b29);
 		border: 1px solid var(--bs-rule-strong, #c9bfae);
