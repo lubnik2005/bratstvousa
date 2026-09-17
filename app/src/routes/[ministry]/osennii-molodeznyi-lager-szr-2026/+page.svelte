@@ -13,9 +13,13 @@
 		poster: `${data.media_url}video/szr-camp-2026-poster.webp`
 	};
 
+	const address = '1 Muddy Rd, Antelope, OR 97001, USA';
+	const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
+	const mapsEmbedUrl = `https://www.google.com/maps?q=${encodeURIComponent(address)}&z=9&output=embed`;
+
 	const facts = [
 		{ label: 'Дата', value: '15–18 октября 2026' },
-		{ label: 'Регион', value: 'Северо-Западный' },
+		{ label: 'Место', value: 'Antelope, Oregon', href: '#location' },
 		{ label: 'Возраст', value: 'Молодёжь 16+' },
 		{ label: 'Стоимость', value: '$350' }
 	];
@@ -49,7 +53,7 @@
 	<title>Осенний молодежный лагерь СЗР 2026</title>
 	<meta
 		name="description"
-		content="Осенний молодежный лагерь Северо-Западного региона — 15–18 октября 2026. Регистрация открыта."
+		content="Осенний молодежный лагерь Северо-Западного региона — 15–18 октября 2026, Antelope, Oregon. Регистрация открыта."
 	/>
 </svelte:head>
 
@@ -73,10 +77,17 @@
 		<!-- Quick facts -->
 		<div class="camp-facts">
 			{#each facts as fact}
-				<div class="camp-fact">
-					<span class="camp-fact__label">{fact.label}</span>
-					<span class="camp-fact__value">{fact.value}</span>
-				</div>
+				{#if fact.href}
+					<a class="camp-fact camp-fact--link" href={fact.href}>
+						<span class="camp-fact__label">{fact.label}</span>
+						<span class="camp-fact__value">{fact.value}</span>
+					</a>
+				{:else}
+					<div class="camp-fact">
+						<span class="camp-fact__label">{fact.label}</span>
+						<span class="camp-fact__value">{fact.value}</span>
+					</div>
+				{/if}
 			{/each}
 		</div>
 
@@ -219,6 +230,38 @@
 			</div>
 		</div>
 
+		<!-- Location -->
+		<section class="camp-location" id="location">
+			<div class="row g-5 align-items-center">
+				<div class="col-lg-5">
+					<p class="eyebrow">Место проведения</p>
+					<h2 class="camp-section-title">Как добраться</h2>
+					<address class="camp-location__address">
+						<strong>1 Muddy Rd</strong><br />
+						Antelope, OR 97001, USA
+					</address>
+					<p class="text-muted">
+						Лагерь находится в центральном Орегоне, около 3 часов езды от Портленда. Заезд и
+						регистрация — в четверг с 14:00 до 16:00.
+					</p>
+					<a class="btn btn-outline-dark" href={mapsUrl} target="_blank" rel="noopener noreferrer">
+						Открыть в Google Maps
+					</a>
+				</div>
+				<div class="col-lg-7">
+					<div class="camp-location__map">
+						<iframe
+							src={mapsEmbedUrl}
+							title="Карта: 1 Muddy Rd, Antelope, OR 97001"
+							loading="lazy"
+							referrerpolicy="no-referrer-when-downgrade"
+							allowfullscreen
+						></iframe>
+					</div>
+				</div>
+			</div>
+		</section>
+
 		<!-- CTA -->
 		<div class="camp-cta">
 			<h2 class="camp-cta__title">Готовы присоединиться?</h2>
@@ -305,6 +348,19 @@
 		background: var(--bs-paper, #f6f2ea);
 		padding: 1.5rem 1rem;
 		text-align: center;
+	}
+	.camp-fact--link {
+		text-decoration: none;
+		transition: background-color 0.15s ease;
+	}
+	.camp-fact--link:hover,
+	.camp-fact--link:focus-visible {
+		background: var(--bs-paper-sunk, #efe9df);
+	}
+	.camp-fact--link .camp-fact__value {
+		text-decoration: underline;
+		text-decoration-color: var(--bs-secondary, #a28c6a);
+		text-underline-offset: 0.2em;
 	}
 	.camp-fact__label {
 		display: block;
@@ -715,6 +771,33 @@
 		width: 0.5rem;
 		height: 0.5rem;
 		background: var(--bs-secondary, #a28c6a);
+	}
+
+	/* Location */
+	.camp-location {
+		margin-bottom: 4.5rem;
+		scroll-margin-top: calc(var(--nav-offset, 0px) + 1.5rem);
+	}
+	.camp-location__address {
+		font-family: var(--bs-font-serif, 'Lora'), serif;
+		font-size: 1.15rem;
+		line-height: 1.5;
+		color: var(--bs-dark, #2c2b29);
+		margin-bottom: 1rem;
+		padding-left: 1rem;
+		border-left: 3px solid var(--bs-secondary, #a28c6a);
+	}
+	.camp-location__map {
+		background: var(--bs-paper-sunk, #efe9df);
+		border: 1px solid var(--bs-rule-strong, #c9bfae);
+		box-shadow: 0 18px 40px -24px rgba(44, 43, 41, 0.55);
+	}
+	.camp-location__map iframe {
+		display: block;
+		width: 100%;
+		aspect-ratio: 16 / 10;
+		border: 0;
+		filter: saturate(0.85);
 	}
 
 	.camp-cta {
