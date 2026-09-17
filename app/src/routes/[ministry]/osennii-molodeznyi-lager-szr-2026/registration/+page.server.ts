@@ -1,6 +1,11 @@
 import { fail } from '@sveltejs/kit';
 import { eq, desc, and, sql } from 'drizzle-orm';
-import { campRegistrations, youthLeaders, churches } from '$lib/server/db/schema';
+import {
+	campRegistrations,
+	youthLeaders,
+	churches,
+	cashEligibilityRules
+} from '$lib/server/db/schema';
 import {
 	generateConfirmationCode,
 	generateApprovalToken,
@@ -12,6 +17,7 @@ import type { Actions, PageServerLoad } from './$types';
 
 const EVENT_SLUG = 'osennii-molodeznyi-lager-szr-2026';
 const CAMP_AMOUNT = 350;
+const CAMP_AMOUNT_CENTS = CAMP_AMOUNT * 100;
 
 const isEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 const clean = (s: FormDataEntryValue | null | undefined) =>
@@ -103,6 +109,15 @@ export const actions: Actions = {
 		// If "Другое" was chosen, use the free-text value; otherwise the selected label.
 		const churchValue = churchSelected === 'other' ? churchOther : churchSelected;
 
+		// Real church FK from the hidden churchId input. Only trusted when it maps
+		// to a known church row; free-typed / "other" churches have no id (=> null)
+		// and are therefore never cash-eligible (spec §6/§22).
+		const churchIdRaw = clean(fd.get('churchId'));
+		const churchId =
+			churchIdRaw && /^\d+$/.test(churchIdRaw) && churchSelected !== 'other'
+				? Number(churchIdRaw)
+				: null;
+
 		const fields = {
 			firstName: clean(fd.get('firstName')),
 			lastName: clean(fd.get('lastName')),
@@ -148,6 +163,38 @@ export const actions: Actions = {
 			console.error('camp dedup check failed:', err);
 		}
 
+		// Resolve cash eligibility from the authoritative rules table, keyed on
+		// (churchId, eventSlug). A matching active rule => this registrant may pay
+		// $0 on Zeffy and cash at check-in; its amountCents is the price snapshot.
+		// No rule (or no real churchId) => not eligible, default event price.
+		let cashEligible = false;
+		let eventPriceCents = CAMP_AMOUNT_CENTS;
+		if (churchId != null) {
+			try {
+				const rule = (
+					await db
+						.select({ amountCents: cashEligibilityRules.amountCents })
+						.from(cashEligibilityRules)
+						.where(
+							and(
+								eq(cashEligibilityRules.churchId, churchId),
+								eq(cashEligibilityRules.eventSlug, EVENT_SLUG),
+								eq(cashEligibilityRules.active, true)
+							)
+						)
+						.limit(1)
+				)[0];
+				if (rule) {
+					cashEligible = true;
+					if (rule.amountCents != null) eventPriceCents = rule.amountCents;
+				}
+			} catch (err) {
+				// Non-fatal: table may not exist yet in some environments. Falling
+				// back to not-eligible is the safe default.
+				console.warn('cash eligibility lookup failed, defaulting to not-eligible:', err);
+			}
+		}
+
 		// Generate the confirmation code + approval token at submission time.
 		// The code is emailed to the registrant now and re-used at payment (Zeffy)
 		// after approval; on rejection it is simply never used.
@@ -161,12 +208,21 @@ export const actions: Actions = {
 				firstName: fields.firstName,
 				lastName: fields.lastName,
 				church: fields.church,
+				churchId,
 				email: fields.email,
 				phone: fields.phone,
 				leaderId: Number(fields.leaderId),
 				status: 'awaiting_approval',
-				paymentStatus: 'unpaid',
-				amount: CAMP_AMOUNT,
+				// New payment model: PENDING until a Zeffy checkout arrives. Legacy
+				// dollar `amount` is kept for back-compat; *_cents drive new logic.
+				paymentStatus: 'PENDING',
+				paymentMethod: null,
+				cashEligible,
+				amount: Math.round(eventPriceCents / 100),
+				eventPriceCents,
+				amountDueCents: eventPriceCents,
+				amountPaidCents: 0,
+				checkinStatus: 'NOT_CHECKED_IN',
 				confirmationCode,
 				approvalToken,
 				createdAt: now,

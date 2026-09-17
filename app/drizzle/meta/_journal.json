@@ -43,6 +43,13 @@
       "when": 1789487138760,
       "tag": "0005_sparkling_harpoon",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1789590705361,
+      "tag": "0006_common_proemial_gods",
+      "breakpoints": true
     }
   ]
 }

@@ -1,7 +1,12 @@
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import { and, eq, sql } from 'drizzle-orm';
 import type { AppDatabase } from '$lib/server/db';
-import { campRegistrations, zeffyPayments } from '$lib/server/db/schema';
+import {
+	campRegistrations,
+	zeffyPayments,
+	registrationEvents,
+	cashEligibilityRules
+} from '$lib/server/db/schema';
 import { sendUnmatchedPayment } from '$lib/server/email/camp';
 
 const ZEFFY_API_BASE = 'https://api.zeffy.com';
@@ -24,13 +29,79 @@ export interface ZeffyPaymentPayload {
 	status?: string;
 	refund_status?: string;
 	dispute?: unknown;
+	// Discount applied to the checkout. Observed real webhook shape:
+	//   "discount": { "code": "TESTINGNIK", "amount": 35000 }
+	// Older guesses (discount_code / promo_code) are kept as fallbacks. The code
+	// is a reference/opportunistic-validation signal only — never proof of
+	// eligibility (spec §22).
+	discount?: { code?: string | null; amount?: number | null } | null;
+	discount_code?: string | null;
+	discountCode?: string | null;
+	promo_code?: string | null;
+	// Observed: top-level "contact" is the Zeffy contact UUID.
+	contact?: string | null;
+	contact_id?: string | null;
+	campaign_id?: string | null;
+	campaign_type?: string | null;
+	description?: string | null;
+	occurrence_id?: string | null;
+	// Observed: { type: "free" | "card" | ..., brand, last4 } for the checkout.
+	payment_method?: { type?: string | null; brand?: string | null; last4?: string | null } | null;
 	buyer?: {
 		email?: string | null;
 		first_name?: string | null;
 		last_name?: string | null;
+		id?: string | null;
+		contact_id?: string | null;
 	} | null;
 	buyer_questions?: ZeffyQuestionAnswer[] | null;
-	items?: Array<{ questions?: ZeffyQuestionAnswer[] | null }> | null;
+	items?: Array<{
+		id?: string | null;
+		ticket_id?: string | null;
+		type?: string | null;
+		currency?: string | null;
+		// Ticket FACE VALUE in cents (e.g. 35000) — present even when the checkout
+		// total is $0 because of a 100% discount.
+		amount?: number | null;
+		rate_id?: string | null;
+		rate_title?: string | null;
+		contact_id?: string | null;
+		questions?: ZeffyQuestionAnswer[] | null;
+	}> | null;
+}
+
+/** Identifiers we opportunistically capture from a Zeffy payment for QR lookup. */
+export interface ZeffyIdentifiers {
+	ticketId: string | null;
+	contactId: string | null;
+	campaignId: string | null;
+	discountCode: string | null;
+	/** Ticket face value in cents (items[0].amount), independent of the discount. */
+	faceValueCents: number | null;
+}
+
+/** Pulls the useful Zeffy identifiers off a payment payload (best-effort). */
+export function extractZeffyIdentifiers(payment: ZeffyPaymentPayload): ZeffyIdentifiers {
+	const firstItem = payment.items?.[0] ?? null;
+	const face = firstItem?.amount;
+	return {
+		ticketId: firstItem?.ticket_id ?? firstItem?.id ?? null,
+		contactId:
+			payment.contact ??
+			payment.contact_id ??
+			firstItem?.contact_id ??
+			payment.buyer?.contact_id ??
+			payment.buyer?.id ??
+			null,
+		campaignId: payment.campaign_id ?? null,
+		discountCode:
+			payment.discount?.code ??
+			payment.discount_code ??
+			payment.discountCode ??
+			payment.promo_code ??
+			null,
+		faceValueCents: typeof face === 'number' && Number.isFinite(face) ? face : null
+	};
 }
 
 /**
@@ -124,9 +195,20 @@ function isRefundedOrDisputed(payment: ZeffyPaymentPayload): boolean {
 
 /**
  * Applies a Zeffy payment to the DB. Idempotent by zeffy_payment_id.
- *   - refunded/disputed/deleted -> mark zeffy_payments 'refunded' + revert reg to 'unpaid'
- *   - succeeded + CAMP code (or buyer email) matches a registration -> mark reg 'paid' + 'matched'
- *   - otherwise -> 'unmatched' + email the payer
+ *
+ * Decision logic (spec §11). A $0 Zeffy checkout is NOT proof of free admission;
+ * the internal registration's cash_eligible flag is authoritative (spec §2):
+ *   - refunded/disputed/deleted -> zeffy_payments 'refunded' + reg REFUNDED
+ *   - amount  > 0            -> ONLINE / PAID   (amount_paid = amount, due = 0)
+ *   - amount == 0 & eligible -> CASH   / DUE    (due = event_price_cents)
+ *                               (+ 'discount_code_mismatch' audit if the code on
+ *                                the payload differs from the church's rule)
+ *   - amount == 0 & !eligible-> REVIEW_REQUIRED (due = event_price_cents) + audit
+ *                               (payload notes which rule/church the code leaked from)
+ *   - no matching registration -> 'unmatched' + email the payer (once)
+ *
+ * Registration-code abuse (spec §23): once a registration is linked to a Zeffy
+ * payment, a *different* payment claiming the same code is flagged, not applied.
  *
  * `deleted` = true when the payment was deleted upstream (404 on refetch).
  */
@@ -139,6 +221,7 @@ export async function applyPayment(
 	const now = new Date().toISOString();
 	const code = extractCampCode(payment);
 	const buyerEmail = payment.buyer?.email?.trim() || null;
+	const ids = extractZeffyIdentifiers(payment);
 
 	// --- Refund / dispute / deletion path: revert any matched registration ---
 	if (opts.deleted || isRefundedOrDisputed(payment)) {
@@ -154,8 +237,19 @@ export async function applyPayment(
 		if (matchedRegId != null) {
 			await db
 				.update(campRegistrations)
-				.set({ paymentStatus: 'unpaid', paidAt: null, updatedAt: now })
+				.set({
+					paymentStatus: 'REFUNDED',
+					amountPaidCents: 0,
+					paidAt: null,
+					updatedAt: now
+				})
 				.where(eq(campRegistrations.id, matchedRegId));
+			await insertRegistrationEvent(db, {
+				registrationId: matchedRegId,
+				event: 'payment_refunded',
+				amountCents: payment.amount ?? null,
+				payload: { zeffyPaymentId, status: payment.status ?? null }
+			});
 		}
 
 		if (existing) {
@@ -192,6 +286,7 @@ export async function applyPayment(
 			payment,
 			code,
 			buyerEmail,
+			ids,
 			matchedRegistrationId: null,
 			matchStatus: 'unmatched',
 			now
@@ -199,27 +294,46 @@ export async function applyPayment(
 		return;
 	}
 
-	// --- Find the matching registration ---
-	let regId: number | null = null;
+	// --- Find the matching registration (code first, email as fallback) ---
+	let reg:
+		| {
+				id: number;
+				churchId: number | null;
+				eventSlug: string;
+				cashEligible: boolean;
+				feeWaived: boolean;
+				eventPriceCents: number | null;
+				amount: number | null;
+				zeffyPaymentId: string | null;
+		  }
+		| undefined;
+	const regCols = {
+		id: campRegistrations.id,
+		churchId: campRegistrations.churchId,
+		eventSlug: campRegistrations.eventSlug,
+		cashEligible: campRegistrations.cashEligible,
+		feeWaived: campRegistrations.feeWaived,
+		eventPriceCents: campRegistrations.eventPriceCents,
+		amount: campRegistrations.amount,
+		zeffyPaymentId: campRegistrations.zeffyPaymentId
+	};
 	if (code) {
-		const row = (
+		reg = (
 			await db
-				.select({ id: campRegistrations.id })
+				.select(regCols)
 				.from(campRegistrations)
 				.where(sql`upper(${campRegistrations.confirmationCode}) = ${code.toUpperCase()}`)
 				.limit(1)
 		)[0];
-		if (row) regId = row.id;
 	}
-	if (regId == null && buyerEmail) {
-		const row = (
+	if (!reg && buyerEmail) {
+		reg = (
 			await db
-				.select({ id: campRegistrations.id })
+				.select(regCols)
 				.from(campRegistrations)
 				.where(sql`lower(${campRegistrations.email}) = ${buyerEmail.toLowerCase()}`)
 				.limit(1)
 		)[0];
-		if (row) regId = row.id;
 	}
 
 	const alreadyProcessed = (
@@ -230,21 +344,141 @@ export async function applyPayment(
 			.limit(1)
 	)[0];
 
-	if (regId != null) {
+	if (reg) {
+		// --- Registration-code abuse guard (spec §23) ---
+		// If this registration is already linked to a *different* Zeffy payment,
+		// do not overwrite it; flag the incoming one for manual review.
+		if (reg.zeffyPaymentId && reg.zeffyPaymentId !== zeffyPaymentId) {
+			await upsertZeffyPayment(db, {
+				zeffyPaymentId,
+				payment,
+				code,
+				buyerEmail,
+				ids,
+				matchedRegistrationId: reg.id,
+				matchStatus: 'duplicate',
+				now
+			});
+			await insertRegistrationEvent(db, {
+				registrationId: reg.id,
+				event: 'duplicate_registration_code',
+				amountCents: payment.amount ?? null,
+				payload: {
+					zeffyPaymentId,
+					existingZeffyPaymentId: reg.zeffyPaymentId
+				}
+			});
+			return;
+		}
+
+		// Price snapshot: prefer the cents snapshot, fall back to legacy dollars.
+		const priceCents = reg.eventPriceCents ?? (reg.amount != null ? reg.amount * 100 : 0);
+		const amount = payment.amount ?? 0;
+
+		// Audit payload shared by every branch below.
+		const auditPayload: Record<string, unknown> = {
+			zeffyPaymentId,
+			cashEligible: reg.cashEligible,
+			discountCode: ids.discountCode,
+			faceValueCents: ids.faceValueCents
+		};
+		const extraEvents: Array<{ event: string; amountCents: number | null }> = [];
+
+		let regUpdate: Record<string, unknown>;
+		let auditEvent: string;
+		if (amount > 0) {
+			// Normal paid online checkout.
+			regUpdate = {
+				paymentMethod: 'ONLINE',
+				paymentStatus: 'PAID',
+				amountPaidCents: amount,
+				amountDueCents: 0,
+				paidAt: now
+			};
+			auditEvent = 'online_payment';
+		} else {
+			// $0 checkout. Opportunistically compare the discount code on the payload
+			// with the rule for this registrant's church/event. The comparison is
+			// informational only — cash_eligible remains the authority (spec §22).
+			const rule = await findRuleFor(db, reg.churchId, reg.eventSlug);
+			const expectedCode = rule?.discountCode ?? null;
+			const codeMatch =
+				ids.discountCode != null && expectedCode != null
+					? ids.discountCode.toUpperCase() === expectedCode.toUpperCase()
+					: null;
+			auditPayload.expectedCode = expectedCode;
+			auditPayload.codeMatch = codeMatch;
+			auditPayload.ruleId = rule?.id ?? null;
+
+			if (reg.cashEligible) {
+				// Authorized cash-at-check-in: $0 Zeffy checkout, balance still due.
+				regUpdate = {
+					paymentMethod: 'CASH',
+					paymentStatus: 'DUE',
+					amountPaidCents: 0,
+					amountDueCents: priceCents
+				};
+				auditEvent = 'cash_due';
+				// Eligible but used the wrong/no code: still DUE, just flag it.
+				if (codeMatch !== true) {
+					extraEvents.push({ event: 'discount_code_mismatch', amountCents: priceCents });
+				}
+			} else {
+				// Unauthorized $0 checkout (leaked discount code, etc.): do NOT mark
+				// paid — require staff review (spec §8/§11). If the code belongs to
+				// another church's rule, record where it leaked from.
+				regUpdate = {
+					paymentStatus: 'REVIEW_REQUIRED',
+					amountPaidCents: 0,
+					amountDueCents: priceCents
+				};
+				auditEvent = 'unauthorized_zero_dollar';
+				const leaked = await findRuleByCode(db, ids.discountCode, reg.eventSlug);
+				auditPayload.leakedFromRuleId = leaked?.id ?? null;
+				auditPayload.leakedFromChurchId = leaked?.churchId ?? null;
+			}
+		}
+
 		await db
 			.update(campRegistrations)
-			.set({ paymentStatus: 'paid', zeffyPaymentId, paidAt: now, updatedAt: now })
-			.where(eq(campRegistrations.id, regId));
+			.set({
+				...regUpdate,
+				zeffyPaymentId,
+				zeffyTicketId: ids.ticketId,
+				zeffyContactId: ids.contactId,
+				zeffyCampaignId: ids.campaignId,
+				zeffyDiscountCode: ids.discountCode,
+				updatedAt: now
+			})
+			.where(eq(campRegistrations.id, reg.id));
 
 		await upsertZeffyPayment(db, {
 			zeffyPaymentId,
 			payment,
 			code,
 			buyerEmail,
-			matchedRegistrationId: regId,
+			ids,
+			matchedRegistrationId: reg.id,
 			matchStatus: 'matched',
 			now
 		});
+
+		if (!alreadyProcessed) {
+			await insertRegistrationEvent(db, {
+				registrationId: reg.id,
+				event: auditEvent,
+				amountCents: amount,
+				payload: auditPayload
+			});
+			for (const extra of extraEvents) {
+				await insertRegistrationEvent(db, {
+					registrationId: reg.id,
+					event: extra.event,
+					amountCents: extra.amountCents,
+					payload: auditPayload
+				});
+			}
+		}
 		return;
 	}
 
@@ -254,6 +488,7 @@ export async function applyPayment(
 		payment,
 		code,
 		buyerEmail,
+		ids,
 		matchedRegistrationId: null,
 		matchStatus: 'unmatched',
 		now
@@ -271,6 +506,93 @@ export async function applyPayment(
 	}
 }
 
+/**
+ * Active cash-eligibility rule for a registrant's (church, event), if any.
+ * Best-effort: returns null on any failure so payment processing never breaks.
+ */
+async function findRuleFor(
+	db: AppDatabase,
+	churchId: number | null,
+	eventSlug: string
+): Promise<{ id: number; discountCode: string | null } | null> {
+	if (churchId == null) return null;
+	try {
+		const row = (
+			await db
+				.select({ id: cashEligibilityRules.id, discountCode: cashEligibilityRules.discountCode })
+				.from(cashEligibilityRules)
+				.where(
+					and(
+						eq(cashEligibilityRules.churchId, churchId),
+						eq(cashEligibilityRules.eventSlug, eventSlug),
+						eq(cashEligibilityRules.active, true)
+					)
+				)
+				.limit(1)
+		)[0];
+		return row ?? null;
+	} catch (err) {
+		console.warn('cash_eligibility_rules lookup failed:', err);
+		return null;
+	}
+}
+
+/**
+ * Which active rule (for this event) owns a given discount code — used to record
+ * where a leaked code came from. Case-insensitive. Best-effort.
+ */
+async function findRuleByCode(
+	db: AppDatabase,
+	discountCode: string | null,
+	eventSlug: string
+): Promise<{ id: number; churchId: number | null } | null> {
+	if (!discountCode) return null;
+	try {
+		const row = (
+			await db
+				.select({ id: cashEligibilityRules.id, churchId: cashEligibilityRules.churchId })
+				.from(cashEligibilityRules)
+				.where(
+					and(
+						sql`upper(${cashEligibilityRules.discountCode}) = ${discountCode.toUpperCase()}`,
+						eq(cashEligibilityRules.eventSlug, eventSlug),
+						eq(cashEligibilityRules.active, true)
+					)
+				)
+				.limit(1)
+		)[0];
+		return row ?? null;
+	} catch (err) {
+		console.warn('cash_eligibility_rules code lookup failed:', err);
+		return null;
+	}
+}
+
+/** Appends a row to the registration_events audit trail (best-effort). */
+async function insertRegistrationEvent(
+	db: AppDatabase,
+	args: {
+		registrationId: number;
+		event: string;
+		amountCents?: number | null;
+		staffUser?: string | null;
+		payload?: unknown;
+	}
+): Promise<void> {
+	try {
+		await db.insert(registrationEvents).values({
+			registrationId: args.registrationId,
+			event: args.event,
+			amountCents: args.amountCents ?? null,
+			staffUser: args.staffUser ?? null,
+			payload: args.payload ?? null
+		});
+	} catch (err) {
+		// Audit is best-effort: never let it break payment processing.
+		console.error('registration_events insert failed:', err);
+	}
+}
+
 async function upsertZeffyPayment(
 	db: AppDatabase,
 	args: {
@@ -278,6 +600,7 @@ async function upsertZeffyPayment(
 		payment: ZeffyPaymentPayload;
 		code: string | null;
 		buyerEmail: string | null;
+		ids?: ZeffyIdentifiers;
 		matchedRegistrationId: number | null;
 		matchStatus: string;
 		now: string;

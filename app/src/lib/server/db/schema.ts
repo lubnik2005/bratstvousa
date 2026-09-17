@@ -215,20 +215,43 @@ export type YouthLeader = typeof youthLeaders.$inferSelect;
 
 // Camp registrations. status flow:
 //   pending_payment -> awaiting_approval -> approved | rejected
-// paymentStatus: unpaid | paid (from Stripe). approvalToken used in the
-// approve-link emailed to the responsible leader.
+//
+// Payment model (Zeffy cash-at-check-in integration):
+//   paymentMethod: ONLINE | CASH | WAIVED | OTHER | null  (method, not state)
+//   paymentStatus: PENDING | DUE | PAID | REVIEW_REQUIRED | REFUNDED | CANCELED
+//     (legacy rows may still hold 'unpaid'/'paid' until backfilled)
+// A $0 Zeffy checkout does NOT imply free admission — cashEligible (derived from
+// cash_eligibility_rules at registration time) is authoritative. See spec §2/§6.
+// approvalToken is used in the approve-link emailed to the responsible leader.
 export const campRegistrations = sqliteTable('camp_registrations', {
 	id: integer('id').primaryKey({ autoIncrement: true }),
 	eventSlug: text('event_slug').notNull(),
 	firstName: text('first_name').notNull(),
 	lastName: text('last_name').notNull(),
+	// Free-text church label kept for display/back-compat. churchId is the real
+	// FK captured at registration and used for cash eligibility (free-typed
+	// "other" churches have churchId = null => never cash-eligible).
 	church: text('church'),
+	churchId: integer('church_id').references(() => churches.id),
 	email: text('email'),
 	phone: text('phone'),
 	leaderId: integer('leader_id').references(() => youthLeaders.id),
 	status: text('status').default('pending_payment').notNull(),
 	paymentStatus: text('payment_status').default('unpaid').notNull(),
+	// Whether this registrant is authorized to pay cash at check-in (a $0 Zeffy
+	// checkout). Set at registration from cash_eligibility_rules; never inferred
+	// from the Zeffy amount, discount code, or church name (spec §6/§22).
+	cashEligible: integer('cash_eligible', { mode: 'boolean' }).default(false).notNull(),
+	// Legitimately free admission (staff/scholarship/comp) — distinct from cash.
+	feeWaived: integer('fee_waived', { mode: 'boolean' }).default(false).notNull(),
+	paymentMethod: text('payment_method'),
+	// Legacy dollar amount (kept for back-compat). New logic uses *_cents.
 	amount: integer('amount'),
+	// Price snapshot at registration (integer cents) so later price changes don't
+	// move an existing attendee's balance (spec §26).
+	eventPriceCents: integer('event_price_cents'),
+	amountDueCents: integer('amount_due_cents'),
+	amountPaidCents: integer('amount_paid_cents').default(0).notNull(),
 	stripeSessionId: text('stripe_session_id'),
 	// Human-readable registration code (e.g. "CAMP-7K3QF"), generated at
 	// submission. Given to the registrant to enter in Zeffy so payments can be
@@ -238,9 +261,21 @@ export const campRegistrations = sqliteTable('camp_registrations', {
 	approvedBy: text('approved_by'),
 	approvedAt: text('approved_at'),
 	// Zeffy payment reconciliation. zeffyPaymentId links the paid Zeffy payment
-	// (idempotency); paidAt is when payment_status flipped to 'paid'.
+	// (idempotency); paidAt is when payment_status flipped to 'paid'/'due'.
 	zeffyPaymentId: text('zeffy_payment_id'),
+	zeffyTicketId: text('zeffy_ticket_id'),
+	zeffyContactId: text('zeffy_contact_id'),
+	zeffyCampaignId: text('zeffy_campaign_id'),
+	// Discount code seen on the Zeffy payload (if provided) — reference/validation
+	// signal only, never proof of eligibility.
+	zeffyDiscountCode: text('zeffy_discount_code'),
 	paidAt: text('paid_at'),
+	// Staff member who collected cash (spec §18 audit trail).
+	paidBy: text('paid_by'),
+	// Check-in state — kept separate from payment state (spec §13).
+	checkinStatus: text('checkin_status').default('NOT_CHECKED_IN').notNull(),
+	checkedInAt: text('checked_in_at'),
+	checkedInBy: text('checked_in_by'),
 	createdAt: text('created_at')
 		.default(sql`(datetime('now'))`)
 		.notNull(),
@@ -250,6 +285,49 @@ export const campRegistrations = sqliteTable('camp_registrations', {
 });
 
 export type CampRegistration = typeof campRegistrations.$inferSelect;
+
+// Cash eligibility rules: authoritative source deciding whether a group may pay
+// cash at check-in (a $0 Zeffy checkout via a shared discount code). Keyed on
+// (churchId, eventSlug). amountCents is the price for that eligible group;
+// discountCode is the shared Zeffy code (informational + opportunistic
+// validation). One row per church per event; a shared code = multiple rows with
+// the same discountCode. See spec §6/§8.
+export const cashEligibilityRules = sqliteTable('cash_eligibility_rules', {
+	id: integer('id').primaryKey({ autoIncrement: true }),
+	// 'church' today; room for 'leader'/'event' scopes later.
+	scopeType: text('scope_type').default('church').notNull(),
+	churchId: integer('church_id').references(() => churches.id),
+	eventSlug: text('event_slug'),
+	amountCents: integer('amount_cents').notNull(),
+	discountCode: text('discount_code'),
+	active: integer('active', { mode: 'boolean' }).default(true).notNull(),
+	createdAt: text('created_at')
+		.default(sql`(datetime('now'))`)
+		.notNull(),
+	updatedAt: text('updated_at')
+		.default(sql`(datetime('now'))`)
+		.notNull()
+});
+
+export type CashEligibilityRule = typeof cashEligibilityRules.$inferSelect;
+
+// Append-only audit trail for registration lifecycle events, especially cash
+// collection (which can't be reconciled against a processor). See spec §18.
+// event: 'cash_payment_collected' | 'checked_in' | 'zeffy_webhook_applied'
+//        | 'unauthorized_zero_dollar' | 'payment_refunded' | ...
+export const registrationEvents = sqliteTable('registration_events', {
+	id: integer('id').primaryKey({ autoIncrement: true }),
+	registrationId: integer('registration_id').notNull(),
+	event: text('event').notNull(),
+	amountCents: integer('amount_cents'),
+	staffUser: text('staff_user'),
+	payload: text('payload', { mode: 'json' }),
+	createdAt: text('created_at')
+		.default(sql`(datetime('now'))`)
+		.notNull()
+});
+
+export type RegistrationEvent = typeof registrationEvents.$inferSelect;
 
 // All Zeffy payments seen (via webhook or the hourly API reconciliation job),
 // keyed by zeffyPaymentId for idempotency across both paths.

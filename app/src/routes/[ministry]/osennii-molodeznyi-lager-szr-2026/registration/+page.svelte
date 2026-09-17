@@ -149,6 +149,10 @@
 	const initialChurch =
 		form?.form && 'fields' in form.form ? ((form.form.fields.church as string) ?? '') : '';
 	let churchSelected = initialChurch;
+	// Real church FK for the picked church. Only set when a known church row is
+	// chosen from the list; cleared for free text / "other" so the server never
+	// treats a typed name as an eligible church (spec §6/§22).
+	let churchIdSelected: number | null = null;
 	let churchOther = '';
 	let churchQuery = churchSelected && churchSelected !== 'other' ? churchSelected : '';
 	let churchOpen = false;
@@ -158,14 +162,16 @@
 		? data.churches.filter((c) => c.label.toLowerCase().includes(churchQuery.trim().toLowerCase()))
 		: data.churches;
 
-	function pickChurch(label: string) {
+	function pickChurch(label: string, id: number | null = null) {
 		churchSelected = label;
+		churchIdSelected = id;
 		churchQuery = label;
 		churchOpen = false;
 		churchActive = -1;
 	}
 	function pickOther() {
 		churchSelected = 'other';
+		churchIdSelected = null;
 		churchQuery = 'Другое (ввести своё)';
 		churchOpen = false;
 		churchActive = -1;
@@ -173,6 +179,7 @@
 	function onChurchInput(e: Event) {
 		churchQuery = (e.target as HTMLInputElement).value;
 		churchSelected = churchQuery; // free text counts as a selectable label
+		churchIdSelected = null; // free text is never a known church id
 		churchOpen = true;
 		churchActive = -1;
 	}
@@ -192,7 +199,7 @@
 			if (churchOpen && churchActive >= 0) {
 				e.preventDefault();
 				if (churchActive === max) pickOther();
-				else pickChurch(churchMatches[churchActive].label);
+				else pickChurch(churchMatches[churchActive].label, churchMatches[churchActive].id);
 			}
 		} else if (e.key === 'Escape') {
 			churchOpen = false;
@@ -295,7 +302,7 @@
 											role="option"
 											aria-selected={churchActive === i}
 											class:active={churchActive === i}
-											on:mousedown|preventDefault={() => pickChurch(c.label)}
+											on:mousedown|preventDefault={() => pickChurch(c.label, c.id)}
 										>
 											{c.label}
 										</li>
@@ -314,6 +321,7 @@
 						</div>
 						<!-- hidden submit values -->
 						<input type="hidden" name="church" value={churchSelected} />
+						<input type="hidden" name="churchId" value={churchIdSelected ?? ''} />
 						{#if churchSelected === 'other'}
 							<input
 								class="form-control mt-2"

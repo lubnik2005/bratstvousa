@@ -136,9 +136,32 @@ export async function sendLeaderApprovalRequest(db: AppDatabase, req: LeaderAppr
 	return sendEmail(db, req.leaderEmail, 'Новая заявка на лагерь — требуется одобрение', html);
 }
 
+/**
+ * Builds the Zeffy checkout URL, appending the registration code as a query
+ * parameter so Zeffy can pre-populate the "Registration Code" field where
+ * supported (spec §9). Manual entry is still requested in the email body as a
+ * fallback, since custom-question prefill is not guaranteed by Zeffy — the
+ * webhook recovers the code from the submitted answers regardless.
+ */
+export function buildZeffyUrl(baseUrl: string, confirmationCode: string): string {
+	if (!baseUrl || baseUrl === '#') return baseUrl || '#';
+	try {
+		const u = new URL(baseUrl);
+		// Common Zeffy prefill params; harmless if Zeffy ignores unknown keys.
+		u.searchParams.set('registrationCode', confirmationCode);
+		u.searchParams.set('code', confirmationCode);
+		return u.toString();
+	} catch {
+		// baseUrl isn't a valid absolute URL — return unchanged.
+		return baseUrl;
+	}
+}
+
 export interface ApprovedInfo {
 	registrant: RegistrantInfo;
 	zeffyUrl: string;
+	/** When true, the registrant pays cash at check-in (Zeffy total will be $0). */
+	cashEligible?: boolean;
 }
 
 /** Email #2: sent to the registrant when the leader approves. */
@@ -146,23 +169,40 @@ export async function sendRegistrantApproved(db: AppDatabase, info: ApprovedInfo
 	const r = info.registrant;
 	const name = escapeHtml(r.firstName);
 	const code = escapeHtml(r.confirmationCode);
+	// Prefill the code into the Zeffy link (best-effort); manual entry still asked.
+	const zeffyUrl = buildZeffyUrl(info.zeffyUrl, r.confirmationCode);
+
+	// Cash-eligible registrants get a $0 Zeffy checkout and pay at the event, so
+	// the messaging differs from the online-payment path.
+	const cashNote = info.cashEligible
+		? `<p style="font-size:15px;line-height:1.6;margin:0 0 16px;padding:12px 16px;background:#fef9c3;border-radius:6px;">
+				<strong>Оплата на месте:</strong> при оформлении сумма составит <strong>$0</strong> —
+				оплату за лагерь вы внесёте наличными при регистрации на месте. Билет с QR-кодом
+				придёт вам от Zeffy после оформления.
+			</p>`
+		: '';
+	const buttonLabel = info.cashEligible
+		? 'Получить билет (оплата на месте)'
+		: 'Завершить регистрацию и оплатить';
+
 	const html = layout(`
 		<h1 style="font-size:20px;margin:0 0 16px;">Ваша заявка одобрена, ${name}!</h1>
 		<p style="font-size:15px;line-height:1.6;margin:0 0 16px;">
 			Отличные новости — ваша заявка на осенний молодёжный лагерь СЗР 2026
-			была одобрена. Остался последний шаг: завершить регистрацию оплатой.
+			была одобрена. Остался последний шаг: завершить регистрацию.
 		</p>
+		${cashNote}
 		<p style="font-size:15px;line-height:1.6;margin:0 0 8px;">
-			Перейдите по ссылке ниже и введите ваш регистрационный код при оплате:
+			Перейдите по ссылке ниже и укажите ваш регистрационный код при оформлении:
 		</p>
 		<p style="font-size:24px;font-weight:bold;letter-spacing:2px;margin:0 0 20px;color:#2563eb;">${code}</p>
-		<a href="${escapeHtml(info.zeffyUrl)}"
+		<a href="${escapeHtml(zeffyUrl)}"
 			style="display:inline-block;background:#16a34a;color:#ffffff;text-decoration:none;padding:12px 24px;border-radius:6px;font-size:15px;font-weight:bold;">
-			Завершить регистрацию и оплатить
+			${buttonLabel}
 		</a>
 		<p style="font-size:13px;line-height:1.6;margin:20px 0 0;color:#71717a;">
-			Обязательно укажите код <strong>${code}</strong> при оплате, чтобы мы
-			могли связать ваш платёж с заявкой.
+			Обязательно укажите код <strong>${code}</strong> при оформлении, чтобы мы
+			могли связать вашу заявку с билетом.
 		</p>
 	`);
 	return sendEmail(db, r.email, 'Заявка одобрена — завершите регистрацию', html);

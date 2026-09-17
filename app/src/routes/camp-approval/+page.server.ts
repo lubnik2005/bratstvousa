@@ -108,7 +108,8 @@ export const actions: Actions = {
 						church: reg.church,
 						confirmationCode: reg.confirmationCode
 					},
-					zeffyUrl
+					zeffyUrl,
+					cashEligible: reg.cashEligible ?? false
 				});
 			} catch (err) {
 				console.error('approved email failed:', err);
