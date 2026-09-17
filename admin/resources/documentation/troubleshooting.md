@@ -85,8 +85,22 @@ Those people either didn't show up or were let in without paying. Filter the
 find the second group.
 
 **A Zeffy payment shows "Duplicate".**
-Two people used the same `CAMP-` code. The first payment won; the second attendee
-needs their own registration. Find them by buyer name in Zeffy Payments.
+The same `CAMP-` code was used for a second Zeffy checkout. The first payment
+won and the registration is untouched; the second one is only recorded as
+*Duplicate*. Two common causes:
+
+- **The same person paid twice / got two tickets.** Both the buyer and
+  `youth@bratstvousa.com` are emailed automatically. Open the registration
+  (Camp Registrations → the person → *Zeffy Payments* at the bottom, or filter
+  the list by *Duplicate payment = Has duplicate*) to see both payments. Refund
+  the **duplicate** in Zeffy — that is safe: the registration stays *Paid*.
+  Only refunding the **original** payment (the one shown in *Zeffy Payment* on
+  the registration) flips the registration to *Refunded*. If the duplicate was a
+  $0 cash-code ticket there is nothing to refund; just ignore the extra ticket.
+  At the gate both QR codes resolve to the same registration, so the second
+  scan simply shows *already checked in*.
+- **Two different people used one code.** The second attendee needs their own
+  registration. Find them by buyer name in Zeffy Payments (filter *Duplicate*).
 
 ## Technical
 

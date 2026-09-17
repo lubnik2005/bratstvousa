@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use OwenIt\Auditing\Contracts\Auditable;
 
 class CampRegistration extends Model implements Auditable
@@ -85,5 +86,14 @@ class CampRegistration extends Model implements Auditable
     public function churchModel(): BelongsTo
     {
         return $this->belongsTo(Church::class, 'church_id');
+    }
+
+    /**
+     * Every Zeffy payment that was matched to this registration, including
+     * duplicates (match_status = duplicate) and refunded ones.
+     */
+    public function zeffyPayments(): HasMany
+    {
+        return $this->hasMany(ZeffyPayment::class, 'matched_registration_id');
     }
 }

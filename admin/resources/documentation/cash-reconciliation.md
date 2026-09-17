@@ -80,4 +80,5 @@ For a per-transaction trail (who pressed what, when, with what note) query the
 `registration_events` table: events `cash_payment_collected`, `checked_in`,
 `review_resolved`, `online_payment`, `cash_due`, `unauthorized_zero_dollar`,
 `campaign_mismatch`,
-`discount_code_mismatch`, `duplicate_registration_code`, `payment_refunded`.
+`discount_code_mismatch`, `duplicate_registration_code`, `duplicate_refunded`,
+`payment_refunded`.

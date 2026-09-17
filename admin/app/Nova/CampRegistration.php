@@ -8,6 +8,7 @@ use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Fields\Boolean;
 use Laravel\Nova\Fields\Currency;
 use Laravel\Nova\Fields\DateTime;
+use Laravel\Nova\Fields\HasMany;
 use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\Number;
 use Laravel\Nova\Fields\Select;
@@ -290,6 +291,8 @@ class CampRegistration extends Resource
             DateTime::make('Registered', 'created_at')
                 ->sortable()
                 ->exceptOnForms(),
+
+            HasMany::make('Zeffy Payments', 'zeffyPayments', ZeffyPayment::class),
         ];
     }
 
@@ -316,6 +319,7 @@ class CampRegistration extends Resource
             new Filters\CampRegistrationPaymentMethod,
             new Filters\CampRegistrationCheckinStatus,
             new Filters\CampRegistrationCashEligible,
+            new Filters\CampRegistrationHasDuplicatePayment,
         ];
     }
 

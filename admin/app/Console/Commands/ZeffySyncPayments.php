@@ -159,10 +159,22 @@ class ZeffySyncPayments extends Command
                 'match_status' => 'duplicate',
                 'raw_json' => json_encode($payment),
             ]);
-            $this->recordEvent($registration->id, 'duplicate_registration_code', null, [
+            $this->recordEvent($registration->id, 'duplicate_registration_code', $amount, [
                 'zeffy_payment_id' => $zeffyId,
                 'existing_zeffy_payment_id' => $registration->zeffy_payment_id,
+                'buyer_email' => $buyerEmail,
+                'discount_code' => $ids['discountCode'],
+                'source' => 'zeffy:sync',
             ]);
+            $this->sendDuplicateEmails(
+                $buyerEmail,
+                $buyer['first_name'] ?? null,
+                $registration->id,
+                $code,
+                $amount,
+                $zeffyId,
+                $registration->zeffy_payment_id,
+            );
             $unmatched++;
 
             return;
@@ -462,6 +474,71 @@ class ZeffySyncPayments extends Command
             });
         } catch (\Throwable $e) {
             Log::error('zeffy:sync unmatched email failed', ['email' => $email, 'error' => $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Mirror of sendDuplicatePaymentNotice() in the SvelteKit app: tell the
+     * buyer only one ticket is valid, and tell the organizer to refund/void
+     * the extra one in Zeffy. Only reached when the webhook missed the payment.
+     */
+    private function sendDuplicateEmails(
+        ?string $buyerEmail,
+        ?string $firstName,
+        int $registrationId,
+        ?string $code,
+        int $amountCents,
+        string $duplicateId,
+        string $originalId,
+    ): void {
+        $usd = '$'.number_format($amountCents / 100, 2);
+        $codeLabel = $code ?? ('#'.$registrationId);
+
+        if ($buyerEmail) {
+            try {
+                $greeting = $firstName ? 'Здравствуйте, '.e($firstName).'!' : 'Здравствуйте!';
+                $money = $amountCents > 0
+                    ? '<p>Повторная оплата на сумму <strong>'.$usd.'</strong> будет возвращена.</p>'
+                    : '<p>Повторный билет был бесплатным — возвращать нечего.</p>';
+                $html = '<p>'.$greeting.'</p>'
+                    .'<p>Мы получили <strong>второй билет</strong> для регистрации <strong>'.e($codeLabel).'</strong> '
+                    .'на Осенний молодёжный лагерь СЗР 2026.</p>'
+                    .'<p>Действителен только <strong>первый</strong> билет. '
+                    .'Второй билет использовать не нужно.</p>'
+                    .$money
+                    .'<p>Если вы хотели зарегистрировать другого человека, ему нужно заполнить '
+                    .'собственную заявку на сайте — один код регистрации действует только для одного участника.</p>'
+                    .'<p>Вопросы: <a href="mailto:youth@bratstvousa.com">youth@bratstvousa.com</a></p>'
+                    .'<p>С благословением,<br>Команда Bratstvo USA</p>';
+
+                Mail::html($html, function ($message) use ($buyerEmail) {
+                    $message->to($buyerEmail)->subject('Повторный билет — Осенний молодёжный лагерь СЗР 2026');
+                });
+            } catch (\Throwable $e) {
+                Log::error('zeffy:sync duplicate buyer email failed', ['email' => $buyerEmail, 'error' => $e->getMessage()]);
+            }
+        }
+
+        try {
+            $action = $amountCents > 0
+                ? 'Refund the duplicate payment in Zeffy. The registration is not affected by that refund.'
+                : 'The duplicate was a $0 ticket; void it in Zeffy if desired. Nothing to refund.';
+            $html = '<p>A second Zeffy payment was received for registration <strong>'.e($codeLabel).'</strong>.</p>'
+                .'<table cellpadding="4">'
+                .'<tr><td>Buyer</td><td>'.e($buyerEmail ?? '—').'</td></tr>'
+                .'<tr><td>Extra amount</td><td>'.$usd.'</td></tr>'
+                .'<tr><td>Duplicate payment id</td><td>'.e($duplicateId).'</td></tr>'
+                .'<tr><td>Original payment id</td><td>'.e($originalId).'</td></tr>'
+                .'</table>'
+                .'<p><strong>Action:</strong> '.$action.'</p>'
+                .'<p>Admin: Camp Registrations → #'.$registrationId.' → Zeffy Payments.</p>'
+                .'<p><em>Detected by the hourly zeffy:sync job.</em></p>';
+
+            Mail::html($html, function ($message) use ($codeLabel) {
+                $message->to('youth@bratstvousa.com')->subject('[Camp] Duplicate payment for '.$codeLabel);
+            });
+        } catch (\Throwable $e) {
+            Log::error('zeffy:sync duplicate organizer email failed', ['error' => $e->getMessage()]);
         }
     }
 
