@@ -1,8 +1,17 @@
 <script lang="ts">
-	export let data;
+	import { schedule, lessons, theme } from './schedule';
+	import type { Block } from './schedule';
+
+	let { data } = $props();
 
 	const heroImage = `${data.media_url}upfiles/page/north-west-youth-camp-2025-200.png`;
 	const registerUrl = '/youth-ministry/osennii-molodeznyi-lager-szr-2026/registration';
+	const schedulePdf = `${data.media_url}upfiles/page/szr-camp-2026-schedule.pdf`;
+	const video = {
+		mp4: `${data.media_url}video/szr-camp-2026.mp4`,
+		webm: `${data.media_url}video/szr-camp-2026.webm`,
+		poster: `${data.media_url}video/szr-camp-2026-poster.webp`
+	};
 
 	const facts = [
 		{ label: 'Дата', value: '15–18 октября 2026' },
@@ -11,28 +20,21 @@
 		{ label: 'Стоимость', value: '$350' }
 	];
 
-	const program = [
-		{
-			day: 'День 1',
-			title: 'Заезд и знакомство',
-			text: 'Регистрация, размещение, вечернее общение у камина и молитвенное открытие лагеря.'
-		},
-		{
-			day: 'День 2',
-			title: 'Слово и служение',
-			text: 'Утренние размышления над Писанием, семинары, командные игры и вечернее прославление.'
-		},
-		{
-			day: 'День 3',
-			title: 'Активности и отдых',
-			text: 'Осенние активности на свежем воздухе, свидетельства, костёр и время в малых группах.'
-		},
-		{
-			day: 'День 4',
-			title: 'Завершение',
-			text: 'Итоговое богослужение, хлебопреломление и отъезд.'
-		}
-	];
+	let activeDay = $state(schedule[0].key);
+
+	function timeRange(b: Block): string {
+		return b.end ? `${b.start}–${b.end}` : b.start;
+	}
+
+	function onTabKey(e: KeyboardEvent, index: number) {
+		if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+		e.preventDefault();
+		const next = (index + (e.key === 'ArrowRight' ? 1 : -1) + schedule.length) % schedule.length;
+		activeDay = schedule[next].key;
+		(e.currentTarget as HTMLElement).parentElement
+			?.querySelectorAll<HTMLButtonElement>('[role="tab"]')
+			[next]?.focus();
+	}
 
 	const bring = [
 		'Библию, блокнот и ручку',
@@ -78,9 +80,9 @@
 			{/each}
 		</div>
 
-		<!-- About -->
+		<!-- About + video -->
 		<div class="row g-5 align-items-center camp-about">
-			<div class="col-lg-6">
+			<div class="col-lg-7">
 				<p class="eyebrow">О лагере</p>
 				<h2 class="camp-section-title">Время, отделённое для Господа</h2>
 				<p>
@@ -88,31 +90,119 @@
 					повседневной суеты, укрепиться в вере и провести время в кругу единомышленников. Нас ждут
 					вдохновляющие проповеди, живое общение и незабываемые осенние активности.
 				</p>
+				<p>
+					Тема лагеря — молитва <em>«{theme.title}»</em>: шесть уроков, по одному прошению за раз, с
+					обсуждением по группам.
+				</p>
 				<p class="text-muted">Места ограничены — рекомендуем зарегистрироваться заранее.</p>
 			</div>
-			<div class="col-lg-6">
-				<img class="camp-about__img" src={heroImage} alt="Осенний молодежный лагерь" />
+			<div class="col-lg-5">
+				<figure class="camp-video">
+					<!-- svelte-ignore a11y_media_has_caption -->
+					<video controls preload="metadata" poster={video.poster} playsinline>
+						<source src={video.webm} type="video/webm" />
+						<source src={video.mp4} type="video/mp4" />
+						Ваш браузер не поддерживает видео.
+					</video>
+					<figcaption class="camp-video__caption">Приглашение на лагерь</figcaption>
+				</figure>
 			</div>
 		</div>
 
-		<!-- Program -->
-		<div class="camp-program">
-			<div class="mb-5 text-center">
-				<p class="eyebrow">Программа</p>
-				<h2 class="camp-section-title">Что вас ждёт</h2>
+		<!-- Theme / lessons overview -->
+		<div class="camp-theme">
+			<div class="camp-theme__head">
+				<p class="eyebrow">Тема лагеря</p>
+				<h2 class="camp-section-title">«{theme.title}»</h2>
+				<p class="camp-theme__sub">{theme.subtitle}</p>
 			</div>
-			<div class="row g-4">
-				{#each program as item}
-					<div class="col-md-6 col-lg-3">
-						<div class="camp-day">
-							<span class="camp-day__badge">{item.day}</span>
-							<h3 class="camp-day__title">{item.title}</h3>
-							<p class="camp-day__text">{item.text}</p>
-						</div>
-					</div>
+			<ol class="camp-lessons">
+				{#each lessons as l (l.n)}
+					<li class="camp-lesson">
+						<span class="camp-lesson__n">{l.n}</span>
+						<span class="camp-lesson__title">{l.title}</span>
+						{#if l.speaker}<span class="camp-lesson__speaker">{l.speaker}</span>{/if}
+					</li>
+				{/each}
+			</ol>
+		</div>
+
+		<!-- Schedule -->
+		<section class="camp-schedule" id="schedule">
+			<div class="camp-schedule__head">
+				<div>
+					<p class="eyebrow">Расписание</p>
+					<h2 class="camp-section-title">Программа по дням</h2>
+				</div>
+				<a class="camp-schedule__pdf" href={schedulePdf} target="_blank" rel="noopener">
+					Скачать PDF
+				</a>
+			</div>
+
+			<div class="camp-tabs" role="tablist" aria-label="Дни лагеря">
+				{#each schedule as d, i (d.key)}
+					<button
+						type="button"
+						role="tab"
+						id="tab-{d.key}"
+						class="camp-tab"
+						class:is-active={d.key === activeDay}
+						aria-selected={d.key === activeDay}
+						aria-controls="panel-{d.key}"
+						tabindex={d.key === activeDay ? 0 : -1}
+						onclick={() => (activeDay = d.key)}
+						onkeydown={(e) => onTabKey(e, i)}
+					>
+						<span class="camp-tab__short">{d.short}</span>
+						<span class="camp-tab__label">{d.label}</span>
+						<span class="camp-tab__date">{d.date}</span>
+					</button>
 				{/each}
 			</div>
-		</div>
+
+			{#each schedule as d (d.key)}
+				<div
+					class="camp-day"
+					class:is-active={d.key === activeDay}
+					id="panel-{d.key}"
+					role="tabpanel"
+					aria-labelledby="tab-{d.key}"
+				>
+					<h3 class="camp-day__heading">
+						{d.label} <span class="camp-day__date">· {d.date}</span>
+					</h3>
+					<ol class="camp-timeline">
+						{#each d.blocks as b}
+							<li class="camp-block camp-block--{b.kind}">
+								<time class="camp-block__time">{timeRange(b)}</time>
+								<div class="camp-block__body">
+									<div class="camp-block__title">
+										{b.title}
+										{#if b.note}<span class="camp-block__note">{b.note}</span>{/if}
+									</div>
+									{#if b.lessons?.length || b.after}
+										<ul class="camp-block__lessons">
+											{#each b.lessons ?? [] as l}
+												<li class="camp-block__lesson">
+													{#if l.n}<span class="camp-block__lesson-n">Урок {l.n}</span>{/if}
+													<span class="camp-block__lesson-title">{l.title}</span>
+													{#if l.speaker}
+														<span class="camp-block__lesson-speaker">{l.speaker}</span>
+													{/if}
+												</li>
+											{/each}
+											{#if b.after}
+												<li class="camp-block__lesson camp-block__lesson--after">{b.after}</li>
+											{/if}
+										</ul>
+									{/if}
+								</div>
+							</li>
+						{/each}
+					</ol>
+				</div>
+			{/each}
+		</section>
 
 		<!-- What to bring -->
 		<div class="row g-5 camp-bring">
@@ -244,40 +334,364 @@
 	.camp-about {
 		margin-bottom: 4.5rem;
 	}
-	.camp-about__img {
+	.camp-video {
+		margin: 0 auto;
+		max-width: 320px;
+	}
+	.camp-video video {
+		display: block;
 		width: 100%;
-		height: 100%;
-		max-height: 420px;
+		aspect-ratio: 9 / 16;
 		object-fit: cover;
+		background: var(--bs-dark, #2c2b29);
+		border: 1px solid var(--bs-rule-strong, #c9bfae);
+		box-shadow: 0 18px 40px -24px rgba(44, 43, 41, 0.55);
 	}
-
-	.camp-program {
-		margin-bottom: 4.5rem;
-	}
-	.camp-day {
-		height: 100%;
-		background: var(--bs-paper-sunk, #efe9df);
-		border-top: 2px solid var(--bs-secondary, #a28c6a);
-		padding: 1.5rem;
-	}
-	.camp-day__badge {
-		display: inline-block;
+	.camp-video__caption {
+		margin-top: 0.75rem;
+		text-align: center;
 		text-transform: uppercase;
-		letter-spacing: 0.1em;
+		letter-spacing: 0.12em;
 		font-size: 0.72rem;
 		color: var(--bs-ink-muted, #736a5f);
-		margin-bottom: 0.75rem;
 	}
-	.camp-day__title {
-		font-family: var(--bs-font-serif, 'Lora'), serif;
-		font-size: 1.15rem;
-		color: var(--bs-dark, #2c2b29);
-		margin-bottom: 0.5rem;
+
+	/* Theme / lessons */
+	.camp-theme {
+		margin-bottom: 4.5rem;
+		padding: 2.5rem 2rem;
+		background: var(--bs-dark, #2c2b29);
+		color: #f6f2ea;
 	}
-	.camp-day__text {
-		font-size: 0.92rem;
-		color: var(--bs-ink-muted, #736a5f);
+	.camp-theme__head {
+		text-align: center;
+		margin-bottom: 2rem;
+	}
+	.camp-theme .eyebrow {
+		color: rgba(246, 242, 234, 0.7);
+	}
+	.camp-theme .camp-section-title {
+		color: #f6f2ea;
+		margin-bottom: 0.35rem;
+	}
+	.camp-theme__sub {
 		margin: 0;
+		color: rgba(246, 242, 234, 0.75);
+	}
+	.camp-lessons {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		gap: 1px;
+		background: rgba(246, 242, 234, 0.15);
+	}
+	.camp-lesson {
+		background: var(--bs-dark, #2c2b29);
+		padding: 1.25rem 1rem 1.25rem 1.25rem;
+		display: grid;
+		grid-template-columns: auto 1fr;
+		grid-template-rows: auto auto;
+		column-gap: 0.85rem;
+		align-items: baseline;
+	}
+	.camp-lesson__n {
+		grid-row: 1 / span 2;
+		font-family: var(--bs-font-serif, 'Lora'), serif;
+		font-size: 2rem;
+		line-height: 1;
+		color: var(--bs-secondary, #a28c6a);
+	}
+	.camp-lesson__title {
+		font-family: var(--bs-font-serif, 'Lora'), serif;
+		font-size: 1.02rem;
+		line-height: 1.35;
+	}
+	.camp-lesson__speaker {
+		font-size: 0.8rem;
+		letter-spacing: 0.06em;
+		color: rgba(246, 242, 234, 0.65);
+		margin-top: 0.25rem;
+	}
+	@media (max-width: 991.98px) {
+		.camp-lessons {
+			grid-template-columns: repeat(2, 1fr);
+		}
+	}
+	@media (max-width: 575.98px) {
+		.camp-theme {
+			padding: 2rem 1.25rem;
+		}
+		.camp-lessons {
+			grid-template-columns: 1fr;
+		}
+	}
+
+	/* Schedule */
+	.camp-schedule {
+		margin-bottom: 4.5rem;
+	}
+	.camp-schedule__head {
+		display: flex;
+		align-items: flex-end;
+		justify-content: space-between;
+		gap: 1rem;
+		flex-wrap: wrap;
+		margin-bottom: 1.75rem;
+	}
+	.camp-schedule__head .camp-section-title {
+		margin-bottom: 0;
+	}
+	.camp-schedule__pdf {
+		font-size: 0.78rem;
+		text-transform: uppercase;
+		letter-spacing: 0.12em;
+		color: var(--bs-dark, #2c2b29);
+		text-decoration: none;
+		border-bottom: 1px solid var(--bs-secondary, #a28c6a);
+		padding-bottom: 0.15rem;
+	}
+	.camp-schedule__pdf:hover {
+		color: var(--bs-secondary, #a28c6a);
+	}
+
+	.camp-tabs {
+		display: grid;
+		grid-template-columns: repeat(4, 1fr);
+		gap: 1px;
+		background: var(--bs-rule, #ddd5c8);
+		border: 1px solid var(--bs-rule, #ddd5c8);
+		margin-bottom: 2rem;
+	}
+	.camp-tab {
+		appearance: none;
+		border: 0;
+		background: var(--bs-paper, #f6f2ea);
+		padding: 1rem 0.75rem 0.9rem;
+		text-align: center;
+		cursor: pointer;
+		color: var(--bs-ink-muted, #736a5f);
+		position: relative;
+		transition:
+			background 0.15s ease,
+			color 0.15s ease;
+	}
+	.camp-tab:hover {
+		background: var(--bs-paper-sunk, #efe9df);
+	}
+	.camp-tab:focus-visible {
+		outline: 2px solid var(--bs-secondary, #a28c6a);
+		outline-offset: -2px;
+	}
+	.camp-tab.is-active {
+		background: var(--bs-dark, #2c2b29);
+		color: #f6f2ea;
+	}
+	.camp-tab.is-active::after {
+		content: '';
+		position: absolute;
+		left: 50%;
+		bottom: -1px;
+		transform: translate(-50%, 100%);
+		border: 7px solid transparent;
+		border-top-color: var(--bs-dark, #2c2b29);
+	}
+	.camp-tab__short {
+		display: none;
+	}
+	.camp-tab__label {
+		display: block;
+		font-family: var(--bs-font-serif, 'Lora'), serif;
+		font-size: 1.1rem;
+		line-height: 1.2;
+	}
+	.camp-tab__date {
+		display: block;
+		margin-top: 0.2rem;
+		font-size: 0.72rem;
+		text-transform: uppercase;
+		letter-spacing: 0.1em;
+		opacity: 0.8;
+	}
+
+	.camp-day {
+		display: none;
+	}
+	.camp-day.is-active {
+		display: block;
+	}
+	.camp-day__heading {
+		display: none;
+	}
+
+	.camp-timeline {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		border-top: 1px solid var(--bs-rule, #ddd5c8);
+	}
+	.camp-block {
+		display: grid;
+		grid-template-columns: 8.5rem 1fr;
+		gap: 1.25rem;
+		padding: 0.9rem 0;
+		border-bottom: 1px solid var(--bs-rule, #ddd5c8);
+		position: relative;
+	}
+	.camp-block::before {
+		content: '';
+		position: absolute;
+		left: 7.25rem;
+		top: 1.35rem;
+		width: 0.55rem;
+		height: 0.55rem;
+		border-radius: 50%;
+		background: var(--bs-rule-strong, #c9bfae);
+	}
+	.camp-block__time {
+		font-variant-numeric: tabular-nums;
+		font-size: 0.9rem;
+		color: var(--bs-ink-muted, #736a5f);
+		padding-top: 0.15rem;
+		white-space: nowrap;
+	}
+	.camp-block__title {
+		color: var(--bs-dark, #2c2b29);
+		line-height: 1.4;
+	}
+	.camp-block__note {
+		display: inline-block;
+		margin-left: 0.5rem;
+		font-size: 0.85rem;
+		color: var(--bs-ink-muted, #736a5f);
+	}
+	.camp-block__note::before {
+		content: '— ';
+	}
+
+	/* kinds */
+	.camp-block--service .camp-block__title,
+	.camp-block--talk .camp-block__title {
+		font-family: var(--bs-font-serif, 'Lora'), serif;
+		font-size: 1.1rem;
+		font-weight: 600;
+	}
+	.camp-block--service::before {
+		background: var(--bs-accent-youth, var(--bs-secondary, #a28c6a));
+	}
+	.camp-block--talk::before {
+		background: var(--bs-secondary, #a28c6a);
+	}
+	.camp-block--meal .camp-block__title,
+	.camp-block--free .camp-block__title {
+		color: var(--bs-ink-muted, #736a5f);
+	}
+	.camp-block--meal::before,
+	.camp-block--free::before {
+		background: transparent;
+		border: 1px solid var(--bs-rule-strong, #c9bfae);
+	}
+
+	.camp-block__lessons {
+		list-style: none;
+		margin: 0.6rem 0 0;
+		padding: 0;
+		display: grid;
+		gap: 0.4rem;
+	}
+	.camp-block__lesson {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: baseline;
+		gap: 0.35rem 0.75rem;
+		padding: 0.6rem 0.9rem;
+		background: var(--bs-paper-sunk, #efe9df);
+		border-left: 3px solid var(--bs-secondary, #a28c6a);
+	}
+	.camp-block__lesson-n {
+		font-size: 0.7rem;
+		text-transform: uppercase;
+		letter-spacing: 0.12em;
+		color: var(--bs-secondary, #a28c6a);
+	}
+	.camp-block__lesson-title {
+		font-family: var(--bs-font-serif, 'Lora'), serif;
+		color: var(--bs-dark, #2c2b29);
+	}
+	.camp-block__lesson-speaker {
+		margin-left: auto;
+		font-size: 0.85rem;
+		color: var(--bs-ink-muted, #736a5f);
+	}
+	.camp-block__lesson--after {
+		background: transparent;
+		border-left-color: var(--bs-rule-strong, #c9bfae);
+		color: var(--bs-ink-muted, #736a5f);
+		font-size: 0.9rem;
+		padding-top: 0.35rem;
+		padding-bottom: 0.35rem;
+	}
+
+	@media (max-width: 767.98px) {
+		.camp-tab {
+			padding: 0.75rem 0.25rem;
+		}
+		.camp-tab__short {
+			display: block;
+			font-family: var(--bs-font-serif, 'Lora'), serif;
+			font-size: 1.1rem;
+		}
+		.camp-tab__label {
+			display: none;
+		}
+		.camp-tab__date {
+			font-size: 0.62rem;
+		}
+		.camp-block {
+			grid-template-columns: 1fr;
+			gap: 0.25rem;
+			padding-left: 1.25rem;
+		}
+		.camp-block::before {
+			left: 0;
+			top: 0.4rem;
+		}
+		.camp-block__time {
+			font-size: 0.78rem;
+			text-transform: uppercase;
+			letter-spacing: 0.08em;
+		}
+		.camp-block__lesson-speaker {
+			margin-left: 0;
+			flex-basis: 100%;
+		}
+	}
+
+	@media print {
+		.camp-hero,
+		.camp-about,
+		.camp-tabs,
+		.camp-schedule__pdf,
+		.camp-bring,
+		.camp-cta {
+			display: none !important;
+		}
+		.camp-day {
+			display: block;
+			break-inside: avoid;
+			margin-bottom: 1.5rem;
+		}
+		.camp-day__heading {
+			display: block;
+			font-family: var(--bs-font-serif, 'Lora'), serif;
+			font-size: 1.25rem;
+			margin: 0 0 0.5rem;
+		}
+		.camp-day__date {
+			font-weight: 400;
+			color: #666;
+		}
 	}
 
 	.camp-bring {
