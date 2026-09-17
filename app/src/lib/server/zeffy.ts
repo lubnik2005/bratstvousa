@@ -7,7 +7,7 @@ import {
 	registrationEvents,
 	cashEligibilityRules
 } from '$lib/server/db/schema';
-import { sendUnmatchedPayment } from '$lib/server/email/camp';
+import { sendDuplicatePaymentNotice, sendUnmatchedPayment } from '$lib/server/email/camp';
 
 const ZEFFY_API_BASE = 'https://api.zeffy.com';
 const SIGNATURE_TOLERANCE_SECONDS = 5 * 60;
@@ -198,7 +198,9 @@ function isRefundedOrDisputed(payment: ZeffyPaymentPayload): boolean {
  *
  * Decision logic (spec §11). A $0 Zeffy checkout is NOT proof of free admission;
  * the internal registration's cash_eligible flag is authoritative (spec §2):
- *   - refunded/disputed/deleted -> zeffy_payments 'refunded' + reg REFUNDED
+ *   - refunded/disputed/deleted -> zeffy_payments 'refunded'; reg REFUNDED only if
+ *                               this payment is the one linked on the registration
+ *                               (refunding a 'duplicate' never un-pays the reg)
  *   - amount  > 0            -> ONLINE / PAID   (amount_paid = amount, due = 0)
  *   - amount == 0 & eligible -> CASH   / DUE    (due = event_price_cents)
  *                               (+ 'discount_code_mismatch' audit if the code on
@@ -208,7 +210,8 @@ function isRefundedOrDisputed(payment: ZeffyPaymentPayload): boolean {
  *   - no matching registration -> 'unmatched' + email the payer (once)
  *
  * Registration-code abuse (spec §23): once a registration is linked to a Zeffy
- * payment, a *different* payment claiming the same code is flagged, not applied.
+ * payment, a *different* payment claiming the same code is flagged as
+ * 'duplicate', not applied; the buyer and organizers are emailed once.
  *
  * `deleted` = true when the payment was deleted upstream (404 on refetch).
  */
@@ -235,21 +238,47 @@ export async function applyPayment(
 
 		const matchedRegId = existing?.matchedRegistrationId ?? null;
 		if (matchedRegId != null) {
-			await db
-				.update(campRegistrations)
-				.set({
-					paymentStatus: 'REFUNDED',
-					amountPaidCents: 0,
-					paidAt: null,
-					updatedAt: now
-				})
-				.where(eq(campRegistrations.id, matchedRegId));
-			await insertRegistrationEvent(db, {
-				registrationId: matchedRegId,
-				event: 'payment_refunded',
-				amountCents: payment.amount ?? null,
-				payload: { zeffyPaymentId, status: payment.status ?? null }
-			});
+			// Only revert the registration if THIS payment is the one it is linked
+			// to. A 'duplicate' row also carries matched_registration_id (so staff
+			// can see it), but refunding the extra payment must not un-pay the
+			// legitimate one.
+			const linked = (
+				await db
+					.select({ zeffyPaymentId: campRegistrations.zeffyPaymentId })
+					.from(campRegistrations)
+					.where(eq(campRegistrations.id, matchedRegId))
+					.limit(1)
+			)[0];
+			const isPrimary = linked?.zeffyPaymentId === zeffyPaymentId;
+
+			if (isPrimary) {
+				await db
+					.update(campRegistrations)
+					.set({
+						paymentStatus: 'REFUNDED',
+						amountPaidCents: 0,
+						paidAt: null,
+						updatedAt: now
+					})
+					.where(eq(campRegistrations.id, matchedRegId));
+				await insertRegistrationEvent(db, {
+					registrationId: matchedRegId,
+					event: 'payment_refunded',
+					amountCents: payment.amount ?? null,
+					payload: { zeffyPaymentId, status: payment.status ?? null }
+				});
+			} else if (existing?.matchStatus !== 'refunded') {
+				await insertRegistrationEvent(db, {
+					registrationId: matchedRegId,
+					event: 'duplicate_refunded',
+					amountCents: payment.amount ?? null,
+					payload: {
+						zeffyPaymentId,
+						primaryZeffyPaymentId: linked?.zeffyPaymentId ?? null,
+						status: payment.status ?? null
+					}
+				});
+			}
 		}
 
 		if (existing) {
@@ -359,15 +388,34 @@ export async function applyPayment(
 				matchStatus: 'duplicate',
 				now
 			});
-			await insertRegistrationEvent(db, {
-				registrationId: reg.id,
-				event: 'duplicate_registration_code',
-				amountCents: payment.amount ?? null,
-				payload: {
-					zeffyPaymentId,
-					existingZeffyPaymentId: reg.zeffyPaymentId
+			if (!alreadyProcessed) {
+				await insertRegistrationEvent(db, {
+					registrationId: reg.id,
+					event: 'duplicate_registration_code',
+					amountCents: payment.amount ?? null,
+					payload: {
+						zeffyPaymentId,
+						existingZeffyPaymentId: reg.zeffyPaymentId,
+						buyerEmail,
+						discountCode: ids.discountCode
+					}
+				});
+				// Tell the buyer (only one ticket is valid) and the organizers (so
+				// someone actually refunds the extra charge in Zeffy).
+				try {
+					await sendDuplicatePaymentNotice(db, {
+						buyerEmail,
+						buyerFirstName: payment.buyer?.first_name ?? null,
+						registrationId: reg.id,
+						confirmationCode: code,
+						amountCents: payment.amount ?? 0,
+						zeffyPaymentId,
+						existingZeffyPaymentId: reg.zeffyPaymentId
+					});
+				} catch (err) {
+					console.error('duplicate payment notice failed', err);
 				}
-			});
+			}
 			return;
 		}
 

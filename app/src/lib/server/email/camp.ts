@@ -238,3 +238,98 @@ export async function sendUnmatchedPayment(db: AppDatabase, info: UnmatchedPayme
 	`);
 	return sendEmail(db, info.email, 'Проблема с оплатой — Осенний молодёжный лагерь СЗР 2026', html);
 }
+
+export interface DuplicatePaymentInfo {
+	buyerEmail: string | null;
+	buyerFirstName?: string | null;
+	registrationId: number;
+	confirmationCode: string | null;
+	/** Amount of the EXTRA (duplicate) Zeffy payment, in cents. */
+	amountCents: number;
+	zeffyPaymentId: string;
+	existingZeffyPaymentId: string;
+}
+
+const ORGANIZER_EMAIL = 'youth@bratstvousa.com';
+
+function formatUsd(cents: number): string {
+	return `$${(cents / 100).toFixed(2)}`;
+}
+
+/**
+ * Sent when a second Zeffy payment/ticket arrives for a registration that is
+ * already linked to another payment (spec §23). Two emails:
+ *   - buyer: only one ticket is valid; the extra payment will be refunded.
+ *   - organizers: someone needs to refund the extra payment in Zeffy.
+ * Neither failure blocks the other.
+ */
+export async function sendDuplicatePaymentNotice(db: AppDatabase, info: DuplicatePaymentInfo) {
+	const code = escapeHtml(info.confirmationCode ?? '—');
+	const amount = formatUsd(info.amountCents);
+	const results: Array<{ ok: boolean }> = [];
+
+	if (info.buyerEmail) {
+		const name = escapeHtml(info.buyerFirstName || '').trim();
+		const greeting = name ? `Здравствуйте, ${name}!` : 'Здравствуйте!';
+		const paidLine =
+			info.amountCents > 0
+				? `Второй платёж на сумму <strong>${amount}</strong> будет возвращён на ту же карту в течение нескольких дней.`
+				: 'Второй билет был оформлен бесплатно (со скидочным кодом); возвращать ничего не нужно.';
+		const html = layout(`
+			<h1 style="font-size:20px;margin:0 0 16px;">Получен повторный билет</h1>
+			<p style="font-size:15px;line-height:1.6;margin:0 0 16px;">${greeting}</p>
+			<p style="font-size:15px;line-height:1.6;margin:0 0 16px;">
+				Мы получили <strong>второй</strong> билет Zeffy для регистрации с кодом
+				<strong>${code}</strong> на Осенний молодёжный лагерь СЗР 2026.
+				Ваша регистрация уже была привязана к первому билету — действителен только он.
+			</p>
+			<p style="font-size:15px;line-height:1.6;margin:0 0 16px;">${paidLine}</p>
+			<p style="font-size:15px;line-height:1.6;margin:0 0 16px;">
+				Если вы хотели зарегистрировать <em>другого</em> человека, ему нужно
+				заполнить отдельную заявку на сайте и получить свой собственный код.
+				Вопросы — на <a href="mailto:${ORGANIZER_EMAIL}">${ORGANIZER_EMAIL}</a>.
+			</p>
+		`);
+		results.push(
+			await sendEmail(
+				db,
+				info.buyerEmail,
+				'Повторный билет — Осенний молодёжный лагерь СЗР 2026',
+				html
+			)
+		);
+	}
+
+	const orgHtml = layout(`
+		<h1 style="font-size:20px;margin:0 0 16px;">Duplicate Zeffy payment</h1>
+		<p style="font-size:15px;line-height:1.6;margin:0 0 16px;">
+			A second Zeffy payment arrived for registration <strong>#${info.registrationId}</strong>
+			(code <strong>${code}</strong>). The registration stays linked to the first payment;
+			the new one was recorded as <strong>duplicate</strong> and NOT applied.
+		</p>
+		<table style="font-size:14px;line-height:1.6;border-collapse:collapse;">
+			<tr><td style="padding:2px 12px 2px 0;color:#555;">Buyer</td><td>${escapeHtml(info.buyerEmail ?? '—')}</td></tr>
+			<tr><td style="padding:2px 12px 2px 0;color:#555;">Extra amount</td><td>${amount}</td></tr>
+			<tr><td style="padding:2px 12px 2px 0;color:#555;">Duplicate payment</td><td>${escapeHtml(info.zeffyPaymentId)}</td></tr>
+			<tr><td style="padding:2px 12px 2px 0;color:#555;">Original payment</td><td>${escapeHtml(info.existingZeffyPaymentId)}</td></tr>
+		</table>
+		<p style="font-size:15px;line-height:1.6;margin:16px 0 0;">
+			${
+				info.amountCents > 0
+					? 'Action: refund the duplicate payment in Zeffy. The registration will not be affected by that refund.'
+					: 'No money to refund ($0 checkout). Consider voiding the extra ticket in Zeffy so it cannot be scanned.'
+			}
+			In the admin panel see Camp Registrations → #${info.registrationId} → Zeffy Payments.
+		</p>
+	`);
+	results.push(
+		await sendEmail(
+			db,
+			ORGANIZER_EMAIL,
+			`[Camp] Duplicate payment for ${info.confirmationCode ?? `registration #${info.registrationId}`}`,
+			orgHtml
+		)
+	);
+
+	return { ok: results.every((r) => r.ok) };
+}

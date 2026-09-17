@@ -10,6 +10,7 @@ import {
 	type ZeffyPaymentPayload
 } from './zeffy';
 import { buildZeffyUrl } from './email/camp';
+import { sendEmail } from '$lib/email';
 import {
 	campRegistrations,
 	zeffyPayments,
@@ -463,6 +464,54 @@ describe('applyPayment decision logic (spec §11)', () => {
 			.from(zeffyPayments)
 			.where(eq(zeffyPayments.zeffyPaymentId, 'zp-refund'));
 		expect(zp[0].matchStatus).toBe('refunded');
+	});
+
+	it('duplicate payment notifies buyer + organizer once, and refunding it leaves the registration intact', async () => {
+		const id = await seedReg(db);
+		const first = {
+			id: 'zp-orig',
+			status: 'succeeded',
+			amount: 17500,
+			buyer: { email: 'john@example.com', first_name: 'John' },
+			buyer_questions: [{ answer: 'CAMP-ABC12' }]
+		};
+		const second = { ...first, id: 'zp-dup' };
+		await applyPayment(db, first);
+		vi.mocked(sendEmail).mockClear();
+
+		await applyPayment(db, second);
+		// One email to the buyer, one to the organizer.
+		const recipients = vi.mocked(sendEmail).mock.calls.map((c) => c[1]);
+		expect(recipients).toContain('john@example.com');
+		expect(recipients).toContain('youth@bratstvousa.com');
+		expect(recipients).toHaveLength(2);
+
+		// Replay of the duplicate webhook: no more emails, no more audit rows.
+		await applyPayment(db, second);
+		expect(vi.mocked(sendEmail).mock.calls).toHaveLength(2);
+		const dupEvents = (await getEvents(id)).filter(
+			(e) => e.event === 'duplicate_registration_code'
+		);
+		expect(dupEvents).toHaveLength(1);
+
+		// Staff refund the DUPLICATE in Zeffy -> registration must stay PAID.
+		await applyPayment(db, { ...second, status: 'refunded', refund_status: 'full' });
+		const reg = await getReg(id);
+		expect(reg.paymentStatus).toBe('PAID');
+		expect(reg.amountPaidCents).toBe(17500);
+		expect(reg.zeffyPaymentId).toBe('zp-orig');
+		const dupRow = await db
+			.select()
+			.from(zeffyPayments)
+			.where(eq(zeffyPayments.zeffyPaymentId, 'zp-dup'));
+		expect(dupRow[0].matchStatus).toBe('refunded');
+		const evs = (await getEvents(id)).map((e) => e.event);
+		expect(evs).toContain('duplicate_refunded');
+		expect(evs).not.toContain('payment_refunded');
+
+		// Refunding the ORIGINAL still reverts the registration.
+		await applyPayment(db, { ...first, status: 'refunded', refund_status: 'full' });
+		expect((await getReg(id)).paymentStatus).toBe('REFUNDED');
 	});
 
 	it('matches by email when no code is present', async () => {
