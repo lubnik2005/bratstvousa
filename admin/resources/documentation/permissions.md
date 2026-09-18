@@ -68,4 +68,4 @@ stays hidden for that role.
   visible under **Audit Log** (who, when, old → new values).
 - Cash and check-in actions additionally write to the `registration_events`
   table with the acting user's name and ID (`paid_by`, `checked_in_by` on the
-  registration, plus an event row). See [Cash Reconciliation](cash-reconciliation.md).
+  registration, plus an event row). See [Cash Reconciliation](/documentation/cash-reconciliation).

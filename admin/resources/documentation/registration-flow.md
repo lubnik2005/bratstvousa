@@ -84,11 +84,11 @@ rules to any payment the webhook missed.
 
 Staff scan the QR code in the Zeffy app (that confirms the ticket is real), then
 look the attendee up here by code or name and act on the **Payment** badge.
-See [Cash at Check-In](cash-at-check-in.md) for the desk procedure.
+See [Cash at Check-In](/documentation/cash-at-check-in) for the desk procedure.
 
 ## 6. After the event
 
-Use the [Cash Reconciliation](cash-reconciliation.md) lens to compare cash
+Use the [Cash Reconciliation](/documentation/cash-reconciliation) lens to compare cash
 expected vs collected, and **Export as CSV** on Camp Registrations for the full
 attendee list.
 

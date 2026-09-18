@@ -36,7 +36,7 @@ be changed from that page; use **Camp Registrations → Edit** to override.
 ## Cash-eligible churches and leaders
 
 Leaders are not tied to cash eligibility. Eligibility is decided by the church
-picked on the form via [Cash Eligibility Rules](cash-eligibility-rules.md). You
+picked on the form via [Cash Eligibility Rules](/documentation/cash-eligibility-rules). You
 should still tell each leader of an eligible church the discount code so they
 can pass it to their group.
 

@@ -93,5 +93,5 @@ leader avoids confusion at the desk.
 ## Permissions
 
 Viewing and editing rules requires the `cash_eligibility_rules` permissions
-(view / create / edit / delete). See [Permissions](permissions.md). Normally
+(view / create / edit / delete). See [Permissions](/documentation/permissions). Normally
 only the camp treasurer or organizer should have create/edit.

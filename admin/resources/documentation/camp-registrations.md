@@ -85,7 +85,7 @@ haven't arrived".
 
 ## Actions
 
-Full desk instructions are in [Cash at Check-In](cash-at-check-in.md). Summary:
+Full desk instructions are in [Cash at Check-In](/documentation/cash-at-check-in). Summary:
 
 | Action | Allowed on | Effect |
 | --- | --- | --- |
@@ -101,7 +101,7 @@ records the field changes.
 ## Lens: Cash Reconciliation
 
 The **Lens** dropdown on the index opens the cash report. See
-[Cash Reconciliation](cash-reconciliation.md).
+[Cash Reconciliation](/documentation/cash-reconciliation).
 
 ## Editing by hand
 
@@ -112,6 +112,6 @@ normal work so the audit trail stays complete.
 ## Deleting
 
 Deleting a registration does not delete its Zeffy payment record (see
-[Zeffy Payments](zeffy-payments.md)) or its audit events. Delete test rows
+[Zeffy Payments](/documentation/zeffy-payments)) or its audit events. Delete test rows
 freely; delete real rows only if the person truly should not exist in the
 system (rejected people can simply stay as Rejected).

@@ -14,25 +14,25 @@ group in the left sidebar.
 The newest features are the **cash-at-check-in** workflow. If you are
 working the registration desk at camp, read these first:
 
-1. [Cash at Check-In (staff guide)](cash-at-check-in.md) — what to do when
+1. [Cash at Check-In (staff guide)](/documentation/cash-at-check-in) — what to do when
    an attendee arrives and owes cash, or when Zeffy shows a $0 ticket.
-2. [Cash Eligibility Rules](cash-eligibility-rules.md) — which churches may
+2. [Cash Eligibility Rules](/documentation/cash-eligibility-rules) — which churches may
    pay cash at the door, at what price, with which Zeffy discount code.
-3. [Camp Registrations](camp-registrations.md) — every field, status,
+3. [Camp Registrations](/documentation/camp-registrations) — every field, status,
    filter and action on a registration record.
-4. [Cash Reconciliation](cash-reconciliation.md) — the report that tells you
+4. [Cash Reconciliation](/documentation/cash-reconciliation) — the report that tells you
    how much cash is expected, collected, and still due.
 
 ## Everything else
 
-5. [Registration Flow](registration-flow.md) — how a registrant gets from the
+5. [Registration Flow](/documentation/registration-flow) — how a registrant gets from the
    public form to a Zeffy ticket (form → leader approval → Zeffy → webhook).
-6. [Zeffy Payments](zeffy-payments.md) — the raw payment records received
+6. [Zeffy Payments](/documentation/zeffy-payments) — the raw payment records received
    from Zeffy and how they are matched to registrations.
-7. [Youth Leaders](youth-leaders.md) — the people who approve registrations.
-8. [Email Log](email-log.md) — every email the system sent, and retries.
-9. [Permissions](permissions.md) — which roles can see or change what.
-10. [Troubleshooting](troubleshooting.md) — common problems and fixes.
+7. [Youth Leaders](/documentation/youth-leaders) — the people who approve registrations.
+8. [Email Log](/documentation/email-log) — every email the system sent, and retries.
+9. [Permissions](/documentation/permissions) — which roles can see or change what.
+10. [Troubleshooting](/documentation/troubleshooting) — common problems and fixes.
 
 ## The one rule to remember
 

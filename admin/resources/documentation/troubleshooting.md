@@ -21,10 +21,10 @@ if the amount was > $0, and check them in.
 Usually they used a 100% discount code but their church is not cash-eligible. Do not
 admit for free. Either collect cash and run **Cash Received & Check In**, or run
 **Resolve Review** and pick *Waive* if an organiser confirms they should be free.
-See [Cash at Check-In](cash-at-check-in.md).
+See [Cash at Check-In](/documentation/cash-at-check-in).
 
 It can also mean the payment came from the **wrong Zeffy form** (a different
-campaign than the one on the event's [eligibility rules](cash-eligibility-rules.md)).
+campaign than the one on the event's [eligibility rules](/documentation/cash-eligibility-rules)).
 Open the linked **Zeffy Payment** and check its Amount: if they really paid the
 full price on the other form, Edit the registration to Method = Online, Payment =
 Paid, Paid = amount, Due = 0, then **Check In**. If it was $0, treat it as a
@@ -53,7 +53,7 @@ detail page to see who let them in. Duplicate ticket use should be escalated.
 ## Before the event
 
 **A church should be cash-eligible but registrants show "Cash Eligible: No".**
-The [Cash Eligibility Rule](cash-eligibility-rules.md) was missing, inactive,
+The [Cash Eligibility Rule](/documentation/cash-eligibility-rules) was missing, inactive,
 had the wrong **Event Slug**, or pointed at a different church record than the one
 attendees picked. Fix the rule for future sign-ups, then for existing rows either
 tick **Cash Eligible** on Edit (before they hit Zeffy) or use **Resolve Review →
@@ -64,8 +64,8 @@ The code is on their thank-you and approval emails and on the registration's
 **Code** field. Read it to them; it is not secret.
 
 **Leader never got the approval email.**
-Check [Email Log](email-log.md) for the leader's address, and confirm the
-**Email** on [Youth Leaders](youth-leaders.md) is correct.
+Check [Email Log](/documentation/email-log) for the leader's address, and confirm the
+**Email** on [Youth Leaders](/documentation/youth-leaders) is correct.
 
 **Two registrations for the same person.**
 The form blocks duplicate email per event unless the first was *Rejected*, so
@@ -81,7 +81,7 @@ Payment = *Paid*, Method = *(empty)* or *Other*, and fix Method.
 
 **Cash Still Due is not zero after the event.**
 Those people either didn't show up or were let in without paying. Filter the
-[Cash Reconciliation](cash-reconciliation.md) lens by Check-in = *Checked in* to
+[Cash Reconciliation](/documentation/cash-reconciliation) lens by Check-in = *Checked in* to
 find the second group.
 
 **A Zeffy payment shows "Duplicate".**

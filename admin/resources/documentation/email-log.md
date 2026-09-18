@@ -37,7 +37,7 @@ within an hour with no action needed.
   the row is **Sent**, ask them to check spam; if **Failed**, read *Last Error*.
 - A leader says they never got the approval link → same, searching the leader's
   address. Also confirm the leader's **Email** field on
-  [Youth Leaders](youth-leaders.md) is correct.
+  [Youth Leaders](/documentation/youth-leaders) is correct.
 - A cash-eligible attendee did not see the "$0 / pay cash at the gate" note →
   open their *approved* email row and check whether the yellow box is present.
   If not, the eligibility rule was probably added after approval.

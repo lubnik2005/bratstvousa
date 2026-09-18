@@ -54,5 +54,5 @@ attendee used a discount code without being cash-eligible. Handle it via the
 
 ## Related
 
-- [Camp Registrations](camp-registrations.md) – the record that actually tracks what is owed.
-- [Cash at Check-In](cash-at-check-in.md) – how $0 payments become cash collected.
+- [Camp Registrations](/documentation/camp-registrations) – the record that actually tracks what is owed.
+- [Cash at Check-In](/documentation/cash-at-check-in) – how $0 payments become cash collected.

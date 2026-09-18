@@ -158,4 +158,4 @@ treasurer.
 
 Open **Camp → Camp Registrations → Lens: Cash Reconciliation** to see totals
 for Cash Expected, Cash Collected and Cash Still Due, and who collected what.
-See [Cash Reconciliation](cash-reconciliation.md).
+See [Cash Reconciliation](/documentation/cash-reconciliation).
