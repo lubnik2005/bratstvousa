@@ -109,7 +109,9 @@ export const actions: Actions = {
 						confirmationCode: reg.confirmationCode
 					},
 					zeffyUrl,
-					cashEligible: reg.cashEligible ?? false
+					cashEligible: reg.cashEligible ?? false,
+					eventPriceCents:
+						reg.eventPriceCents ?? (reg.amount != null ? reg.amount * 100 : undefined)
 				});
 			} catch (err) {
 				console.error('approved email failed:', err);

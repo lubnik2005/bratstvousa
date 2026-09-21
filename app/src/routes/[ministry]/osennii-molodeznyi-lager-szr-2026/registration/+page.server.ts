@@ -163,10 +163,14 @@ export const actions: Actions = {
 			console.error('camp dedup check failed:', err);
 		}
 
-		// Resolve cash eligibility from the authoritative rules table, keyed on
-		// (churchId, eventSlug). A matching active rule => this registrant may pay
-		// $0 on Zeffy and cash at check-in; its amountCents is the price snapshot.
-		// No rule (or no real churchId) => not eligible, default event price.
+		// Resolve pricing from the authoritative rules table, keyed on
+		// (churchId, eventSlug). A rule's amountCents is what the registrant pays
+		// on Zeffy:
+		//   - amountCents === 0  => cash-at-door: $0 Zeffy checkout, the FULL camp
+		//                           price is owed in cash at check-in (cashEligible).
+		//   - amountCents  >  0  => partial online payment (church covers the rest);
+		//                           NOT cash-eligible, price snapshot = amountCents.
+		// No rule (or no real churchId) => not eligible, full default price online.
 		let cashEligible = false;
 		let eventPriceCents = CAMP_AMOUNT_CENTS;
 		if (churchId != null) {
@@ -185,8 +189,14 @@ export const actions: Actions = {
 						.limit(1)
 				)[0];
 				if (rule) {
-					cashEligible = true;
-					if (rule.amountCents != null) eventPriceCents = rule.amountCents;
+					const ruleCents = rule.amountCents ?? 0;
+					if (ruleCents === 0) {
+						cashEligible = true;
+						eventPriceCents = CAMP_AMOUNT_CENTS;
+					} else {
+						cashEligible = false;
+						eventPriceCents = ruleCents;
+					}
 				}
 			} catch (err) {
 				// Non-fatal: table may not exist yet in some environments. Falling

@@ -162,6 +162,12 @@ export interface ApprovedInfo {
 	zeffyUrl: string;
 	/** When true, the registrant pays cash at check-in (Zeffy total will be $0). */
 	cashEligible?: boolean;
+	/**
+	 * Price snapshot from the registration (cents). For cash-eligible
+	 * registrants this is the amount owed in cash at the door; otherwise it is
+	 * what they pay on Zeffy. Omitted => no amount is shown.
+	 */
+	eventPriceCents?: number | null;
 }
 
 /** Email #2: sent to the registrant when the leader approves. */
@@ -171,16 +177,29 @@ export async function sendRegistrantApproved(db: AppDatabase, info: ApprovedInfo
 	const code = escapeHtml(r.confirmationCode);
 	// Prefill the code into the Zeffy link (best-effort); manual entry still asked.
 	const zeffyUrl = buildZeffyUrl(info.zeffyUrl, r.confirmationCode);
+	const price =
+		info.eventPriceCents != null && Number.isFinite(info.eventPriceCents)
+			? formatUsd(info.eventPriceCents)
+			: null;
 
-	// Cash-eligible registrants get a $0 Zeffy checkout and pay at the event, so
-	// the messaging differs from the online-payment path.
-	const cashNote = info.cashEligible
-		? `<p style="font-size:15px;line-height:1.6;margin:0 0 16px;padding:12px 16px;background:#fef9c3;border-radius:6px;">
+	// Cash-eligible registrants get a $0 Zeffy checkout and pay the full price
+	// at the event. Everyone else pays their (possibly church-subsidised) amount
+	// online, so we just state the amount and never mention "$0".
+	let paymentNote: string;
+	if (info.cashEligible) {
+		const owed = price ? `<strong>${price}</strong> вы оплатите` : 'оплату за лагерь вы внесёте';
+		paymentNote = `<p style="font-size:15px;line-height:1.6;margin:0 0 16px;padding:12px 16px;background:#fef9c3;border-radius:6px;">
 				<strong>Оплата на месте:</strong> при оформлении сумма составит <strong>$0</strong> —
-				оплату за лагерь вы внесёте наличными при регистрации на месте. Билет с QR-кодом
+				${owed} наличными при регистрации на месте. Билет с QR-кодом
 				придёт вам от Zeffy после оформления.
-			</p>`
-		: '';
+			</p>`;
+	} else if (price) {
+		paymentNote = `<p style="font-size:15px;line-height:1.6;margin:0 0 16px;">
+				<strong>К оплате:</strong> ${price}
+			</p>`;
+	} else {
+		paymentNote = '';
+	}
 	const buttonLabel = info.cashEligible
 		? 'Получить билет (оплата на месте)'
 		: 'Завершить регистрацию и оплатить';
@@ -191,7 +210,7 @@ export async function sendRegistrantApproved(db: AppDatabase, info: ApprovedInfo
 			Отличные новости — ваша заявка на осенний молодёжный лагерь СЗР 2026
 			была одобрена. Остался последний шаг: завершить регистрацию.
 		</p>
-		${cashNote}
+		${paymentNote}
 		<p style="font-size:15px;line-height:1.6;margin:0 0 8px;">
 			Перейдите по ссылке ниже и укажите ваш регистрационный код при оформлении:
 		</p>
