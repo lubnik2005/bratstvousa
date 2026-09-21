@@ -63,7 +63,7 @@ class CashEligibilityRule extends Resource
             \Laravel\Nova\Fields\BelongsTo::make('Church', 'church', Church::class)
                 ->searchable()
                 ->nullable()
-                ->help('The church/group authorized to pay cash. Must match the church selected on the registration form (by id).'),
+                ->help('The church/group this rule applies to. Must match the church selected on the registration form (by id).'),
 
             Text::make('Event Slug', 'event_slug')
                 ->sortable()
@@ -74,7 +74,7 @@ class CashEligibilityRule extends Resource
                 ->asMinorUnits()
                 ->sortable()
                 ->rules('required')
-                ->help('Price this eligible group owes in cash at check-in (stored as cents).'),
+                ->help('What the registrant pays on Zeffy. $0 = cash at the door: the registrant gets a $0 ticket and pays the full camp price in cash at check-in. Any other amount (e.g. $175) = the registrant pays that amount online and is NOT cash-eligible (the church covers the rest directly).'),
 
             Text::make('Discount Code', 'discount_code')
                 ->rules('nullable', 'max:255')
