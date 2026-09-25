@@ -10,6 +10,7 @@ use Laravel\Nova\Fields\Number;
 use Laravel\Nova\Fields\Select;
 use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Fields\Textarea;
+use Laravel\Nova\Fields\URL;
 use Laravel\Nova\Http\Requests\NovaRequest;
 
 class Event extends Resource
@@ -68,6 +69,16 @@ class Event extends Resource
             DateTime::make('Refunds Available Until', 'refunds_available_until')->hideFromIndex(),
 
             Textarea::make('Description')->hideFromIndex(),
+
+            Text::make('Zeffy Campaign ID', 'zeffy_campaign_id')
+                ->nullable()
+                ->hideFromIndex()
+                ->help('campaign_id from the Camp Paradise Zeffy ticketing campaign. Payments for this campaign grant tickets for this event.'),
+
+            URL::make('Zeffy Ticketing URL', 'zeffy_ticketing_url')
+                ->nullable()
+                ->hideFromIndex()
+                ->help('Public Zeffy ticketing page shown to campers as "Buy a ticket on Zeffy".'),
         ];
     }
 

@@ -3,7 +3,8 @@ import {
 	reservationsForEmail,
 	listOpenEvents,
 	eventCapacity,
-	formAnswersForEmail
+	formAnswersForEmail,
+	ticketsForEmail
 } from '$lib/server/paradise/queries';
 import { readSession, clearSession } from '$lib/server/paradise/session';
 import type { Actions, PageServerLoad } from './$types';
@@ -19,13 +20,18 @@ export const load: PageServerLoad = async ({ locals, cookies, platform, setHeade
 
 	setHeaders({ 'cache-control': 'private, no-cache' });
 
-	const [reservations, forms, openRaw] = await Promise.all([
+	const [reservations, forms, openRaw, tickets] = await Promise.all([
 		reservationsForEmail(locals.db, identity.email),
 		formAnswersForEmail(locals.db, identity.email),
-		listOpenEvents(locals.db)
+		listOpenEvents(locals.db),
+		ticketsForEmail(locals.db, identity.email)
 	]);
 	const open = await Promise.all(
-		openRaw.map(async (e) => ({ ...e, ...(await eventCapacity(locals.db, e.id)) }))
+		openRaw.map(async (e) => ({
+			...e,
+			...(await eventCapacity(locals.db, e.id)),
+			tickets: tickets.get(e.id) ?? 0
+		}))
 	);
 
 	return { camper: identity, reservations, forms, open };

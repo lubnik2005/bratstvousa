@@ -90,13 +90,19 @@
 							Full
 						</span>
 					{/if}
+					{#if c.tickets > 0}
+						<p class="mb-4 text-xs font-semibold text-primary-600">
+							<i class="bi bi-ticket-perforated"></i>
+							{c.tickets} ticket{c.tickets === 1 ? '' : 's'} available
+						</p>
+					{/if}
 					<a
 						href={`/${c.id}`}
 						class="{btn} mt-auto self-start"
 						class:pointer-events-none={c.available === 0}
 						class:opacity-50={c.available === 0}
 					>
-						{c.available > 0 ? 'Register' : 'Sold out'}
+						{c.available > 0 ? (c.tickets > 0 ? 'Reserve your bed' : 'Register') : 'Sold out'}
 					</a>
 				</div>
 			{/each}

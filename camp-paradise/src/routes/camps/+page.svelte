@@ -86,10 +86,20 @@
 					{/if}
 				</p>
 
+				{#if featured.tickets > 0}
+					<p class="mt-3">
+						<span class="rounded-full bg-mint/60 px-3 py-1 text-xs font-semibold text-primary-600">
+							<i class="bi bi-ticket-perforated"></i>
+							{featured.tickets} ticket{featured.tickets === 1 ? '' : 's'} available
+						</span>
+					</p>
+				{/if}
+
 				<div class="mt-8">
 					{#if featured.available > 0}
 						<a href="/{featured.id}" class="{btn} px-8 py-4 text-lg">
-							Register now <i class="bi bi-arrow-right"></i>
+							{featured.tickets > 0 ? 'Reserve your bed' : 'Register now'}
+							<i class="bi bi-arrow-right"></i>
 						</a>
 					{:else}
 						<button class="{btn} px-8 py-4 text-lg" disabled>Sold out</button>
@@ -178,6 +188,12 @@
 						{/if}
 					</div>
 					<p class="text-sm text-ink-soft">{dateRange(event.startOn, event.endOn)}</p>
+					{#if event.tickets > 0}
+						<p class="mt-2 text-xs font-semibold text-primary-600">
+							<i class="bi bi-ticket-perforated"></i>
+							{event.tickets} ticket{event.tickets === 1 ? '' : 's'} available
+						</p>
+					{/if}
 					{#if event.description}
 						<p class="mt-2 text-sm">{event.description}</p>
 					{/if}

@@ -8,8 +8,27 @@ import {
 	paradiseReservations,
 	paradiseAttendees,
 	paradiseForms,
-	paradiseFormAnswers
+	paradiseFormAnswers,
+	paradiseTickets
 } from '$lib/server/db/schema';
+
+/**
+ * Available (unused, unrevoked) Zeffy ticket counts for an email, keyed by event id.
+ */
+export async function ticketsForEmail(
+	db: AppDatabase,
+	email: string
+): Promise<Map<number, number>> {
+	const normalized = email.trim().toLowerCase();
+	const rows = await db
+		.select({ eventId: paradiseTickets.eventId, n: sql<number>`count(*)` })
+		.from(paradiseTickets)
+		.where(and(eq(paradiseTickets.email, normalized), eq(paradiseTickets.status, 'available')))
+		.groupBy(paradiseTickets.eventId);
+	const map = new Map<number, number>();
+	for (const r of rows) map.set(r.eventId, Number(r.n));
+	return map;
+}
 
 /**
  * A reservation blocks a bed when it is confirmed, OR still held with a

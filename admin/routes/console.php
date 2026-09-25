@@ -16,3 +16,6 @@ Schedule::command('emails:retry')->hourly()->withoutOverlapping();
 
 // Release expired Camp Paradise bed holds hourly.
 Schedule::command('paradise:release-holds')->hourly()->withoutOverlapping();
+
+// Reconcile Camp Paradise Zeffy ticket payments hourly (safety net for the webhook).
+Schedule::command('zeffy:sync-paradise')->hourly()->withoutOverlapping();

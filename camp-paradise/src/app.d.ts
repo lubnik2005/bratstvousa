@@ -11,9 +11,8 @@ declare global {
 				TURNSTILE_SECRET_KEY?: string;
 				TURNSTILE_HOSTNAMES?: string;
 				PUBLIC_TURNSTILE_SITE_KEY?: string;
-				STRIPE_SECRET_KEY?: string;
-				STRIPE_WEBHOOK_SECRET?: string;
-				PUBLIC_STRIPE_KEY?: string;
+				ZEFFY_API_KEY?: string;
+				ZEFFY_WEBHOOK_SECRET?: string;
 				SESSION_SECRET?: string;
 			};
 		}

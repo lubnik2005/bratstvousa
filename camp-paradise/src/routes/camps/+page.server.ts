@@ -4,7 +4,8 @@ import {
 	listUpcomingEvents,
 	listPastEvents,
 	eventCapacity,
-	siteStats
+	siteStats,
+	ticketsForEmail
 } from '$lib/server/paradise/queries';
 import { readSession } from '$lib/server/paradise/session';
 import type { PageServerLoad } from './$types';
@@ -18,6 +19,7 @@ type OpenEvent = {
 	description: string | null;
 	total: number;
 	available: number;
+	tickets: number;
 };
 
 type UpcomingEvent = {
@@ -49,11 +51,12 @@ export const load: PageServerLoad = async ({ locals, cookies, platform, setHeade
 
 	try {
 		// Independent queries run in parallel to minimise serial D1 round-trips.
-		const [openRows, upcomingRows, pastRows, statsRow] = await Promise.all([
+		const [openRows, upcomingRows, pastRows, statsRow, tickets] = await Promise.all([
 			listOpenEvents(locals.db),
 			listUpcomingEvents(locals.db),
 			listPastEvents(locals.db, 8),
-			siteStats(locals.db)
+			siteStats(locals.db),
+			ticketsForEmail(locals.db, identity.email)
 		]);
 
 		const caps = await Promise.all(openRows.map((e) => eventCapacity(locals.db, e.id)));
@@ -65,7 +68,8 @@ export const load: PageServerLoad = async ({ locals, cookies, platform, setHeade
 			registrationEndAt: e.registrationEndAt,
 			description: e.description,
 			total: caps[i].total,
-			available: caps[i].available
+			available: caps[i].available,
+			tickets: tickets.get(e.id) ?? 0
 		}));
 
 		upcoming = upcomingRows.map((e) => ({

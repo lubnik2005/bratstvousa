@@ -22,6 +22,8 @@ class Event extends Model
         'refund_percentage',
         'refunds_available_until',
         'description',
+        'zeffy_campaign_id',
+        'zeffy_ticketing_url',
     ];
 
     protected $casts = [

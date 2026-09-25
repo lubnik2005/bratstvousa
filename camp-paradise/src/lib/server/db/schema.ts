@@ -22,6 +22,9 @@ export const paradiseEvents = sqliteTable('paradise_events', {
 	refundPercentage: integer('refund_percentage').default(0).notNull(),
 	refundsAvailableUntil: text('refunds_available_until'),
 	description: text('description'),
+	// Zeffy ticketing campaign that funds this event (arcade-style ticket credits).
+	zeffyCampaignId: text('zeffy_campaign_id'),
+	zeffyTicketingUrl: text('zeffy_ticketing_url'),
 	...timestamps
 });
 
@@ -82,6 +85,7 @@ export const paradiseReservations = sqliteTable(
 		confirmationCode: text('confirmation_code'),
 		stripePaymentIntent: text('stripe_payment_intent'),
 		paidAt: text('paid_at'),
+		ticketId: integer('ticket_id'),
 		deletedAt: text('deleted_at'),
 		...timestamps
 	},
@@ -137,6 +141,52 @@ export const paradiseLoginCodes = sqliteTable('paradise_login_codes', {
 });
 
 // Outbound email audit log (mirrors bratstvousa; enables retry).
+// Zeffy webhook envelopes we have seen (idempotency guard).
+export const paradiseZeffyEvents = sqliteTable('paradise_zeffy_events', {
+	id: integer('id').primaryKey({ autoIncrement: true }),
+	eventId: text('event_id').notNull().unique(),
+	type: text('type').notNull(),
+	processed: integer('processed', { mode: 'boolean' }).default(false).notNull(),
+	createdAt: text('created_at')
+		.default(sql`(datetime('now'))`)
+		.notNull()
+});
+
+// Every Zeffy payment we have ingested (webhook or API sync).
+export const paradiseZeffyPayments = sqliteTable('paradise_zeffy_payments', {
+	id: integer('id').primaryKey({ autoIncrement: true }),
+	zeffyPaymentId: text('zeffy_payment_id').notNull().unique(),
+	status: text('status').notNull(),
+	amount: integer('amount').default(0).notNull(),
+	currency: text('currency').default('usd').notNull(),
+	buyerEmail: text('buyer_email'),
+	buyerFirstName: text('buyer_first_name'),
+	buyerLastName: text('buyer_last_name'),
+	campaignId: text('campaign_id'),
+	contactId: text('contact_id'),
+	eventId: integer('event_id'),
+	matchStatus: text('match_status').default('unmatched').notNull(), // matched | unmatched | refunded
+	ticketsGranted: integer('tickets_granted').default(0).notNull(),
+	rawJson: text('raw_json'),
+	...timestamps
+});
+
+// One ticket = one bed at one event, owned by the buyer email.
+export const paradiseTickets = sqliteTable('paradise_tickets', {
+	id: integer('id').primaryKey({ autoIncrement: true }),
+	eventId: integer('event_id').notNull(),
+	email: text('email').notNull(),
+	attendeeId: integer('attendee_id'),
+	zeffyPaymentId: text('zeffy_payment_id').notNull(),
+	zeffyItemId: text('zeffy_item_id').notNull().unique(),
+	rateTitle: text('rate_title'),
+	amountCents: integer('amount_cents').default(0).notNull(),
+	status: text('status').default('available').notNull(), // available | used | revoked
+	reservationId: integer('reservation_id'),
+	usedAt: text('used_at'),
+	...timestamps
+});
+
 export const emailLog = sqliteTable('email_log', {
 	id: integer('id').primaryKey({ autoIncrement: true }),
 	toEmail: text('to_email').notNull(),
@@ -162,4 +212,7 @@ export type ParadiseReservation = typeof paradiseReservations.$inferSelect;
 export type ParadiseFormAnswer = typeof paradiseFormAnswers.$inferSelect;
 export type ParadiseAttendee = typeof paradiseAttendees.$inferSelect;
 export type ParadiseLoginCode = typeof paradiseLoginCodes.$inferSelect;
+export type ParadiseZeffyEvent = typeof paradiseZeffyEvents.$inferSelect;
+export type ParadiseZeffyPayment = typeof paradiseZeffyPayments.$inferSelect;
+export type ParadiseTicket = typeof paradiseTickets.$inferSelect;
 export type EmailLog = typeof emailLog.$inferSelect;

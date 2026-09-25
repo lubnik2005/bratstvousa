@@ -13,7 +13,7 @@
 	};
 
 	$: r = data.reservation;
-	$: status = form?.refunded ? 'refunded' : r.status;
+	$: status = form?.cancelled ? 'cancelled' : r.status;
 </script>
 
 <svelte:head>
@@ -53,12 +53,12 @@
 				<dd class="font-medium sm:col-span-2">${(r.price / 100).toFixed(2)}</dd>
 			</dl>
 
-			{#if form?.refunded}
+			{#if form?.cancelled}
 				<div class="bg-mint/50 text-primary-600 mt-5 rounded-xl px-4 py-3 text-sm font-medium">
-					Your reservation has been cancelled and refunded.
+					Reservation cancelled — your ticket is available again.
 				</div>
-			{:else if data.refundable}
-				<form method="post" action="?/refund" use:enhance class="mt-5 border-t border-ink/10 pt-5">
+			{:else if data.cancellable}
+				<form method="post" action="?/cancel" use:enhance class="mt-5 border-t border-ink/10 pt-5">
 					{#if form?.message}
 						<div class="mb-3 rounded-xl bg-red-50 px-4 py-2 text-sm text-red-700">
 							{form.message}
@@ -68,7 +68,7 @@
 						class="inline-flex w-full items-center justify-center rounded-full border border-red-200 px-6 py-3 font-semibold text-red-700 transition-colors hover:bg-red-50"
 						type="submit"
 					>
-						Cancel &amp; request refund
+						Cancel reservation
 					</button>
 				</form>
 			{/if}

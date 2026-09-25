@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { onDestroy } from 'svelte';
 	import { enhance } from '$app/forms';
 	import { goto } from '$app/navigation';
 	import Turnstile from '$lib/components/Turnstile.svelte';
@@ -23,12 +22,6 @@
 				: 'email';
 	// The email is echoed back by requestCode/verifyCode so later steps can post it.
 	$: pendingEmail = form && 'email' in form ? ((form.email as string | undefined) ?? '') : '';
-
-	// Payment state (after a successful hold).
-	let paying = false;
-	let payError = '';
-	let secondsLeft = 300;
-	let timer: ReturnType<typeof setInterval> | undefined;
 
 	const dollars = (cents: number) => `$${(cents / 100).toFixed(2)}`;
 
@@ -59,67 +52,10 @@
 		return { body, questions };
 	}
 
-	function startCountdown() {
-		secondsLeft = 300;
-		timer = setInterval(() => {
-			secondsLeft -= 1;
-			if (secondsLeft <= 0) clearInterval(timer);
-		}, 1000);
+	// Bed confirmed with a ticket -> go to the reservation page.
+	$: if (form && 'confirmed' in form && form.confirmed && form.code) {
+		void goto(`/reservation/${form.code}`);
 	}
-
-	// When a hold succeeds, boot Stripe.js and mount the Payment Element.
-	$: if (form?.held && form?.clientSecret && !paying) {
-		paying = true;
-		startCountdown();
-		void mountStripe(form.clientSecret, form.code as string);
-	}
-
-	async function mountStripe(clientSecret: string, code: string) {
-		try {
-			await loadStripeJs();
-			// @ts-expect-error Stripe global from CDN
-			const stripe = Stripe(data.publicStripeKey);
-			const elements = stripe.elements({ clientSecret });
-			const paymentElement = elements.create('payment');
-			paymentElement.mount('#payment-element');
-
-			const payBtn = document.getElementById('pay-btn') as HTMLButtonElement;
-			payBtn.addEventListener('click', async () => {
-				payBtn.disabled = true;
-				payError = '';
-				const { error: err } = await stripe.confirmPayment({
-					elements,
-					redirect: 'if_required'
-				});
-				if (err) {
-					payError = err.message ?? 'Payment failed. Please try again.';
-					payBtn.disabled = false;
-					return;
-				}
-				await goto(`/reservation/${code}`);
-			});
-		} catch (e) {
-			payError = 'Could not load the payment form. Please refresh.';
-			console.error(e);
-		}
-	}
-
-	function loadStripeJs(): Promise<void> {
-		return new Promise((resolve, reject) => {
-			// @ts-expect-error Stripe global
-			if (typeof Stripe !== 'undefined') return resolve();
-			const s = document.createElement('script');
-			s.src = 'https://js.stripe.com/v3';
-			s.onload = () => resolve();
-			s.onerror = () => reject(new Error('stripe.js failed'));
-			document.head.appendChild(s);
-		});
-	}
-
-	$: mm = Math.floor(Math.max(secondsLeft, 0) / 60);
-	$: ss = String(Math.max(secondsLeft, 0) % 60).padStart(2, '0');
-
-	onDestroy(() => timer && clearInterval(timer));
 
 	const btn =
 		'inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 font-semibold text-white shadow-lg shadow-primary/25 transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-xl disabled:opacity-50 disabled:hover:translate-y-0';
@@ -161,11 +97,11 @@
 		<div class="mt-6 flex flex-wrap gap-2">
 			<span class={identity ? chipMuted : chip}>1 · Sign in</span>
 			<span class={!identity || data.roomId ? chipMuted : chip}>2 · Room</span>
-			<span class={!data.roomId || paying ? chipMuted : chip}>3 · Bed</span>
-			<span class={!paying ? chipMuted : chip}>4 · Payment</span>
+			<span class={!data.roomId ? chipMuted : chip}>3 · Bed</span>
+			<span class={chipMuted}>4 · Confirm</span>
 		</div>
 
-		{#if identity && !paying}
+		{#if identity}
 			<div
 				class="mt-4 flex flex-wrap items-center justify-between gap-2 rounded-2xl bg-mint/40 px-4 py-3 text-sm"
 			>
@@ -179,28 +115,7 @@
 			</div>
 		{/if}
 
-		{#if paying && form?.clientSecret}
-			<div class="mt-6 {card}">
-				<div class="flex items-center justify-between gap-3">
-					<h2 class="text-xl">Payment</h2>
-					<span class="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800">
-						<i class="bi bi-clock-history mr-1"></i>Bed held · {mm}:{ss}
-					</span>
-				</div>
-				{#if selectedRoom}
-					<p class="mt-1 text-sm text-ink-soft">
-						{selectedRoom.name} · {dollars(selectedRoom.price)}
-					</p>
-				{/if}
-				<div id="payment-element" class="mt-4"></div>
-				{#if payError}
-					<div class="mt-3 rounded-xl bg-red-50 px-4 py-2 text-sm text-red-700">{payError}</div>
-				{/if}
-				<button id="pay-btn" class="{btn} mt-4 w-full" disabled={secondsLeft <= 0}>
-					{secondsLeft <= 0 ? 'Hold expired — please start over' : 'Pay now'}
-				</button>
-			</div>
-		{:else if !identity}
+		{#if !identity}
 			<div class="mt-6 {card}">
 				{#if signInStep === 'email'}
 					<h2 class="text-xl">Sign in to register</h2>
@@ -356,6 +271,37 @@
 						</fieldset>
 						<button class="{btn} w-full" type="submit">Continue to rooms</button>
 					</form>
+				{/if}
+			</div>
+		{:else if data.ticketCount === 0}
+			<div class="mt-6 {card}">
+				<h2 class="text-xl">Get your ticket</h2>
+				<p class="mt-1 text-sm text-ink-soft">
+					Beds are reserved with a ticket purchased on Zeffy. Use the same email you signed in with
+					(<strong>{identity.email}</strong>).
+				</p>
+				{#if data.event.zeffyTicketingUrl}
+					<a href={data.event.zeffyTicketingUrl} target="_blank" rel="noopener" class="{btn} mt-4">
+						<i class="bi bi-ticket-perforated"></i>Buy a ticket on Zeffy
+					</a>
+				{:else}
+					<p class="mt-4 text-sm text-ink-soft">Ticket sales for this camp aren't set up yet.</p>
+				{/if}
+				<form method="post" action="?/checkTickets" use:enhance class="mt-4">
+					<button
+						class="rounded-full border border-ink/15 px-4 py-2 text-sm font-semibold hover:bg-ink/5"
+						type="submit">I already paid — check again</button
+					>
+				</form>
+				{#if form && 'checked' in form && form.checked}
+					<p class="mt-3 text-sm text-ink-soft">
+						{form.tickets > 0
+							? `Found ${form.tickets} ticket(s).`
+							: 'No tickets found yet — it can take a minute after paying.'}
+					</p>
+				{/if}
+				{#if form && 'message' in form && form.message}
+					<div class="mt-3 rounded-xl bg-red-50 px-4 py-2 text-sm text-red-700">{form.message}</div>
 				{/if}
 			</div>
 		{:else if !data.roomId}
@@ -534,16 +480,21 @@
 						{/if}
 					{/each}
 
+					{#if form && 'noTicket' in form && form.noTicket}
+						<div class="mt-3 rounded-xl bg-amber-100 px-4 py-2 text-sm text-amber-800">
+							No ticket found for this email. Buy one on Zeffy first.
+						</div>
+					{/if}
 					{#if form?.message}
 						<div class="mt-4 rounded-xl bg-red-50 px-4 py-2 text-sm text-red-700">
 							{form.message}
 						</div>
 					{/if}
 					<button class="{btn} mt-5 w-full" type="submit" disabled={submitting}>
-						{submitting ? 'Holding your bed…' : 'Hold bed & continue to payment'}
+						{submitting ? 'Confirming…' : 'Confirm my bed'}
 					</button>
 					<p class="mt-3 text-center text-xs text-ink-soft">
-						Your bed is held for 5 minutes while you pay.
+						Your bed is confirmed instantly using one ticket. You have {data.ticketCount} ticket(s).
 					</p>
 				</form>
 			</div>

@@ -10,6 +10,5 @@ database_id = "4765e73d-b7f2-4ad7-8a54-fe6966050456"
 migrations_dir = "drizzle"
 
 [vars]
-PUBLIC_STRIPE_KEY = ""
 PUBLIC_TURNSTILE_SITE_KEY = "0x4AAAAAAEzKpCgc4kC9UW8O"
 TURNSTILE_HOSTNAMES = "camp-paradise.pages.dev"

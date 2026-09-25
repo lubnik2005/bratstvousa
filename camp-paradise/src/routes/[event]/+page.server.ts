@@ -1,6 +1,5 @@
 import { error, fail } from '@sveltejs/kit';
 import { and, eq } from 'drizzle-orm';
-import { env } from '$env/dynamic/public';
 import {
 	getPublishedEvent,
 	eventCapacity,
@@ -13,16 +12,18 @@ import {
 	upsertAttendee,
 	markAttendeeLogin
 } from '$lib/server/paradise/queries';
-import { generateConfirmationCode } from '$lib/server/email/paradise';
+import { generateConfirmationCode, sendReservationConfirmed } from '$lib/server/email/paradise';
 import { issueLoginCode, verifyLoginCode } from '$lib/server/paradise/auth';
-import { makeStripe } from '$lib/server/paradise/payments';
+import { applyPayment, listPayments, normalizeEmail } from '$lib/server/paradise/zeffy';
 import { isHealthForm, parseHealthForm } from '$lib/server/paradise/health-form';
 import { verifyTurnstile, TURNSTILE_ERROR_MESSAGE } from '$lib/server/turnstile';
 import { readSession, setSession } from '$lib/server/paradise/session';
 import {
 	paradiseReservations,
 	paradiseEventRooms,
-	paradiseFormAnswers
+	paradiseFormAnswers,
+	paradiseRooms,
+	paradiseTickets
 } from '$lib/server/db/schema';
 import type { Actions, PageServerLoad } from './$types';
 
@@ -31,6 +32,23 @@ const isEmail = (v: string): boolean => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 
 const sessionSecret = (platform: App.Platform | undefined): string =>
 	platform?.env?.SESSION_SECRET ?? 'dev-insecure-session-secret-change-me';
+
+type Db = App.Locals['db'];
+
+const availableTicketCondition = (email: string, eventId: number) =>
+	and(
+		eq(paradiseTickets.email, normalizeEmail(email)),
+		eq(paradiseTickets.eventId, eventId),
+		eq(paradiseTickets.status, 'available')
+	);
+
+async function countAvailableTickets(db: Db, email: string, eventId: number): Promise<number> {
+	const rows = await db
+		.select({ id: paradiseTickets.id })
+		.from(paradiseTickets)
+		.where(availableTicketCondition(email, eventId));
+	return rows.length;
+}
 
 export const load: PageServerLoad = async ({
 	params,
@@ -65,7 +83,7 @@ export const load: PageServerLoad = async ({
 			roomId: null,
 			beds: [],
 			forms: [],
-			publicStripeKey: ''
+			ticketCount: 0
 		};
 	}
 
@@ -79,11 +97,12 @@ export const load: PageServerLoad = async ({
 	const roomId = sex && roomParam && /^\d+$/.test(roomParam) ? Number(roomParam) : null;
 
 	// Run the independent lookups in parallel to cut serial D1 round-trips.
-	const [capacity, rooms, beds, forms] = await Promise.all([
+	const [capacity, rooms, beds, forms, ticketCount] = await Promise.all([
 		eventCapacity(db, id),
 		sex ? roomsForEvent(db, id, sex) : Promise.resolve([]),
 		roomId ? bedsForRoom(db, id, roomId, { freeOnly: true }) : Promise.resolve([]),
-		requiredForms(db)
+		requiredForms(db),
+		identity ? countAvailableTickets(db, identity.email, id) : Promise.resolve(0)
 	]);
 
 	return {
@@ -95,7 +114,7 @@ export const load: PageServerLoad = async ({
 		roomId,
 		beds,
 		forms,
-		publicStripeKey: env.PUBLIC_STRIPE_KEY ?? ''
+		ticketCount
 	};
 };
 
@@ -231,7 +250,7 @@ export const actions: Actions = {
 			});
 
 		// Honeypot: silently accept without writing.
-		if (clean(fd.get('middle_name'))) return { held: true, code: 'PARADISE-XXXXX' };
+		if (clean(fd.get('middle_name'))) return { confirmed: true, code: 'PARADISE-XXXXX' };
 
 		const eventId = id;
 		const roomId = Number(fd.get('roomId'));
@@ -263,7 +282,16 @@ export const actions: Actions = {
 		if (!(await isBedFree(db, eventId, cotId)))
 			return fail(400, { message: 'That bed was just taken. Please pick another.' });
 
-		// Per-event room price (cents).
+		// Arcade model: a bed costs exactly one Zeffy ticket bought with this email.
+		const tickets = await db
+			.select({ id: paradiseTickets.id })
+			.from(paradiseTickets)
+			.where(availableTicketCondition(email, eventId))
+			.limit(1);
+		const ticket = tickets[0];
+		if (!ticket) return fail(400, { noTicket: true });
+
+		// Per-event room price (cents) — recorded for reference only.
 		const priceRows = await db
 			.select({ price: paradiseEventRooms.price })
 			.from(paradiseEventRooms)
@@ -272,7 +300,7 @@ export const actions: Actions = {
 		const price = priceRows[0]?.price ?? 0;
 
 		const code = generateConfirmationCode();
-		const heldUntil = new Date(Date.now() + 5 * 60 * 1000).toISOString();
+		const nowIso = new Date().toISOString();
 
 		const inserted = await db
 			.insert(paradiseReservations)
@@ -285,16 +313,23 @@ export const actions: Actions = {
 				lastName,
 				email,
 				sex,
-				status: 'held',
-				heldUntil,
+				status: 'confirmed',
+				paidAt: nowIso,
 				price,
+				ticketId: ticket.id,
 				confirmationCode: code
 			})
 			.returning({ id: paradiseReservations.id });
 		const reservationId = inserted[0].id;
 
+		// Consume the ticket.
+		await db
+			.update(paradiseTickets)
+			.set({ status: 'used', reservationId, usedAt: nowIso, updatedAt: nowIso })
+			.where(eq(paradiseTickets.id, ticket.id));
+
 		// Persist each signed agreement / form as a paradise_form_answers row.
-		const signedOn = new Date().toISOString();
+		const signedOn = nowIso;
 		for (const form of forms) {
 			let answers: Record<string, unknown> | undefined = parsedAnswers.get(form.id);
 			if (!answers) {
@@ -317,24 +352,54 @@ export const actions: Actions = {
 			});
 		}
 
-		const stripe = makeStripe(
-			platform?.env?.STRIPE_SECRET_KEY,
-			platform?.env?.STRIPE_WEBHOOK_SECRET
-		);
-		if (!stripe) return fail(500, { message: 'Payments are not configured yet.' });
+		try {
+			const roomRows = await db
+				.select({ name: paradiseRooms.name })
+				.from(paradiseRooms)
+				.where(eq(paradiseRooms.id, roomId))
+				.limit(1);
+			await sendReservationConfirmed(db, {
+				firstName,
+				email,
+				eventName: heldEvent.name,
+				roomName: roomRows[0]?.name ?? `Room ${roomId}`,
+				code,
+				amount: price / 100
+			});
+		} catch (err) {
+			console.error('sendReservationConfirmed failed', err);
+		}
 
-		const intent = await stripe.createPaymentIntent(price, {
-			reservationId,
-			eventId,
-			cotId,
-			email
-		});
+		return { confirmed: true, code };
+	},
 
-		await db
-			.update(paradiseReservations)
-			.set({ stripePaymentIntent: intent.paymentIntentId })
-			.where(eq(paradiseReservations.id, reservationId));
+	// "I already paid — check again": pull recent succeeded payments from the
+	// Zeffy API for this camper's email and apply them (grants tickets).
+	checkTickets: async ({ locals, params, cookies, platform }) => {
+		const db = locals.db;
+		const id = Number(params.event);
+		const identity = await readSession(cookies, sessionSecret(platform));
+		if (!identity)
+			return fail(400, {
+				message: 'Your registration session expired. Please start again.',
+				expired: true
+			});
 
-		return { held: true, code, clientSecret: intent.clientSecret };
+		const apiKey = platform?.env?.ZEFFY_API_KEY;
+		if (!apiKey) return fail(500, { message: 'Ticket lookup is not configured yet.' });
+
+		const email = normalizeEmail(identity.email);
+		try {
+			const payments = await listPayments(apiKey, { status: 'succeeded', maxPages: 5 });
+			for (const p of payments) {
+				if (normalizeEmail(p.buyer?.email) === email) await applyPayment(db, p, { apiKey });
+			}
+		} catch (err) {
+			console.error('checkTickets failed', err);
+			return fail(502, { message: "We couldn't reach Zeffy right now. Try again shortly." });
+		}
+
+		const tickets = await countAvailableTickets(db, identity.email, id);
+		return { checked: true, tickets };
 	}
 };
