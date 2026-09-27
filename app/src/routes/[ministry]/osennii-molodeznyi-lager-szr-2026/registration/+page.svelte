@@ -15,7 +15,9 @@
 	const CONSENT_URL =
 		'https://www.cognitoforms.com/YoungLife21/guestconsentreleaseformforoutsidegroupsusingyounglifecamp';
 	const COGNITO_KEY = 'spO9ZCOVtkyDOX-2IFxCZw';
-	const COGNITO_FORM_ID = '279';
+	// Form ID from the public page's embed snippet (data-form). Young Life issues a
+	// new form each season; 279 was the 2025 form, 1019 is the current one.
+	const COGNITO_FORM_ID = '1019';
 	const COGNITO_EMBED_SRC = 'https://www.cognitoforms.com/f/seamless.js';
 
 	const CONSENT_SUBMITTED_KEY = 'camp2026_consent_submitted';
