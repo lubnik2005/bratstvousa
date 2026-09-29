@@ -108,6 +108,10 @@
 				<span>
 					<i class="bi bi-person-check mr-1 text-primary-600"></i>
 					Registering <strong>{identity.firstName} {identity.lastName}</strong> · {identity.email}
+					<span
+						class="ml-2 rounded-full bg-white/70 px-2.5 py-0.5 text-xs font-semibold text-primary-600"
+						>Balance: {dollars(data.balanceCents)}</span
+					>
 				</span>
 				{#if data.roomId}
 					<a href="?" class="font-semibold text-primary-600 hover:text-primary">Start over</a>
@@ -271,37 +275,6 @@
 						</fieldset>
 						<button class="{btn} w-full" type="submit">Continue to rooms</button>
 					</form>
-				{/if}
-			</div>
-		{:else if data.ticketCount === 0}
-			<div class="mt-6 {card}">
-				<h2 class="text-xl">Get your ticket</h2>
-				<p class="mt-1 text-sm text-ink-soft">
-					Beds are reserved with a ticket purchased on Zeffy. Use the same email you signed in with
-					(<strong>{identity.email}</strong>).
-				</p>
-				{#if data.event.zeffyTicketingUrl}
-					<a href={data.event.zeffyTicketingUrl} target="_blank" rel="noopener" class="{btn} mt-4">
-						<i class="bi bi-ticket-perforated"></i>Buy a ticket on Zeffy
-					</a>
-				{:else}
-					<p class="mt-4 text-sm text-ink-soft">Ticket sales for this camp aren't set up yet.</p>
-				{/if}
-				<form method="post" action="?/checkTickets" use:enhance class="mt-4">
-					<button
-						class="rounded-full border border-ink/15 px-4 py-2 text-sm font-semibold hover:bg-ink/5"
-						type="submit">I already paid — check again</button
-					>
-				</form>
-				{#if form && 'checked' in form && form.checked}
-					<p class="mt-3 text-sm text-ink-soft">
-						{form.tickets > 0
-							? `Found ${form.tickets} ticket(s).`
-							: 'No tickets found yet — it can take a minute after paying.'}
-					</p>
-				{/if}
-				{#if form && 'message' in form && form.message}
-					<div class="mt-3 rounded-xl bg-red-50 px-4 py-2 text-sm text-red-700">{form.message}</div>
 				{/if}
 			</div>
 		{:else if !data.roomId}
@@ -480,9 +453,9 @@
 						{/if}
 					{/each}
 
-					{#if form && 'noTicket' in form && form.noTicket}
+					{#if form && 'insufficient' in form && form.insufficient}
 						<div class="mt-3 rounded-xl bg-amber-100 px-4 py-2 text-sm text-amber-800">
-							No ticket found for this email. Buy one on Zeffy first.
+							Not enough funds — you need {dollars(form.needed)} more. Add funds on Zeffy and try again.
 						</div>
 					{/if}
 					{#if form?.message}
@@ -490,12 +463,47 @@
 							{form.message}
 						</div>
 					{/if}
-					<button class="{btn} mt-5 w-full" type="submit" disabled={submitting}>
-						{submitting ? 'Confirming…' : 'Confirm my bed'}
-					</button>
-					<p class="mt-3 text-center text-xs text-ink-soft">
-						Your bed is confirmed instantly using one ticket. You have {data.ticketCount} ticket(s).
-					</p>
+					{#if selectedRoom}
+						{@const price = selectedRoom.price}
+						{@const short = price - data.balanceCents}
+						<div class="mt-4 rounded-2xl bg-sand px-4 py-3 text-sm">
+							This bed costs <strong>{dollars(price)}</strong> · balance after:
+							<strong>{dollars(data.balanceCents - price)}</strong>
+						</div>
+						{#if short > 0}
+							<div class="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm">
+								<p class="font-semibold text-amber-900">
+									Not enough funds — add {dollars(short)} on Zeffy
+								</p>
+								<p class="mt-1 text-amber-800">
+									Use the same email you signed in with (<strong>{identity?.email}</strong>). Funds
+									appear here shortly after Zeffy confirms the payment.
+								</p>
+								{#if data.topupUrl}
+									<a href={data.topupUrl} target="_blank" rel="noopener" class="{btn} mt-3">
+										<i class="bi bi-wallet2"></i>Add funds on Zeffy
+									</a>
+								{:else}
+									<p class="mt-3 text-amber-800">Top-ups aren't set up yet.</p>
+								{/if}
+								<button
+									class="mt-3 ml-2 rounded-full border border-ink/15 px-4 py-2 text-sm font-semibold hover:bg-ink/5"
+									type="submit"
+									formaction="?/checkBalance"
+									formnovalidate>I already paid — check again</button
+								>
+								{#if form && 'checked' in form && form.checked}
+									<p class="mt-3 text-ink-soft">Balance: {dollars(form.balanceCents)}</p>
+								{/if}
+							</div>
+						{/if}
+						<button class="{btn} mt-5 w-full" type="submit" disabled={submitting || short > 0}>
+							{submitting ? 'Confirming…' : 'Confirm my bed'}
+						</button>
+						<p class="mt-3 text-center text-xs text-ink-soft">
+							Your bed is confirmed instantly and {dollars(price)} is deducted from your balance.
+						</p>
+					{/if}
 				</form>
 			</div>
 		{/if}

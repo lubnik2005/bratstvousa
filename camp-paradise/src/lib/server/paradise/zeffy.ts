@@ -1,10 +1,9 @@
-import { and, eq, inArray, sql } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 import type { DrizzleD1Database } from 'drizzle-orm/d1';
 import {
 	paradiseAttendees,
 	paradiseEvents,
-	paradiseReservations,
-	paradiseTickets,
+	paradiseLedger,
 	paradiseZeffyPayments
 } from '$lib/server/db/schema';
 
@@ -158,8 +157,8 @@ export interface ApplyPaymentOptions {
 }
 
 export type ApplyResult = {
-	action: 'granted' | 'revoked' | 'unmatched' | 'ignored';
-	tickets: number;
+	action: 'credited' | 'reversed' | 'skipped' | 'ignored';
+	amountCents: number;
 	eventId: number | null;
 };
 
@@ -169,7 +168,7 @@ function paymentRow(
 	payment: ZeffyPaymentPayload,
 	matchStatus: 'matched' | 'unmatched' | 'refunded',
 	eventId: number | null,
-	ticketsGranted: number
+	creditedCents: number
 ): PaymentRow {
 	return {
 		zeffyPaymentId: payment.id,
@@ -183,7 +182,7 @@ function paymentRow(
 		contactId: payment.contact ?? payment.contact_id ?? null,
 		eventId,
 		matchStatus,
-		ticketsGranted,
+		creditedCents,
 		rawJson: JSON.stringify(payment)
 	};
 }
@@ -205,117 +204,123 @@ async function upsertPayment(db: Db, row: PaymentRow): Promise<void> {
 				contactId: row.contactId,
 				eventId: row.eventId,
 				matchStatus: row.matchStatus,
-				ticketsGranted: row.ticketsGranted,
+				creditedCents: row.creditedCents,
 				rawJson: row.rawJson,
 				updatedAt: now()
 			}
 		});
 }
 
-/** Revoke every ticket from this payment and cancel reservations that used them. */
-async function revokeTickets(db: Db, paymentId: string): Promise<number> {
-	const tickets = await db
-		.select({ id: paradiseTickets.id, reservationId: paradiseTickets.reservationId })
-		.from(paradiseTickets)
-		.where(eq(paradiseTickets.zeffyPaymentId, paymentId));
-	if (tickets.length === 0) return 0;
-
-	await db
-		.update(paradiseTickets)
-		.set({ status: 'revoked', updatedAt: now() })
-		.where(eq(paradiseTickets.zeffyPaymentId, paymentId));
-
-	const reservationIds = tickets
-		.map((t) => t.reservationId)
-		.filter((id): id is number => typeof id === 'number');
-	if (reservationIds.length > 0) {
+async function eventIdForCampaign(db: Db, campaignId: string | null | undefined) {
+	if (!campaignId) return null;
+	const row = (
 		await db
-			.update(paradiseReservations)
-			.set({ status: 'cancelled', updatedAt: now() })
-			.where(
-				and(
-					inArray(paradiseReservations.id, reservationIds),
-					eq(paradiseReservations.status, 'confirmed')
-				)
-			);
-	}
-	return tickets.length;
+			.select({ id: paradiseEvents.id })
+			.from(paradiseEvents)
+			.where(eq(paradiseEvents.zeffyCampaignId, campaignId))
+			.limit(1)
+	)[0];
+	return row?.id ?? null;
 }
 
-/**
- * Apply a Zeffy payment to the ticket ledger. Idempotent on payment id + item id.
- * - succeeded  -> grant one ticket per ticket item to the buyer email for the event
- *                 whose zeffy_campaign_id matches payment.campaign_id
- * - refunded / disputed / deleted -> revoke tickets + cancel reservations using them
- */
-export async function applyPayment(
-	db: Db,
-	payment: ZeffyPaymentPayload,
-	opts: ApplyPaymentOptions = {}
-): Promise<ApplyResult> {
-	if (opts.deleted || isRefundedOrDisputed(payment)) {
-		const revoked = await revokeTickets(db, payment.id);
-		await upsertPayment(db, paymentRow(payment, 'refunded', null, 0));
-		return { action: 'revoked', tickets: revoked, eventId: null };
-	}
-
-	if (payment.status && payment.status !== 'succeeded') {
-		await upsertPayment(db, paymentRow(payment, 'unmatched', null, 0));
-		return { action: 'ignored', tickets: 0, eventId: null };
-	}
-
-	const email = normalizeEmail(payment.buyer?.email);
-	const campaignId = payment.campaign_id ?? null;
-	const event = campaignId
-		? (
-				await db
-					.select({ id: paradiseEvents.id })
-					.from(paradiseEvents)
-					.where(eq(paradiseEvents.zeffyCampaignId, campaignId))
-					.limit(1)
-			)[0]
-		: undefined;
-
-	if (!event || !email) {
-		await upsertPayment(db, paymentRow(payment, 'unmatched', event?.id ?? null, 0));
-		return { action: 'unmatched', tickets: 0, eventId: event?.id ?? null };
-	}
-
-	const attendee = (
+async function attendeeIdFor(db: Db, email: string) {
+	const row = (
 		await db
 			.select({ id: paradiseAttendees.id })
 			.from(paradiseAttendees)
 			.where(eq(paradiseAttendees.email, email))
 			.limit(1)
 	)[0];
+	return row?.id ?? null;
+}
 
-	const items = (payment.items ?? []).filter((i) => !i.type || i.type === 'ticket');
-	let granted = 0;
-	for (const item of items) {
-		const inserted = await db
-			.insert(paradiseTickets)
-			.values({
-				eventId: event.id,
-				email,
-				attendeeId: attendee?.id ?? null,
-				zeffyPaymentId: payment.id,
-				zeffyItemId: item.id,
-				rateTitle: item.rate_title ?? null,
-				amountCents: item.amount ?? 0,
-				status: 'available'
-			})
-			.onConflictDoNothing()
-			.returning({ id: paradiseTickets.id });
-		granted += inserted.length;
+/** Sum of the topup already credited for this payment (0 if none). */
+async function creditedFor(db: Db, paymentId: string): Promise<number> {
+	const row = (
+		await db
+			.select({ n: sql<number>`coalesce(sum(${paradiseLedger.amountCents}), 0)` })
+			.from(paradiseLedger)
+			.where(and(eq(paradiseLedger.zeffyPaymentId, paymentId), eq(paradiseLedger.kind, 'topup')))
+	)[0];
+	return Number(row?.n ?? 0);
+}
+
+/**
+ * Apply a Zeffy payment to the camper wallet ledger. Idempotent on payment id
+ * via the unique (zeffy_payment_id, kind) index.
+ * - succeeded -> ledger 'topup' of payment.amount (net of discounts) to the buyer email
+ * - refunded / disputed / deleted -> ledger 'reversal' of the credited amount
+ */
+export async function applyPayment(
+	db: Db,
+	payment: ZeffyPaymentPayload,
+	opts: ApplyPaymentOptions = {}
+): Promise<ApplyResult> {
+	const email = normalizeEmail(payment.buyer?.email);
+	const eventId = await eventIdForCampaign(db, payment.campaign_id);
+
+	if (opts.deleted || isRefundedOrDisputed(payment)) {
+		const credited = await creditedFor(db, payment.id);
+		let reversed = 0;
+		if (credited > 0) {
+			const inserted = await db
+				.insert(paradiseLedger)
+				.values({
+					email: email || (await existingEmailFor(db, payment.id)) || 'unknown',
+					attendeeId: email ? await attendeeIdFor(db, email) : null,
+					eventId,
+					kind: 'reversal',
+					amountCents: -credited,
+					zeffyPaymentId: payment.id,
+					note: opts.deleted
+						? 'Zeffy payment deleted'
+						: `Zeffy ${payment.refund_status ?? 'dispute'}`
+				})
+				.onConflictDoNothing()
+				.returning({ id: paradiseLedger.id });
+			reversed = inserted.length ? credited : 0;
+		}
+		await upsertPayment(db, paymentRow(payment, 'refunded', eventId, credited));
+		return { action: 'reversed', amountCents: -reversed, eventId };
 	}
 
-	const total = (
-		await db
-			.select({ n: sql<number>`count(*)` })
-			.from(paradiseTickets)
-			.where(eq(paradiseTickets.zeffyPaymentId, payment.id))
-	)[0];
+	if (payment.status && payment.status !== 'succeeded') {
+		await upsertPayment(db, paymentRow(payment, 'unmatched', eventId, 0));
+		return { action: 'ignored', amountCents: 0, eventId };
+	}
 
-	await upsertPayment(db, paymentRow(payment, 'matched', event.id, Number(total?.n ?? granted)));
-	return { action: 'granted', tickets: granted, eventId: event.id };
+	if (!email) {
+		await upsertPayment(db, paymentRow(payment, 'unmatched', eventId, 0));
+		return { action: 'skipped', amountCents: 0, eventId };
+	}
+
+	const amount = Math.max(0, Math.round(payment.amount ?? 0));
+	const inserted = await db
+		.insert(paradiseLedger)
+		.values({
+			email,
+			attendeeId: await attendeeIdFor(db, email),
+			eventId,
+			kind: 'topup',
+			amountCents: amount,
+			zeffyPaymentId: payment.id,
+			note: payment.description ?? null
+		})
+		.onConflictDoNothing()
+		.returning({ id: paradiseLedger.id });
+
+	const credited = inserted.length ? amount : await creditedFor(db, payment.id);
+	await upsertPayment(db, paymentRow(payment, 'matched', eventId, credited));
+	return { action: inserted.length ? 'credited' : 'skipped', amountCents: credited, eventId };
+}
+
+async function existingEmailFor(db: Db, paymentId: string): Promise<string | null> {
+	const row = (
+		await db
+			.select({ email: paradiseLedger.email })
+			.from(paradiseLedger)
+			.where(eq(paradiseLedger.zeffyPaymentId, paymentId))
+			.limit(1)
+	)[0];
+	return row?.email ?? null;
 }

@@ -10,8 +10,8 @@ use Illuminate\Support\Facades\Http;
  * Reconcile Camp Paradise Zeffy ticket payments via the Zeffy REST API.
  *
  * Mirrors camp-paradise/src/lib/server/paradise/zeffy.ts applyPayment():
- * one paradise_tickets row per ticket item, credited to the buyer email for the
- * paradise_event whose zeffy_campaign_id matches the payment's campaign.
+ * a paradise_ledger top-up (payment.amount) credited to the buyer email; refunds add a
+ * matching reversal. event_id is optional (via paradise_events.zeffy_campaign_id).
  * Safety net for the webhook; safe to re-run (idempotent).
  */
 class ZeffySyncParadisePayments extends Command
@@ -138,81 +138,72 @@ class ZeffySyncParadisePayments extends Command
         }
 
         $refunded = in_array($p['refund_status'] ?? 'none', ['partial', 'full'], true) || ! empty($p['dispute']);
+        $buyerEmail = strtolower(trim((string) ($p['buyer']['email'] ?? '')));
+        $campaign = $p['campaign_id'] ?? null;
+        $eventId = $campaign
+            ? $d1->table('paradise_events')->where('zeffy_campaign_id', $campaign)->value('id')
+            : null;
+        $eventId = $eventId !== null ? (int) $eventId : null;
 
         if ($refunded) {
-            $tickets = $d1->table('paradise_tickets')->where('zeffy_payment_id', $id)->get();
+            $credited = (int) $d1->table('paradise_ledger')
+                ->where('zeffy_payment_id', $id)
+                ->where('kind', 'topup')
+                ->sum('amount_cents');
 
-            if ($tickets->isNotEmpty()) {
-                $d1->table('paradise_tickets')
-                    ->where('zeffy_payment_id', $id)
-                    ->update(['status' => 'revoked', 'updated_at' => $now]);
+            if ($credited > 0) {
+                $email = $d1->table('paradise_ledger')->where('zeffy_payment_id', $id)->value('email') ?: $buyerEmail;
+                $attendeeId = $email !== '' ? $d1->table('paradise_attendees')->where('email', $email)->value('id') : null;
 
-                $resIds = $tickets->pluck('reservation_id')->filter()->values()->all();
-
-                if ($resIds !== []) {
-                    $d1->table('paradise_reservations')
-                        ->whereIn('id', $resIds)
-                        ->where('status', 'confirmed')
-                        ->update(['status' => 'cancelled', 'updated_at' => $now]);
-                }
+                $d1->table('paradise_ledger')->insertOrIgnore([
+                    'email' => $email !== '' ? $email : 'unknown',
+                    'attendee_id' => $attendeeId,
+                    'event_id' => $eventId,
+                    'kind' => 'reversal',
+                    'amount_cents' => -$credited,
+                    'zeffy_payment_id' => $id,
+                    'note' => ! empty($p['dispute']) ? 'Zeffy dispute' : 'Zeffy '.($p['refund_status'] ?? 'refund'),
+                    'created_at' => $now,
+                ]);
             }
 
-            $this->upsertPayment($d1, $p, 'refunded', null, $tickets->count(), $now);
+            $this->upsertPayment($d1, $p, 'refunded', $eventId, $credited, $now);
             $this->revoked++;
 
             return;
         }
 
-        if (($p['status'] ?? '') !== 'succeeded') {
-            $this->upsertPayment($d1, $p, 'unmatched', null, 0, $now);
+        if (($p['status'] ?? '') !== 'succeeded' || $buyerEmail === '') {
+            $this->upsertPayment($d1, $p, 'unmatched', $eventId, 0, $now);
             $this->unmatched++;
 
             return;
         }
 
-        $email = strtolower(trim((string) ($p['buyer']['email'] ?? '')));
-        $campaign = $p['campaign_id'] ?? null;
-        $event = $campaign
-            ? $d1->table('paradise_events')->where('zeffy_campaign_id', $campaign)->first()
-            : null;
+        $attendeeId = $d1->table('paradise_attendees')->where('email', $buyerEmail)->value('id');
+        $amount = max(0, (int) round((float) ($p['amount'] ?? 0)));
 
-        if (! $event || $email === '') {
-            $this->upsertPayment($d1, $p, 'unmatched', null, 0, $now);
-            $this->unmatched++;
+        $inserted = (int) $d1->table('paradise_ledger')->insertOrIgnore([
+            'email' => $buyerEmail,
+            'attendee_id' => $attendeeId,
+            'event_id' => $eventId,
+            'kind' => 'topup',
+            'amount_cents' => $amount,
+            'zeffy_payment_id' => $id,
+            'note' => $p['description'] ?? null,
+            'created_at' => $now,
+        ]);
 
-            return;
-        }
+        $credited = (int) $d1->table('paradise_ledger')
+            ->where('zeffy_payment_id', $id)
+            ->where('kind', 'topup')
+            ->sum('amount_cents');
 
-        $attendeeId = $d1->table('paradise_attendees')->where('email', $email)->value('id');
-        $inserted = 0;
-
-        foreach ($p['items'] ?? [] as $item) {
-            $type = $item['type'] ?? null;
-
-            if (($type !== null && $type !== 'ticket') || empty($item['id'])) {
-                continue;
-            }
-
-            $inserted += (int) $d1->table('paradise_tickets')->insertOrIgnore([
-                'event_id' => $event->id,
-                'email' => $email,
-                'attendee_id' => $attendeeId,
-                'zeffy_payment_id' => $id,
-                'zeffy_item_id' => $item['id'],
-                'rate_title' => $item['rate_title'] ?? null,
-                'amount_cents' => (int) ($item['amount'] ?? 0),
-                'status' => 'available',
-                'created_at' => $now,
-                'updated_at' => $now,
-            ]);
-        }
-
-        $total = $d1->table('paradise_tickets')->where('zeffy_payment_id', $id)->count();
-        $this->upsertPayment($d1, $p, 'matched', (int) $event->id, $total, $now);
+        $this->upsertPayment($d1, $p, 'matched', $eventId, $credited, $now);
         $this->granted += $inserted;
     }
 
-    private function upsertPayment($d1, array $p, string $matchStatus, ?int $eventId, int $tickets, string $now): void
+    private function upsertPayment($d1, array $p, string $matchStatus, ?int $eventId, int $creditedCents, string $now): void
     {
         $id = (string) ($p['id'] ?? '');
         $email = strtolower(trim((string) ($p['buyer']['email'] ?? '')));
@@ -228,7 +219,7 @@ class ZeffySyncParadisePayments extends Command
             'contact_id' => $p['contact'] ?? $p['contact_id'] ?? null,
             'event_id' => $eventId,
             'match_status' => $matchStatus,
-            'tickets_granted' => $tickets,
+            'credited_cents' => $creditedCents,
             'raw_json' => json_encode($p),
             'updated_at' => $now,
         ];

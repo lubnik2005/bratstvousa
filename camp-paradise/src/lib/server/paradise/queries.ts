@@ -9,25 +9,33 @@ import {
 	paradiseAttendees,
 	paradiseForms,
 	paradiseFormAnswers,
-	paradiseTickets
+	paradiseLedger
 } from '$lib/server/db/schema';
 
 /**
- * Available (unused, unrevoked) Zeffy ticket counts for an email, keyed by event id.
+ * Wallet balance (cents) for an email: SUM of all ledger entries.
+ * topup/refund are positive, debit/reversal negative. May be negative after a Zeffy refund.
  */
-export async function ticketsForEmail(
-	db: AppDatabase,
-	email: string
-): Promise<Map<number, number>> {
+export async function balanceForEmail(db: AppDatabase, email: string): Promise<number> {
 	const normalized = email.trim().toLowerCase();
-	const rows = await db
-		.select({ eventId: paradiseTickets.eventId, n: sql<number>`count(*)` })
-		.from(paradiseTickets)
-		.where(and(eq(paradiseTickets.email, normalized), eq(paradiseTickets.status, 'available')))
-		.groupBy(paradiseTickets.eventId);
-	const map = new Map<number, number>();
-	for (const r of rows) map.set(r.eventId, Number(r.n));
-	return map;
+	const [row] = await db
+		.select({ total: sql<number>`coalesce(sum(${paradiseLedger.amountCents}), 0)` })
+		.from(paradiseLedger)
+		.where(eq(paradiseLedger.email, normalized));
+	return Number(row?.total ?? 0);
+}
+
+/**
+ * Recent ledger entries for an email (newest first).
+ */
+export async function ledgerForEmail(db: AppDatabase, email: string, limit = 20) {
+	const normalized = email.trim().toLowerCase();
+	return db
+		.select()
+		.from(paradiseLedger)
+		.where(eq(paradiseLedger.email, normalized))
+		.orderBy(desc(paradiseLedger.createdAt), desc(paradiseLedger.id))
+		.limit(limit);
 }
 
 /**

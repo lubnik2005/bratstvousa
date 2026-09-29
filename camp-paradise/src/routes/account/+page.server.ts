@@ -4,7 +4,8 @@ import {
 	listOpenEvents,
 	eventCapacity,
 	formAnswersForEmail,
-	ticketsForEmail
+	balanceForEmail,
+	ledgerForEmail
 } from '$lib/server/paradise/queries';
 import { readSession, clearSession } from '$lib/server/paradise/session';
 import type { Actions, PageServerLoad } from './$types';
@@ -20,21 +21,21 @@ export const load: PageServerLoad = async ({ locals, cookies, platform, setHeade
 
 	setHeaders({ 'cache-control': 'private, no-cache' });
 
-	const [reservations, forms, openRaw, tickets] = await Promise.all([
+	const [reservations, forms, openRaw, balanceCents, ledger] = await Promise.all([
 		reservationsForEmail(locals.db, identity.email),
 		formAnswersForEmail(locals.db, identity.email),
 		listOpenEvents(locals.db),
-		ticketsForEmail(locals.db, identity.email)
+		balanceForEmail(locals.db, identity.email),
+		ledgerForEmail(locals.db, identity.email)
 	]);
 	const open = await Promise.all(
 		openRaw.map(async (e) => ({
 			...e,
-			...(await eventCapacity(locals.db, e.id)),
-			tickets: tickets.get(e.id) ?? 0
+			...(await eventCapacity(locals.db, e.id))
 		}))
 	);
 
-	return { camper: identity, reservations, forms, open };
+	return { camper: identity, reservations, forms, open, balanceCents, ledger };
 };
 
 export const actions: Actions = {

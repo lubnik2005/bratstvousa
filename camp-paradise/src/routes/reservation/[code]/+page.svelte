@@ -55,7 +55,7 @@
 
 			{#if form?.cancelled}
 				<div class="bg-mint/50 text-primary-600 mt-5 rounded-xl px-4 py-3 text-sm font-medium">
-					Reservation cancelled — your ticket is available again.
+					Reservation cancelled — ${(r.price / 100).toFixed(2)} was returned to your balance.
 				</div>
 			{:else if data.cancellable}
 				<form method="post" action="?/cancel" use:enhance class="mt-5 border-t border-ink/10 pt-5">

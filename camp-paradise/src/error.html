@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="robots" content="noindex" />
+		<meta name="theme-color" content="#0f3d2e" />
+		<title>%sveltekit.status% — Camp Paradise</title>
+		<style>
+			* {
+				box-sizing: border-box;
+			}
+			html,
+			body {
+				margin: 0;
+				min-height: 100%;
+			}
+			body {
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				min-height: 100vh;
+				padding: 2rem 1.5rem;
+				background: #0a2c21;
+				color: #fff;
+				font-family:
+					'Plus Jakarta Sans',
+					system-ui,
+					-apple-system,
+					sans-serif;
+				text-align: center;
+				-webkit-font-smoothing: antialiased;
+			}
+			.wrap {
+				max-width: 42rem;
+			}
+			.eyebrow {
+				color: #5be49b;
+				font-size: 0.8rem;
+				font-weight: 600;
+				letter-spacing: 0.2em;
+				text-transform: uppercase;
+				margin: 0 0 0.5rem;
+			}
+			.status {
+				color: #5be49b;
+				font-family: 'Fraunces', Georgia, serif;
+				font-size: clamp(5rem, 18vw, 11rem);
+				font-weight: 600;
+				line-height: 1;
+				letter-spacing: -0.04em;
+				opacity: 0.9;
+				margin: 0;
+			}
+			h1 {
+				font-family: 'Fraunces', Georgia, serif;
+				font-size: clamp(1.75rem, 5vw, 3.5rem);
+				font-weight: 600;
+				letter-spacing: -0.02em;
+				margin: 0.5rem 0 0;
+			}
+			p {
+				color: rgba(255, 255, 255, 0.85);
+				font-size: 1.125rem;
+				margin: 1.5rem auto 0;
+				max-width: 34rem;
+			}
+			.actions {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 1rem;
+				justify-content: center;
+				margin-top: 2.5rem;
+			}
+			a {
+				display: inline-flex;
+				align-items: center;
+				justify-content: center;
+				border-radius: 9999px;
+				padding: 1rem 2rem;
+				font-size: 1.125rem;
+				font-weight: 600;
+				text-decoration: none;
+				transition:
+					transform 0.2s ease,
+					background 0.2s ease;
+			}
+			a.primary {
+				background: #16aa65;
+				color: #fff;
+				box-shadow: 0 10px 25px rgba(22, 170, 101, 0.25);
+			}
+			a.primary:hover {
+				background: #128a52;
+				transform: translateY(-2px);
+			}
+			a.outline {
+				border: 1px solid rgba(255, 255, 255, 0.4);
+				color: #fff;
+			}
+			a.outline:hover {
+				background: rgba(255, 255, 255, 0.1);
+			}
+		</style>
+	</head>
+	<body>
+		<div class="wrap">
+			<p class="eyebrow">Camp Paradise</p>
+			<div class="status" aria-hidden="true">%sveltekit.status%</div>
+			<h1>Something went wrong.</h1>
+			<p>%sveltekit.error.message% — please try again shortly.</p>
+			<div class="actions">
+				<a class="primary" href="/camps">Browse camps</a>
+				<a class="outline" href="https://camp-paradise.org">Camp Paradise home</a>
+			</div>
+		</div>
+	</body>
+</html>

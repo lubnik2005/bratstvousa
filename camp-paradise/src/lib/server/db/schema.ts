@@ -85,7 +85,6 @@ export const paradiseReservations = sqliteTable(
 		confirmationCode: text('confirmation_code'),
 		stripePaymentIntent: text('stripe_payment_intent'),
 		paidAt: text('paid_at'),
-		ticketId: integer('ticket_id'),
 		deletedAt: text('deleted_at'),
 		...timestamps
 	},
@@ -166,26 +165,37 @@ export const paradiseZeffyPayments = sqliteTable('paradise_zeffy_payments', {
 	contactId: text('contact_id'),
 	eventId: integer('event_id'),
 	matchStatus: text('match_status').default('unmatched').notNull(), // matched | unmatched | refunded
-	ticketsGranted: integer('tickets_granted').default(0).notNull(),
+	creditedCents: integer('credited_cents').default(0).notNull(),
 	rawJson: text('raw_json'),
 	...timestamps
 });
 
-// One ticket = one bed at one event, owned by the buyer email.
-export const paradiseTickets = sqliteTable('paradise_tickets', {
-	id: integer('id').primaryKey({ autoIncrement: true }),
-	eventId: integer('event_id').notNull(),
-	email: text('email').notNull(),
-	attendeeId: integer('attendee_id'),
-	zeffyPaymentId: text('zeffy_payment_id').notNull(),
-	zeffyItemId: text('zeffy_item_id').notNull().unique(),
-	rateTitle: text('rate_title'),
-	amountCents: integer('amount_cents').default(0).notNull(),
-	status: text('status').default('available').notNull(), // available | used | revoked
-	reservationId: integer('reservation_id'),
-	usedAt: text('used_at'),
-	...timestamps
-});
+// Per-camper dollar ledger. Balance = SUM(amount_cents) per email.
+// topup: Zeffy payment succeeded (+amount). debit: bed confirmed (-price).
+// refund: bed cancelled (+price). reversal: Zeffy refund/dispute (-amount). adjustment: manual.
+export const paradiseLedger = sqliteTable(
+	'paradise_ledger',
+	{
+		id: integer('id').primaryKey({ autoIncrement: true }),
+		email: text('email').notNull(),
+		attendeeId: integer('attendee_id'),
+		eventId: integer('event_id'),
+		kind: text('kind').notNull(), // topup | debit | refund | reversal | adjustment
+		amountCents: integer('amount_cents').notNull(),
+		zeffyPaymentId: text('zeffy_payment_id'),
+		reservationId: integer('reservation_id'),
+		note: text('note'),
+		createdAt: text('created_at')
+			.default(sql`(datetime('now'))`)
+			.notNull()
+	},
+	(table) => ({
+		zeffyKindUnique: uniqueIndex('paradise_ledger_zeffy_kind_unique').on(
+			table.zeffyPaymentId,
+			table.kind
+		)
+	})
+);
 
 export const emailLog = sqliteTable('email_log', {
 	id: integer('id').primaryKey({ autoIncrement: true }),
@@ -214,5 +224,5 @@ export type ParadiseAttendee = typeof paradiseAttendees.$inferSelect;
 export type ParadiseLoginCode = typeof paradiseLoginCodes.$inferSelect;
 export type ParadiseZeffyEvent = typeof paradiseZeffyEvents.$inferSelect;
 export type ParadiseZeffyPayment = typeof paradiseZeffyPayments.$inferSelect;
-export type ParadiseTicket = typeof paradiseTickets.$inferSelect;
+export type ParadiseLedgerEntry = typeof paradiseLedger.$inferSelect;
 export type EmailLog = typeof emailLog.$inferSelect;

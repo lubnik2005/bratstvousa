@@ -5,7 +5,7 @@ import {
 	paradiseReservations,
 	paradiseEvents,
 	paradiseRooms,
-	paradiseTickets
+	paradiseLedger
 } from '$lib/server/db/schema';
 import type { Actions, PageServerLoad } from './$types';
 
@@ -64,11 +64,16 @@ export const actions: Actions = {
 			.set({ status: 'cancelled', updatedAt: now })
 			.where(eq(paradiseReservations.id, ctx.reservation.id));
 
-		if (ctx.reservation.ticketId) {
-			await db
-				.update(paradiseTickets)
-				.set({ status: 'available', reservationId: null, usedAt: null, updatedAt: now })
-				.where(eq(paradiseTickets.id, ctx.reservation.ticketId));
+		if (ctx.reservation.price > 0) {
+			await db.insert(paradiseLedger).values({
+				email: ctx.reservation.email.trim().toLowerCase(),
+				attendeeId: ctx.reservation.attendeeId,
+				eventId: ctx.reservation.eventId,
+				kind: 'refund',
+				amountCents: ctx.reservation.price,
+				reservationId: ctx.reservation.id,
+				note: 'Reservation cancelled'
+			});
 		}
 
 		return { cancelled: true };

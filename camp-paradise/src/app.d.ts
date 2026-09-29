@@ -13,6 +13,7 @@ declare global {
 				PUBLIC_TURNSTILE_SITE_KEY?: string;
 				ZEFFY_API_KEY?: string;
 				ZEFFY_WEBHOOK_SECRET?: string;
+				PUBLIC_ZEFFY_TOPUP_URL?: string;
 				SESSION_SECRET?: string;
 			};
 		}

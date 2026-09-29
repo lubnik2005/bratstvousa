@@ -11,4 +11,5 @@ migrations_dir = "drizzle"
 
 [vars]
 PUBLIC_TURNSTILE_SITE_KEY = "0x4AAAAAAEzKpCgc4kC9UW8O"
+PUBLIC_ZEFFY_TOPUP_URL = ""
 TURNSTILE_HOSTNAMES = "camp-paradise.pages.dev"

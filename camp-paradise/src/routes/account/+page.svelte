@@ -40,6 +40,14 @@
 
 	$: openCamps = data.open ?? [];
 	$: healthForms = data.forms ?? [];
+	$: ledger = data.ledger ?? [];
+	const kindLabel: Record<string, string> = {
+		topup: 'Top-up',
+		debit: 'Bed reserved',
+		refund: 'Refund',
+		reversal: 'Zeffy reversal',
+		adjustment: 'Adjustment'
+	};
 
 	function ageLabel(answers: unknown): string {
 		const a = answers as { isMinor?: unknown } | null;
@@ -70,6 +78,44 @@
 		</form>
 	</div>
 
+	<h2 class="mb-3 text-xl">Wallet</h2>
+	<div class="mb-10 rounded-3xl bg-white p-6 shadow-xl shadow-ink/5 ring-1 ring-ink/5">
+		<div class="flex flex-wrap items-center justify-between gap-3">
+			<div>
+				<p class="text-sm text-ink-soft">Current balance</p>
+				<p class="font-display text-3xl text-primary-600">{dollars(data.balanceCents)}</p>
+			</div>
+			<p class="max-w-xs text-xs text-ink-soft">
+				Add funds on Zeffy using <strong>{data.camper.email}</strong> — your balance updates automatically
+				once the payment goes through.
+			</p>
+		</div>
+		{#if ledger.length === 0}
+			<p class="mt-4 text-sm text-ink-soft">No transactions yet.</p>
+		{:else}
+			<table class="mt-4 w-full text-sm">
+				<tbody class="divide-y divide-ink/10">
+					{#each ledger as row (row.id)}
+						<tr>
+							<td class="py-2 pr-3">
+								<div class="font-medium">{kindLabel[row.kind] ?? row.kind}</div>
+								{#if row.note}<div class="text-xs text-ink-soft">{row.note}</div>{/if}
+							</td>
+							<td class="py-2 pr-3 text-xs text-ink-soft">{longDate(row.createdAt)}</td>
+							<td
+								class="py-2 text-right font-semibold {row.amountCents < 0
+									? 'text-ink-soft'
+									: 'text-primary-600'}"
+							>
+								{row.amountCents < 0 ? '−' : '+'}{dollars(Math.abs(row.amountCents))}
+							</td>
+						</tr>
+					{/each}
+				</tbody>
+			</table>
+		{/if}
+	</div>
+
 	{#if openCamps.length > 0}
 		<h2 class="mb-3 text-xl">Open camps</h2>
 		<div class="mb-10 grid gap-4 sm:grid-cols-2">
@@ -90,19 +136,13 @@
 							Full
 						</span>
 					{/if}
-					{#if c.tickets > 0}
-						<p class="mb-4 text-xs font-semibold text-primary-600">
-							<i class="bi bi-ticket-perforated"></i>
-							{c.tickets} ticket{c.tickets === 1 ? '' : 's'} available
-						</p>
-					{/if}
 					<a
 						href={`/${c.id}`}
 						class="{btn} mt-auto self-start"
 						class:pointer-events-none={c.available === 0}
 						class:opacity-50={c.available === 0}
 					>
-						{c.available > 0 ? (c.tickets > 0 ? 'Reserve your bed' : 'Register') : 'Sold out'}
+						{c.available > 0 ? 'Register' : 'Sold out'}
 					</a>
 				</div>
 			{/each}

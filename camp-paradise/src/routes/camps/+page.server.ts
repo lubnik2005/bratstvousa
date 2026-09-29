@@ -5,7 +5,7 @@ import {
 	listPastEvents,
 	eventCapacity,
 	siteStats,
-	ticketsForEmail
+	balanceForEmail
 } from '$lib/server/paradise/queries';
 import { readSession } from '$lib/server/paradise/session';
 import type { PageServerLoad } from './$types';
@@ -19,7 +19,6 @@ type OpenEvent = {
 	description: string | null;
 	total: number;
 	available: number;
-	tickets: number;
 };
 
 type UpcomingEvent = {
@@ -48,15 +47,16 @@ export const load: PageServerLoad = async ({ locals, cookies, platform, setHeade
 	let upcoming: UpcomingEvent[] = [];
 	let past: PastEvent[] = [];
 	let stats = { campers: 0, camps: 0 };
+	let balanceCents = 0;
 
 	try {
 		// Independent queries run in parallel to minimise serial D1 round-trips.
-		const [openRows, upcomingRows, pastRows, statsRow, tickets] = await Promise.all([
+		const [openRows, upcomingRows, pastRows, statsRow, balance] = await Promise.all([
 			listOpenEvents(locals.db),
 			listUpcomingEvents(locals.db),
 			listPastEvents(locals.db, 8),
 			siteStats(locals.db),
-			ticketsForEmail(locals.db, identity.email)
+			balanceForEmail(locals.db, identity.email)
 		]);
 
 		const caps = await Promise.all(openRows.map((e) => eventCapacity(locals.db, e.id)));
@@ -68,8 +68,7 @@ export const load: PageServerLoad = async ({ locals, cookies, platform, setHeade
 			registrationEndAt: e.registrationEndAt,
 			description: e.description,
 			total: caps[i].total,
-			available: caps[i].available,
-			tickets: tickets.get(e.id) ?? 0
+			available: caps[i].available
 		}));
 
 		upcoming = upcomingRows.map((e) => ({
@@ -83,9 +82,10 @@ export const load: PageServerLoad = async ({ locals, cookies, platform, setHeade
 
 		past = pastRows;
 		stats = statsRow;
+		balanceCents = balance;
 	} catch (err) {
 		console.error('load camps failed:', err);
 	}
 
-	return { open, upcoming, past, stats };
+	return { open, upcoming, past, stats, balanceCents };
 };

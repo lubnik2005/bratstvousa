@@ -10,7 +10,8 @@ import {
 	registrationState,
 	findAttendeeByEmail,
 	upsertAttendee,
-	markAttendeeLogin
+	markAttendeeLogin,
+	balanceForEmail
 } from '$lib/server/paradise/queries';
 import { generateConfirmationCode, sendReservationConfirmed } from '$lib/server/email/paradise';
 import { issueLoginCode, verifyLoginCode } from '$lib/server/paradise/auth';
@@ -23,7 +24,7 @@ import {
 	paradiseEventRooms,
 	paradiseFormAnswers,
 	paradiseRooms,
-	paradiseTickets
+	paradiseLedger
 } from '$lib/server/db/schema';
 import type { Actions, PageServerLoad } from './$types';
 
@@ -33,22 +34,10 @@ const isEmail = (v: string): boolean => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 const sessionSecret = (platform: App.Platform | undefined): string =>
 	platform?.env?.SESSION_SECRET ?? 'dev-insecure-session-secret-change-me';
 
-type Db = App.Locals['db'];
-
-const availableTicketCondition = (email: string, eventId: number) =>
-	and(
-		eq(paradiseTickets.email, normalizeEmail(email)),
-		eq(paradiseTickets.eventId, eventId),
-		eq(paradiseTickets.status, 'available')
-	);
-
-async function countAvailableTickets(db: Db, email: string, eventId: number): Promise<number> {
-	const rows = await db
-		.select({ id: paradiseTickets.id })
-		.from(paradiseTickets)
-		.where(availableTicketCondition(email, eventId));
-	return rows.length;
-}
+const topupUrlFor = (
+	event: { zeffyTicketingUrl: string | null },
+	platform: App.Platform | undefined
+): string | null => event.zeffyTicketingUrl || platform?.env?.PUBLIC_ZEFFY_TOPUP_URL || null;
 
 export const load: PageServerLoad = async ({
 	params,
@@ -83,7 +72,8 @@ export const load: PageServerLoad = async ({
 			roomId: null,
 			beds: [],
 			forms: [],
-			ticketCount: 0
+			balanceCents: 0,
+			topupUrl: topupUrlFor(event, platform)
 		};
 	}
 
@@ -97,12 +87,12 @@ export const load: PageServerLoad = async ({
 	const roomId = sex && roomParam && /^\d+$/.test(roomParam) ? Number(roomParam) : null;
 
 	// Run the independent lookups in parallel to cut serial D1 round-trips.
-	const [capacity, rooms, beds, forms, ticketCount] = await Promise.all([
+	const [capacity, rooms, beds, forms, balanceCents] = await Promise.all([
 		eventCapacity(db, id),
 		sex ? roomsForEvent(db, id, sex) : Promise.resolve([]),
 		roomId ? bedsForRoom(db, id, roomId, { freeOnly: true }) : Promise.resolve([]),
 		requiredForms(db),
-		identity ? countAvailableTickets(db, identity.email, id) : Promise.resolve(0)
+		identity ? balanceForEmail(db, identity.email) : Promise.resolve(0)
 	]);
 
 	return {
@@ -114,7 +104,8 @@ export const load: PageServerLoad = async ({
 		roomId,
 		beds,
 		forms,
-		ticketCount
+		balanceCents,
+		topupUrl: topupUrlFor(event, platform)
 	};
 };
 
@@ -282,22 +273,18 @@ export const actions: Actions = {
 		if (!(await isBedFree(db, eventId, cotId)))
 			return fail(400, { message: 'That bed was just taken. Please pick another.' });
 
-		// Arcade model: a bed costs exactly one Zeffy ticket bought with this email.
-		const tickets = await db
-			.select({ id: paradiseTickets.id })
-			.from(paradiseTickets)
-			.where(availableTicketCondition(email, eventId))
-			.limit(1);
-		const ticket = tickets[0];
-		if (!ticket) return fail(400, { noTicket: true });
-
-		// Per-event room price (cents) — recorded for reference only.
+		// Per-event room price (cents) — debited from the camper's wallet.
 		const priceRows = await db
 			.select({ price: paradiseEventRooms.price })
 			.from(paradiseEventRooms)
 			.where(and(eq(paradiseEventRooms.eventId, eventId), eq(paradiseEventRooms.roomId, roomId)))
 			.limit(1);
 		const price = priceRows[0]?.price ?? 0;
+
+		// Wallet model: the bed is paid from the balance topped up via Zeffy.
+		const balance = await balanceForEmail(db, email);
+		if (balance < price)
+			return fail(400, { insufficient: true, needed: price - balance, price, balance });
 
 		const code = generateConfirmationCode();
 		const nowIso = new Date().toISOString();
@@ -316,17 +303,23 @@ export const actions: Actions = {
 				status: 'confirmed',
 				paidAt: nowIso,
 				price,
-				ticketId: ticket.id,
 				confirmationCode: code
 			})
 			.returning({ id: paradiseReservations.id });
 		const reservationId = inserted[0].id;
 
-		// Consume the ticket.
-		await db
-			.update(paradiseTickets)
-			.set({ status: 'used', reservationId, usedAt: nowIso, updatedAt: nowIso })
-			.where(eq(paradiseTickets.id, ticket.id));
+		// Debit the wallet.
+		if (price > 0) {
+			await db.insert(paradiseLedger).values({
+				email: normalizeEmail(email),
+				attendeeId,
+				eventId,
+				kind: 'debit',
+				amountCents: -price,
+				reservationId,
+				note: `Bed reserved · ${heldEvent.name}`
+			});
+		}
 
 		// Persist each signed agreement / form as a paradise_form_answers row.
 		const signedOn = nowIso;
@@ -374,10 +367,10 @@ export const actions: Actions = {
 	},
 
 	// "I already paid — check again": pull recent succeeded payments from the
-	// Zeffy API for this camper's email and apply them (grants tickets).
-	checkTickets: async ({ locals, params, cookies, platform }) => {
+	// Zeffy API for this camper's email and apply them (credits the wallet).
+	checkBalance: async ({ locals, params, cookies, platform }) => {
 		const db = locals.db;
-		const id = Number(params.event);
+		void params;
 		const identity = await readSession(cookies, sessionSecret(platform));
 		if (!identity)
 			return fail(400, {
@@ -386,7 +379,7 @@ export const actions: Actions = {
 			});
 
 		const apiKey = platform?.env?.ZEFFY_API_KEY;
-		if (!apiKey) return fail(500, { message: 'Ticket lookup is not configured yet.' });
+		if (!apiKey) return fail(500, { message: 'Balance lookup is not configured yet.' });
 
 		const email = normalizeEmail(identity.email);
 		try {
@@ -395,11 +388,11 @@ export const actions: Actions = {
 				if (normalizeEmail(p.buyer?.email) === email) await applyPayment(db, p, { apiKey });
 			}
 		} catch (err) {
-			console.error('checkTickets failed', err);
+			console.error('checkBalance failed', err);
 			return fail(502, { message: "We couldn't reach Zeffy right now. Try again shortly." });
 		}
 
-		const tickets = await countAvailableTickets(db, identity.email, id);
-		return { checked: true, tickets };
+		const balanceCents = await balanceForEmail(db, identity.email);
+		return { checked: true, balanceCents };
 	}
 };
