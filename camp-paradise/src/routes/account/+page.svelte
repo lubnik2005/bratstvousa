@@ -86,8 +86,10 @@
 				<p class="font-display text-3xl text-primary-600">{dollars(data.balanceCents)}</p>
 			</div>
 			<p class="max-w-xs text-xs text-ink-soft">
-				Add funds on Zeffy using <strong>{data.camper.email}</strong> — your balance updates automatically
-				once the payment goes through.
+				Add funds on Zeffy using <strong>{data.camper.email}</strong> — your balance updates
+				automatically once the payment goes through. The Zeffy contribution at checkout is optional
+				— choose
+				<strong>"Other"</strong> and enter <strong>$0</strong> to avoid extra charges.
 			</p>
 		</div>
 		{#if ledger.length === 0}

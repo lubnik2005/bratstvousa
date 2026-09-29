@@ -479,6 +479,10 @@
 									Use the same email you signed in with (<strong>{identity?.email}</strong>). Funds
 									appear here shortly after Zeffy confirms the payment.
 								</p>
+								<p class="mt-2 text-amber-800">
+									<strong>Tip:</strong> the Zeffy contribution at checkout is optional — choose
+									<strong>"Other"</strong> and enter <strong>$0</strong> so you aren't charged extra.
+								</p>
 								{#if data.topupUrl}
 									<a href={data.topupUrl} target="_blank" rel="noopener" class="{btn} mt-3">
 										<i class="bi bi-wallet2"></i>Add funds on Zeffy
