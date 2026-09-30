@@ -12,6 +12,18 @@
 		refunded: 'bg-ink/10 text-ink-soft'
 	};
 
+	const longDate = (s: string | null | undefined): string => {
+		if (!s) return '—';
+		const d = new Date(s.includes('T') ? s : s.replace(' ', 'T') + 'Z');
+		return d.toLocaleString('en-US', {
+			month: 'short',
+			day: 'numeric',
+			year: 'numeric',
+			hour: 'numeric',
+			minute: '2-digit'
+		});
+	};
+
 	$: r = data.reservation;
 	$: status = form?.cancelled ? 'cancelled' : r.status;
 </script>
@@ -51,6 +63,12 @@
 				<dd class="font-medium sm:col-span-2">{data.roomName}</dd>
 				<dt class="text-ink-soft text-sm">Amount</dt>
 				<dd class="font-medium sm:col-span-2">${(r.price / 100).toFixed(2)}</dd>
+				<dt class="text-ink-soft text-sm">Reserved on</dt>
+				<dd class="font-medium sm:col-span-2">{longDate(r.createdAt)}</dd>
+				{#if status === 'cancelled' || status === 'refunded'}
+					<dt class="text-ink-soft text-sm">Cancelled on</dt>
+					<dd class="font-medium sm:col-span-2">{longDate(r.updatedAt ?? r.createdAt)}</dd>
+				{/if}
 			</dl>
 
 			{#if form?.cancelled}

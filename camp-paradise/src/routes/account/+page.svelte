@@ -17,7 +17,7 @@
 
 	function longDate(s: string | null): string {
 		if (!s) return '';
-		const d = new Date(s.replace(' ', 'T') + 'Z');
+		const d = new Date(s.includes('T') ? s : s.replace(' ', 'T') + 'Z');
 		if (isNaN(d.getTime())) return '';
 		return d.toLocaleDateString('en-US', {
 			month: 'short',
@@ -38,7 +38,6 @@
 		return `$${(cents / 100).toFixed(2)}`;
 	}
 
-	$: openCamps = data.open ?? [];
 	$: activeReservations = data.reservations.filter(
 		(r) => r.status === 'confirmed' || r.status === 'held'
 	);
@@ -124,39 +123,6 @@
 		{/if}
 	</div>
 
-	{#if openCamps.length > 0}
-		<h2 class="mb-3 text-xl">Open camps</h2>
-		<div class="mb-10 grid gap-4 sm:grid-cols-2">
-			{#each openCamps as c (c.id)}
-				<div class="{card} flex h-full flex-col">
-					<h3 class="text-lg">{c.name}</h3>
-					<p class="mb-2 text-sm text-ink-soft">{dateRange(c.startOn, c.endOn)}</p>
-					{#if c.available > 0}
-						<span
-							class="mb-4 self-start rounded-full bg-mint/60 px-3 py-1 text-xs font-semibold text-primary-600"
-						>
-							{c.available} of {c.total} beds open
-						</span>
-					{:else}
-						<span
-							class="mb-4 self-start rounded-full bg-ink/10 px-3 py-1 text-xs font-semibold text-ink-soft"
-						>
-							Full
-						</span>
-					{/if}
-					<a
-						href={`/${c.id}`}
-						class="{btn} mt-auto self-start"
-						class:pointer-events-none={c.available === 0}
-						class:opacity-50={c.available === 0}
-					>
-						{c.available > 0 ? 'Register' : 'Sold out'}
-					</a>
-				</div>
-			{/each}
-		</div>
-	{/if}
-
 	<h2 class="mb-3 text-xl">My reservations</h2>
 
 	{#if activeReservations.length === 0}
@@ -186,6 +152,12 @@
 								{r.status}
 							</span>
 							<div class="mt-2 font-semibold">{dollars(r.price)}</div>
+							<p class="mt-1 text-xs text-ink-soft">
+								Reserved {longDate(
+									r.createdAt
+								)}{#if r.status === 'cancelled' || r.status === 'refunded'}
+									· Cancelled {longDate(r.updatedAt ?? r.createdAt)}{/if}
+							</p>
 						</div>
 					</div>
 					{#if r.confirmationCode}
@@ -225,6 +197,12 @@
 									{r.status}
 								</span>
 								<div class="mt-2 font-semibold">{dollars(r.price)}</div>
+								<p class="mt-1 text-xs text-ink-soft">
+									Reserved {longDate(
+										r.createdAt
+									)}{#if r.status === 'cancelled' || r.status === 'refunded'}
+										· Cancelled {longDate(r.updatedAt ?? r.createdAt)}{/if}
+								</p>
 							</div>
 						</div>
 						{#if r.confirmationCode}

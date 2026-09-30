@@ -1,8 +1,6 @@
 import { redirect } from '@sveltejs/kit';
 import {
 	reservationsForEmail,
-	listOpenEvents,
-	eventCapacity,
 	formAnswersForEmail,
 	balanceForEmail,
 	ledgerForEmail
@@ -21,21 +19,14 @@ export const load: PageServerLoad = async ({ locals, cookies, platform, setHeade
 
 	setHeaders({ 'cache-control': 'private, no-cache' });
 
-	const [reservations, forms, openRaw, balanceCents, ledger] = await Promise.all([
+	const [reservations, forms, balanceCents, ledger] = await Promise.all([
 		reservationsForEmail(locals.db, identity.email),
 		formAnswersForEmail(locals.db, identity.email),
-		listOpenEvents(locals.db),
 		balanceForEmail(locals.db, identity.email),
 		ledgerForEmail(locals.db, identity.email)
 	]);
-	const open = await Promise.all(
-		openRaw.map(async (e) => ({
-			...e,
-			...(await eventCapacity(locals.db, e.id))
-		}))
-	);
 
-	return { camper: identity, reservations, forms, open, balanceCents, ledger };
+	return { camper: identity, reservations, forms, balanceCents, ledger };
 };
 
 export const actions: Actions = {

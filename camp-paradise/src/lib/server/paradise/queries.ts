@@ -367,7 +367,9 @@ export async function reservationsForEmail(db: AppDatabase, email: string) {
 			price: paradiseReservations.price,
 			status: paradiseReservations.status,
 			confirmationCode: paradiseReservations.confirmationCode,
-			createdAt: paradiseReservations.createdAt
+			createdAt: paradiseReservations.createdAt,
+			paidAt: paradiseReservations.paidAt,
+			updatedAt: paradiseReservations.updatedAt
 		})
 		.from(paradiseReservations)
 		.leftJoin(paradiseEvents, eq(paradiseEvents.id, paradiseReservations.eventId))
