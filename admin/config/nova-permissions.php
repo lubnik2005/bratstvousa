@@ -657,6 +657,66 @@ return [
             'description' => 'Can delete paradise forms',
             'group' => 'Camp Paradise',
         ],
+        'view paradise_attendees' => [
+            'display_name' => 'View paradise campers',
+            'description' => 'Can view paradise campers',
+            'group' => 'Camp Paradise',
+        ],
+        'create paradise_attendees' => [
+            'display_name' => 'Create paradise campers',
+            'description' => 'Can create paradise campers',
+            'group' => 'Camp Paradise',
+        ],
+        'edit paradise_attendees' => [
+            'display_name' => 'Edit paradise campers',
+            'description' => 'Can edit paradise campers',
+            'group' => 'Camp Paradise',
+        ],
+        'delete paradise_attendees' => [
+            'display_name' => 'Delete paradise campers',
+            'description' => 'Can delete paradise campers',
+            'group' => 'Camp Paradise',
+        ],
+        'view paradise_ledger' => [
+            'display_name' => 'View paradise wallet ledger',
+            'description' => 'Can view paradise wallet ledger',
+            'group' => 'Camp Paradise',
+        ],
+        'create paradise_ledger' => [
+            'display_name' => 'Create paradise wallet ledger',
+            'description' => 'Can create paradise wallet ledger',
+            'group' => 'Camp Paradise',
+        ],
+        'edit paradise_ledger' => [
+            'display_name' => 'Edit paradise wallet ledger',
+            'description' => 'Can edit paradise wallet ledger',
+            'group' => 'Camp Paradise',
+        ],
+        'delete paradise_ledger' => [
+            'display_name' => 'Delete paradise wallet ledger',
+            'description' => 'Can delete paradise wallet ledger',
+            'group' => 'Camp Paradise',
+        ],
+        'view paradise_zeffy_payments' => [
+            'display_name' => 'View paradise zeffy payments',
+            'description' => 'Can view paradise zeffy payments',
+            'group' => 'Camp Paradise',
+        ],
+        'create paradise_zeffy_payments' => [
+            'display_name' => 'Create paradise zeffy payments',
+            'description' => 'Can create paradise zeffy payments',
+            'group' => 'Camp Paradise',
+        ],
+        'edit paradise_zeffy_payments' => [
+            'display_name' => 'Edit paradise zeffy payments',
+            'description' => 'Can edit paradise zeffy payments',
+            'group' => 'Camp Paradise',
+        ],
+        'delete paradise_zeffy_payments' => [
+            'display_name' => 'Delete paradise zeffy payments',
+            'description' => 'Can delete paradise zeffy payments',
+            'group' => 'Camp Paradise',
+        ],
         // Camp Paradise End
     ],
 ];
