@@ -39,6 +39,12 @@
 	}
 
 	$: openCamps = data.open ?? [];
+	$: activeReservations = data.reservations.filter(
+		(r) => r.status === 'confirmed' || r.status === 'held'
+	);
+	$: pastReservations = data.reservations.filter(
+		(r) => r.status !== 'confirmed' && r.status !== 'held'
+	);
 	$: healthForms = data.forms ?? [];
 	$: ledger = data.ledger ?? [];
 	const kindLabel: Record<string, string> = {
@@ -153,15 +159,15 @@
 
 	<h2 class="mb-3 text-xl">My reservations</h2>
 
-	{#if data.reservations.length === 0}
+	{#if activeReservations.length === 0}
 		<div class="{card} text-center">
 			<i class="bi bi-calendar-heart text-4xl text-primary"></i>
-			<p class="mt-3 mb-5 text-ink-soft">You don't have any reservations yet.</p>
+			<p class="mt-3 mb-5 text-ink-soft">You don't have any active reservations.</p>
 			<a href="/camps" class={btn}>Browse camps</a>
 		</div>
 	{:else}
 		<div class="flex flex-col gap-4">
-			{#each data.reservations as r (r.id)}
+			{#each activeReservations as r (r.id)}
 				<div class={card}>
 					<div class="flex flex-wrap items-start justify-between gap-3">
 						<div>
@@ -192,6 +198,46 @@
 				</div>
 			{/each}
 		</div>
+	{/if}
+
+	{#if pastReservations.length > 0}
+		<details class="mt-4 rounded-2xl bg-sand-warm/60 px-4 py-3 text-sm">
+			<summary class="cursor-pointer font-semibold text-ink-soft">
+				Cancelled reservations ({pastReservations.length})
+			</summary>
+			<div class="mt-4 flex flex-col gap-4">
+				{#each pastReservations as r (r.id)}
+					<div class={card}>
+						<div class="flex flex-wrap items-start justify-between gap-3">
+							<div>
+								<h3 class="text-lg">{r.eventName ?? 'Camp'}</h3>
+								<p class="text-sm text-ink-soft">{dateRange(r.startOn, r.endOn)}</p>
+								{#if r.roomName}
+									<p class="mt-1 text-sm"><i class="bi bi-house-door mr-1"></i>{r.roomName}</p>
+								{/if}
+							</div>
+							<div class="text-right">
+								<span
+									class="inline-block rounded-full px-3 py-1 text-xs font-semibold capitalize {badge[
+										r.status
+									] ?? 'bg-ink/10 text-ink-soft'}"
+								>
+									{r.status}
+								</span>
+								<div class="mt-2 font-semibold">{dollars(r.price)}</div>
+							</div>
+						</div>
+						{#if r.confirmationCode}
+							<div class="mt-4 border-t border-ink/10 pt-4">
+								<a href={`/reservation/${r.confirmationCode}`} class={link}>
+									View reservation <i class="bi bi-arrow-right"></i>
+								</a>
+							</div>
+						{/if}
+					</div>
+				{/each}
+			</div>
+		</details>
 	{/if}
 
 	<h2 class="mt-12 mb-3 text-xl">Health forms</h2>
