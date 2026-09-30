@@ -66,7 +66,7 @@ export const actions: Actions = {
 
 		if (ctx.reservation.price > 0) {
 			await db.insert(paradiseLedger).values({
-				email: ctx.reservation.email.trim().toLowerCase(),
+				email: (ctx.reservation.email ?? '').trim().toLowerCase(),
 				attendeeId: ctx.reservation.attendeeId,
 				eventId: ctx.reservation.eventId,
 				kind: 'refund',

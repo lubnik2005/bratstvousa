@@ -1,4 +1,4 @@
-import { and, desc, eq, inArray, isNull, ne, or, gt, sql } from 'drizzle-orm';
+import { and, desc, eq, inArray, isNull, or, gt, sql } from 'drizzle-orm';
 import type { AppDatabase } from '$lib/server/db';
 import {
 	paradiseEvents,
@@ -418,12 +418,7 @@ export async function reservationByCode(db: AppDatabase, code: string) {
 	const rows = await db
 		.select()
 		.from(paradiseReservations)
-		.where(
-			and(
-				eq(paradiseReservations.confirmationCode, code),
-				ne(paradiseReservations.status, 'cancelled')
-			)
-		)
+		.where(eq(paradiseReservations.confirmationCode, code))
 		.limit(1);
 	return rows[0] ?? null;
 }
