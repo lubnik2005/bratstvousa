@@ -40,7 +40,7 @@
 		return { body, questions };
 	}
 
-	// Bed confirmed with a ticket -> go to the reservation page.
+	// Bed confirmed -> go to the reservation page.
 	$: if (form && 'confirmed' in form && form.confirmed && form.code) {
 		void goto(`/reservation/${form.code}`);
 	}

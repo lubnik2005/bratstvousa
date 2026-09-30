@@ -21,7 +21,7 @@ const safeNext = (raw: string | null): string => {
 	return '/camps';
 };
 
-export const load: PageServerLoad = async ({ url, locals, cookies, platform, setHeaders }) => {
+export const load: PageServerLoad = async ({ url, cookies, platform, setHeaders }) => {
 	setHeaders({ 'cache-control': 'private, no-cache' });
 	const next = safeNext(url.searchParams.get('next'));
 

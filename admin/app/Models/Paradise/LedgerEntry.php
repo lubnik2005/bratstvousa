@@ -41,6 +41,15 @@ class LedgerEntry extends Model
 
     protected static function booted(): void
     {
+        // Nova submits empty strings for blank nullable fields; store NULL instead.
+        static::saving(function (LedgerEntry $entry) {
+            foreach (['attendee_id', 'event_id', 'reservation_id', 'zeffy_payment_id', 'note'] as $col) {
+                if ($entry->getAttribute($col) === '') {
+                    $entry->setAttribute($col, null);
+                }
+            }
+        });
+
         static::creating(function (LedgerEntry $entry) {
             if ($entry->email) {
                 $entry->email = strtolower(trim($entry->email));

@@ -32,7 +32,6 @@
 	}
 
 	$: featured = data.open[0] ?? null;
-	$: extras = data.open.slice(1);
 	$: nextUpcoming = data.upcoming[0] ?? null;
 	$: closesDays = featured ? daysUntil(featured.registrationEndAt) : null;
 	$: filledPct =
@@ -236,41 +235,6 @@
 		</div>
 	</div>
 </section>
-
-{#if extras.length > 0}
-	<div class="mx-auto max-w-7xl px-4 py-12" id="camps">
-		<h2 class="font-display mb-6 text-2xl">More open camps</h2>
-		<div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-			{#each extras as event (event.id)}
-				<div class={card}>
-					<div class="mb-2 flex items-start justify-between gap-3">
-						<h3 class="font-display text-xl">{event.name}</h3>
-						{#if event.available > 0}
-							<span class="rounded-full bg-mint/60 px-3 py-1 text-xs font-semibold text-primary-600"
-								>{event.available} left</span
-							>
-						{:else}
-							<span class="rounded-full bg-ink/10 px-3 py-1 text-xs font-semibold text-ink-soft"
-								>Full</span
-							>
-						{/if}
-					</div>
-					<p class="text-sm text-ink-soft">{dateRange(event.startOn, event.endOn)}</p>
-					{#if event.description}
-						<p class="mt-2 text-sm">{event.description}</p>
-					{/if}
-					<div class="mt-auto pt-4">
-						{#if event.available > 0}
-							<a href={`/${event.id}`} class="{btn} w-full">Register</a>
-						{:else}
-							<button class="{btn} w-full" disabled>Sold out</button>
-						{/if}
-					</div>
-				</div>
-			{/each}
-		</div>
-	</div>
-{/if}
 
 <section class="border-t border-ink/10 bg-white">
 	<div class="mx-auto max-w-7xl px-4 py-14">
