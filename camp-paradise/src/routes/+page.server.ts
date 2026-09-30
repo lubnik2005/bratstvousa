@@ -65,8 +65,10 @@ export const actions: Actions = {
 
 		const email = clean(fd.get('email'));
 		const code = clean(fd.get('code'));
-		if (!isEmail(email)) return fail(400, { codeError: 'Something went wrong. Start again.' });
-		if (!/^\d{6}$/.test(code)) return fail(400, { codeError: 'Enter the 6-digit code.', email });
+		if (!isEmail(email))
+			return fail(400, { codeError: 'Something went wrong. Start again.', email, codeSent: true });
+		if (!/^\d{6}$/.test(code))
+			return fail(400, { codeError: 'Enter the 6-digit code.', email, codeSent: true });
 
 		const result = await verifyLoginCode(db, email, code);
 		if (!result.ok) {
@@ -76,7 +78,7 @@ export const actions: Actions = {
 					: result.reason === 'too_many_attempts'
 						? 'Too many attempts. Request a new code.'
 						: 'That code is incorrect.';
-			return fail(400, { codeError: msg, email });
+			return fail(400, { codeError: msg, email, codeSent: true });
 		}
 
 		const attendee = await findAttendeeByEmail(db, email);

@@ -14,7 +14,7 @@
 	$: signInStep =
 		form && 'needsProfile' in form && form.needsProfile
 			? 'profile'
-			: form && 'codeSent' in form && form.codeSent
+			: form && (('codeSent' in form && form.codeSent) || ('codeError' in form && form.codeError))
 				? 'code'
 				: 'email';
 	$: pendingEmail = form && 'email' in form ? ((form.email as string | undefined) ?? '') : '';
