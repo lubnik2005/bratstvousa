@@ -8,7 +8,8 @@ import {
 	isBedFree,
 	requiredForms,
 	registrationState,
-	balanceForEmail
+	balanceForEmail,
+	activeReservationForEvent
 } from '$lib/server/paradise/queries';
 import { generateConfirmationCode, sendReservationConfirmed } from '$lib/server/email/paradise';
 import { applyPayment, listPayments, normalizeEmail } from '$lib/server/paradise/zeffy';
@@ -67,6 +68,7 @@ export const load: PageServerLoad = async ({
 			beds: [],
 			forms: [],
 			balanceCents: 0,
+			existing: null,
 			topupUrl: topupUrlFor(event, platform)
 		};
 	}
@@ -82,12 +84,13 @@ export const load: PageServerLoad = async ({
 	const roomId = roomParam && /^\d+$/.test(roomParam) ? Number(roomParam) : null;
 
 	// Run the independent lookups in parallel to cut serial D1 round-trips.
-	const [capacity, rooms, beds, forms, balanceCents] = await Promise.all([
+	const [capacity, rooms, beds, forms, balanceCents, existing] = await Promise.all([
 		eventCapacity(db, id),
 		roomsForEvent(db, id, sex),
 		roomId ? bedsForRoom(db, id, roomId, { freeOnly: true }) : Promise.resolve([]),
 		requiredForms(db),
-		balanceForEmail(db, identity.email)
+		balanceForEmail(db, identity.email),
+		activeReservationForEvent(db, identity.email, id)
 	]);
 
 	return {
@@ -100,6 +103,7 @@ export const load: PageServerLoad = async ({
 		beds,
 		forms,
 		balanceCents,
+		existing,
 		topupUrl: topupUrlFor(event, platform)
 	};
 };
@@ -124,6 +128,10 @@ export const actions: Actions = {
 
 		const eventId = id;
 		const roomId = Number(fd.get('roomId'));
+		// One bed per camper per camp.
+		const already = await activeReservationForEvent(db, identity.email, eventId);
+		if (already) return fail(400, { alreadyBooked: true, code: already.confirmationCode });
+
 		const cotRaw = clean(fd.get('cotId'));
 		let cotId = cotRaw === 'any' ? NaN : Number(cotRaw);
 

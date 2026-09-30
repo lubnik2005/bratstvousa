@@ -2,13 +2,14 @@ import { redirect } from '@sveltejs/kit';
 import {
 	listOpenEvents,
 	listUpcomingEvents,
-	listPastEvents,
 	eventCapacity,
-	siteStats,
-	balanceForEmail
+	balanceForEmail,
+	reservationsForEmail
 } from '$lib/server/paradise/queries';
 import { readSession } from '$lib/server/paradise/session';
 import type { PageServerLoad } from './$types';
+
+type Booked = { confirmationCode: string | null; roomName: string | null; status: string } | null;
 
 type OpenEvent = {
 	id: number;
@@ -19,6 +20,7 @@ type OpenEvent = {
 	description: string | null;
 	total: number;
 	available: number;
+	booked: Booked;
 };
 
 type UpcomingEvent = {
@@ -29,8 +31,6 @@ type UpcomingEvent = {
 	registrationStartAt: string | null;
 	description: string | null;
 };
-
-type PastEvent = { id: number; name: string; startOn: string | null; endOn: string | null };
 
 const sessionSecret = (platform: App.Platform | undefined): string =>
 	platform?.env?.SESSION_SECRET ?? 'dev-insecure-session-secret-change-me';
@@ -45,31 +45,40 @@ export const load: PageServerLoad = async ({ locals, cookies, platform, setHeade
 
 	let open: OpenEvent[] = [];
 	let upcoming: UpcomingEvent[] = [];
-	let past: PastEvent[] = [];
-	let stats = { campers: 0, camps: 0 };
 	let balanceCents = 0;
 
 	try {
 		// Independent queries run in parallel to minimise serial D1 round-trips.
-		const [openRows, upcomingRows, pastRows, statsRow, balance] = await Promise.all([
+		const [openRows, upcomingRows, balance, reservations] = await Promise.all([
 			listOpenEvents(locals.db),
 			listUpcomingEvents(locals.db),
-			listPastEvents(locals.db, 8),
-			siteStats(locals.db),
-			balanceForEmail(locals.db, identity.email)
+			balanceForEmail(locals.db, identity.email),
+			reservationsForEmail(locals.db, identity.email)
 		]);
 
+		const active = reservations.filter((r) => r.status === 'confirmed' || r.status === 'held');
+
 		const caps = await Promise.all(openRows.map((e) => eventCapacity(locals.db, e.id)));
-		open = openRows.map((e, i) => ({
-			id: e.id,
-			name: e.name,
-			startOn: e.startOn,
-			endOn: e.endOn,
-			registrationEndAt: e.registrationEndAt,
-			description: e.description,
-			total: caps[i].total,
-			available: caps[i].available
-		}));
+		open = openRows.map((e, i) => {
+			const mine = active.find((r) => r.eventId === e.id);
+			return {
+				id: e.id,
+				name: e.name,
+				startOn: e.startOn,
+				endOn: e.endOn,
+				registrationEndAt: e.registrationEndAt,
+				description: e.description,
+				total: caps[i].total,
+				available: caps[i].available,
+				booked: mine
+					? {
+							confirmationCode: mine.confirmationCode,
+							roomName: mine.roomName,
+							status: mine.status
+						}
+					: null
+			};
+		});
 
 		upcoming = upcomingRows.map((e) => ({
 			id: e.id,
@@ -80,12 +89,10 @@ export const load: PageServerLoad = async ({ locals, cookies, platform, setHeade
 			description: e.description
 		}));
 
-		past = pastRows;
-		stats = statsRow;
 		balanceCents = balance;
 	} catch (err) {
 		console.error('load camps failed:', err);
 	}
 
-	return { open, upcoming, past, stats, balanceCents };
+	return { camper: identity, open, upcoming, balanceCents };
 };

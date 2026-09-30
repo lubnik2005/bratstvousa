@@ -14,6 +14,7 @@
 	const dollars = (cents: number) => `$${(cents / 100).toFixed(2)}`;
 
 	$: identity = data.identity;
+	$: existing = data.existing;
 	$: selectedRoom = data.rooms.find((r) => r.id === data.roomId) ?? null;
 
 	type FormQuestion = {
@@ -144,7 +145,25 @@
 			</div>
 		{/if}
 
-		{#if !data.roomId}
+		{#if existing}
+			<div class="mt-6 {card}">
+				<p class="eyebrow text-primary-600">You're booked</p>
+				<h2 class="mt-1 text-2xl">You already have a bed in this camp</h2>
+				<p class="mt-2 text-sm text-ink-soft">
+					{existing.roomName ?? 'Room'} · confirmation code
+					<span class="font-display font-semibold text-ink">{existing.confirmationCode}</span>. This
+					camp allows one reservation per camper.
+				</p>
+				<div class="mt-5 flex flex-wrap gap-3">
+					<a href={`/reservation/${existing.confirmationCode}`} class={btn}>View reservation</a>
+					<a
+						href="/camps"
+						class="rounded-full border border-ink/15 px-6 py-3 text-sm font-semibold hover:bg-ink/5"
+						>All camps</a
+					>
+				</div>
+			</div>
+		{:else if !data.roomId}
 			<div class="mt-6 {card}">
 				<div class="flex flex-wrap items-baseline justify-between gap-2">
 					<h2 class="text-xl">Choose a room</h2>
@@ -375,6 +394,12 @@
 						{/if}
 					{/each}
 
+					{#if form && 'alreadyBooked' in form && form.alreadyBooked}
+						<div class="mt-3 rounded-xl bg-amber-100 px-4 py-2 text-sm text-amber-800">
+							You already have a bed in this camp (one per camper).
+							<a href={`/reservation/${form.code}`} class="font-semibold underline">View it</a>.
+						</div>
+					{/if}
 					{#if form && 'insufficient' in form && form.insufficient}
 						<div class="mt-3 rounded-xl bg-amber-100 px-4 py-2 text-sm text-amber-800">
 							Not enough funds — you need {dollars(form.needed)} more. Add funds on Zeffy and try again.

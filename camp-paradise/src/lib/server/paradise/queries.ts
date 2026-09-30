@@ -361,6 +361,30 @@ export async function markAttendeeLogin(db: AppDatabase, attendeeId: number) {
 }
 
 /** All reservations for a camper email (most recent first), with event + room names. */
+/** Active (confirmed or held) reservation for this camper in a given event, if any. */
+export async function activeReservationForEvent(db: AppDatabase, email: string, eventId: number) {
+	const normalized = email.trim().toLowerCase();
+	const rows = await db
+		.select({
+			id: paradiseReservations.id,
+			status: paradiseReservations.status,
+			confirmationCode: paradiseReservations.confirmationCode,
+			roomName: paradiseRooms.name,
+			cotId: paradiseReservations.cotId
+		})
+		.from(paradiseReservations)
+		.leftJoin(paradiseRooms, eq(paradiseRooms.id, paradiseReservations.roomId))
+		.where(
+			and(
+				eq(paradiseReservations.eventId, eventId),
+				inArray(paradiseReservations.status, ['confirmed', 'held']),
+				sql`lower(${paradiseReservations.email}) = ${normalized}`
+			)
+		)
+		.limit(1);
+	return rows[0] ?? null;
+}
+
 export async function reservationsForEmail(db: AppDatabase, email: string) {
 	const normalized = email.trim().toLowerCase();
 	return db

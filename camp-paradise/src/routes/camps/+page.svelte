@@ -1,99 +1,105 @@
 <script lang="ts">
-	const dollars = (cents: number) => `$${(cents / 100).toFixed(2)}`;
 	import type { PageData } from './$types';
+
 	export let data: PageData;
 
-	function dateRange(start: string | null, end: string | null): string {
-		if (!start) return '';
-		const s = new Date(start).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-		if (!end) return s;
-		const e = new Date(end).toLocaleDateString('en-US', {
-			month: 'short',
-			day: 'numeric',
-			year: 'numeric'
-		});
-		return `${s} – ${e}`;
-	}
+	const dollars = (cents: number) => `$${(cents / 100).toFixed(2)}`;
 
-	function longDate(s: string | null): string {
-		if (!s) return '';
-		return new Date(s.replace(' ', 'T') + 'Z').toLocaleDateString('en-US', {
+	const parseUtc = (s: string) => new Date(s.includes('T') ? s : s.replace(' ', 'T') + 'Z');
+
+	const longDate = (s: string | null | undefined): string => {
+		if (!s) return '—';
+		return parseUtc(s).toLocaleDateString('en-US', {
 			month: 'long',
 			day: 'numeric',
-			year: 'numeric'
+			year: 'numeric',
+			timeZone: 'UTC'
 		});
-	}
+	};
 
-	function daysUntil(s: string | null): number | null {
-		if (!s) return null;
-		const ms = new Date(s.replace(' ', 'T') + 'Z').getTime();
-		if (Number.isNaN(ms)) return null;
-		return Math.ceil((ms - Date.now()) / 86400000);
-	}
+	const dateRange = (start: string | null | undefined, end: string | null | undefined): string => {
+		if (!start) return '';
+		const a = parseUtc(start);
+		const b = end ? parseUtc(end) : a;
+		const opts: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric', timeZone: 'UTC' };
+		const from = a.toLocaleDateString('en-US', opts);
+		const to = b.toLocaleDateString('en-US', { ...opts, year: 'numeric' });
+		return `${from} – ${to}`;
+	};
 
-	$: featured = data.open[0] ?? null;
-	$: nextUpcoming = data.upcoming[0] ?? null;
-	$: closesDays = featured ? daysUntil(featured.registrationEndAt) : null;
-	$: filledPct =
-		featured && featured.total > 0
-			? Math.min(100, Math.round(((featured.total - featured.available) / featured.total) * 100))
-			: 0;
+	const daysUntil = (s: string | null | undefined): number => {
+		if (!s) return -1;
+		return Math.ceil((parseUtc(s).getTime() - Date.now()) / 86_400_000);
+	};
 
 	const btn =
 		'inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 font-semibold text-white shadow-lg shadow-primary/25 transition-all duration-300 hover:-translate-y-0.5 hover:bg-primary-600 hover:shadow-xl disabled:opacity-50 disabled:hover:translate-y-0';
 	const card =
 		'flex h-full flex-col rounded-3xl bg-white p-6 shadow-xl shadow-ink/5 ring-1 ring-ink/5';
+	const badge = 'rounded-full px-3 py-1 text-xs font-semibold';
 </script>
 
 <svelte:head>
-	<title>Camp Paradise — Register</title>
-	<meta name="description" content="Reserve your spot at Camp Paradise." />
+	<title>Camp Paradise — Camps</title>
 </svelte:head>
 
-{#if data.open.length > 1}
-	<section
-		class="bg-forest-deep relative isolate overflow-hidden px-4 pt-12 pb-12 lg:pt-16 lg:pb-16"
-	>
-		<div
-			class="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top_left,rgba(22,170,101,0.35),transparent_60%)]"
-		></div>
-		<div class="mx-auto max-w-7xl text-center lg:px-2">
-			<p class="eyebrow mb-3"><i class="bi bi-sun mr-1"></i>Registration is open</p>
-			<h1 class="text-3xl text-balance text-white lg:text-5xl">
-				{data.open.length} camps open for registration
-			</h1>
-			<p class="mt-4 text-white/75">Pick a camp below to reserve your bed.</p>
-			<p class="mt-4">
-				<span class="rounded-full bg-mint/60 px-3 py-1 text-xs font-semibold text-primary-600"
-					><i class="bi bi-wallet2"></i> Balance: {dollars(data.balanceCents)}</span
-				>
+<section class="bg-forest-deep relative isolate overflow-hidden px-4 pt-12 pb-12 lg:pt-16 lg:pb-16">
+	<div
+		class="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top_right,rgba(91,228,155,0.18),transparent_60%)]"
+	></div>
+	<div class="mx-auto flex max-w-7xl flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+		<div>
+			<p class="eyebrow">Camps</p>
+			<h1 class="mt-2 text-3xl text-white lg:text-5xl">Hi, {data.camper?.firstName ?? 'camper'}</h1>
+			<p class="mt-2 text-mint/90">Pick a camp below to reserve your bed.</p>
+		</div>
+		<div class="flex items-center gap-3">
+			<span class="{badge} bg-white/85 text-primary-600">
+				<i class="bi bi-wallet2"></i> Balance: {dollars(data.balanceCents)}
+			</span>
+			<a
+				href="/account"
+				class="rounded-full border border-white/40 px-4 py-2 text-sm font-semibold text-white hover:bg-white/10"
+			>
+				My account
+			</a>
+		</div>
+	</div>
+</section>
+
+<div class="mx-auto max-w-7xl px-4 py-10 lg:py-14">
+	<h2 class="text-2xl">Open for registration</h2>
+
+	{#if data.open.length === 0}
+		<div class="mt-4 rounded-3xl bg-white p-8 text-center shadow-xl shadow-ink/5 ring-1 ring-ink/5">
+			<i class="bi bi-calendar-x text-3xl text-ink-soft"></i>
+			<p class="mt-3 font-semibold">No camps are open right now.</p>
+			<p class="mt-1 text-sm text-ink-soft">
+				{data.upcoming.length > 0
+					? 'Check the upcoming camps below — registration opens soon.'
+					: 'Check back later for the next season.'}
 			</p>
 		</div>
-	</section>
-
-	<div class="mx-auto max-w-7xl px-4 py-10" id="camps">
-		<div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+	{:else}
+		<div class="mt-4 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
 			{#each data.open as event (event.id)}
 				{@const days = daysUntil(event.registrationEndAt)}
-				<div class={card}>
+				<article class={card}>
 					<div class="flex items-start justify-between gap-3">
-						<h3 class="font-display text-xl">{event.name}</h3>
+						<h3 class="text-xl">{event.name}</h3>
 						{#if event.available > 0}
-							<span class="rounded-full bg-mint/60 px-3 py-1 text-xs font-semibold text-primary-600"
-								>{event.available} of {event.total} beds open</span
-							>
+							<span class="{badge} shrink-0 bg-mint/60 text-primary-600">
+								{event.available} of {event.total} beds open
+							</span>
 						{:else}
-							<span class="rounded-full bg-ink/10 px-3 py-1 text-xs font-semibold text-ink-soft"
-								>Full</span
-							>
+							<span class="{badge} shrink-0 bg-ink/10 text-ink-soft">Full</span>
 						{/if}
 					</div>
-					{#if event.startOn}
-						<p class="mt-1 text-sm text-ink-soft">
-							<i class="bi bi-calendar-event mr-1"></i>{dateRange(event.startOn, event.endOn)}
-						</p>
-					{/if}
-					{#if days !== null && days >= 0}
+					<p class="mt-2 text-sm text-ink-soft">
+						<i class="bi bi-calendar3"></i>
+						{dateRange(event.startOn, event.endOn)}
+					</p>
+					{#if days >= 0}
 						<p class="mt-1 text-xs text-ink-soft">
 							Registration closes in {days} day{days === 1 ? '' : 's'}
 						</p>
@@ -101,215 +107,59 @@
 					{#if event.description}
 						<p class="mt-3 text-sm text-ink-soft">{event.description}</p>
 					{/if}
-					<div class="mt-auto pt-4">
-						{#if event.available > 0}
-							<a href="/{event.id}" class="{btn} w-full"
-								>Register <i class="bi bi-arrow-right"></i></a
-							>
-						{:else}
-							<button class="{btn} w-full" disabled>Sold out</button>
-						{/if}
-					</div>
-				</div>
-			{/each}
-		</div>
-	</div>
-{:else}
-	<section
-		class="bg-forest-deep relative isolate overflow-hidden px-4 pt-16 pb-16 lg:pt-24 lg:pb-24"
-	>
-		<div
-			class="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top_left,rgba(22,170,101,0.35),transparent_60%)]"
-		></div>
-		<div class="mx-auto flex max-w-7xl flex-col items-center gap-10 lg:flex-row lg:px-2">
-			{#if featured}
-				<div class="flex-1 text-center lg:text-left">
-					<p class="eyebrow mb-3"><i class="bi bi-sun mr-1"></i>Registration is open</p>
-					<h1 class="text-4xl text-balance text-white lg:text-6xl">{featured.name}</h1>
-					{#if featured.startOn}
-						<p class="text-mint/90 mt-4 text-lg">
-							<i class="bi bi-calendar-event mr-2"></i>{dateRange(featured.startOn, featured.endOn)}
-						</p>
-					{/if}
-					{#if featured.description}
-						<p class="mx-auto mt-3 max-w-xl text-white/75 lg:mx-0">{featured.description}</p>
-					{/if}
-
-					<div class="mx-auto mt-6 h-2 max-w-md overflow-hidden rounded-full bg-white/15 lg:mx-0">
-						<div
-							class="bg-mint-bright h-full rounded-full transition-all"
-							style="width: {filledPct}%"
-						></div>
-					</div>
-					<p class="mt-2 text-sm text-white/70">
-						{#if featured.available > 0}
-							<strong class="text-white">{featured.available}</strong> of {featured.total} beds still
-							open
-						{:else}
-							This camp is full
-						{/if}
-						{#if closesDays !== null && closesDays >= 0}
-							· closes in {closesDays}
-							{closesDays === 1 ? 'day' : 'days'}
-						{/if}
-					</p>
-
-					<p class="mt-3">
-						<span class="rounded-full bg-mint/60 px-3 py-1 text-xs font-semibold text-primary-600">
-							<i class="bi bi-wallet2"></i>
-							Balance: {dollars(data.balanceCents)}
-						</span>
-					</p>
-
-					<div class="mt-8">
-						{#if featured.available > 0}
-							<a href="/{featured.id}" class="{btn} px-8 py-4 text-lg">
-								{data.balanceCents > 0 ? 'Reserve your bed' : 'Register now'}
-								<i class="bi bi-arrow-right"></i>
+					<div class="mt-auto pt-5">
+						{#if event.booked}
+							<div class="rounded-2xl bg-mint/40 px-4 py-3 text-sm">
+								<p class="font-semibold text-primary-600">
+									<i class="bi bi-check-circle-fill"></i>
+									You're booked{event.booked.roomName ? ` · ${event.booked.roomName}` : ''}
+								</p>
+								{#if event.booked.confirmationCode}
+									<p class="mt-1 font-mono text-xs text-ink-soft">
+										{event.booked.confirmationCode}
+									</p>
+								{/if}
+							</div>
+							{#if event.booked.confirmationCode}
+								<a href="/reservation/{event.booked.confirmationCode}" class="{btn} mt-3 w-full">
+									View reservation
+								</a>
+							{/if}
+						{:else if event.available > 0}
+							<a href="/{event.id}" class="{btn} w-full">
+								Reserve your bed <i class="bi bi-arrow-right"></i>
 							</a>
 						{:else}
-							<button class="{btn} px-8 py-4 text-lg" disabled>Sold out</button>
+							<button type="button" class="{btn} w-full" disabled>Sold out</button>
 						{/if}
 					</div>
-				</div>
-				<div class="hidden shrink-0 lg:block">
-					<img
-						src="/logo.png"
-						alt="Camp Paradise"
-						class="h-56 w-56 drop-shadow-[0_20px_40px_rgba(0,0,0,0.35)]"
-					/>
-				</div>
-			{:else}
-				<div class="mx-auto max-w-2xl text-center">
-					<img
-						src="/logo.png"
-						alt="Camp Paradise"
-						class="mx-auto mb-6 h-32 w-32 drop-shadow-[0_16px_32px_rgba(0,0,0,0.35)]"
-					/>
-					{#if nextUpcoming}
-						<p class="eyebrow mb-3">
-							<i class="bi bi-hourglass-split mr-1"></i>Registration opens soon
-						</p>
-						<h1 class="text-4xl text-balance text-white lg:text-6xl">{nextUpcoming.name}</h1>
-						{#if nextUpcoming.startOn}
-							<p class="text-mint/90 mt-4 text-lg">
-								<i class="bi bi-calendar-event mr-2"></i>{dateRange(
-									nextUpcoming.startOn,
-									nextUpcoming.endOn
-								)}
-							</p>
-						{/if}
-						{#if nextUpcoming.registrationStartAt}
-							<p class="mt-2 text-white/75">
-								Registration opens {longDate(nextUpcoming.registrationStartAt)}
-							</p>
-						{/if}
-					{:else}
-						<h1 class="text-4xl text-balance text-white lg:text-6xl">See you next season</h1>
-						<p class="text-mint/90 mx-auto mt-5 max-w-xl text-lg">
-							No camps are open for registration right now. Check back soon — new sessions are
-							announced here first.
-						</p>
-					{/if}
-				</div>
-			{/if}
-		</div>
-	</section>
-{/if}
-
-<section class="border-b border-ink/10 bg-white">
-	<div class="mx-auto grid max-w-7xl grid-cols-3 gap-4 px-4 py-8 text-center">
-		<div>
-			<div class="font-display text-3xl text-primary-600">
-				{data.stats.campers.toLocaleString()}
-			</div>
-			<div class="text-xs tracking-wide text-ink-soft uppercase">Campers served</div>
-		</div>
-		<div>
-			<div class="font-display text-3xl text-primary-600">{data.stats.camps}</div>
-			<div class="text-xs tracking-wide text-ink-soft uppercase">Camps hosted</div>
-		</div>
-		<div>
-			<div class="font-display text-3xl text-primary-600">2023</div>
-			<div class="text-xs tracking-wide text-ink-soft uppercase">Serving since</div>
-		</div>
-	</div>
-</section>
-
-<section class="border-t border-ink/10 bg-white">
-	<div class="mx-auto max-w-7xl px-4 py-14">
-		<h2 class="font-display mb-10 text-center text-2xl">How it works</h2>
-		<div class="grid gap-8 text-center md:grid-cols-3">
-			<div>
-				<div
-					class="font-display mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary text-xl text-white"
-				>
-					1
-				</div>
-				<h3 class="font-display mt-4 text-lg">Pick a camp</h3>
-				<p class="mt-1 text-sm text-ink-soft">Choose an open session that fits your season.</p>
-			</div>
-			<div>
-				<div
-					class="font-display mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary text-xl text-white"
-				>
-					2
-				</div>
-				<h3 class="font-display mt-4 text-lg">Choose your bed</h3>
-				<p class="mt-1 text-sm text-ink-soft">
-					Select a room and an open bed, then add your details.
-				</p>
-			</div>
-			<div>
-				<div
-					class="font-display mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary text-xl text-white"
-				>
-					3
-				</div>
-				<h3 class="font-display mt-4 text-lg">Reserve your spot</h3>
-				<p class="mt-1 text-sm text-ink-soft">
-					Agree to the camp rules and confirm your registration.
-				</p>
-			</div>
-		</div>
-	</div>
-</section>
-
-{#if data.upcoming.length > 0}
-	<div class="mx-auto max-w-7xl px-4 py-12">
-		<h2 class="font-display text-2xl">Coming up</h2>
-		<p class="mb-6 text-sm text-ink-soft">Announced sessions — registration isn't open yet.</p>
-		<div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-			{#each data.upcoming as event (event.id)}
-				<div class={card}>
-					<div class="mb-2 flex items-start justify-between gap-3">
-						<h3 class="font-display text-xl">{event.name}</h3>
-						<span class="rounded-full bg-sand-warm px-3 py-1 text-xs font-semibold text-ink-soft"
-							>Soon</span
-						>
-					</div>
-					<p class="text-sm text-ink-soft">{dateRange(event.startOn, event.endOn)}</p>
-					{#if event.registrationStartAt}
-						<p class="mt-2 text-sm">Opens {longDate(event.registrationStartAt)}</p>
-					{/if}
-				</div>
+				</article>
 			{/each}
 		</div>
-	</div>
-{/if}
+	{/if}
 
-{#if data.past.length > 0}
-	<section class="border-t border-ink/10 bg-white">
-		<div class="mx-auto max-w-7xl px-4 py-12">
-			<h2 class="font-display mb-4 text-xl text-ink-soft">Past camps</h2>
-			<ul class="grid gap-2 md:grid-cols-2 lg:grid-cols-3">
-				{#each data.past as event (event.id)}
-					<li class="flex justify-between border-b border-ink/10 py-1 text-sm text-ink-soft">
-						<span>{event.name}</span>
-						<span>{dateRange(event.startOn, event.endOn)}</span>
-					</li>
-				{/each}
-			</ul>
+	{#if data.upcoming.length > 0}
+		<h2 class="mt-12 text-2xl">Coming up</h2>
+		<p class="mt-1 text-sm text-ink-soft">Announced sessions — registration isn't open yet.</p>
+		<div class="mt-4 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+			{#each data.upcoming as event (event.id)}
+				<article class={card}>
+					<div class="flex items-start justify-between gap-3">
+						<h3 class="text-xl">{event.name}</h3>
+						<span class="{badge} shrink-0 bg-sand-warm text-ink-soft">Soon</span>
+					</div>
+					<p class="mt-2 text-sm text-ink-soft">
+						<i class="bi bi-calendar3"></i>
+						{dateRange(event.startOn, event.endOn)}
+					</p>
+					<p class="mt-1 text-xs text-ink-soft">
+						Opens {longDate(event.registrationStartAt)}
+					</p>
+					{#if event.description}
+						<p class="mt-3 text-sm text-ink-soft">{event.description}</p>
+					{/if}
+				</article>
+			{/each}
 		</div>
-	</section>
-{/if}
+	{/if}
+</div>
