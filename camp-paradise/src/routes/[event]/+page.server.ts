@@ -1,4 +1,4 @@
-import { error, fail } from '@sveltejs/kit';
+import { error, fail, redirect } from '@sveltejs/kit';
 import { and, eq } from 'drizzle-orm';
 import {
 	getPublishedEvent,
@@ -8,17 +8,12 @@ import {
 	isBedFree,
 	requiredForms,
 	registrationState,
-	findAttendeeByEmail,
-	upsertAttendee,
-	markAttendeeLogin,
 	balanceForEmail
 } from '$lib/server/paradise/queries';
 import { generateConfirmationCode, sendReservationConfirmed } from '$lib/server/email/paradise';
-import { issueLoginCode, verifyLoginCode } from '$lib/server/paradise/auth';
 import { applyPayment, listPayments, normalizeEmail } from '$lib/server/paradise/zeffy';
 import { isHealthForm, parseHealthForm } from '$lib/server/paradise/health-form';
-import { verifyTurnstile, TURNSTILE_ERROR_MESSAGE } from '$lib/server/turnstile';
-import { readSession, setSession } from '$lib/server/paradise/session';
+import { readSession } from '$lib/server/paradise/session';
 import {
 	paradiseReservations,
 	paradiseEventRooms,
@@ -29,7 +24,6 @@ import {
 import type { Actions, PageServerLoad } from './$types';
 
 const clean = (v: FormDataEntryValue | null): string => (typeof v === 'string' ? v.trim() : '');
-const isEmail = (v: string): boolean => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 
 const sessionSecret = (platform: App.Platform | undefined): string =>
 	platform?.env?.SESSION_SECRET ?? 'dev-insecure-session-secret-change-me';
@@ -81,18 +75,19 @@ export const load: PageServerLoad = async ({
 	// from a URL param — so room/bed availability can't be scraped by flipping
 	// ?sex. Without a valid session, no rooms or beds are fetched at all.
 	const identity = await readSession(cookies, sessionSecret(platform));
-	const sex = identity?.sex ?? null;
+	if (!identity) throw redirect(303, `/?next=/${id}`);
+	const sex = identity.sex;
 
 	const roomParam = url.searchParams.get('room');
-	const roomId = sex && roomParam && /^\d+$/.test(roomParam) ? Number(roomParam) : null;
+	const roomId = roomParam && /^\d+$/.test(roomParam) ? Number(roomParam) : null;
 
 	// Run the independent lookups in parallel to cut serial D1 round-trips.
 	const [capacity, rooms, beds, forms, balanceCents] = await Promise.all([
 		eventCapacity(db, id),
-		sex ? roomsForEvent(db, id, sex) : Promise.resolve([]),
+		roomsForEvent(db, id, sex),
 		roomId ? bedsForRoom(db, id, roomId, { freeOnly: true }) : Promise.resolve([]),
 		requiredForms(db),
-		identity ? balanceForEmail(db, identity.email) : Promise.resolve(0)
+		balanceForEmail(db, identity.email)
 	]);
 
 	return {
@@ -110,122 +105,6 @@ export const load: PageServerLoad = async ({
 };
 
 export const actions: Actions = {
-	// Step 1a: the camper enters their email (behind Turnstile). We email a
-	// 6-digit sign-in code. The response is deliberately neutral so it never
-	// reveals whether an email is registered (no account enumeration).
-	requestCode: async ({ request, locals, params, cookies, platform }) => {
-		const db = locals.db;
-		const id = Number(params.event);
-		const fd = await request.formData();
-
-		const ts = await verifyTurnstile(
-			fd.get('cf-turnstile-response') as string | null,
-			platform?.env?.TURNSTILE_SECRET_KEY,
-			request.headers.get('cf-connecting-ip'),
-			'paradise_register',
-			platform?.env?.TURNSTILE_HOSTNAMES
-		);
-		if (!ts.ok) return fail(403, { message: TURNSTILE_ERROR_MESSAGE });
-
-		const email = clean(fd.get('email'));
-
-		// Honeypot: pretend a code was sent without doing anything.
-		if (clean(fd.get('middle_name'))) return { codeSent: true, email };
-
-		if (!isEmail(email)) return fail(400, { emailError: 'A valid email is required.', email });
-
-		const event = Number.isInteger(id) ? await getPublishedEvent(db, id) : null;
-		if (!event || registrationState(event) !== 'open')
-			return fail(400, { message: 'Registration is closed for this camp.', email });
-
-		// issueLoginCode is rate-limited internally; we ignore its result so the
-		// UI response is identical whether or not a code was actually sent.
-		await issueLoginCode(db, email);
-		return { codeSent: true, email };
-	},
-
-	// Step 1b: verify the 6-digit code. On success, if we already know this
-	// camper we sign them in; otherwise we ask for their profile (name/sex).
-	verifyCode: async ({ request, locals, cookies, platform }) => {
-		const db = locals.db;
-		const fd = await request.formData();
-
-		const email = clean(fd.get('email'));
-		const code = clean(fd.get('code'));
-		if (!isEmail(email)) return fail(400, { codeError: 'Something went wrong. Start again.' });
-		if (!/^\d{6}$/.test(code)) return fail(400, { codeError: 'Enter the 6-digit code.', email });
-
-		const result = await verifyLoginCode(db, email, code);
-		if (!result.ok) {
-			const msg =
-				result.reason === 'expired'
-					? 'That code has expired. Request a new one.'
-					: result.reason === 'too_many_attempts'
-						? 'Too many attempts. Request a new code.'
-						: 'That code is incorrect.';
-			return fail(400, { codeError: msg, email });
-		}
-
-		const attendee = await findAttendeeByEmail(db, email);
-		if (attendee) {
-			await markAttendeeLogin(db, attendee.id);
-			await setSession(
-				cookies,
-				{
-					attendeeId: attendee.id,
-					firstName: attendee.firstName,
-					lastName: attendee.lastName,
-					email: attendee.email,
-					sex: attendee.sex as 'm' | 'f'
-				},
-				sessionSecret(platform)
-			);
-			return { signedIn: true };
-		}
-
-		// New camper: email is verified, but we need a profile before continuing.
-		return { needsProfile: true, email };
-	},
-
-	// Step 1c (new campers only): collect name + sex, create the account, and
-	// sign in. Reaching this step already required a verified code above.
-	profile: async ({ request, locals, cookies, platform }) => {
-		const db = locals.db;
-		const fd = await request.formData();
-
-		const email = clean(fd.get('email'));
-		const firstName = clean(fd.get('firstName'));
-		const lastName = clean(fd.get('lastName'));
-		const sex = clean(fd.get('sex'));
-
-		const fields = { firstName, lastName };
-		const errors: Record<string, string> = {};
-		if (!isEmail(email)) errors.profile = 'Something went wrong. Start again.';
-		if (!firstName) errors.firstName = 'First name is required.';
-		if (!lastName) errors.lastName = 'Last name is required.';
-		if (sex !== 'm' && sex !== 'f') errors.sex = 'Please choose who this is for.';
-		if (Object.keys(errors).length) return fail(400, { profileErrors: errors, fields, email });
-
-		const attendee = await upsertAttendee(db, {
-			email,
-			firstName,
-			lastName,
-			sex: sex as 'm' | 'f'
-		});
-		await setSession(
-			cookies,
-			{
-				attendeeId: attendee.id,
-				firstName: attendee.firstName,
-				lastName: attendee.lastName,
-				email: attendee.email,
-				sex: attendee.sex as 'm' | 'f'
-			},
-			sessionSecret(platform)
-		);
-		return { signedIn: true };
-	},
-
 	hold: async ({ request, locals, params, cookies, platform }) => {
 		const db = locals.db;
 		const id = Number(params.event);
@@ -245,7 +124,8 @@ export const actions: Actions = {
 
 		const eventId = id;
 		const roomId = Number(fd.get('roomId'));
-		const cotId = Number(fd.get('cotId'));
+		const cotRaw = clean(fd.get('cotId'));
+		let cotId = cotRaw === 'any' ? NaN : Number(cotRaw);
 
 		// Reject holds on camps whose registration window is not open.
 		const heldEvent = Number.isInteger(eventId) ? await getPublishedEvent(db, eventId) : null;
@@ -255,7 +135,13 @@ export const actions: Actions = {
 		const { attendeeId, firstName, lastName, email, sex } = identity;
 
 		const errors: Record<string, string> = {};
-		if (!Number.isInteger(roomId) || !Number.isInteger(cotId)) errors.bed = 'Please select a bed.';
+		if (!Number.isInteger(roomId)) errors.bed = 'Please select a bed.';
+		else if (cotRaw === 'any') {
+			// "Any available bed": pick the first free bed in this room server-side.
+			const free = await bedsForRoom(db, eventId, roomId, { freeOnly: true });
+			if (free.length === 0) errors.bed = 'No beds left in this room. Please pick another room.';
+			else cotId = free[0].id;
+		} else if (!Number.isInteger(cotId)) errors.bed = 'Please select a bed.';
 
 		const forms = await requiredForms(db);
 		const parsedAnswers = new Map<number, Record<string, unknown>>();

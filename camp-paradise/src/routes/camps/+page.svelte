@@ -51,103 +51,172 @@
 	<meta name="description" content="Reserve your spot at Camp Paradise." />
 </svelte:head>
 
-<section class="bg-forest-deep relative isolate overflow-hidden px-4 pt-16 pb-16 lg:pt-24 lg:pb-24">
-	<div
-		class="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top_left,rgba(22,170,101,0.35),transparent_60%)]"
-	></div>
-	<div class="mx-auto flex max-w-7xl flex-col items-center gap-10 lg:flex-row lg:px-2">
-		{#if featured}
-			<div class="flex-1 text-center lg:text-left">
-				<p class="eyebrow mb-3"><i class="bi bi-sun mr-1"></i>Registration is open</p>
-				<h1 class="text-4xl text-balance text-white lg:text-6xl">{featured.name}</h1>
-				{#if featured.startOn}
-					<p class="text-mint/90 mt-4 text-lg">
-						<i class="bi bi-calendar-event mr-2"></i>{dateRange(featured.startOn, featured.endOn)}
-					</p>
-				{/if}
-				{#if featured.description}
-					<p class="mx-auto mt-3 max-w-xl text-white/75 lg:mx-0">{featured.description}</p>
-				{/if}
+{#if data.open.length > 1}
+	<section
+		class="bg-forest-deep relative isolate overflow-hidden px-4 pt-12 pb-12 lg:pt-16 lg:pb-16"
+	>
+		<div
+			class="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top_left,rgba(22,170,101,0.35),transparent_60%)]"
+		></div>
+		<div class="mx-auto max-w-7xl text-center lg:px-2">
+			<p class="eyebrow mb-3"><i class="bi bi-sun mr-1"></i>Registration is open</p>
+			<h1 class="text-3xl text-balance text-white lg:text-5xl">
+				{data.open.length} camps open for registration
+			</h1>
+			<p class="mt-4 text-white/75">Pick a camp below to reserve your bed.</p>
+			<p class="mt-4">
+				<span class="rounded-full bg-mint/60 px-3 py-1 text-xs font-semibold text-primary-600"
+					><i class="bi bi-wallet2"></i> Balance: {dollars(data.balanceCents)}</span
+				>
+			</p>
+		</div>
+	</section>
 
-				<div class="mx-auto mt-6 h-2 max-w-md overflow-hidden rounded-full bg-white/15 lg:mx-0">
-					<div
-						class="bg-mint-bright h-full rounded-full transition-all"
-						style="width: {filledPct}%"
-					></div>
-				</div>
-				<p class="mt-2 text-sm text-white/70">
-					{#if featured.available > 0}
-						<strong class="text-white">{featured.available}</strong> of {featured.total} beds still open
-					{:else}
-						This camp is full
-					{/if}
-					{#if closesDays !== null && closesDays >= 0}
-						· closes in {closesDays}
-						{closesDays === 1 ? 'day' : 'days'}
-					{/if}
-				</p>
-
-				<p class="mt-3">
-					<span class="rounded-full bg-mint/60 px-3 py-1 text-xs font-semibold text-primary-600">
-						<i class="bi bi-wallet2"></i>
-						Balance: {dollars(data.balanceCents)}
-					</span>
-				</p>
-
-				<div class="mt-8">
-					{#if featured.available > 0}
-						<a href="/{featured.id}" class="{btn} px-8 py-4 text-lg">
-							{data.balanceCents > 0 ? 'Reserve your bed' : 'Register now'}
-							<i class="bi bi-arrow-right"></i>
-						</a>
-					{:else}
-						<button class="{btn} px-8 py-4 text-lg" disabled>Sold out</button>
-					{/if}
-				</div>
-			</div>
-			<div class="hidden shrink-0 lg:block">
-				<img
-					src="/logo.png"
-					alt="Camp Paradise"
-					class="h-56 w-56 drop-shadow-[0_20px_40px_rgba(0,0,0,0.35)]"
-				/>
-			</div>
-		{:else}
-			<div class="mx-auto max-w-2xl text-center">
-				<img
-					src="/logo.png"
-					alt="Camp Paradise"
-					class="mx-auto mb-6 h-32 w-32 drop-shadow-[0_16px_32px_rgba(0,0,0,0.35)]"
-				/>
-				{#if nextUpcoming}
-					<p class="eyebrow mb-3">
-						<i class="bi bi-hourglass-split mr-1"></i>Registration opens soon
-					</p>
-					<h1 class="text-4xl text-balance text-white lg:text-6xl">{nextUpcoming.name}</h1>
-					{#if nextUpcoming.startOn}
-						<p class="text-mint/90 mt-4 text-lg">
-							<i class="bi bi-calendar-event mr-2"></i>{dateRange(
-								nextUpcoming.startOn,
-								nextUpcoming.endOn
-							)}
+	<div class="mx-auto max-w-7xl px-4 py-10" id="camps">
+		<div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+			{#each data.open as event (event.id)}
+				{@const days = daysUntil(event.registrationEndAt)}
+				<div class={card}>
+					<div class="flex items-start justify-between gap-3">
+						<h3 class="font-display text-xl">{event.name}</h3>
+						{#if event.available > 0}
+							<span class="rounded-full bg-mint/60 px-3 py-1 text-xs font-semibold text-primary-600"
+								>{event.available} of {event.total} beds open</span
+							>
+						{:else}
+							<span class="rounded-full bg-ink/10 px-3 py-1 text-xs font-semibold text-ink-soft"
+								>Full</span
+							>
+						{/if}
+					</div>
+					{#if event.startOn}
+						<p class="mt-1 text-sm text-ink-soft">
+							<i class="bi bi-calendar-event mr-1"></i>{dateRange(event.startOn, event.endOn)}
 						</p>
 					{/if}
-					{#if nextUpcoming.registrationStartAt}
-						<p class="mt-2 text-white/75">
-							Registration opens {longDate(nextUpcoming.registrationStartAt)}
+					{#if days !== null && days >= 0}
+						<p class="mt-1 text-xs text-ink-soft">
+							Registration closes in {days} day{days === 1 ? '' : 's'}
 						</p>
 					{/if}
-				{:else}
-					<h1 class="text-4xl text-balance text-white lg:text-6xl">See you next season</h1>
-					<p class="text-mint/90 mx-auto mt-5 max-w-xl text-lg">
-						No camps are open for registration right now. Check back soon — new sessions are
-						announced here first.
-					</p>
-				{/if}
-			</div>
-		{/if}
+					{#if event.description}
+						<p class="mt-3 text-sm text-ink-soft">{event.description}</p>
+					{/if}
+					<div class="mt-auto pt-4">
+						{#if event.available > 0}
+							<a href="/{event.id}" class="{btn} w-full"
+								>Register <i class="bi bi-arrow-right"></i></a
+							>
+						{:else}
+							<button class="{btn} w-full" disabled>Sold out</button>
+						{/if}
+					</div>
+				</div>
+			{/each}
+		</div>
 	</div>
-</section>
+{:else}
+	<section
+		class="bg-forest-deep relative isolate overflow-hidden px-4 pt-16 pb-16 lg:pt-24 lg:pb-24"
+	>
+		<div
+			class="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top_left,rgba(22,170,101,0.35),transparent_60%)]"
+		></div>
+		<div class="mx-auto flex max-w-7xl flex-col items-center gap-10 lg:flex-row lg:px-2">
+			{#if featured}
+				<div class="flex-1 text-center lg:text-left">
+					<p class="eyebrow mb-3"><i class="bi bi-sun mr-1"></i>Registration is open</p>
+					<h1 class="text-4xl text-balance text-white lg:text-6xl">{featured.name}</h1>
+					{#if featured.startOn}
+						<p class="text-mint/90 mt-4 text-lg">
+							<i class="bi bi-calendar-event mr-2"></i>{dateRange(featured.startOn, featured.endOn)}
+						</p>
+					{/if}
+					{#if featured.description}
+						<p class="mx-auto mt-3 max-w-xl text-white/75 lg:mx-0">{featured.description}</p>
+					{/if}
+
+					<div class="mx-auto mt-6 h-2 max-w-md overflow-hidden rounded-full bg-white/15 lg:mx-0">
+						<div
+							class="bg-mint-bright h-full rounded-full transition-all"
+							style="width: {filledPct}%"
+						></div>
+					</div>
+					<p class="mt-2 text-sm text-white/70">
+						{#if featured.available > 0}
+							<strong class="text-white">{featured.available}</strong> of {featured.total} beds still
+							open
+						{:else}
+							This camp is full
+						{/if}
+						{#if closesDays !== null && closesDays >= 0}
+							· closes in {closesDays}
+							{closesDays === 1 ? 'day' : 'days'}
+						{/if}
+					</p>
+
+					<p class="mt-3">
+						<span class="rounded-full bg-mint/60 px-3 py-1 text-xs font-semibold text-primary-600">
+							<i class="bi bi-wallet2"></i>
+							Balance: {dollars(data.balanceCents)}
+						</span>
+					</p>
+
+					<div class="mt-8">
+						{#if featured.available > 0}
+							<a href="/{featured.id}" class="{btn} px-8 py-4 text-lg">
+								{data.balanceCents > 0 ? 'Reserve your bed' : 'Register now'}
+								<i class="bi bi-arrow-right"></i>
+							</a>
+						{:else}
+							<button class="{btn} px-8 py-4 text-lg" disabled>Sold out</button>
+						{/if}
+					</div>
+				</div>
+				<div class="hidden shrink-0 lg:block">
+					<img
+						src="/logo.png"
+						alt="Camp Paradise"
+						class="h-56 w-56 drop-shadow-[0_20px_40px_rgba(0,0,0,0.35)]"
+					/>
+				</div>
+			{:else}
+				<div class="mx-auto max-w-2xl text-center">
+					<img
+						src="/logo.png"
+						alt="Camp Paradise"
+						class="mx-auto mb-6 h-32 w-32 drop-shadow-[0_16px_32px_rgba(0,0,0,0.35)]"
+					/>
+					{#if nextUpcoming}
+						<p class="eyebrow mb-3">
+							<i class="bi bi-hourglass-split mr-1"></i>Registration opens soon
+						</p>
+						<h1 class="text-4xl text-balance text-white lg:text-6xl">{nextUpcoming.name}</h1>
+						{#if nextUpcoming.startOn}
+							<p class="text-mint/90 mt-4 text-lg">
+								<i class="bi bi-calendar-event mr-2"></i>{dateRange(
+									nextUpcoming.startOn,
+									nextUpcoming.endOn
+								)}
+							</p>
+						{/if}
+						{#if nextUpcoming.registrationStartAt}
+							<p class="mt-2 text-white/75">
+								Registration opens {longDate(nextUpcoming.registrationStartAt)}
+							</p>
+						{/if}
+					{:else}
+						<h1 class="text-4xl text-balance text-white lg:text-6xl">See you next season</h1>
+						<p class="text-mint/90 mx-auto mt-5 max-w-xl text-lg">
+							No camps are open for registration right now. Check back soon — new sessions are
+							announced here first.
+						</p>
+					{/if}
+				</div>
+			{/if}
+		</div>
+	</section>
+{/if}
 
 <section class="border-b border-ink/10 bg-white">
 	<div class="mx-auto grid max-w-7xl grid-cols-3 gap-4 px-4 py-8 text-center">

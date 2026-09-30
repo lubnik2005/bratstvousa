@@ -202,9 +202,8 @@ export async function roomsForEvent(db: AppDatabase, eventId: number, sex: 'm' |
 	const roomIds = rooms.map((r) => r.id);
 
 	// Two set-based queries (instead of 2 per room): cots per room and blocked
-	// reservations per room for this event. Only a boolean availability flag is
-	// returned — never expose exact counts, so browsing rooms can't reveal how
-	// full a cabin is.
+	// reservations per room for this event. Counts are only shown to signed-in
+	// campers (the wizard redirects anonymous visitors to sign in first).
 	const [cotRows, takenRows] = await Promise.all([
 		db
 			.select({ roomId: paradiseCots.roomId, n: sql<number>`count(*)` })
@@ -228,10 +227,19 @@ export async function roomsForEvent(db: AppDatabase, eventId: number, sex: 'm' |
 	const takenByRoom = new Map(takenRows.map((r) => [r.roomId, Number(r.n)]));
 
 	return rooms.map((room) => {
-		const cots = cotsByRoom.get(room.id) ?? 0;
+		const total = cotsByRoom.get(room.id) ?? 0;
 		const taken = takenByRoom.get(room.id) ?? 0;
-		return { ...room, available: cots > taken };
+		const available = Math.max(0, total - taken);
+		return { ...room, location: normalizeLocation(room.location), total, available };
 	});
+}
+
+/** Normalise the free-text room location into a stable group label. */
+function normalizeLocation(raw: string | null | undefined): string {
+	const s = (raw ?? '').trim();
+	if (!s) return 'Other';
+	if (/^cabins?$/i.test(s)) return 'Cabin';
+	return s;
 }
 
 /**

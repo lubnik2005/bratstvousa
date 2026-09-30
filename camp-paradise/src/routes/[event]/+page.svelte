@@ -1,27 +1,15 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import { goto } from '$app/navigation';
-	import Turnstile from '$lib/components/Turnstile.svelte';
 	import HealthForm from '$lib/components/HealthForm.svelte';
 	import type { PageData, ActionData } from './$types';
 
 	export let data: PageData;
 	export let form: ActionData;
 
-	let startTurnstile: Turnstile;
 	let submitting = false;
-	let starting = false;
 
 	// Sign-in sub-step: 'email' -> 'code' -> ('profile' for new campers).
-	// Driven by the action results returned in `form`.
-	$: signInStep =
-		form && 'needsProfile' in form && form.needsProfile
-			? 'profile'
-			: form && 'codeSent' in form && form.codeSent
-				? 'code'
-				: 'email';
-	// The email is echoed back by requestCode/verifyCode so later steps can post it.
-	$: pendingEmail = form && 'email' in form ? ((form.email as string | undefined) ?? '') : '';
 
 	const dollars = (cents: number) => `$${(cents / 100).toFixed(2)}`;
 
@@ -62,6 +50,44 @@
 	const card = 'rounded-3xl bg-white p-6 shadow-xl shadow-ink/5 ring-1 ring-ink/5 sm:p-8';
 	const chip = 'rounded-full bg-primary px-3 py-1 text-xs font-semibold text-white';
 	const chipMuted = 'rounded-full bg-ink/5 px-3 py-1 text-xs font-semibold text-ink-soft';
+	type RoomRow = (typeof data.rooms)[number];
+	let roomFilter = 'all';
+	let availableOnly = false;
+	let roomSearch = '';
+	const typeLabel = (t: string | null | undefined): string => {
+		const v = (t ?? '').toLowerCase();
+		if (v === 'rv') return 'RV';
+		if (v === 'vip') return 'VIP';
+		return v ? v.charAt(0).toUpperCase() + v.slice(1) : 'Room';
+	};
+	$: typeOptions = [
+		'all',
+		...Array.from(new Set(data.rooms.map((r) => (r.type ?? '').toLowerCase()).filter(Boolean)))
+	];
+	$: filteredRooms = data.rooms.filter((r) => {
+		if (roomFilter !== 'all' && (r.type ?? '').toLowerCase() !== roomFilter) return false;
+		if (availableOnly && r.available <= 0) return false;
+		const q = roomSearch.trim().toLowerCase();
+		if (q && !`${r.name} ${r.location ?? ''}`.toLowerCase().includes(q)) return false;
+		return true;
+	});
+	$: roomGroups = (() => {
+		const map = new Map<
+			string,
+			{ location: string; rooms: RoomRow[]; total: number; available: number }
+		>();
+		for (const r of filteredRooms) {
+			const key = r.location ?? 'Other';
+			const g = map.get(key) ?? { location: key, rooms: [], total: 0, available: 0 };
+			g.rooms.push(r);
+			g.total += r.total;
+			g.available += r.available;
+			map.set(key, g);
+		}
+		return Array.from(map.values());
+	})();
+	$: totalBeds = data.rooms.reduce((n, r) => n + r.total, 0);
+	$: openBeds = data.rooms.reduce((n, r) => n + r.available, 0);
 </script>
 
 <svelte:head>
@@ -95,10 +121,9 @@
 		</div>
 	{:else}
 		<div class="mt-6 flex flex-wrap gap-2">
-			<span class={identity ? chipMuted : chip}>1 · Sign in</span>
-			<span class={!identity || data.roomId ? chipMuted : chip}>2 · Room</span>
-			<span class={!data.roomId ? chipMuted : chip}>3 · Bed</span>
-			<span class={chipMuted}>4 · Confirm</span>
+			<span class={data.roomId ? chipMuted : chip}>1 · Room</span>
+			<span class={!data.roomId ? chipMuted : chip}>2 · Bed</span>
+			<span class={chipMuted}>3 · Confirm</span>
 		</div>
 
 		{#if identity}
@@ -119,198 +144,79 @@
 			</div>
 		{/if}
 
-		{#if !identity}
+		{#if !data.roomId}
 			<div class="mt-6 {card}">
-				{#if signInStep === 'email'}
-					<h2 class="text-xl">Sign in to register</h2>
-					<p class="mt-1 text-sm text-ink-soft">
-						Enter your email and we'll send you a 6-digit code. New here? You'll set up your details
-						next.
-					</p>
-					<form
-						method="post"
-						action="?/requestCode"
-						class="mt-4"
-						use:enhance={() => {
-							starting = true;
-							return async ({ update }) => {
-								await update({ reset: false });
-								starting = false;
-								startTurnstile?.reset();
-							};
-						}}
+				<div class="flex flex-wrap items-baseline justify-between gap-2">
+					<h2 class="text-xl">Choose a room</h2>
+					<span class="text-sm text-ink-soft"
+						>{openBeds} of {totalBeds} beds open · {data.rooms.length} rooms</span
 					>
-						<input
-							type="text"
-							name="middle_name"
-							tabindex="-1"
-							autocomplete="off"
-							aria-hidden="true"
-							style="position:absolute;left:-9999px"
-						/>
-						<label class="mb-1 block text-sm font-medium" for="email">Email</label>
-						<input
-							class="field"
-							type="email"
-							id="email"
-							name="email"
-							required
-							value={pendingEmail}
-						/>
-						{#if form && 'emailError' in form && form.emailError}
-							<div class="mt-1 text-sm text-red-600">{form.emailError}</div>
-						{/if}
-						<div class="mt-3">
-							<Turnstile bind:this={startTurnstile} action="paradise_register" />
-						</div>
-						{#if form && 'message' in form && form.message}
-							<div class="mt-3 rounded-xl bg-red-50 px-4 py-2 text-sm text-red-700">
-								{form.message}
-							</div>
-						{/if}
-						<button class="{btn} mt-4 w-full" type="submit" disabled={starting}>
-							{starting ? 'Sending…' : 'Email me a code'}
-						</button>
-					</form>
-				{:else if signInStep === 'code'}
-					<h2 class="text-xl">Enter your code</h2>
-					<p class="mt-1 text-sm text-ink-soft">
-						We emailed a 6-digit code to <strong>{pendingEmail}</strong>. It expires in 10 minutes.
-					</p>
-					<form method="post" action="?/verifyCode" class="mt-4" use:enhance>
-						<input type="hidden" name="email" value={pendingEmail} />
-						<label class="mb-1 block text-sm font-medium" for="code">6-digit code</label>
-						<input
-							class="field text-center font-display text-2xl tracking-[0.4em]"
-							type="text"
-							id="code"
-							name="code"
-							inputmode="numeric"
-							autocomplete="one-time-code"
-							maxlength="6"
-							pattern={'[0-9]{6}'}
-							required
-						/>
-						{#if form && 'codeError' in form && form.codeError}
-							<div class="mt-1 text-sm text-red-600">{form.codeError}</div>
-						{/if}
-						<button class="{btn} mt-4 w-full" type="submit">Verify &amp; continue</button>
-					</form>
-					<form method="post" action="?/requestCode" class="mt-3 text-center" use:enhance>
-						<input type="hidden" name="email" value={pendingEmail} />
-						<button class="text-sm font-semibold text-primary-600 hover:text-primary" type="submit">
-							Didn't get it? Send a new code
-						</button>
-					</form>
-				{:else}
-					<h2 class="text-xl">Set up your details</h2>
-					<p class="mt-1 text-sm text-ink-soft">
-						Your email <strong>{pendingEmail}</strong> is verified. Tell us who's coming.
-					</p>
-					<form method="post" action="?/profile" class="mt-4 space-y-4" use:enhance>
-						<input type="hidden" name="email" value={pendingEmail} />
-						<div class="grid grid-cols-2 gap-3">
-							<div>
-								<label class="mb-1 block text-sm font-medium" for="firstName">First name</label>
-								<input
-									class="field"
-									type="text"
-									id="firstName"
-									name="firstName"
-									required
-									value={form && 'fields' in form ? (form.fields?.firstName ?? '') : ''}
-								/>
-								{#if form && 'profileErrors' in form && form.profileErrors?.firstName}
-									<div class="mt-1 text-sm text-red-600">{form.profileErrors.firstName}</div>
-								{/if}
-							</div>
-							<div>
-								<label class="mb-1 block text-sm font-medium" for="lastName">Last name</label>
-								<input
-									class="field"
-									type="text"
-									id="lastName"
-									name="lastName"
-									required
-									value={form && 'fields' in form ? (form.fields?.lastName ?? '') : ''}
-								/>
-								{#if form && 'profileErrors' in form && form.profileErrors?.lastName}
-									<div class="mt-1 text-sm text-red-600">{form.profileErrors.lastName}</div>
-								{/if}
-							</div>
-						</div>
-						<fieldset>
-							<legend class="mb-2 text-sm font-medium">Who is this for?</legend>
-							<div class="flex gap-3">
-								<label
-									class="flex flex-1 cursor-pointer items-center gap-2 rounded-2xl border border-ink/10 bg-sand px-4 py-3 text-sm font-medium has-[:checked]:border-primary has-[:checked]:bg-mint/40"
-								>
-									<input
-										class="accent-primary"
-										type="radio"
-										name="sex"
-										id="sex-m"
-										value="m"
-										required
-									/>
-									<i class="bi bi-gender-male"></i> Male
-								</label>
-								<label
-									class="flex flex-1 cursor-pointer items-center gap-2 rounded-2xl border border-ink/10 bg-sand px-4 py-3 text-sm font-medium has-[:checked]:border-primary has-[:checked]:bg-mint/40"
-								>
-									<input
-										class="accent-primary"
-										type="radio"
-										name="sex"
-										id="sex-f"
-										value="f"
-										required
-									/>
-									<i class="bi bi-gender-female"></i> Female
-								</label>
-							</div>
-							{#if form && 'profileErrors' in form && form.profileErrors?.sex}
-								<div class="mt-1 text-sm text-red-600">{form.profileErrors.sex}</div>
-							{/if}
-						</fieldset>
-						<button class="{btn} w-full" type="submit">Continue to rooms</button>
-					</form>
-				{/if}
-			</div>
-		{:else if !data.roomId}
-			<div class="mt-6 {card}">
-				<h2 class="text-xl">Choose a room</h2>
+				</div>
 				<p class="mt-1 text-sm text-ink-soft">Rooms are matched to who's registering.</p>
-				<div class="mt-4 divide-y divide-ink/10">
-					{#each data.rooms as room (room.id)}
-						<a
-							href={`?room=${room.id}`}
-							class="-mx-2 flex items-center justify-between gap-4 rounded-xl px-2 py-3 transition {room.available
-								? 'hover:bg-sand'
-								: 'pointer-events-none opacity-50'}"
+
+				<div class="mt-4 flex flex-wrap items-center gap-2">
+					{#each typeOptions as t (t)}
+						<button
+							type="button"
+							class={roomFilter === t ? chip : chipMuted}
+							on:click={() => (roomFilter = t)}>{t === 'all' ? 'All' : typeLabel(t)}</button
 						>
-							<div>
-								<div class="font-semibold">{room.name}</div>
-								<div class="text-sm text-ink-soft capitalize">
-									{room.type}{room.location ? ` · ${room.location}` : ''}
-								</div>
-							</div>
-							<div class="flex items-center gap-3 text-right">
-								<span class="font-semibold">{dollars(room.price)}</span>
-								{#if room.available}
-									<span
-										class="rounded-full bg-mint/60 px-3 py-1 text-xs font-semibold text-primary-600"
-										>Available</span
+					{/each}
+					<label class="ml-auto flex items-center gap-2 text-xs font-semibold text-ink-soft">
+						<input type="checkbox" class="accent-primary" bind:checked={availableOnly} />
+						Available only
+					</label>
+				</div>
+				<input
+					type="search"
+					class="field mt-3"
+					placeholder="Search rooms or buildings…"
+					bind:value={roomSearch}
+				/>
+
+				<div class="mt-4 space-y-3">
+					{#each roomGroups as group (group.location)}
+						<details open class="rounded-2xl bg-sand-warm/60 px-4 py-3">
+							<summary class="cursor-pointer text-sm font-semibold">
+								{group.location}
+								<span class="ml-2 font-normal text-ink-soft"
+									>· {group.rooms.length} room{group.rooms.length === 1 ? '' : 's'} · {group.available}
+									of {group.total} beds open</span
+								>
+							</summary>
+							<div class="mt-2 divide-y divide-ink/10">
+								{#each group.rooms as room (room.id)}
+									<a
+										href={`?room=${room.id}`}
+										class="-mx-2 flex items-center justify-between gap-4 rounded-xl px-2 py-3 transition {room.available >
+										0
+											? 'hover:bg-white'
+											: 'pointer-events-none opacity-50'}"
 									>
-								{:else}
-									<span class="rounded-full bg-ink/10 px-3 py-1 text-xs font-semibold text-ink-soft"
-										>Full</span
-									>
-								{/if}
+										<div>
+											<div class="font-semibold">{room.name}</div>
+											<div class="text-sm text-ink-soft capitalize">{typeLabel(room.type)}</div>
+										</div>
+										<div class="flex items-center gap-3 text-right">
+											<span class="font-semibold">{dollars(room.price)}</span>
+											{#if room.available > 0}
+												<span
+													class="rounded-full bg-mint/60 px-3 py-1 text-xs font-semibold text-primary-600"
+													>{room.available} of {room.total} beds open</span
+												>
+											{:else}
+												<span
+													class="rounded-full bg-ink/10 px-3 py-1 text-xs font-semibold text-ink-soft"
+													>Full</span
+												>
+											{/if}
+										</div>
+									</a>
+								{/each}
 							</div>
-						</a>
+						</details>
 					{:else}
-						<p class="py-3 text-sm text-ink-soft">No rooms available for this selection.</p>
+						<p class="py-3 text-sm text-ink-soft">No rooms match your search.</p>
 					{/each}
 				</div>
 			</div>
@@ -352,26 +258,42 @@
 						style="position:absolute;left:-9999px"
 					/>
 					<fieldset>
-						<legend class="mb-2 text-sm font-semibold">Bed</legend>
-						<div class="grid gap-2 sm:grid-cols-2">
-							{#each data.beds as bed (bed.id)}
+						<legend class="mb-2 text-sm font-semibold">
+							Bed
+							{#if selectedRoom}
+								<span class="font-normal text-ink-soft"
+									>· {selectedRoom.name} · {data.beds.length} open</span
+								>
+							{/if}
+						</legend>
+						{#if data.beds.length === 0}
+							<p class="text-sm text-ink-soft">No beds left in this room.</p>
+						{:else}
+							<div class="grid grid-cols-3 gap-2 sm:grid-cols-5">
 								<label
-									class="flex cursor-pointer items-center gap-2 rounded-2xl border border-ink/10 bg-sand px-4 py-3 text-sm font-medium has-[:checked]:border-primary has-[:checked]:bg-mint/40"
+									class="col-span-3 flex cursor-pointer items-center justify-center gap-2 rounded-2xl border border-ink/10 bg-sand px-3 py-3 text-sm font-semibold has-[:checked]:border-primary has-[:checked]:bg-mint/40 sm:col-span-5"
 								>
 									<input
-										class="accent-primary"
+										class="sr-only"
 										type="radio"
 										name="cotId"
-										id={`cot-${bed.id}`}
-										value={bed.id}
+										value="any"
+										checked={data.beds.length > 8}
 										required
 									/>
-									{bed.description || `Bed ${bed.id}`}
+									<i class="bi bi-shuffle"></i> Any available bed
 								</label>
-							{:else}
-								<p class="text-sm text-ink-soft">No beds in this room.</p>
-							{/each}
-						</div>
+								{#each data.beds as bed (bed.id)}
+									<label
+										class="flex cursor-pointer items-center justify-center rounded-2xl border border-ink/10 bg-sand px-2 py-3 text-center text-sm font-medium has-[:checked]:border-primary has-[:checked]:bg-mint/40"
+										title={bed.description || `Bed ${bed.id}`}
+									>
+										<input class="sr-only" type="radio" name="cotId" value={bed.id} required />
+										<span class="truncate">{bed.description || `Bed ${bed.id}`}</span>
+									</label>
+								{/each}
+							</div>
+						{/if}
 						{#if form?.errors?.bed}
 							<div class="mt-1 text-sm text-red-600">{form.errors.bed}</div>
 						{/if}
