@@ -2,6 +2,7 @@
 	import '../app.css';
 	import type { Snippet } from 'svelte';
 	import type { LayoutData } from './$types';
+	import TabBar from '$lib/components/TabBar.svelte';
 
 	export let data: LayoutData;
 	export let children: Snippet;
@@ -18,7 +19,7 @@
 			</span>
 		</a>
 
-		<nav class="flex items-center gap-1 sm:gap-2">
+		<nav class="{data.camper ? 'hidden lg:flex' : 'flex'} items-center gap-1 sm:gap-2">
 			<a
 				href="/camps"
 				class="rounded-full px-3 py-2 text-sm font-medium text-white/85 transition hover:text-white sm:px-4"
@@ -53,11 +54,11 @@
 	</div>
 </header>
 
-<main class="min-h-screen pt-14 lg:pt-20">
+<main class="min-h-screen pt-14 pb-safe lg:pt-20">
 	{@render children()}
 </main>
 
-<footer class="bg-forest-deep text-white/80">
+<footer class="hidden bg-forest-deep text-white/80 lg:block">
 	<div
 		class="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-6 py-10 sm:flex-row"
 	>
@@ -69,3 +70,7 @@
 		<p class="text-xs text-white/50">© {year} Camp Paradise · Strawberry Valley, CA</p>
 	</div>
 </footer>
+
+{#if data.camper}
+	<TabBar topupUrl={data.topupUrl} />
+{/if}

@@ -94,5 +94,11 @@ export const load: PageServerLoad = async ({ locals, cookies, platform, setHeade
 		console.error('load camps failed:', err);
 	}
 
-	return { camper: identity, open, upcoming, balanceCents };
+	return {
+		camper: identity,
+		open,
+		upcoming,
+		balanceCents,
+		topupUrl: platform?.env?.PUBLIC_ZEFFY_TOPUP_URL ?? null
+	};
 };

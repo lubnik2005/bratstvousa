@@ -6,5 +6,5 @@ const sessionSecret = (platform: App.Platform | undefined) =>
 
 export const load: LayoutServerLoad = async ({ cookies, platform }) => {
 	const camper = await readSession(cookies, sessionSecret(platform));
-	return { camper };
+	return { camper, topupUrl: platform?.env?.PUBLIC_ZEFFY_TOPUP_URL ?? null };
 };

@@ -57,12 +57,16 @@
 			<span class="{badge} bg-white/85 text-primary-600">
 				<i class="bi bi-wallet2"></i> Balance: {dollars(data.balanceCents)}
 			</span>
-			<a
-				href="/account"
-				class="rounded-full border border-white/40 px-4 py-2 text-sm font-semibold text-white hover:bg-white/10"
-			>
-				My account
-			</a>
+			{#if data.topupUrl}
+				<a
+					href={data.topupUrl}
+					target="_blank"
+					rel="noopener"
+					class="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-primary/30 transition hover:shadow-xl active:scale-95"
+				>
+					<i class="bi bi-plus-circle"></i> Top up
+				</a>
+			{/if}
 		</div>
 	</div>
 </section>
