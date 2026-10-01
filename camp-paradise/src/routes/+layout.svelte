@@ -2,12 +2,29 @@
 	import '../app.css';
 	import type { Snippet } from 'svelte';
 	import type { LayoutData } from './$types';
+	import { onMount } from 'svelte';
+	import { invalidateAll } from '$app/navigation';
 	import TabBar from '$lib/components/TabBar.svelte';
+	import { CONTACT } from '$lib/contact';
 
 	export let data: LayoutData;
 	export let children: Snippet;
 
 	const year = new Date().getFullYear();
+	const REFRESH_MS = 30_000;
+
+	// Keep balances and bed availability fresh in the background while a camper
+	// is signed in and the tab is visible. Skips while the user is typing in a
+	// form so in-progress input is never clobbered.
+	onMount(() => {
+		const timer = setInterval(() => {
+			if (!data.camper || document.visibilityState !== 'visible') return;
+			const active = document.activeElement;
+			if (active && active.matches('input, textarea, select')) return;
+			invalidateAll();
+		}, REFRESH_MS);
+		return () => clearInterval(timer);
+	});
 </script>
 
 <header class="glass-dark fixed inset-x-0 top-0 z-40">
@@ -67,7 +84,28 @@
 			<span class="font-display text-lg font-semibold tracking-tight text-white">Camp Paradise</span
 			>
 		</a>
-		<p class="text-xs text-white/50">© {year} Camp Paradise · Strawberry Valley, CA</p>
+		<div class="flex flex-col items-center gap-1 text-xs sm:items-end">
+			<p class="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-white/75">
+				<a href={CONTACT.phoneHref} class="transition hover:text-white">
+					<i class="bi bi-telephone"></i>
+					{CONTACT.phone}
+				</a>
+				<a href={CONTACT.emailHref} class="transition hover:text-white">
+					<i class="bi bi-envelope"></i>
+					{CONTACT.email}
+				</a>
+				<a
+					href={CONTACT.mapHref}
+					target="_blank"
+					rel="noopener"
+					class="transition hover:text-white"
+				>
+					<i class="bi bi-geo-alt"></i>
+					{CONTACT.address}
+				</a>
+			</p>
+			<p class="text-white/50">© {year} Camp Paradise · Strawberry Valley, CA</p>
+		</div>
 	</div>
 </footer>
 

@@ -123,3 +123,55 @@ export async function verifyLoginCode(
 		.where(eq(paradiseLoginCodes.id, row.id));
 	return { ok: true };
 }
+
+// ---------------------------------------------------------------------------
+// Optional passwords (PBKDF2-SHA256 via Web Crypto — Workers compatible).
+// Stored as `pbkdf2$<iterations>$<saltB64>$<hashB64>`.
+// ---------------------------------------------------------------------------
+
+const PBKDF2_ITERATIONS = 100_000;
+export const MIN_PASSWORD_LENGTH = 8;
+
+function toB64(bytes: Uint8Array): string {
+	let s = '';
+	for (const b of bytes) s += String.fromCharCode(b);
+	return btoa(s);
+}
+
+function fromB64(value: string): Uint8Array<ArrayBuffer> {
+	const s = atob(value);
+	const out = new Uint8Array(s.length);
+	for (let i = 0; i < s.length; i++) out[i] = s.charCodeAt(i);
+	return out;
+}
+
+async function pbkdf2(password: string, salt: Uint8Array<ArrayBuffer>, iterations: number) {
+	const key = await crypto.subtle.importKey('raw', encoder.encode(password), 'PBKDF2', false, [
+		'deriveBits'
+	]);
+	const bits = await crypto.subtle.deriveBits(
+		{ name: 'PBKDF2', hash: 'SHA-256', salt, iterations },
+		key,
+		256
+	);
+	return new Uint8Array(bits);
+}
+
+export async function hashPassword(password: string): Promise<string> {
+	const salt = crypto.getRandomValues(new Uint8Array(16));
+	const hash = await pbkdf2(password, salt, PBKDF2_ITERATIONS);
+	return `pbkdf2$${PBKDF2_ITERATIONS}$${toB64(salt)}$${toB64(hash)}`;
+}
+
+export async function verifyPassword(password: string, stored: string | null): Promise<boolean> {
+	if (!stored) return false;
+	const [scheme, iter, saltB64, hashB64] = stored.split('$');
+	const iterations = Number(iter);
+	if (scheme !== 'pbkdf2' || !Number.isInteger(iterations) || !saltB64 || !hashB64) return false;
+	const expected = fromB64(hashB64);
+	const actual = await pbkdf2(password, fromB64(saltB64), iterations);
+	if (actual.length !== expected.length) return false;
+	let diff = 0;
+	for (let i = 0; i < actual.length; i++) diff |= actual[i] ^ expected[i];
+	return diff === 0;
+}

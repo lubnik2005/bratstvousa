@@ -95,3 +95,38 @@ export async function sendReservationRefunded(db: AppDatabase, info: RefundEmail
 		layout('Reservation cancelled', body)
 	);
 }
+
+export type RefundRequestInfo = {
+	requestId: number;
+	firstName: string;
+	lastName: string;
+	email: string;
+	amountCents: number | null;
+	balanceCents: number;
+	note: string | null;
+};
+
+const usd = (cents: number) => `$${(cents / 100).toFixed(2)}`;
+
+/** Notifies staff that a camper asked for a wallet-balance refund. */
+export async function sendRefundRequestNotice(
+	db: AppDatabase,
+	to: string,
+	info: RefundRequestInfo
+) {
+	const amount = info.amountCents === null ? 'Full balance' : usd(info.amountCents);
+	const body = `
+		<p><strong>${escapeHtml(info.firstName)} ${escapeHtml(info.lastName)}</strong>
+		(${escapeHtml(info.email)}) requested a wallet refund.</p>
+		<p>Request #${info.requestId}<br>Amount: <strong>${escapeHtml(amount)}</strong><br>
+		Current balance: ${usd(info.balanceCents)}</p>
+		${info.note ? `<p>Note:<br>${escapeHtml(info.note)}</p>` : ''}
+		<p>Process the refund in Zeffy, add a matching ledger adjustment, then mark the
+		request resolved in the admin panel.</p>`;
+	return sendEmail(
+		db,
+		to,
+		`Refund request #${info.requestId} — ${info.firstName} ${info.lastName}`,
+		layout('Wallet refund request', body)
+	);
+}

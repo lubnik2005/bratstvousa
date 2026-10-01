@@ -84,14 +84,16 @@ export const load: PageServerLoad = async ({
 	const roomId = roomParam && /^\d+$/.test(roomParam) ? Number(roomParam) : null;
 
 	// Run the independent lookups in parallel to cut serial D1 round-trips.
-	const [capacity, rooms, beds, forms, balanceCents, existing] = await Promise.all([
+	const [capacity, rooms, roomBeds, forms, balanceCents, existing] = await Promise.all([
 		eventCapacity(db, id),
 		roomsForEvent(db, id, sex),
-		roomId ? bedsForRoom(db, id, roomId, { freeOnly: true }) : Promise.resolve([]),
+		roomId ? bedsForRoom(db, id, roomId) : Promise.resolve([]),
 		requiredForms(db),
 		balanceForEmail(db, identity.email),
 		activeReservationForEvent(db, identity.email, id)
 	]);
+	// Only expose beds (and occupant names) for rooms this camper may book.
+	const beds = rooms.some((r) => r.id === roomId) ? roomBeds : [];
 
 	return {
 		event,

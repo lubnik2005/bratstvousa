@@ -89,6 +89,7 @@
 	})();
 	$: totalBeds = data.rooms.reduce((n, r) => n + r.total, 0);
 	$: openBeds = data.rooms.reduce((n, r) => n + r.available, 0);
+	$: freeBeds = data.beds.filter((b) => !b.taken);
 </script>
 
 <svelte:head>
@@ -281,35 +282,52 @@
 							Bed
 							{#if selectedRoom}
 								<span class="font-normal text-ink-soft"
-									>· {selectedRoom.name} · {data.beds.length} open</span
+									>· {selectedRoom.name} · {freeBeds.length} of {data.beds.length} open</span
 								>
 							{/if}
 						</legend>
-						{#if data.beds.length === 0}
+						{#if freeBeds.length === 0}
 							<p class="text-sm text-ink-soft">No beds left in this room.</p>
-						{:else}
+						{/if}
+						{#if data.beds.length > 0}
 							<div class="grid grid-cols-3 gap-2 sm:grid-cols-5">
-								<label
-									class="col-span-3 flex cursor-pointer items-center justify-center gap-2 rounded-2xl border border-ink/10 bg-sand px-3 py-3 text-sm font-semibold has-[:checked]:border-primary has-[:checked]:bg-mint/40 sm:col-span-5"
-								>
-									<input
-										class="sr-only"
-										type="radio"
-										name="cotId"
-										value="any"
-										checked={data.beds.length > 8}
-										required
-									/>
-									<i class="bi bi-shuffle"></i> Any available bed
-								</label>
-								{#each data.beds as bed (bed.id)}
+								{#if freeBeds.length > 0}
 									<label
-										class="flex cursor-pointer items-center justify-center rounded-2xl border border-ink/10 bg-sand px-2 py-3 text-center text-sm font-medium has-[:checked]:border-primary has-[:checked]:bg-mint/40"
-										title={bed.description || `Bed ${bed.id}`}
+										class="col-span-3 flex cursor-pointer items-center justify-center gap-2 rounded-2xl border border-ink/10 bg-sand px-3 py-3 text-sm font-semibold has-[:checked]:border-primary has-[:checked]:bg-mint/40 sm:col-span-5"
 									>
-										<input class="sr-only" type="radio" name="cotId" value={bed.id} required />
-										<span class="truncate">{bed.description || `Bed ${bed.id}`}</span>
+										<input
+											class="sr-only"
+											type="radio"
+											name="cotId"
+											value="any"
+											checked={freeBeds.length > 8}
+											required
+										/>
+										<i class="bi bi-shuffle"></i> Any available bed
 									</label>
+								{/if}
+								{#each data.beds as bed (bed.id)}
+									{#if bed.taken}
+										<div
+											class="flex min-w-0 flex-col items-center justify-center rounded-2xl border border-dashed border-ink/15 bg-ink/5 px-2 py-2 text-center text-xs text-ink-soft"
+											title="{bed.description || `Bed ${bed.id}`} — {bed.occupantName ??
+												'Reserved'}"
+										>
+											<span class="truncate opacity-70">{bed.description || `Bed ${bed.id}`}</span>
+											<span class="flex max-w-full items-center gap-1 font-semibold text-ink">
+												<i class="bi bi-person-fill"></i>
+												<span class="truncate">{bed.occupantName ?? 'Reserved'}</span>
+											</span>
+										</div>
+									{:else}
+										<label
+											class="flex cursor-pointer items-center justify-center rounded-2xl border border-ink/10 bg-sand px-2 py-3 text-center text-sm font-medium has-[:checked]:border-primary has-[:checked]:bg-mint/40"
+											title={bed.description || `Bed ${bed.id}`}
+										>
+											<input class="sr-only" type="radio" name="cotId" value={bed.id} required />
+											<span class="truncate">{bed.description || `Bed ${bed.id}`}</span>
+										</label>
+									{/if}
 								{/each}
 							</div>
 						{/if}

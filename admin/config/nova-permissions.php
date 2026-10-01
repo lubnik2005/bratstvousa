@@ -717,6 +717,26 @@ return [
             'description' => 'Can delete paradise zeffy payments',
             'group' => 'Camp Paradise',
         ],
+        'view paradise_refund_requests' => [
+            'display_name' => 'View paradise refund requests',
+            'description' => 'Can view paradise refund requests',
+            'group' => 'Camp Paradise',
+        ],
+        'create paradise_refund_requests' => [
+            'display_name' => 'Create paradise refund requests',
+            'description' => 'Can create paradise refund requests',
+            'group' => 'Camp Paradise',
+        ],
+        'edit paradise_refund_requests' => [
+            'display_name' => 'Edit paradise refund requests',
+            'description' => 'Can edit paradise refund requests',
+            'group' => 'Camp Paradise',
+        ],
+        'delete paradise_refund_requests' => [
+            'display_name' => 'Delete paradise refund requests',
+            'description' => 'Can delete paradise refund requests',
+            'group' => 'Camp Paradise',
+        ],
         // Camp Paradise End
     ],
 ];

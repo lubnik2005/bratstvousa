@@ -53,7 +53,7 @@
 			<h1 class="mt-2 text-3xl text-white lg:text-5xl">Hi, {data.camper?.firstName ?? 'camper'}</h1>
 			<p class="mt-2 text-mint/90">Pick a camp below to reserve your bed.</p>
 		</div>
-		<div class="flex items-center gap-3">
+		<div class="flex flex-wrap items-center gap-3">
 			<span class="{badge} bg-white/85 text-primary-600">
 				<i class="bi bi-wallet2"></i> Balance: {dollars(data.balanceCents)}
 			</span>
@@ -65,6 +65,14 @@
 					class="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-primary/30 transition hover:shadow-xl active:scale-95"
 				>
 					<i class="bi bi-plus-circle"></i> Top up
+				</a>
+			{/if}
+			{#if data.balanceCents > 0}
+				<a
+					href="/account#refund"
+					class="inline-flex items-center gap-2 rounded-full border border-white/40 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/10 active:scale-95"
+				>
+					<i class="bi bi-arrow-counterclockwise"></i> Request refund
 				</a>
 			{/if}
 		</div>

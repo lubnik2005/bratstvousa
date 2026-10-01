@@ -72,6 +72,11 @@
 		height: calc(var(--tabbar-height) + var(--safe-bottom, 0px));
 		padding-bottom: var(--safe-bottom, 0px);
 		border-top: 1px solid rgba(255, 255, 255, 0.08);
+		/* Explicit frosted glass so the blur never depends on utility ordering,
+		   with the -webkit- prefix iOS Safari still needs. */
+		background: color-mix(in srgb, var(--color-forest-deep, #0a2c21) 70%, transparent);
+		-webkit-backdrop-filter: saturate(180%) blur(18px);
+		backdrop-filter: saturate(180%) blur(18px);
 	}
 	@media (min-width: 64rem) {
 		.tabbar {

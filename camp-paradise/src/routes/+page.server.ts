@@ -4,7 +4,7 @@ import {
 	upsertAttendee,
 	markAttendeeLogin
 } from '$lib/server/paradise/queries';
-import { issueLoginCode, verifyLoginCode } from '$lib/server/paradise/auth';
+import { issueLoginCode, verifyLoginCode, verifyPassword } from '$lib/server/paradise/auth';
 import { verifyTurnstile, TURNSTILE_ERROR_MESSAGE } from '$lib/server/turnstile';
 import { readSession, setSession, clearSession } from '$lib/server/paradise/session';
 import type { Actions, PageServerLoad } from './$types';
@@ -125,6 +125,55 @@ export const actions: Actions = {
 			lastName,
 			sex: sex as 'm' | 'f'
 		});
+		await setSession(
+			cookies,
+			{
+				attendeeId: attendee.id,
+				firstName: attendee.firstName,
+				lastName: attendee.lastName,
+				email: attendee.email,
+				sex: attendee.sex as 'm' | 'f'
+			},
+			sessionSecret(platform)
+		);
+		return { signedIn: true };
+	},
+
+	// Alternative step 1: email + password (only for campers who set one on
+	// /account). Turnstile-gated per attempt to blunt brute force; the error is
+	// deliberately generic so it never reveals whether an account exists.
+	passwordLogin: async ({ request, locals, cookies, platform }) => {
+		const db = locals.db;
+		const fd = await request.formData();
+		const email = clean(fd.get('email'));
+		const password = typeof fd.get('password') === 'string' ? (fd.get('password') as string) : '';
+
+		const ts = await verifyTurnstile(
+			fd.get('cf-turnstile-response') as string | null,
+			platform?.env?.TURNSTILE_SECRET_KEY,
+			request.headers.get('cf-connecting-ip'),
+			'paradise_login',
+			platform?.env?.TURNSTILE_HOSTNAMES
+		);
+		if (!ts.ok) return fail(403, { message: TURNSTILE_ERROR_MESSAGE, email, usePassword: true });
+
+		if (!isEmail(email) || !password)
+			return fail(400, {
+				passwordError: 'Enter your email and password.',
+				email,
+				usePassword: true
+			});
+
+		const attendee = await findAttendeeByEmail(db, email);
+		const ok = await verifyPassword(password, attendee?.passwordHash ?? null);
+		if (!attendee || !ok)
+			return fail(400, {
+				passwordError: 'Email or password is incorrect. You can also sign in with a code.',
+				email,
+				usePassword: true
+			});
+
+		await markAttendeeLogin(db, attendee.id);
 		await setSession(
 			cookies,
 			{

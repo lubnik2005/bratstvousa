@@ -119,12 +119,27 @@ export const paradiseAttendees = sqliteTable(
 		sex: text('sex').notNull(), // m | f
 		verifiedAt: text('verified_at'),
 		lastLoginAt: text('last_login_at'),
+		// Optional password (PBKDF2) — the emailed code remains the primary sign-in.
+		passwordHash: text('password_hash'),
 		...timestamps
 	},
 	(table) => ({
 		emailUnique: uniqueIndex('paradise_attendees_email_unique').on(table.email)
 	})
 );
+
+// A camper's request to have (part of) their wallet balance refunded.
+export const paradiseRefundRequests = sqliteTable('paradise_refund_requests', {
+	id: integer('id').primaryKey({ autoIncrement: true }),
+	attendeeId: integer('attendee_id'),
+	email: text('email').notNull(),
+	amountCents: integer('amount_cents'), // null = full balance
+	balanceCents: integer('balance_cents').default(0).notNull(), // balance at request time
+	note: text('note'),
+	status: text('status').default('open').notNull(), // open | resolved | declined
+	...timestamps
+});
+export type ParadiseRefundRequest = typeof paradiseRefundRequests.$inferSelect;
 
 // A short-lived one-time login code (magic code) for email verification.
 export const paradiseLoginCodes = sqliteTable('paradise_login_codes', {

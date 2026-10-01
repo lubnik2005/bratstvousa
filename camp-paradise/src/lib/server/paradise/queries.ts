@@ -243,9 +243,9 @@ function normalizeLocation(raw: string | null | undefined): string {
 }
 
 /**
- * Beds in a room for an event. Each is flagged taken/free; pass
- * `freeOnly: true` to return only the free beds (so taken beds — and thus the
- * count of who's already in a cabin — are never sent to the client).
+ * Beds in a room for an event. Each is flagged taken/free and, when taken,
+ * carries a short occupant name ("First L.") so campers can see who they'd
+ * share a cabin with. Pass `freeOnly: true` to return only the free beds.
  */
 export async function bedsForRoom(
 	db: AppDatabase,
@@ -260,7 +260,11 @@ export async function bedsForRoom(
 		.orderBy(paradiseCots.id);
 
 	const takenRows = await db
-		.select({ cotId: paradiseReservations.cotId })
+		.select({
+			cotId: paradiseReservations.cotId,
+			firstName: paradiseReservations.firstName,
+			lastName: paradiseReservations.lastName
+		})
 		.from(paradiseReservations)
 		.where(
 			and(
@@ -269,10 +273,24 @@ export async function bedsForRoom(
 				bedBlockedCondition()
 			)
 		);
-	const taken = new Set(takenRows.map((r) => r.cotId));
+	const occupants = new Map(
+		takenRows.map((r) => [r.cotId, shortName(r.firstName, r.lastName)] as const)
+	);
 
-	const beds = cots.map((c) => ({ id: c.id, description: c.description, taken: taken.has(c.id) }));
+	const beds = cots.map((c) => ({
+		id: c.id,
+		description: c.description,
+		taken: occupants.has(c.id),
+		occupantName: occupants.get(c.id) ?? null
+	}));
 	return opts.freeOnly ? beds.filter((b) => !b.taken) : beds;
+}
+
+/** "Anna Petrova" -> "Anna P." (keeps full surnames off the public bed list). */
+function shortName(first: string, last: string): string {
+	const f = first.trim();
+	const initial = last.trim().charAt(0).toUpperCase();
+	return initial ? `${f} ${initial}.` : f || 'Reserved';
 }
 
 /** Is a specific bed currently free for an event? (used at hold + confirm time). */

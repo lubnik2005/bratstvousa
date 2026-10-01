@@ -36,6 +36,7 @@ class NovaServiceProvider extends NovaApplicationServiceProvider
             \App\Nova\Paradise\Attendee::class,
             \App\Nova\Paradise\LedgerEntry::class,
             \App\Nova\Paradise\ZeffyPayment::class,
+            \App\Nova\Paradise\RefundRequest::class,
         ]);
 
         Nova::mainMenu(fn (Request $request) => $this->mainMenu($request));
@@ -99,6 +100,7 @@ class NovaServiceProvider extends NovaApplicationServiceProvider
                 MenuItem::resource(\App\Nova\Paradise\Attendee::class),
                 MenuItem::resource(\App\Nova\Paradise\LedgerEntry::class),
                 MenuItem::resource(\App\Nova\Paradise\ZeffyPayment::class),
+                MenuItem::resource(\App\Nova\Paradise\RefundRequest::class),
             ])->icon('home')->collapsable(),
 
             MenuSection::make('Administration', [

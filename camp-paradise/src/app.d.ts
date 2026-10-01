@@ -15,6 +15,7 @@ declare global {
 				ZEFFY_WEBHOOK_SECRET?: string;
 				PUBLIC_ZEFFY_TOPUP_URL?: string;
 				SESSION_SECRET?: string;
+				REFUND_NOTIFY_EMAILS?: string;
 			};
 		}
 	}

@@ -9,6 +9,9 @@
 
 	let startTurnstile: Turnstile;
 	let starting = false;
+	// Email step mode: email a code (default) or sign in with a password.
+	let usePassword = false;
+	$: if (form && 'usePassword' in form && form.usePassword) usePassword = true;
 
 	// Sign-in sub-step: 'email' -> 'code' -> ('profile' for new campers).
 	$: signInStep =
@@ -51,12 +54,16 @@
 		{#if signInStep === 'email'}
 			<h2 class="text-lg font-semibold">Sign in with your email</h2>
 			<p class="mt-1 mb-5 text-sm text-ink-soft">
-				Enter your email and we'll send you a 6-digit code. New here? You'll set up your details
-				next.
+				{#if usePassword}
+					Enter the email and password you set on your account page.
+				{:else}
+					Enter your email and we'll send you a 6-digit code. New here? You'll set up your details
+					next.
+				{/if}
 			</p>
 			<form
 				method="post"
-				action="?/requestCode"
+				action={usePassword ? '?/passwordLogin' : '?/requestCode'}
 				use:enhance={() => {
 					starting = true;
 					return async ({ update }) => {
@@ -83,6 +90,23 @@
 					{/if}
 				</div>
 
+				{#if usePassword}
+					<div class="mb-4">
+						<label class="mb-1 block text-sm font-medium" for="password">Password</label>
+						<input
+							class="field"
+							id="password"
+							name="password"
+							type="password"
+							autocomplete="current-password"
+							required
+						/>
+						{#if form && 'passwordError' in form && form.passwordError}
+							<div class="mt-1 text-sm text-red-600">{form.passwordError}</div>
+						{/if}
+					</div>
+				{/if}
+
 				<Turnstile bind:this={startTurnstile} action="paradise_login" />
 
 				{#if form && 'message' in form && form.message}
@@ -90,9 +114,22 @@
 				{/if}
 
 				<button class="{btn} mt-4" type="submit" disabled={starting}>
-					{starting ? 'Sending…' : 'Email me a code'}
+					{#if usePassword}
+						{starting ? 'Signing in…' : 'Sign in'}
+					{:else}
+						{starting ? 'Sending…' : 'Email me a code'}
+					{/if}
 				</button>
 			</form>
+			<div class="mt-3 text-center">
+				<button
+					type="button"
+					class="text-sm font-semibold text-primary-600 hover:text-primary"
+					on:click={() => (usePassword = !usePassword)}
+				>
+					{usePassword ? 'Email me a code instead' : 'Have a password? Sign in with it'}
+				</button>
+			</div>
 		{:else if signInStep === 'code'}
 			<h2 class="text-lg font-semibold">Enter your code</h2>
 			<p class="mt-1 mb-5 text-sm text-ink-soft">
