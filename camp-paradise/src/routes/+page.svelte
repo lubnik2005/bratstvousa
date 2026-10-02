@@ -234,10 +234,4 @@
 			</form>
 		{/if}
 	</div>
-
-	<p class="mt-5 text-center text-sm">
-		<a href="/camps" class="font-semibold text-primary-600 hover:text-primary">
-			<i class="bi bi-arrow-left mr-1"></i>Back to camps
-		</a>
-	</p>
 </div>
