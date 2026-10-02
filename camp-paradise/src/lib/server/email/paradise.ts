@@ -51,6 +51,7 @@ export interface ReservationEmailInfo {
 	email: string;
 	eventName: string;
 	roomName: string;
+	cotName?: string;
 	code: string;
 	amount: number; // dollars
 }
@@ -62,6 +63,7 @@ export async function sendReservationConfirmed(db: AppDatabase, info: Reservatio
 		<p style="font-size:15px;line-height:1.6;margin:0 0 16px">Your spot at <strong>${escapeHtml(info.eventName)}</strong> is confirmed. Thank you for registering!</p>
 		<table style="border-collapse:collapse;margin:0 0 16px;font-size:14px">
 			<tr><td style="padding:4px 12px 4px 0;color:#6b7580">Room</td><td style="padding:4px 0;font-weight:700">${escapeHtml(info.roomName)}</td></tr>
+			${info.cotName ? `<tr><td style="padding:4px 12px 4px 0;color:#6b7580">Bed</td><td style="padding:4px 0;font-weight:700">${escapeHtml(info.cotName)}</td></tr>` : ''}
 			<tr><td style="padding:4px 12px 4px 0;color:#6b7580">Amount paid</td><td style="padding:4px 0;font-weight:700">$${info.amount.toFixed(2)}</td></tr>
 			<tr><td style="padding:4px 12px 4px 0;color:#6b7580">Confirmation</td><td style="padding:4px 0;font-weight:700">${escapeHtml(info.code)}</td></tr>
 		</table>

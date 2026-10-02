@@ -282,7 +282,7 @@
 							Bed
 							{#if selectedRoom}
 								<span class="font-normal text-ink-soft"
-									>· {selectedRoom.name} · {freeBeds.length} of {data.beds.length} open</span
+									>· <a href="?" class="hover:underline">{selectedRoom.name}</a> · {freeBeds.length} of {data.beds.length} open</span
 								>
 							{/if}
 						</legend>

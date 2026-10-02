@@ -4,7 +4,11 @@ namespace App\Nova\Paradise;
 
 use App\Nova\Resource;
 use Laravel\Nova\Actions\ExportAsCsv;
+use Laravel\Nova\Fields\BelongsToMany;
+use Laravel\Nova\Fields\Currency;
 use Laravel\Nova\Fields\DateTime;
+use Laravel\Nova\Fields\HasMany;
+use Laravel\Nova\Fields\HasManyThrough;
 use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\Number;
 use Laravel\Nova\Fields\Select;
@@ -81,6 +85,24 @@ class Event extends Resource
                 ->help('Public Zeffy ticketing page shown to campers as "Buy a ticket on Zeffy".'),
 
             DateTime::make('Updated', 'updated_at')->onlyOnDetail(),
+
+            HasMany::make('Reservations', 'reservations', Reservation::class),
+
+            HasManyThrough::make('Campers', 'attendees', Attendee::class),
+
+            BelongsToMany::make('Rooms', 'rooms', Room::class)
+                ->fields(fn () => [
+                    Currency::make('Price', 'price')
+                        ->asMinorUnits()
+                        ->rules('required', 'numeric', 'min:0'),
+                ])
+                ->searchable(),
+
+            HasMany::make('Form Answers', 'formAnswers', FormAnswer::class),
+
+            HasMany::make('Ledger', 'ledgerEntries', LedgerEntry::class),
+
+            HasMany::make('Zeffy Payments', 'zeffyPayments', ZeffyPayment::class),
         ];
     }
 
@@ -101,6 +123,6 @@ class Event extends Resource
 
     public function actions(NovaRequest $request): array
     {
-        return [ExportAsCsv::make()];
+        return [ExportAsCsv::make()->withTypeSelector()->nameable()];
     }
 }

@@ -72,6 +72,6 @@ class Form extends Resource
 
     public function actions(NovaRequest $request): array
     {
-        return [ExportAsCsv::make()];
+        return [ExportAsCsv::make()->withTypeSelector()->nameable()];
     }
 }

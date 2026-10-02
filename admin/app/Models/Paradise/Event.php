@@ -5,6 +5,7 @@ namespace App\Models\Paradise;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class Event extends Model
 {
@@ -40,11 +41,40 @@ class Event extends Model
     public function rooms(): BelongsToMany
     {
         return $this->belongsToMany(Room::class, 'paradise_event_rooms', 'event_id', 'room_id')
-            ->withPivot('price');
+            ->withPivot('price')
+            ->withTimestamps();
     }
 
     public function reservations(): HasMany
     {
         return $this->hasMany(Reservation::class, 'event_id');
+    }
+
+    /** Campers holding a reservation for this event (via paradise_reservations). */
+    public function attendees(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            Attendee::class,
+            Reservation::class,
+            'event_id',     // reservations.event_id
+            'id',           // attendees.id
+            'id',           // events.id
+            'attendee_id'   // reservations.attendee_id
+        )->whereNull('paradise_reservations.deleted_at');
+    }
+
+    public function ledgerEntries(): HasMany
+    {
+        return $this->hasMany(LedgerEntry::class, 'event_id');
+    }
+
+    public function formAnswers(): HasMany
+    {
+        return $this->hasMany(FormAnswer::class, 'event_id');
+    }
+
+    public function zeffyPayments(): HasMany
+    {
+        return $this->hasMany(ZeffyPayment::class, 'event_id');
     }
 }

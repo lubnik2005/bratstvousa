@@ -142,7 +142,7 @@ class ZeffyPayment extends Resource
     public function actions(NovaRequest $request): array
     {
         return [
-            ExportAsCsv::make(),
+            ExportAsCsv::make()->withTypeSelector()->nameable(),
             new Actions\ApplyZeffyPaymentToWallet,
         ];
     }

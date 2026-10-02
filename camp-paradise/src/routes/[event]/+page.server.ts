@@ -20,6 +20,7 @@ import {
 	paradiseEventRooms,
 	paradiseFormAnswers,
 	paradiseRooms,
+	paradiseCots,
 	paradiseLedger
 } from '$lib/server/db/schema';
 import type { Actions, PageServerLoad } from './$types';
@@ -247,11 +248,17 @@ export const actions: Actions = {
 				.from(paradiseRooms)
 				.where(eq(paradiseRooms.id, roomId))
 				.limit(1);
+			const cotRows = await db
+				.select({ description: paradiseCots.description })
+				.from(paradiseCots)
+				.where(eq(paradiseCots.id, cotId))
+				.limit(1);
 			await sendReservationConfirmed(db, {
 				firstName,
 				email,
 				eventName: heldEvent.name,
 				roomName: roomRows[0]?.name ?? `Room ${roomId}`,
+				cotName: cotRows[0]?.description ?? '',
 				code,
 				amount: price / 100
 			});

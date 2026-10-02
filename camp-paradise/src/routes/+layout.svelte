@@ -29,7 +29,7 @@
 
 <header class="glass-dark fixed inset-x-0 top-0 z-40">
 	<div class="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 lg:h-20 lg:px-6">
-		<a href="https://camp-paradise.org" class="flex items-center gap-2.5">
+		<a href="/" class="flex items-center gap-2.5">
 			<img src="/logo.png" alt="Camp Paradise" class="h-9 w-9 lg:h-11 lg:w-11" />
 			<span class="font-display text-lg font-semibold tracking-tight text-white lg:text-xl">
 				Camp Paradise
@@ -79,7 +79,7 @@
 	<div
 		class="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-6 py-10 sm:flex-row"
 	>
-		<a href="https://camp-paradise.org" class="flex items-center gap-2.5">
+		<a href="/" class="flex items-center gap-2.5">
 			<img src="/logo.png" alt="Camp Paradise" class="h-10 w-10" />
 			<span class="font-display text-lg font-semibold tracking-tight text-white">Camp Paradise</span
 			>
