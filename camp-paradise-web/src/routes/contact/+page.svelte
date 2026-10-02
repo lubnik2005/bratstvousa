@@ -4,7 +4,7 @@
 	import Button from '$lib/components/ui/Button.svelte';
 	import Turnstile from '$lib/components/Turnstile.svelte';
 	import { reveal } from '$lib/motion/reveal';
-	import { site, contact } from '$lib/content/site';
+	import { site, contact, bratstvo } from '$lib/content/site';
 	import type { ActionData } from './$types';
 
 	let { form }: { form: ActionData } = $props();
@@ -34,46 +34,87 @@
 			<div>
 				<p class="text-primary text-sm font-semibold tracking-[0.2em] uppercase">Reach us</p>
 				<h2 class="text-ink mt-2 text-3xl">Come visit us</h2>
+				<p class="text-ink-soft mt-3 text-sm">
+					<a
+						href={bratstvo.portalUrl}
+						target="_blank"
+						rel="noopener"
+						class="hover:text-primary underline underline-offset-2 transition"
+					>{bratstvo.hint} →</a>
+				</p>
 			</div>
-			<ul class="space-y-4">
-				<li class="flex items-center gap-4">
+			<ul class="space-y-5">
+				<li class="flex items-start gap-4">
 					<span
-						class="bg-primary/10 text-primary flex h-11 w-11 items-center justify-center rounded-xl"
+						class="bg-primary/10 text-primary mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl"
 					>
 						<i class="bi bi-geo-alt"></i>
 					</span>
-					<a
-						class="text-ink hover:text-primary text-lg transition"
-						href={site.mapsLink}
-						target="_blank"
-						rel="noopener"
+					<div>
+						<a
+							class="text-ink hover:text-primary text-base font-medium transition"
+							href={site.mapsLink}
+							target="_blank"
+							rel="noopener"
+						>
+							{site.address.full}
+						</a>
+						<p class="text-ink-soft mt-0.5 text-sm">{site.distances}</p>
+					</div>
+				</li>
+				<li class="flex items-start gap-4">
+					<span
+						class="bg-primary/10 text-primary mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl"
 					>
-						{site.address.full}
-					</a>
+						<i class="bi bi-envelope"></i>
+					</span>
+					<div>
+						<a
+							class="text-ink hover:text-primary text-base font-medium transition"
+							href={contact.emailHref}
+						>
+							{contact.email}
+						</a>
+						<p class="text-ink-soft mt-0.5 text-sm">{contact.responseTime}</p>
+					</div>
+				</li>
+				<li class="flex items-start gap-4">
+					<span
+						class="bg-primary/10 text-primary mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-xl"
+					>
+						<i class="bi bi-clock"></i>
+					</span>
+					<div>
+						<p class="text-ink text-base font-medium">{contact.hours}</p>
+						<p class="text-ink-soft mt-0.5 text-sm">{contact.hoursDetail}</p>
+					</div>
 				</li>
 			</ul>
-			<div class="flex gap-3">
-				<a
-					class="glass-dark flex h-11 w-11 items-center justify-center rounded-full text-white transition hover:opacity-80"
-					href={site.social.facebook}
-					target="_blank"
-					rel="noopener"
-					aria-label="Facebook"><i class="bi bi-facebook"></i></a
-				>
-				<a
-					class="glass-dark flex h-11 w-11 items-center justify-center rounded-full text-white transition hover:opacity-80"
-					href={site.social.instagram}
-					target="_blank"
-					rel="noopener"
-					aria-label="Instagram"><i class="bi bi-instagram"></i></a
-				>
-				<a
-					class="glass-dark flex h-11 w-11 items-center justify-center rounded-full text-white transition hover:opacity-80"
-					href={site.social.youtube}
-					target="_blank"
-					rel="noopener"
-					aria-label="YouTube"><i class="bi bi-youtube"></i></a
-				>
+			<div>
+				<p class="text-ink-soft mb-3 text-sm font-medium">Follow us</p>
+				<div class="flex gap-3">
+					<a
+						class="glass-dark flex h-11 w-11 items-center justify-center rounded-full text-white transition hover:opacity-80"
+						href={site.social.facebook}
+						target="_blank"
+						rel="noopener"
+						aria-label="Facebook"><i class="bi bi-facebook"></i></a
+					>
+					<a
+						class="glass-dark flex h-11 w-11 items-center justify-center rounded-full text-white transition hover:opacity-80"
+						href={site.social.instagram}
+						target="_blank"
+						rel="noopener"
+						aria-label="Instagram"><i class="bi bi-instagram"></i></a
+					>
+					<a
+						class="glass-dark flex h-11 w-11 items-center justify-center rounded-full text-white transition hover:opacity-80"
+						href={site.social.youtube}
+						target="_blank"
+						rel="noopener"
+						aria-label="YouTube"><i class="bi bi-youtube"></i></a
+					>
+				</div>
 			</div>
 		</div>
 

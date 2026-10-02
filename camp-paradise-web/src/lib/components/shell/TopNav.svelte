@@ -1,11 +1,8 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
-	import { BOOKING_URL } from '$lib/config';
 	import { site, nav } from '$lib/content/site';
 	import { media } from '$lib/stores/media.svelte';
-
-	const bookingUrl = BOOKING_URL;
 
 	let scrolled = $state(false);
 	const pathname = $derived($page.url.pathname);
@@ -74,9 +71,7 @@
 
 		<a
 			bind:this={bookBtn}
-			href={bookingUrl}
-			target="_blank"
-			rel="noopener"
+			href="/contact"
 			onmousemove={onMove}
 			onmouseleave={onLeave}
 			class="bg-primary shadow-primary/30 hover:shadow-primary/40 rounded-full px-6 py-2.5 text-sm font-semibold text-white shadow-lg transition-[transform,box-shadow] duration-300 hover:shadow-xl"

@@ -1,11 +1,8 @@
 <script lang="ts">
-	import { BOOKING_URL } from '$lib/config';
 	import { home } from '$lib/content/site';
 	import { reveal } from '$lib/motion/reveal';
 	import Button from '$lib/components/ui/Button.svelte';
 	import Img from '$lib/components/ui/Img.svelte';
-
-	const bookingUrl = BOOKING_URL;
 </script>
 
 <section class="bg-forest relative overflow-hidden py-28 text-white lg:py-40">
@@ -22,8 +19,7 @@
 			{home.ctaSub}
 		</p>
 		<div class="mt-10 flex flex-wrap items-center justify-center gap-4">
-			<Button href={bookingUrl} external variant="primary" size="lg">Book Now</Button>
-			<Button href="/contact" variant="outline" size="lg">Get in touch</Button>
+			<Button href="/contact" variant="primary" size="lg">Book Now</Button>
 		</div>
 	</div>
 </section>

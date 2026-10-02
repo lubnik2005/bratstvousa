@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { site, nav } from '$lib/content/site';
+	import { site, nav, bratstvo } from '$lib/content/site';
 
 	const year = new Date().getFullYear();
 	const socials = [
@@ -69,6 +69,12 @@
 			class="mt-12 flex flex-col items-center justify-between gap-2 border-t border-white/10 pt-6 text-xs text-white/50 sm:flex-row"
 		>
 			<p>&copy; {year} {site.name}. All rights reserved.</p>
+			<a
+				href={bratstvo.portalUrl}
+				target="_blank"
+				rel="noopener"
+				class="hover:text-white/70 transition"
+			>{bratstvo.hint} →</a>
 		</div>
 	</div>
 </footer>

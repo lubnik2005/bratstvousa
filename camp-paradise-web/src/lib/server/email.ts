@@ -10,7 +10,7 @@ export async function sendEmail(
 	const apiKey = env.RESEND_API_KEY;
 	if (!apiKey) throw new Error('RESEND_API_KEY is not configured');
 
-	const fromEmail = env.MAIL_FROM ?? 'noreply@bratstvousa.com';
+	const fromEmail = env.MAIL_FROM ?? 'form@camp-paradise.org';
 	const fromName = env.MAIL_FROM_NAME ?? 'Camp Paradise';
 
 	const body: Record<string, unknown> = {

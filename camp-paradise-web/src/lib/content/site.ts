@@ -213,12 +213,20 @@ export const gallery: string[] = Array.from(
 
 export const donate = {
 	intro:
-		'If you have the desire to support our mission, please donate using the options below. Even the smallest donations go a long way in helping us serve our guests. God bless you for your generosity!',
-	donorbox: 'https://donorbox.org/embed/camp-paradise',
-	paypal: 'https://www.paypal.com/cgi-bin/webscr'
+		'If you have the desire to support our mission, please donate using the options below. Even the smallest donations go a long way in helping us serve our guests. God bless you for your generosity!'
 };
 
 export const contact = {
 	intro: "If you'd like to book a stay with us, don't hesitate to reach out!",
+	email: 'Contact@camp-paradise.org',
+	emailHref: 'mailto:Contact@camp-paradise.org',
+	hours: 'Open year-round',
+	hoursDetail: 'Retreat bookings available 7 days a week',
+	responseTime: 'We typically respond within 1–2 business days.',
 	fields: ['Full Name', 'Group Name', 'Contact Email', 'Telephone Number', 'Additional Information']
+};
+
+export const bratstvo = {
+	portalUrl: 'https://app.camp-paradise.org/',
+	hint: 'From Bratstvo youth? Registration is here'
 };

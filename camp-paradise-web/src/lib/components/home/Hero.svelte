@@ -1,12 +1,9 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { BOOKING_URL } from '$lib/config';
 	import { media } from '$lib/stores/media.svelte';
 	import { splitReveal } from '$lib/motion/split';
 	import { home, site } from '$lib/content/site';
 	import Button from '$lib/components/ui/Button.svelte';
-
-	const bookingUrl = BOOKING_URL;
 
 	// Lazy-load the WebGL scene only on desktop when motion is allowed.
 	let SceneComp = $state<typeof import('$lib/three/HeroScene.svelte').default | null>(null);
@@ -70,7 +67,7 @@
 			{home.heroSub}
 		</p>
 		<div class="mt-9 flex flex-wrap items-center gap-4">
-			<Button href={bookingUrl} external variant="primary" size="lg">Book Now</Button>
+			<Button href="/contact" variant="primary" size="lg">Book Now</Button>
 			<Button href="/facilities" variant="outline" size="lg">Explore the Camp</Button>
 		</div>
 		<p class="mt-8 text-sm text-white/60">{site.distances}</p>

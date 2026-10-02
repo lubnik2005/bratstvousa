@@ -1,9 +1,6 @@
 <script lang="ts">
-	import { BOOKING_URL } from '$lib/config';
 	import { home, site } from '$lib/content/site';
 	import Button from '$lib/components/ui/Button.svelte';
-
-	const bookingUrl = BOOKING_URL;
 </script>
 
 <section class="px-4 pt-4">
@@ -32,7 +29,7 @@
 			</h1>
 			<p class="mt-3 text-pretty text-white/85">{home.heroSub}</p>
 			<div class="mt-6 flex flex-col gap-3">
-				<Button href={bookingUrl} external variant="primary" size="lg">Book Now</Button>
+				<Button href="/contact" variant="primary" size="lg">Book Now</Button>
 				<Button href="/facilities" variant="outline" size="lg">Explore the Camp</Button>
 			</div>
 			<p class="mt-4 text-xs text-white/60">{site.distances}</p>
