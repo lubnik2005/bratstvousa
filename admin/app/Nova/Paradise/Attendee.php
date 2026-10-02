@@ -69,6 +69,8 @@ class Attendee extends Resource
             HasMany::make('Reservations', 'reservations', Reservation::class),
 
             HasMany::make('Ledger', 'ledgerEntries', LedgerEntry::class),
+
+            DateTime::make('Updated', 'updated_at')->onlyOnDetail(),
         ];
     }
 

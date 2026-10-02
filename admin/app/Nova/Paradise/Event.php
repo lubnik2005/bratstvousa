@@ -79,6 +79,8 @@ class Event extends Resource
                 ->nullable()
                 ->hideFromIndex()
                 ->help('Public Zeffy ticketing page shown to campers as "Buy a ticket on Zeffy".'),
+
+            DateTime::make('Updated', 'updated_at')->onlyOnDetail(),
         ];
     }
 

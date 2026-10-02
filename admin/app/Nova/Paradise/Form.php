@@ -6,6 +6,7 @@ use App\Nova\Resource;
 use Laravel\Nova\Actions\ExportAsCsv;
 use Laravel\Nova\Fields\Boolean;
 use Laravel\Nova\Fields\Code;
+use Laravel\Nova\Fields\DateTime;
 use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Http\Requests\NovaRequest;
@@ -49,6 +50,8 @@ class Form extends Resource
                 ->json()
                 ->hideFromIndex()
                 ->help('JSON array of the waiver/consent questions shown at registration.'),
+
+            DateTime::make('Updated', 'updated_at')->onlyOnDetail(),
         ];
     }
 

@@ -116,6 +116,8 @@ class Reservation extends Resource
             DateTime::make('Created', 'created_at')
                 ->sortable()
                 ->exceptOnForms(),
+
+            DateTime::make('Updated', 'updated_at')->onlyOnDetail(),
         ];
     }
 

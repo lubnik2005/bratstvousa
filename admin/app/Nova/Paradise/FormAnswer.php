@@ -81,6 +81,8 @@ class FormAnswer extends Resource
 
             DateTime::make('Signed On', 'signed_on')
                 ->exceptOnForms(),
+
+            DateTime::make('Updated', 'updated_at')->onlyOnDetail(),
         ];
     }
 

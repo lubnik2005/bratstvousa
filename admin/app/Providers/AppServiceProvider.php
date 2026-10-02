@@ -26,6 +26,25 @@ class AppServiceProvider extends ServiceProvider
     {
         // $this->registerPolicies();
 
+        // Pin Camp Paradise models to their policies. Auto-discovery otherwise
+        // resolves App\Models\Paradise\ZeffyPayment to the top-level
+        // App\Policies\ZeffyPaymentPolicy (same basename) and the index 500s.
+        $paradisePolicies = [
+            \App\Models\Paradise\Attendee::class => \App\Policies\Paradise\AttendeePolicy::class,
+            \App\Models\Paradise\Cot::class => \App\Policies\Paradise\CotPolicy::class,
+            \App\Models\Paradise\Event::class => \App\Policies\Paradise\EventPolicy::class,
+            \App\Models\Paradise\Form::class => \App\Policies\Paradise\FormPolicy::class,
+            \App\Models\Paradise\LedgerEntry::class => \App\Policies\Paradise\LedgerEntryPolicy::class,
+            \App\Models\Paradise\RefundRequest::class => \App\Policies\Paradise\RefundRequestPolicy::class,
+            \App\Models\Paradise\Reservation::class => \App\Policies\Paradise\ReservationPolicy::class,
+            \App\Models\Paradise\Room::class => \App\Policies\Paradise\RoomPolicy::class,
+            \App\Models\Paradise\ZeffyPayment::class => \App\Policies\Paradise\ZeffyPaymentPolicy::class,
+            \App\Models\ZeffyPayment::class => \App\Policies\ZeffyPaymentPolicy::class,
+        ];
+        foreach ($paradisePolicies as $model => $policy) {
+            Gate::policy($model, $policy);
+        }
+
         foreach (config('nova-permissions.permissions') as $key => $permissions) {
             Gate::define($key, function (User $user) use ($key) {
                 if ($this->nobodyHasAccess($key)) {

@@ -5,6 +5,7 @@ namespace App\Nova\Paradise;
 use App\Nova\Resource;
 use Laravel\Nova\Actions\ExportAsCsv;
 use Laravel\Nova\Fields\BelongsTo;
+use Laravel\Nova\Fields\DateTime;
 use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Http\Requests\NovaRequest;
@@ -42,6 +43,8 @@ class Cot extends Resource
 
             Text::make('Description')
                 ->rules('nullable', 'max:255'),
+
+            DateTime::make('Updated', 'updated_at')->onlyOnDetail(),
         ];
     }
 

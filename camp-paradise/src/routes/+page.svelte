@@ -104,6 +104,14 @@
 						{#if form && 'passwordError' in form && form.passwordError}
 							<div class="mt-1 text-sm text-red-600">{form.passwordError}</div>
 						{/if}
+						<p class="mt-2 text-xs text-gray-500">
+							Forgot your password?
+							<button
+								type="button"
+								class="font-semibold text-primary-600 hover:text-primary"
+								on:click={() => (usePassword = false)}>Email me a code</button
+							>, then set a new one on your Account page.
+						</p>
 					</div>
 				{/if}
 

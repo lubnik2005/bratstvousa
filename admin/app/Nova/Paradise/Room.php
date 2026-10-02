@@ -4,6 +4,7 @@ namespace App\Nova\Paradise;
 
 use App\Nova\Resource;
 use Laravel\Nova\Actions\ExportAsCsv;
+use Laravel\Nova\Fields\DateTime;
 use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\Number;
 use Laravel\Nova\Fields\Select;
@@ -72,6 +73,8 @@ class Room extends Resource
             Text::make('Location')
                 ->hideFromIndex()
                 ->rules('nullable', 'max:255'),
+
+            DateTime::make('Updated', 'updated_at')->onlyOnDetail(),
         ];
     }
 

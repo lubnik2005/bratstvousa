@@ -274,7 +274,7 @@ export async function bedsForRoom(
 			)
 		);
 	const occupants = new Map(
-		takenRows.map((r) => [r.cotId, shortName(r.firstName, r.lastName)] as const)
+		takenRows.map((r) => [r.cotId, fullName(r.firstName, r.lastName)] as const)
 	);
 
 	const beds = cots.map((c) => ({
@@ -286,11 +286,9 @@ export async function bedsForRoom(
 	return opts.freeOnly ? beds.filter((b) => !b.taken) : beds;
 }
 
-/** "Anna Petrova" -> "Anna P." (keeps full surnames off the public bed list). */
-function shortName(first: string, last: string): string {
-	const f = first.trim();
-	const initial = last.trim().charAt(0).toUpperCase();
-	return initial ? `${f} ${initial}.` : f || 'Reserved';
+/** Occupant label for a taken bed, e.g. "Anna Petrova". */
+function fullName(first: string, last: string): string {
+	return `${first.trim()} ${last.trim()}`.trim() || 'Reserved';
 }
 
 /** Is a specific bed currently free for an event? (used at hold + confirm time). */
