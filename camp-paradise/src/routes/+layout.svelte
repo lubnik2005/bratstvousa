@@ -93,7 +93,7 @@
 	{@render children()}
 </main>
 
-{#if !bare}
+{#if !bare && data.camper}
 	<footer class="hidden bg-forest-deep text-white/80 lg:block">
 		<div
 			class="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-6 py-10 sm:flex-row"
@@ -106,6 +106,12 @@
 			</a>
 			<div class="flex flex-col items-center gap-1 text-xs sm:items-end">
 				<p class="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-white/75">
+					{#if data.privateContact}
+						<a href={data.privateContact.phoneHref} class="transition hover:text-white">
+							<i class="bi bi-telephone"></i>
+							{data.privateContact.phone}
+						</a>
+					{/if}
 					<a href={CONTACT.emailHref} class="transition hover:text-white">
 						<i class="bi bi-envelope"></i>
 						{CONTACT.email}

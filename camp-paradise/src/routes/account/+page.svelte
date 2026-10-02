@@ -425,7 +425,16 @@
 	</div>
 
 	<h2 class="mt-10 mb-3 text-xl">Need help?</h2>
-	<div class="{card} grid gap-3 text-sm sm:grid-cols-2">
+	<div class="{card} grid gap-3 text-sm sm:grid-cols-3">
+		{#if data.privateContact}
+			<a
+				href={data.privateContact.phoneHref}
+				class="flex items-center gap-2 font-semibold text-primary-600"
+			>
+				<i class="bi bi-telephone"></i>
+				{data.privateContact.phone}
+			</a>
+		{/if}
 		<a href={CONTACT.emailHref} class="flex items-center gap-2 font-semibold text-primary-600">
 			<i class="bi bi-envelope"></i>
 			{CONTACT.email}
