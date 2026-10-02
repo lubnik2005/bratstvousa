@@ -36,7 +36,7 @@
 	<title>Sign in — Camp Paradise</title>
 </svelte:head>
 
-<div class="mx-auto max-w-md px-4 py-12 lg:py-16">
+<div class="mx-auto flex min-h-screen max-w-md flex-col justify-center px-4 py-12 lg:py-16">
 	<div class="mb-6 text-center">
 		<img
 			src="/logo.png"
