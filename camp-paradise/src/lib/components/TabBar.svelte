@@ -19,6 +19,12 @@
 			match: (p: string) => p.startsWith('/camps') || /^\/\d+/.test(p)
 		},
 		{
+			label: 'Map',
+			href: '/map',
+			icon: 'map',
+			match: (p: string) => p.startsWith('/map')
+		},
+		{
 			label: 'Account',
 			href: '/account',
 			icon: 'person-circle',
