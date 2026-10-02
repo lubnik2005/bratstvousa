@@ -90,6 +90,10 @@
 	$: totalBeds = data.rooms.reduce((n, r) => n + r.total, 0);
 	$: openBeds = data.rooms.reduce((n, r) => n + r.available, 0);
 	$: freeBeds = data.beds.filter((b) => !b.taken);
+	// Admin preview: carry the token through every in-page link and the hold form.
+	$: pv = data.previewToken ? `preview=${encodeURIComponent(data.previewToken)}` : '';
+	$: resetHref = pv ? `?${pv}` : '?';
+	const roomHref = (id: number) => `?room=${id}${pv ? `&${pv}` : ''}`;
 </script>
 
 <svelte:head>
@@ -97,11 +101,23 @@
 </svelte:head>
 
 <div class="mx-auto max-w-3xl px-4 py-10 lg:py-14">
-	<a href="/camps" class="text-sm font-semibold text-primary-600 hover:text-primary">
+	<a
+		href={data.previewToken ? `/camps?${pv}` : '/camps'}
+		class="text-sm font-semibold text-primary-600 hover:text-primary"
+	>
 		<i class="bi bi-arrow-left mr-1"></i>All camps
 	</a>
 	<p class="eyebrow mt-6 text-primary-600">Registration</p>
 	<h1 class="mt-1 text-3xl lg:text-4xl">{data.event.name}</h1>
+	{#if data.isDraft}
+		<div
+			class="mt-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900"
+		>
+			<i class="bi bi-eye mr-1"></i>
+			<strong>Draft preview</strong> — this camp isn't published yet. Bookings made here are real (wallet
+			is charged and a confirmation email is sent).
+		</div>
+	{/if}
 
 	{#if data.registrationState !== 'open'}
 		<div class="mt-6 rounded-3xl bg-white p-8 text-center shadow-xl shadow-ink/5 ring-1 ring-ink/5">
@@ -124,7 +140,7 @@
 	{:else}
 		<div class="mt-6 flex flex-wrap gap-2">
 			{#if data.roomId}
-				<a href="?" class="{chipMuted} hover:bg-ink/10 hover:underline">1 · Room</a>
+				<a href={resetHref} class="{chipMuted} hover:bg-ink/10 hover:underline">1 · Room</a>
 			{:else}
 				<span class={chip}>1 · Room</span>
 			{/if}
@@ -145,7 +161,9 @@
 					>
 				</span>
 				{#if data.roomId}
-					<a href="?" class="font-semibold text-primary-600 hover:text-primary">Start over</a>
+					<a href={resetHref} class="font-semibold text-primary-600 hover:text-primary"
+						>Start over</a
+					>
 				{/if}
 			</div>
 		{/if}
@@ -211,7 +229,7 @@
 							<div class="mt-2 divide-y divide-ink/10">
 								{#each group.rooms as room (room.id)}
 									<a
-										href={`?room=${room.id}`}
+										href={roomHref(room.id)}
 										class="-mx-2 flex items-center justify-between gap-4 rounded-xl px-2 py-3 transition {room.available >
 										0
 											? 'hover:bg-white'
@@ -248,21 +266,23 @@
 			<div class="mt-6 {card}">
 				<div class="flex flex-wrap items-baseline justify-between gap-2">
 					<h2 class="text-xl">Pick a bed &amp; agree to the forms</h2>
-					<a href="?" class="text-sm font-semibold text-primary-600 hover:text-primary"
+					<a href={resetHref} class="text-sm font-semibold text-primary-600 hover:text-primary"
 						>&larr; change room</a
 					>
 				</div>
 				{#if form && 'expired' in form && form.expired}
 					<div class="mt-3 rounded-xl bg-amber-100 px-4 py-2 text-sm text-amber-800">
 						Your registration session expired. Please
-						<a href="/?next=/{data.event.id}" data-sveltekit-reload class="font-semibold underline"
-							>start again</a
+						<a
+							href={`/?next=${encodeURIComponent(`/${data.event.id}${pv ? `?${pv}` : ''}`)}`}
+							data-sveltekit-reload
+							class="font-semibold underline">start again</a
 						>.
 					</div>
 				{/if}
 				<form
 					method="post"
-					action="?/hold"
+					action={`?/hold${pv ? `&${pv}` : ''}`}
 					class="mt-4"
 					use:enhance={() => {
 						submitting = true;
@@ -273,6 +293,9 @@
 					}}
 				>
 					<input type="hidden" name="roomId" value={data.roomId} />
+					{#if data.previewToken}
+						<input type="hidden" name="preview" value={data.previewToken} />
+					{/if}
 					<input
 						type="text"
 						name="middle_name"
@@ -286,7 +309,8 @@
 							Bed
 							{#if selectedRoom}
 								<span class="font-normal text-ink-soft"
-									>· <a href="?" class="hover:underline">{selectedRoom.name}</a> · {freeBeds.length} of
+									>· <a href={resetHref} class="hover:underline">{selectedRoom.name}</a> · {freeBeds.length}
+									of
 									{data.beds.length} open</span
 								>
 							{/if}
@@ -463,7 +487,7 @@
 								<button
 									class="mt-3 ml-2 rounded-full border border-ink/15 px-4 py-2 text-sm font-semibold hover:bg-ink/5"
 									type="submit"
-									formaction="?/checkBalance"
+									formaction={`?/checkBalance${pv ? `&${pv}` : ''}`}
 									formnovalidate>I already paid — check again</button
 								>
 								{#if form && 'checked' in form && form.checked}

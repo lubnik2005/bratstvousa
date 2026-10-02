@@ -2,11 +2,13 @@ import { redirect } from '@sveltejs/kit';
 import {
 	listOpenEvents,
 	listUpcomingEvents,
+	listDraftEvents,
 	eventCapacity,
 	balanceForEmail,
 	reservationsForEmail
 } from '$lib/server/paradise/queries';
 import { readSession } from '$lib/server/paradise/session';
+import { validPreviewToken } from '$lib/server/paradise/preview';
 import type { PageServerLoad } from './$types';
 
 type Booked = { confirmationCode: string | null; roomName: string | null; status: string } | null;
@@ -21,6 +23,7 @@ type OpenEvent = {
 	total: number;
 	available: number;
 	booked: Booked;
+	isDraft: boolean;
 };
 
 type UpcomingEvent = {
@@ -35,11 +38,15 @@ type UpcomingEvent = {
 const sessionSecret = (platform: App.Platform | undefined): string =>
 	platform?.env?.SESSION_SECRET ?? 'dev-insecure-session-secret-change-me';
 
-export const load: PageServerLoad = async ({ locals, cookies, platform, setHeaders }) => {
+export const load: PageServerLoad = async ({ locals, cookies, platform, setHeaders, url }) => {
 	// Camps listing is gated behind a signed-in camper. The response carries
 	// per-user layout data, so it must never be shared-cached.
+	const previewToken = validPreviewToken(platform, url.searchParams.get('preview'));
 	const identity = await readSession(cookies, sessionSecret(platform));
-	if (!identity) throw redirect(303, '/?next=/camps');
+	if (!identity) {
+		const next = previewToken ? `/camps?preview=${previewToken}` : '/camps';
+		throw redirect(303, `/?next=${encodeURIComponent(next)}`);
+	}
 
 	setHeaders({ 'cache-control': 'private, no-cache' });
 
@@ -49,17 +56,20 @@ export const load: PageServerLoad = async ({ locals, cookies, platform, setHeade
 
 	try {
 		// Independent queries run in parallel to minimise serial D1 round-trips.
-		const [openRows, upcomingRows, balance, reservations] = await Promise.all([
+		const [openRows, upcomingRows, draftRows, balance, reservations] = await Promise.all([
 			listOpenEvents(locals.db),
 			listUpcomingEvents(locals.db),
+			previewToken ? listDraftEvents(locals.db) : Promise.resolve([]),
 			balanceForEmail(locals.db, identity.email),
 			reservationsForEmail(locals.db, identity.email)
 		]);
 
 		const active = reservations.filter((r) => r.status === 'confirmed' || r.status === 'held');
 
-		const caps = await Promise.all(openRows.map((e) => eventCapacity(locals.db, e.id)));
-		open = openRows.map((e, i) => {
+		// In preview mode, drafts are listed alongside open events (bookable by admins).
+		const listed = [...draftRows, ...openRows];
+		const caps = await Promise.all(listed.map((e) => eventCapacity(locals.db, e.id)));
+		open = listed.map((e, i) => {
 			const mine = active.find((r) => r.eventId === e.id);
 			return {
 				id: e.id,
@@ -76,7 +86,8 @@ export const load: PageServerLoad = async ({ locals, cookies, platform, setHeade
 							roomName: mine.roomName,
 							status: mine.status
 						}
-					: null
+					: null,
+				isDraft: e.status === 'draft'
 			};
 		});
 
@@ -99,6 +110,7 @@ export const load: PageServerLoad = async ({ locals, cookies, platform, setHeade
 		open,
 		upcoming,
 		balanceCents,
+		previewToken,
 		topupUrl: platform?.env?.PUBLIC_ZEFFY_TOPUP_URL ?? null
 	};
 };

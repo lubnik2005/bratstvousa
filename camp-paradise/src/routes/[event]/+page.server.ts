@@ -2,6 +2,7 @@ import { error, fail, redirect } from '@sveltejs/kit';
 import { and, eq } from 'drizzle-orm';
 import {
 	getPublishedEvent,
+	getAnyEvent,
 	eventCapacity,
 	roomsForEvent,
 	bedsForRoom,
@@ -15,6 +16,7 @@ import { generateConfirmationCode, sendReservationConfirmed } from '$lib/server/
 import { applyPayment, listPayments, normalizeEmail } from '$lib/server/paradise/zeffy';
 import { isHealthForm, parseHealthForm } from '$lib/server/paradise/health-form';
 import { readSession } from '$lib/server/paradise/session';
+import { validPreviewToken } from '$lib/server/paradise/preview';
 import {
 	paradiseReservations,
 	paradiseEventRooms,
@@ -52,8 +54,11 @@ export const load: PageServerLoad = async ({
 	// could leak to another. The public home page is still cached.
 	setHeaders({ 'cache-control': 'private, no-cache' });
 
-	const event = await getPublishedEvent(db, id);
+	// Admin preview: a valid ?preview= token unlocks draft events.
+	const previewToken = validPreviewToken(platform, url.searchParams.get('preview'));
+	const event = previewToken ? await getAnyEvent(db, id) : await getPublishedEvent(db, id);
 	if (!event) throw error(404, 'Event not found');
+	const isDraft = event.status !== 'published';
 
 	// Registration is only allowed while the window is open. Closed/upcoming
 	// camps still render (friendlier for bookmarked links) but hide the wizard.
@@ -70,6 +75,8 @@ export const load: PageServerLoad = async ({
 			forms: [],
 			balanceCents: 0,
 			existing: null,
+			previewToken,
+			isDraft,
 			topupUrl: topupUrlFor(event, platform)
 		};
 	}
@@ -78,7 +85,10 @@ export const load: PageServerLoad = async ({
 	// from a URL param — so room/bed availability can't be scraped by flipping
 	// ?sex. Without a valid session, no rooms or beds are fetched at all.
 	const identity = await readSession(cookies, sessionSecret(platform));
-	if (!identity) throw redirect(303, `/?next=/${id}`);
+	if (!identity) {
+		const next = previewToken ? `/${id}?preview=${previewToken}` : `/${id}`;
+		throw redirect(303, `/?next=${encodeURIComponent(next)}`);
+	}
 	const sex = identity.sex;
 
 	const roomParam = url.searchParams.get('room');
@@ -107,6 +117,8 @@ export const load: PageServerLoad = async ({
 		forms,
 		balanceCents,
 		existing,
+		previewToken,
+		isDraft,
 		topupUrl: topupUrlFor(event, platform)
 	};
 };
@@ -139,7 +151,13 @@ export const actions: Actions = {
 		let cotId = cotRaw === 'any' ? NaN : Number(cotRaw);
 
 		// Reject holds on camps whose registration window is not open.
-		const heldEvent = Number.isInteger(eventId) ? await getPublishedEvent(db, eventId) : null;
+		// Drafts are bookable only with a valid admin preview token.
+		const preview = validPreviewToken(platform, fd.get('preview'));
+		const heldEvent = !Number.isInteger(eventId)
+			? null
+			: preview
+				? await getAnyEvent(db, eventId)
+				: await getPublishedEvent(db, eventId);
 		if (!heldEvent || registrationState(heldEvent) !== 'open')
 			return fail(400, { message: 'Registration is closed for this camp.' });
 

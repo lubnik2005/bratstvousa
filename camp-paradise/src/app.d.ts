@@ -16,6 +16,7 @@ declare global {
 				PUBLIC_ZEFFY_TOPUP_URL?: string;
 				SESSION_SECRET?: string;
 				REFUND_NOTIFY_EMAILS?: string;
+				PARADISE_PREVIEW_TOKEN?: string;
 			};
 		}
 	}

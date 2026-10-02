@@ -37,6 +37,8 @@
 	const card =
 		'flex h-full flex-col rounded-3xl bg-white p-6 shadow-xl shadow-ink/5 ring-1 ring-ink/5';
 	const badge = 'rounded-full px-3 py-1 text-xs font-semibold';
+
+	$: previewQs = data.previewToken ? `?preview=${encodeURIComponent(data.previewToken)}` : '';
 </script>
 
 <svelte:head>
@@ -80,6 +82,14 @@
 </section>
 
 <div class="mx-auto max-w-7xl px-4 py-10 lg:py-14">
+	{#if data.previewToken}
+		<div
+			class="mb-6 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900"
+		>
+			<i class="bi bi-eye mr-1"></i>
+			<strong>Admin preview</strong> — draft camps are shown and bookable. Bookings are real.
+		</div>
+	{/if}
 	<h2 class="text-2xl">Open for registration</h2>
 
 	{#if data.open.length === 0}
@@ -98,7 +108,12 @@
 				{@const days = daysUntil(event.registrationEndAt)}
 				<article class={card}>
 					<div class="flex items-start justify-between gap-3">
-						<h3 class="text-xl">{event.name}</h3>
+						<h3 class="text-xl">
+							{event.name}
+							{#if event.isDraft}
+								<span class="{badge} ml-1 bg-amber-100 align-middle text-amber-800">Draft</span>
+							{/if}
+						</h3>
 						{#if event.available > 0}
 							<span class="{badge} shrink-0 bg-mint/60 text-primary-600">
 								{event.available} of {event.total} beds open
@@ -138,7 +153,7 @@
 								</a>
 							{/if}
 						{:else if event.available > 0}
-							<a href="/{event.id}" class="{btn} w-full">
+							<a href="/{event.id}{event.isDraft ? previewQs : ''}" class="{btn} w-full">
 								Reserve your bed <i class="bi bi-arrow-right"></i>
 							</a>
 						{:else}

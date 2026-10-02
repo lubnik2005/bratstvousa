@@ -148,6 +148,25 @@ export async function getPublishedEvent(db: AppDatabase, eventId: number) {
 	return rows[0] ?? null;
 }
 
+/** A single event by id regardless of status (admin preview only). */
+export async function getAnyEvent(db: AppDatabase, eventId: number) {
+	const rows = await db
+		.select()
+		.from(paradiseEvents)
+		.where(eq(paradiseEvents.id, eventId))
+		.limit(1);
+	return rows[0] ?? null;
+}
+
+/** Draft (unpublished) events, soonest first (admin preview only). */
+export async function listDraftEvents(db: AppDatabase) {
+	return db
+		.select()
+		.from(paradiseEvents)
+		.where(eq(paradiseEvents.status, 'draft'))
+		.orderBy(paradiseEvents.startOn);
+}
+
 /** Total beds and taken beds for an event (for capacity display). */
 export async function eventCapacity(db: AppDatabase, eventId: number) {
 	const [totalRows, takenRows] = await Promise.all([
