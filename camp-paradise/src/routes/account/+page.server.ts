@@ -16,7 +16,7 @@ import type { Actions, PageServerLoad } from './$types';
 const sessionSecret = (platform: App.Platform | undefined) =>
 	platform?.env?.SESSION_SECRET ?? 'dev-insecure-session-secret-change-me';
 
-const DEFAULT_REFUND_NOTIFY = 'Contact@camp-paradise.org';
+const DEFAULT_REFUND_NOTIFY = 'ibcyouth39@gmail.com';
 
 export const load: PageServerLoad = async ({ locals, cookies, platform, setHeaders }) => {
 	const identity = await readSession(cookies, sessionSecret(platform));

@@ -106,10 +106,6 @@
 			</a>
 			<div class="flex flex-col items-center gap-1 text-xs sm:items-end">
 				<p class="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-white/75">
-					<a href={CONTACT.phoneHref} class="transition hover:text-white">
-						<i class="bi bi-telephone"></i>
-						{CONTACT.phone}
-					</a>
 					<a href={CONTACT.emailHref} class="transition hover:text-white">
 						<i class="bi bi-envelope"></i>
 						{CONTACT.email}

@@ -2,6 +2,7 @@
 	import { enhance } from '$app/forms';
 	import { goto } from '$app/navigation';
 	import Turnstile from '$lib/components/Turnstile.svelte';
+	import { CONTACT } from '$lib/contact';
 	import type { PageData, ActionData } from './$types';
 
 	export let data: PageData;
@@ -255,4 +256,12 @@
 			</form>
 		{/if}
 	</div>
+
+	<p class="mt-6 text-center text-sm text-ink-soft">
+		<i class="bi bi-question-circle"></i>
+		Having trouble signing in? Email us at
+		<a href={CONTACT.emailHref} class="font-semibold text-primary-600 hover:text-primary"
+			>{CONTACT.email}</a
+		>
+	</p>
 </div>
