@@ -25,6 +25,8 @@ class Room extends Resource
 
     public static $group = 'Camp Paradise';
 
+    public static $relatableSearchResults = 25; // Increase this from default
+
     public static function uriKey(): string
     {
         return 'paradise-rooms';
