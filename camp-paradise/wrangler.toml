@@ -12,4 +12,4 @@ migrations_dir = "drizzle"
 [vars]
 PUBLIC_TURNSTILE_SITE_KEY = "0x4AAAAAAEzKpCgc4kC9UW8O"
 PUBLIC_ZEFFY_TOPUP_URL = "https://www.zeffy.com/en-US/donation-form/camp-paradise"
-TURNSTILE_HOSTNAMES = "camp-paradise.pages.dev"
+TURNSTILE_HOSTNAMES = "camp-paradise.pages.dev,app.camp-paradise.org"

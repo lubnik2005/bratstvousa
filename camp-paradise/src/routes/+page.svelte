@@ -8,6 +8,7 @@
 	export let form: ActionData;
 
 	let startTurnstile: Turnstile;
+	let resendTurnstile: Turnstile;
 	let starting = false;
 	// Email step mode: email a code (default) or sign in with a password.
 	let usePassword = false;
@@ -164,9 +165,29 @@
 				</div>
 				<button class={btn} type="submit">Verify &amp; continue</button>
 			</form>
-			<form method="post" action="?/requestCode" use:enhance class="mt-3 text-center">
+			<form
+				method="post"
+				action="?/requestCode"
+				use:enhance={() => {
+					return async ({ update }) => {
+						await update({ reset: false });
+						resendTurnstile?.reset();
+					};
+				}}
+				class="mt-5 border-t border-ink/10 pt-4 text-center"
+			>
 				<input type="hidden" name="email" value={pendingEmail} />
-				<button type="submit" class="text-sm font-semibold text-primary-600 hover:text-primary">
+				<input type="hidden" name="resend" value="1" />
+				<div class="flex justify-center">
+					<Turnstile bind:this={resendTurnstile} action="paradise_login" />
+				</div>
+				{#if form && 'message' in form && form.message}
+					<div class="mt-3 rounded-xl bg-red-50 px-4 py-2 text-sm text-red-700">{form.message}</div>
+				{/if}
+				<button
+					type="submit"
+					class="mt-2 text-sm font-semibold text-primary-600 hover:text-primary"
+				>
 					Didn't get it? Send a new code
 				</button>
 			</form>

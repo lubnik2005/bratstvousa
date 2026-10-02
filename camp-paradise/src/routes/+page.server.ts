@@ -45,7 +45,16 @@ export const actions: Actions = {
 			'paradise_login',
 			platform?.env?.TURNSTILE_HOSTNAMES
 		);
-		if (!ts.ok) return fail(403, { message: TURNSTILE_ERROR_MESSAGE });
+		if (!ts.ok) {
+			console.warn('turnstile failed (requestCode):', ts.reason);
+			const email = clean(fd.get('email'));
+			const resend = fd.get('resend') === '1';
+			return fail(403, {
+				message: TURNSTILE_ERROR_MESSAGE,
+				email,
+				...(resend ? { codeSent: true } : {})
+			});
+		}
 
 		const email = clean(fd.get('email'));
 
@@ -155,7 +164,10 @@ export const actions: Actions = {
 			'paradise_login',
 			platform?.env?.TURNSTILE_HOSTNAMES
 		);
-		if (!ts.ok) return fail(403, { message: TURNSTILE_ERROR_MESSAGE, email, usePassword: true });
+		if (!ts.ok) {
+			console.warn('turnstile failed (passwordLogin):', ts.reason);
+			return fail(403, { message: TURNSTILE_ERROR_MESSAGE, email, usePassword: true });
+		}
 
 		if (!isEmail(email) || !password)
 			return fail(400, {
