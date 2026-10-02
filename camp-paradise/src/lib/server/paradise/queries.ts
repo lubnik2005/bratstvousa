@@ -412,6 +412,7 @@ export async function reservationsForEmail(db: AppDatabase, email: string) {
 			endOn: paradiseEvents.endOn,
 			roomName: paradiseRooms.name,
 			cotId: paradiseReservations.cotId,
+			cotName: paradiseCots.description,
 			price: paradiseReservations.price,
 			status: paradiseReservations.status,
 			confirmationCode: paradiseReservations.confirmationCode,
@@ -422,6 +423,7 @@ export async function reservationsForEmail(db: AppDatabase, email: string) {
 		.from(paradiseReservations)
 		.leftJoin(paradiseEvents, eq(paradiseEvents.id, paradiseReservations.eventId))
 		.leftJoin(paradiseRooms, eq(paradiseRooms.id, paradiseReservations.roomId))
+		.leftJoin(paradiseCots, eq(paradiseCots.id, paradiseReservations.cotId))
 		.where(sql`lower(${paradiseReservations.email}) = ${normalized}`)
 		.orderBy(sql`${paradiseReservations.createdAt} desc`);
 }

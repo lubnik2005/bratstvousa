@@ -61,6 +61,10 @@
 				<dd class="font-medium sm:col-span-2">{r.email}</dd>
 				<dt class="text-ink-soft text-sm">Room</dt>
 				<dd class="font-medium sm:col-span-2">{data.roomName}</dd>
+				{#if data.cotName}
+					<dt class="text-ink-soft text-sm">Bed</dt>
+					<dd class="font-medium sm:col-span-2">{data.cotName}</dd>
+				{/if}
 				<dt class="text-ink-soft text-sm">Amount</dt>
 				<dd class="font-medium sm:col-span-2">${(r.price / 100).toFixed(2)}</dd>
 				<dt class="text-ink-soft text-sm">Reserved on</dt>

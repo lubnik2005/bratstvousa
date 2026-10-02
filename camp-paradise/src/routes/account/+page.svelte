@@ -227,7 +227,11 @@
 							<h3 class="text-lg">{r.eventName ?? 'Camp'}</h3>
 							<p class="text-sm text-ink-soft">{dateRange(r.startOn, r.endOn)}</p>
 							{#if r.roomName}
-								<p class="mt-1 text-sm"><i class="bi bi-house-door mr-1"></i>{r.roomName}</p>
+								<p class="mt-1 text-sm">
+									<i class="bi bi-house-door mr-1"></i>{r.roomName}{r.cotName
+										? ` · ${r.cotName}`
+										: ''}
+								</p>
 							{/if}
 						</div>
 						<div class="text-right">
@@ -272,7 +276,11 @@
 								<h3 class="text-lg">{r.eventName ?? 'Camp'}</h3>
 								<p class="text-sm text-ink-soft">{dateRange(r.startOn, r.endOn)}</p>
 								{#if r.roomName}
-									<p class="mt-1 text-sm"><i class="bi bi-house-door mr-1"></i>{r.roomName}</p>
+									<p class="mt-1 text-sm">
+										<i class="bi bi-house-door mr-1"></i>{r.roomName}{r.cotName
+											? ` · ${r.cotName}`
+											: ''}
+									</p>
 								{/if}
 							</div>
 							<div class="text-right">

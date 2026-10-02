@@ -5,6 +5,7 @@ import {
 	paradiseReservations,
 	paradiseEvents,
 	paradiseRooms,
+	paradiseCots,
 	paradiseLedger
 } from '$lib/server/db/schema';
 import type { Actions, PageServerLoad } from './$types';
@@ -26,7 +27,16 @@ async function context(db: App.Locals['db'], code: string) {
 			.where(eq(paradiseRooms.id, reservation.roomId))
 			.limit(1)
 	)[0];
-	return { reservation, event, roomName: room?.name ?? '' };
+	const cot = reservation.cotId
+		? (
+				await db
+					.select({ description: paradiseCots.description })
+					.from(paradiseCots)
+					.where(eq(paradiseCots.id, reservation.cotId))
+					.limit(1)
+			)[0]
+		: undefined;
+	return { reservation, event, roomName: room?.name ?? '', cotName: cot?.description ?? '' };
 }
 
 function isCancellable(
@@ -46,6 +56,7 @@ export const load: PageServerLoad = async ({ params, locals, setHeaders }) => {
 		reservation: ctx.reservation,
 		eventName: ctx.event?.name ?? 'Camp Paradise',
 		roomName: ctx.roomName,
+		cotName: ctx.cotName,
 		cancellable: isCancellable(ctx.reservation, ctx.event)
 	};
 };
