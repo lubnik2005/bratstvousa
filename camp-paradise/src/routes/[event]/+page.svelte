@@ -123,7 +123,11 @@
 		</div>
 	{:else}
 		<div class="mt-6 flex flex-wrap gap-2">
-			<span class={data.roomId ? chipMuted : chip}>1 · Room</span>
+			{#if data.roomId}
+				<a href="?" class="{chipMuted} hover:bg-ink/10 hover:underline">1 · Room</a>
+			{:else}
+				<span class={chip}>1 · Room</span>
+			{/if}
 			<span class={!data.roomId ? chipMuted : chip}>2 · Bed</span>
 			<span class={chipMuted}>3 · Confirm</span>
 		</div>
@@ -282,7 +286,8 @@
 							Bed
 							{#if selectedRoom}
 								<span class="font-normal text-ink-soft"
-									>· <a href="?" class="hover:underline">{selectedRoom.name}</a> · {freeBeds.length} of {data.beds.length} open</span
+									>· <a href="?" class="hover:underline">{selectedRoom.name}</a> · {freeBeds.length} of
+									{data.beds.length} open</span
 								>
 							{/if}
 						</legend>
