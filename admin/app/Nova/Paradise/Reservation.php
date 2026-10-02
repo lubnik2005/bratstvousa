@@ -97,6 +97,12 @@ class Reservation extends Resource
                 ->hideFromIndex()
                 ->help('Price in cents.'),
 
+            BelongsTo::make('Camper', 'attendee', Attendee::class)
+                ->nullable()
+                ->searchable()
+                ->hideFromIndex()
+                ->help('Camper account this bed belongs to (shows on their camper page and in the portal).'),
+
             BelongsTo::make('Event', 'event', Event::class)->nullable()->sortable(),
             BelongsTo::make('Room', 'room', Room::class)->nullable()->hideFromIndex(),
             BelongsTo::make('Bed', 'cot', Cot::class)->nullable()->hideFromIndex(),

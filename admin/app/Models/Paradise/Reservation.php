@@ -15,6 +15,7 @@ class Reservation extends Model
         'event_id',
         'room_id',
         'cot_id',
+        'attendee_id',
         'first_name',
         'last_name',
         'email',
@@ -32,6 +33,7 @@ class Reservation extends Model
         'event_id' => 'integer',
         'room_id' => 'integer',
         'cot_id' => 'integer',
+        'attendee_id' => 'integer',
         'price' => 'integer',
         'held_until' => 'datetime',
         'paid_at' => 'datetime',
@@ -53,5 +55,10 @@ class Reservation extends Model
     public function cot(): BelongsTo
     {
         return $this->belongsTo(Cot::class, 'cot_id');
+    }
+
+    public function attendee(): BelongsTo
+    {
+        return $this->belongsTo(Attendee::class, 'attendee_id');
     }
 }
