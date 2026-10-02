@@ -27,6 +27,10 @@ class Room extends Resource
 
     public static $relatableSearchResults = 25; // Increase this from default
 
+    public static $perPageOptions = [25, 50, 100];
+
+    public static $perPageViaRelationshipOptions = [25, 50, 100];
+
     public static function uriKey(): string
     {
         return 'paradise-rooms';

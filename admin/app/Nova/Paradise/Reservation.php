@@ -105,7 +105,7 @@ class Reservation extends Resource
 
             BelongsTo::make('Event', 'event', Event::class)->nullable()->sortable(),
             BelongsTo::make('Room', 'room', Room::class)->nullable()->hideFromIndex(),
-            BelongsTo::make('Bed', 'cot', Cot::class)->nullable()->hideFromIndex(),
+            BelongsTo::make('Bed', 'cot', Cot::class)->nullable()->searchable()->hideFromIndex(),
 
             DateTime::make('Held Until', 'held_until')->onlyOnDetail(),
             DateTime::make('Paid At', 'paid_at')->exceptOnForms(),

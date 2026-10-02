@@ -23,6 +23,16 @@ class Cot extends Model
         'updated_at' => 'datetime',
     ];
 
+    /**
+     * Display label, e.g. "Lodge 300 Room 301 · Cot 1" (many beds share names).
+     */
+    public function getTitleAttribute(): string
+    {
+        $roomName = $this->room?->name ?? "Room {$this->room_id}";
+
+        return "{$roomName} · {$this->description}";
+    }
+
     public function room(): BelongsTo
     {
         return $this->belongsTo(Room::class, 'room_id');
