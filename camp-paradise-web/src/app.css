@@ -1,0 +1,156 @@
+@import 'tailwindcss';
+@import 'bootstrap-icons/font/bootstrap-icons.css';
+
+@import '@fontsource-variable/fraunces';
+@import '@fontsource-variable/plus-jakarta-sans';
+
+/* ---------------------------------------------------------------------------
+   Camp Paradise design tokens
+   --------------------------------------------------------------------------- */
+@theme {
+	/* Brand palette */
+	--color-forest: #0f3d2e;
+	--color-forest-deep: #0a2c21;
+	--color-primary: #16aa65;
+	--color-primary-600: #128a52;
+	--color-mint: #c8fad6;
+	--color-mint-bright: #5be49b;
+	--color-sand: #f5f1e8;
+	--color-sand-warm: #efe7d6;
+	--color-ink: #141a17;
+	--color-ink-soft: #3a463f;
+	--color-sunset: #f2a541;
+
+	/* Typography */
+	--font-display: 'Fraunces Variable', 'Fraunces', Georgia, serif;
+	--font-sans: 'Plus Jakarta Sans Variable', 'Plus Jakarta Sans', system-ui, sans-serif;
+
+	/* Motion */
+	--ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+	--ease-in-out-quart: cubic-bezier(0.76, 0, 0.24, 1);
+
+	/* App shell */
+	--tabbar-height: 4.25rem;
+}
+
+/* ---------------------------------------------------------------------------
+   Base
+   --------------------------------------------------------------------------- */
+@layer base {
+	:root {
+		--safe-bottom: env(safe-area-inset-bottom, 0px);
+		--safe-top: env(safe-area-inset-top, 0px);
+	}
+
+	html {
+		font-family: var(--font-sans);
+		-webkit-tap-highlight-color: transparent;
+	}
+
+	body {
+		text-rendering: optimizeLegibility;
+	}
+
+	h1,
+	h2,
+	h3,
+	h4 {
+		font-family: var(--font-display);
+		font-optical-sizing: auto;
+		letter-spacing: -0.02em;
+		text-wrap: balance;
+	}
+
+	::selection {
+		background: var(--color-primary);
+		color: white;
+	}
+
+	/* Custom focus ring */
+	:focus-visible {
+		outline: 2px solid var(--color-primary);
+		outline-offset: 2px;
+	}
+}
+
+/* ---------------------------------------------------------------------------
+   Utilities & components
+   --------------------------------------------------------------------------- */
+@layer utilities {
+	.text-balance {
+		text-wrap: balance;
+	}
+	.text-pretty {
+		text-wrap: pretty;
+	}
+
+	/* Hide scrollbars on snap carousels */
+	.no-scrollbar {
+		-ms-overflow-style: none;
+		scrollbar-width: none;
+	}
+	.no-scrollbar::-webkit-scrollbar {
+		display: none;
+	}
+
+	.pb-safe {
+		padding-bottom: calc(var(--tabbar-height) + var(--safe-bottom));
+	}
+
+	/* Frosted glass surface */
+	.glass {
+		background: color-mix(in oklab, white 70%, transparent);
+		backdrop-filter: saturate(160%) blur(14px);
+		-webkit-backdrop-filter: saturate(160%) blur(14px);
+	}
+	.glass-dark {
+		background: color-mix(in oklab, var(--color-forest-deep) 55%, transparent);
+		backdrop-filter: saturate(140%) blur(14px);
+		-webkit-backdrop-filter: saturate(140%) blur(14px);
+	}
+}
+
+/* Reveal-on-scroll baseline (GSAP toggles .is-visible) */
+[data-reveal] {
+	opacity: 0;
+	transform: translate3d(0, 24px, 0);
+	transition:
+		opacity 0.8s var(--ease-out-expo),
+		transform 0.8s var(--ease-out-expo);
+}
+[data-reveal].is-visible {
+	opacity: 1;
+	transform: none;
+}
+
+/* View Transitions API page cross-fade */
+@keyframes cp-fade-in {
+	from {
+		opacity: 0;
+	}
+}
+@keyframes cp-fade-out {
+	to {
+		opacity: 0;
+	}
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	::view-transition-old(root) {
+		animation: 220ms var(--ease-in-out-quart) both cp-fade-out;
+	}
+	::view-transition-new(root) {
+		animation: 260ms var(--ease-in-out-quart) both cp-fade-in;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	[data-reveal] {
+		opacity: 1;
+		transform: none;
+		transition: none;
+	}
+	html {
+		scroll-behavior: auto;
+	}
+}

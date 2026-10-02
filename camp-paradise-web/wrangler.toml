@@ -1,0 +1,14 @@
+name = "camp-paradise-web"
+compatibility_date = "2024-11-01"
+compatibility_flags = ["nodejs_compat"]
+pages_build_output_dir = ".svelte-kit/cloudflare"
+
+[vars]
+PUBLIC_BOOKING_URL = "https://camp-paradise.pages.dev/"
+PUBLIC_TURNSTILE_SITE_KEY = "0x4AAAAAAEzKpCgc4kC9UW8O"
+TURNSTILE_HOSTNAMES = "camp-paradise-web.pages.dev"
+
+# Secrets (set via `wrangler pages secret put` or the dashboard):
+#   TURNSTILE_SECRET
+#   RESEND_API_KEY
+#   CONTACT_TO   (defaults to Contact@camp-paradise.org)
