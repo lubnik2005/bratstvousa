@@ -39,12 +39,14 @@
 		</a>
 
 		<nav class="{data.camper ? 'hidden lg:flex' : 'flex'} items-center gap-1 sm:gap-2">
-			<a
-				href="/camps"
-				class="rounded-full px-3 py-2 text-sm font-medium text-white/85 transition hover:text-white sm:px-4"
-			>
-				Camps
-			</a>
+			{#if data.camper}
+				<a
+					href="/camps"
+					class="rounded-full px-3 py-2 text-sm font-medium text-white/85 transition hover:text-white sm:px-4"
+				>
+					Camps
+				</a>
+			{/if}
 			<a
 				href="/map"
 				class="rounded-full px-3 py-2 text-sm font-medium text-white/85 transition hover:text-white sm:px-4"
