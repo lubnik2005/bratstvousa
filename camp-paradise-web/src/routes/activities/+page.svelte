@@ -43,7 +43,7 @@
 		<p class="text-ink-soft mt-10 text-center text-lg font-medium">{activitiesNote}</p>
 
 		<div class="mt-14 text-center">
-			<Button href="/gallery" variant="outline" size="lg">See the gallery</Button>
+			<Button href="/gallery" variant="outline-dark" size="lg">See the gallery</Button>
 		</div>
 	</div>
 </section>

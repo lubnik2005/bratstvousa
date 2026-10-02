@@ -43,10 +43,7 @@ export const site = {
 	name: 'Camp Paradise',
 	tagline: 'See, Know, and Experience God',
 	description: 'A year-round Christian camp and retreat center in Strawberry Valley, California.',
-	phone: '(916) 573-2267',
-	phoneHref: 'tel:+19165732267',
 	email: 'Contact@camp-paradise.org',
-	emailHref: 'mailto:Contact@camp-paradise.org',
 	address: {
 		line1: '12725 La Porte Rd',
 		city: 'Strawberry Valley',

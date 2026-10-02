@@ -3,7 +3,7 @@
 
 	interface Props {
 		href?: string;
-		variant?: 'primary' | 'ghost' | 'outline' | 'sunset';
+		variant?: 'primary' | 'ghost' | 'outline' | 'outline-dark' | 'sunset';
 		size?: 'sm' | 'md' | 'lg';
 		type?: 'button' | 'submit';
 		disabled?: boolean;
@@ -35,6 +35,8 @@
 			'bg-sunset text-ink shadow-lg shadow-sunset/25 hover:-translate-y-0.5 hover:brightness-105',
 		outline:
 			'border border-white/40 text-white backdrop-blur-sm hover:bg-white/10 hover:-translate-y-0.5',
+		'outline-dark':
+			'border border-ink/25 text-ink hover:bg-ink/5 hover:border-ink/40 hover:-translate-y-0.5',
 		ghost: 'text-ink hover:bg-ink/5'
 	};
 

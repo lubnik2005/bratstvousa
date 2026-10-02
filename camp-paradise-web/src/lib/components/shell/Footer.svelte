@@ -52,23 +52,15 @@
 
 			<!-- Contact -->
 			<div>
-				<h3 class="font-display text-lg font-semibold text-white">Visit &amp; Contact</h3>
-				<ul class="mt-4 space-y-2 text-sm text-white/70">
-					<li class="flex items-start gap-2">
-						<i class="bi bi-geo-alt text-mint-bright mt-0.5"></i>
-						<a href={site.mapsLink} target="_blank" rel="noopener" class="hover:text-mint-bright">
-							{site.address.full}
-						</a>
-					</li>
-					<li class="flex items-center gap-2">
-						<i class="bi bi-telephone text-mint-bright"></i>
-						<a href={site.phoneHref} class="hover:text-mint-bright">{site.phone}</a>
-					</li>
-					<li class="flex items-center gap-2">
-						<i class="bi bi-envelope text-mint-bright"></i>
-						<a href={site.emailHref} class="hover:text-mint-bright">{site.email}</a>
-					</li>
-				</ul>
+			<h3 class="font-display text-lg font-semibold text-white">Visit</h3>
+			<ul class="mt-4 space-y-2 text-sm text-white/70">
+				<li class="flex items-start gap-2">
+					<i class="bi bi-geo-alt text-mint-bright mt-0.5"></i>
+					<a href={site.mapsLink} target="_blank" rel="noopener" class="hover:text-mint-bright">
+						{site.address.full}
+					</a>
+				</li>
+			</ul>
 				<p class="mt-4 text-xs text-white/50">{site.distances}</p>
 			</div>
 		</div>

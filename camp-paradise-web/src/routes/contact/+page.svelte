@@ -17,7 +17,7 @@
 	<title>Contact — Camp Paradise</title>
 	<meta
 		name="description"
-		content="Get in touch to book a stay or ask a question. Call {site.phone} or email {site.email}."
+		content="Get in touch to book a stay or ask a question at Camp Paradise."
 	/>
 </svelte:head>
 
@@ -33,29 +33,9 @@
 		<div use:reveal class="space-y-8">
 			<div>
 				<p class="text-primary text-sm font-semibold tracking-[0.2em] uppercase">Reach us</p>
-				<h2 class="text-ink mt-2 text-3xl">We'd love to hear from you</h2>
+				<h2 class="text-ink mt-2 text-3xl">Come visit us</h2>
 			</div>
 			<ul class="space-y-4">
-				<li class="flex items-center gap-4">
-					<span
-						class="bg-primary/10 text-primary flex h-11 w-11 items-center justify-center rounded-xl"
-					>
-						<i class="bi bi-telephone"></i>
-					</span>
-					<a class="text-ink hover:text-primary text-lg transition" href={site.phoneHref}>
-						{site.phone}
-					</a>
-				</li>
-				<li class="flex items-center gap-4">
-					<span
-						class="bg-primary/10 text-primary flex h-11 w-11 items-center justify-center rounded-xl"
-					>
-						<i class="bi bi-envelope"></i>
-					</span>
-					<a class="text-ink hover:text-primary text-lg transition" href={site.emailHref}>
-						{site.email}
-					</a>
-				</li>
 				<li class="flex items-center gap-4">
 					<span
 						class="bg-primary/10 text-primary flex h-11 w-11 items-center justify-center rounded-xl"
