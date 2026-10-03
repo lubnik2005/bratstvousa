@@ -34,7 +34,6 @@
 					{site.address.zip}
 				</p>
 			</div>
-			<p class="text-ink-soft text-lg leading-relaxed">{site.distances}</p>
 			<div class="flex flex-wrap gap-3">
 				<Button href={site.mapsLink} external variant="primary" size="md">Get directions</Button>
 				<Button href="/contact" variant="outline-dark" size="md">Plan a visit</Button>
