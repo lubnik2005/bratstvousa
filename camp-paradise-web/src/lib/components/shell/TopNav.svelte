@@ -51,7 +51,7 @@
 		</a>
 
 		<ul class="flex items-center gap-1">
-			{#each nav as item (item.href)}
+			{#each nav.filter((i) => i.href !== '/') as item (item.href)}
 				{@const active = pathname === item.href}
 				<li>
 					<a

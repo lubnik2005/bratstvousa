@@ -19,10 +19,10 @@
 			match: (p) => p.startsWith('/facilities')
 		},
 		{
-			label: 'Explore',
-			href: '/activities',
-			icon: 'compass',
-			match: (p) => p.startsWith('/activities') || p.startsWith('/gallery')
+			label: 'Gallery',
+			href: '/gallery',
+			icon: 'images',
+			match: (p) => p.startsWith('/gallery')
 		},
 		{
 			label: 'Visit',

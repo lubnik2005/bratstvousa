@@ -64,12 +64,11 @@ export const site = {
 } as const;
 
 export const nav: NavItem[] = [
+	{ label: 'Home', href: '/' },
 	{ label: 'Mission', href: '/mission' },
 	{ label: 'Facilities', href: '/facilities' },
-	{ label: 'Activities', href: '/activities' },
 	{ label: 'Gallery', href: '/gallery' },
 	{ label: 'Location', href: '/location' },
-	{ label: 'Contact', href: '/contact' },
 	{ label: 'Donate', href: '/donate' }
 ];
 
@@ -94,17 +93,9 @@ export const stats: Stat[] = [
 export const facilities: Facility[] = [
 	{
 		slug: 'lodging',
-		name: 'VIP Dorm',
+		name: 'Lodges',
 		blurb:
-			'The first building you see when you arrive. Sleeps around 80 guests with its own restrooms and showers.',
-		image: 'lodging',
-		capacity: '~80 guests'
-	},
-	{
-		slug: 'dorms',
-		name: 'Dorms',
-		blurb:
-			'Two more large dorms sleeping roughly 80 guests, perfect for larger groups staying together.',
+			'Spacious lodge-style dorms with room for large groups, complete with restrooms and showers on site.',
 		image: 'lodging',
 		capacity: '~80 guests'
 	},
@@ -141,9 +132,16 @@ export const facilities: Facility[] = [
 		slug: 'chapel',
 		name: 'Chapel / Gym',
 		blurb:
-			'A gathering space for 300+ people that converts into a gymnasium, complete with a pool and ping-pong.',
+			'A gathering space for 300+ people that converts into a gymnasium, complete with ping-pong and indoor games.',
 		image: 'chapel',
 		capacity: '300+ people'
+	},
+	{
+		slug: 'pool',
+		name: 'Swimming Pool',
+		blurb: 'A full outdoor swimming pool perfect for recreation, cooling off on a summer day, or an impromptu splash.',
+		image: 'drone',
+		capacity: 'Outdoor pool'
 	},
 	{
 		slug: 'sauna',
