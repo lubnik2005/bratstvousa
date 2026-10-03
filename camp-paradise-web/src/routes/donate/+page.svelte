@@ -1,5 +1,6 @@
 <script lang="ts">
 	import PageHero from '$lib/components/ui/PageHero.svelte';
+	import PhotoStrip from '$lib/components/ui/PhotoStrip.svelte';
 	import { reveal } from '$lib/motion/reveal';
 	import { donate } from '$lib/content/site';
 </script>
@@ -38,7 +39,7 @@
 						title="Donation form powered by Zeffy"
 						style="position:absolute;border:0;top:0;left:0;bottom:0;right:0;width:100%;height:100%"
 						data-zeffy-embed-src="https://www.zeffy.com/embed/donation-form/camp-paradise"
-					allow="payment"
+						allow="payment"
 					></iframe>
 				</div>
 			</div>
@@ -47,5 +48,29 @@
 		<p use:reveal class="text-ink mt-14 text-center text-lg font-medium">
 			God bless you for your generosity!
 		</p>
+	</div>
+	<div class="mx-auto mt-14 max-w-6xl">
+		<p class="text-ink-soft mb-6 text-center text-sm font-semibold tracking-[0.2em] uppercase">
+			What your gift makes possible
+		</p>
+		<PhotoStrip
+			photos={[
+				{
+					slug: 'gallery-08',
+					alt: 'Campers singing around a campfire with a guitar',
+					caption: 'Campfire worship'
+				},
+				{
+					slug: 'gallery-16',
+					alt: 'Children gathered for a lesson beside a wooden cross',
+					caption: 'Kids learning about Jesus'
+				},
+				{
+					slug: 'gallery-14',
+					alt: 'A large evening outdoor camp meeting',
+					caption: 'Gatherings for hundreds'
+				}
+			]}
+		/>
 	</div>
 </section>

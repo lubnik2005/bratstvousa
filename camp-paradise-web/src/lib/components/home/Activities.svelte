@@ -2,6 +2,7 @@
 	import { activities, activitiesNote } from '$lib/content/site';
 	import { reveal } from '$lib/motion/reveal';
 	import { tilt } from '$lib/motion/tilt';
+	import PhotoStrip from '$lib/components/ui/PhotoStrip.svelte';
 </script>
 
 <section class="bg-sand-warm relative py-24 lg:py-32">
@@ -33,6 +34,36 @@
 
 		<p class="text-ink-soft mt-10 text-center text-lg font-medium" use:reveal>
 			{activitiesNote}
+		</p>
+
+		<PhotoStrip
+			class="mt-14"
+			href="/gallery"
+			photos={[
+				{
+					slug: 'gallery-10',
+					alt: 'Campers playing Spikeball on the grass',
+					caption: 'Spikeball showdowns'
+				},
+				{
+					slug: 'gallery-15',
+					alt: 'An outdoor volleyball court surrounded by forest',
+					caption: 'Volleyball in the forest'
+				},
+				{
+					slug: 'gallery-18',
+					alt: 'Campers playing with a giant beach ball',
+					caption: 'Giant beach ball chaos'
+				}
+			]}
+		/>
+		<p class="mt-12 text-center lg:mt-16">
+			<a
+				href="/gallery"
+				class="text-primary-600 hover:text-primary inline-flex items-center gap-2 font-semibold transition"
+			>
+				See more photos <i class="bi bi-arrow-right"></i>
+			</a>
 		</p>
 	</div>
 </section>

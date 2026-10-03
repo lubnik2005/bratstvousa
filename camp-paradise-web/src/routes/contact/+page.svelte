@@ -2,6 +2,7 @@
 	import { enhance } from '$app/forms';
 	import PageHero from '$lib/components/ui/PageHero.svelte';
 	import Button from '$lib/components/ui/Button.svelte';
+	import Img from '$lib/components/ui/Img.svelte';
 	import Turnstile from '$lib/components/Turnstile.svelte';
 	import { reveal } from '$lib/motion/reveal';
 	import { site, contact, bratstvo } from '$lib/content/site';
@@ -39,8 +40,8 @@
 						href={bratstvo.portalUrl}
 						target="_blank"
 						rel="noopener"
-						class="hover:text-primary underline underline-offset-2 transition"
-					>{bratstvo.hint} →</a>
+						class="hover:text-primary underline underline-offset-2 transition">{bratstvo.hint} →</a
+					>
 				</p>
 			</div>
 			<ul class="space-y-5">
@@ -90,6 +91,24 @@
 					</div>
 				</li>
 			</ul>
+			<div class="grid grid-cols-2 gap-3">
+				<div class="aspect-[4/3] overflow-hidden rounded-2xl ring-1 ring-black/5">
+					<Img
+						slug="gallery-17"
+						alt="A camper riding an ATV along a forest trail"
+						sizes="(min-width: 1024px) 14rem, 45vw"
+						class="h-full w-full object-cover"
+					/>
+				</div>
+				<div class="aspect-[4/3] overflow-hidden rounded-2xl ring-1 ring-black/5">
+					<Img
+						slug="gallery-12"
+						alt="A group balancing together on a bridge over the pond"
+						sizes="(min-width: 1024px) 14rem, 45vw"
+						class="h-full w-full object-cover"
+					/>
+				</div>
+			</div>
 			<div>
 				<p class="text-ink-soft mb-3 text-sm font-medium">Follow us</p>
 				<div class="flex gap-3">

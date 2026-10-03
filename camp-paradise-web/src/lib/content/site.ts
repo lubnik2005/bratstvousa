@@ -95,16 +95,16 @@ export const facilities: Facility[] = [
 		slug: 'lodging',
 		name: 'Lodges',
 		blurb:
-			'Spacious lodge-style dorms with room for large groups, complete with restrooms and showers on site.',
+			'Three spacious lodge buildings, our main lodge plus two more, with room for large groups and restrooms and showers on site.',
 		image: 'lodging',
-		capacity: '~80 guests'
+		capacity: '~160 guests'
 	},
 	{
 		slug: 'cabins',
 		name: 'Cabins',
 		blurb:
 			'Seven cabins nestled in the pines, each sleeping about 12, with a standalone restroom and shower building nearby.',
-		image: 'lodging',
+		image: 'gallery-06',
 		capacity: '7 cabins · ~12 each'
 	},
 	{
@@ -118,7 +118,7 @@ export const facilities: Facility[] = [
 		slug: 'tents',
 		name: 'Tent Camping',
 		blurb: 'Pitch a tent almost anywhere on the property and sleep under the mountain stars.',
-		image: 'lodging'
+		image: 'gallery-08'
 	},
 	{
 		slug: 'dining',
@@ -139,7 +139,8 @@ export const facilities: Facility[] = [
 	{
 		slug: 'pool',
 		name: 'Swimming Pool',
-		blurb: 'A full outdoor swimming pool perfect for recreation, cooling off on a summer day, or an impromptu splash.',
+		blurb:
+			'A full outdoor swimming pool perfect for recreation, cooling off on a summer day, or an impromptu splash.',
 		image: 'drone',
 		capacity: 'Outdoor pool'
 	},

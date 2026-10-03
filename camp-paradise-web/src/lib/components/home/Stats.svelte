@@ -2,6 +2,7 @@
 	import { counter } from '$lib/motion/counter';
 	import { reveal } from '$lib/motion/reveal';
 	import { stats, home } from '$lib/content/site';
+	import PhotoStrip from '$lib/components/ui/PhotoStrip.svelte';
 </script>
 
 <section class="bg-sand relative py-24 md:py-32">
@@ -31,5 +32,26 @@
 				</div>
 			{/each}
 		</div>
+
+		<PhotoStrip
+			class="mt-16 lg:mt-20"
+			photos={[
+				{
+					slug: 'gallery-01',
+					alt: 'Evening outdoor worship under tall pine trees',
+					caption: 'Worship under the pines'
+				},
+				{
+					slug: 'gallery-11',
+					alt: 'A group of friends jumping together for a photo',
+					caption: 'Friends for life'
+				},
+				{
+					slug: 'gallery-12',
+					alt: 'A group balancing together on a bridge over the pond',
+					caption: 'Pond-side fun'
+				}
+			]}
+		/>
 	</div>
 </section>

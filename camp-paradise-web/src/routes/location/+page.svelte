@@ -1,6 +1,7 @@
 <script lang="ts">
 	import PageHero from '$lib/components/ui/PageHero.svelte';
 	import Button from '$lib/components/ui/Button.svelte';
+	import Img from '$lib/components/ui/Img.svelte';
 	import { reveal } from '$lib/motion/reveal';
 	import { site } from '$lib/content/site';
 
@@ -37,7 +38,7 @@
 			<p class="text-ink-soft text-lg leading-relaxed">{site.distances}</p>
 			<div class="flex flex-wrap gap-3">
 				<Button href={site.mapsLink} external variant="primary" size="md">Get directions</Button>
-				<Button href="/contact" variant="outline" size="md">Plan a visit</Button>
+				<Button href="/contact" variant="outline-dark" size="md">Plan a visit</Button>
 			</div>
 		</div>
 
@@ -71,6 +72,26 @@
 				<i class="bi bi-download"></i>
 				Download map
 			</a>
+		</div>
+		<div class="mb-8 grid grid-cols-3 gap-3 lg:gap-5">
+			{#each [{ slug: 'gallery-04', alt: 'The wooden Camp Paradise entrance sign among pine trees', cap: 'Welcome in' }, { slug: 'gallery-06', alt: 'A small blue camp cabin with an ATV parked outside', cap: 'Cabins in the pines' }, { slug: 'gallery-13', alt: 'A fenced children’s playground surrounded by pine trees', cap: 'Room for the kids' }] as p, i (p.slug)}
+				<figure
+					use:reveal={{ delay: i * 0.08 }}
+					class="group relative aspect-[4/3] overflow-hidden rounded-2xl ring-1 ring-black/5"
+				>
+					<Img
+						slug={p.slug}
+						alt={p.alt}
+						sizes="(min-width: 1024px) 22rem, 33vw"
+						class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+					/>
+					<figcaption
+						class="from-forest-deep/85 absolute inset-x-0 bottom-0 bg-gradient-to-t to-transparent p-3 text-xs font-semibold text-white sm:text-sm lg:p-4"
+					>
+						{p.cap}
+					</figcaption>
+				</figure>
+			{/each}
 		</div>
 		<div class="overflow-hidden rounded-3xl shadow-lg ring-1 ring-black/5">
 			<img

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import PageHero from '$lib/components/ui/PageHero.svelte';
 	import Img from '$lib/components/ui/Img.svelte';
+	import PhotoStrip from '$lib/components/ui/PhotoStrip.svelte';
 	import { reveal } from '$lib/motion/reveal';
 	import { mission, leaders } from '$lib/content/site';
 </script>
@@ -38,6 +39,48 @@
 			</h2>
 			<p class="text-ink-soft text-lg leading-relaxed lg:text-xl">{mission.statementOfFaith}</p>
 		</article>
+	</div>
+</section>
+
+<section class="bg-forest-deep relative isolate overflow-hidden px-4 py-24 lg:py-36">
+	<Img
+		slug="gallery-05"
+		alt="Campers singing together at an outdoor daytime worship service"
+		sizes="100vw"
+		class="absolute inset-0 -z-10 h-full w-full object-cover opacity-40"
+	/>
+	<div
+		class="from-forest-deep via-forest-deep/60 absolute inset-0 -z-10 bg-gradient-to-t to-transparent"
+	></div>
+	<p
+		use:reveal
+		class="mx-auto max-w-3xl text-center text-3xl font-semibold text-balance text-white lg:text-5xl"
+	>
+		See God. Know God. Experience God.
+	</p>
+</section>
+
+<section class="bg-sand px-4 pt-16 lg:pt-24">
+	<div class="mx-auto max-w-6xl">
+		<PhotoStrip
+			photos={[
+				{
+					slug: 'gallery-16',
+					alt: 'Children gathered for a lesson beside a wooden cross',
+					caption: 'Teaching the next generation'
+				},
+				{
+					slug: 'gallery-08',
+					alt: 'Campers singing around a campfire with a guitar',
+					caption: 'Songs by the fire'
+				},
+				{
+					slug: 'gallery-02',
+					alt: 'A nighttime gathering under glowing string lights',
+					caption: 'Nights under the lights'
+				}
+			]}
+		/>
 	</div>
 </section>
 
