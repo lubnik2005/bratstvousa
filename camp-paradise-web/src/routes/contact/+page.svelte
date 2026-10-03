@@ -2,7 +2,6 @@
 	import { enhance } from '$app/forms';
 	import PageHero from '$lib/components/ui/PageHero.svelte';
 	import Button from '$lib/components/ui/Button.svelte';
-	import Img from '$lib/components/ui/Img.svelte';
 	import Turnstile from '$lib/components/Turnstile.svelte';
 	import { reveal } from '$lib/motion/reveal';
 	import { site, contact, bratstvo } from '$lib/content/site';
@@ -28,51 +27,6 @@
 	title="Come visit Camp Paradise"
 	subtitle={contact.intro}
 />
-
-<!-- split photo band: adventure | worship -->
-<section class="bg-forest-deep relative grid h-64 grid-cols-2 overflow-hidden sm:h-80 lg:h-[420px]">
-	<figure class="group relative overflow-hidden">
-		<Img
-			slug="gallery-17"
-			alt="A camper riding an ATV along a forest trail"
-			sizes="50vw"
-			class="h-full w-full object-cover transition-transform duration-[1400ms] ease-out group-hover:scale-105"
-		/>
-		<div
-			class="from-forest-deep/80 absolute inset-0 bg-gradient-to-t via-transparent to-transparent"
-		></div>
-		<figcaption class="absolute bottom-5 left-5 lg:bottom-8 lg:left-10">
-			<p class="text-mint-bright text-[10px] font-semibold tracking-[0.3em] uppercase sm:text-xs">
-				Adventure
-			</p>
-			<p class="mt-1 text-base font-semibold text-white sm:text-xl lg:text-2xl">Come and play.</p>
-		</figcaption>
-	</figure>
-	<figure class="group relative overflow-hidden">
-		<Img
-			slug="gallery-01"
-			alt="Evening outdoor worship under tall pine trees"
-			sizes="50vw"
-			class="h-full w-full object-cover transition-transform duration-[1400ms] ease-out group-hover:scale-105"
-		/>
-		<div
-			class="from-forest-deep/80 absolute inset-0 bg-gradient-to-t via-transparent to-transparent"
-		></div>
-		<figcaption class="absolute right-5 bottom-5 text-right lg:right-10 lg:bottom-8">
-			<p class="text-mint-bright text-[10px] font-semibold tracking-[0.3em] uppercase sm:text-xs">
-				Worship
-			</p>
-			<p class="mt-1 text-base font-semibold text-white sm:text-xl lg:text-2xl">Come and rest.</p>
-		</figcaption>
-	</figure>
-	<!-- cross motif divider -->
-	<span aria-hidden="true" class="bg-primary absolute inset-y-0 left-1/2 w-[3px] -translate-x-1/2"
-	></span>
-	<span
-		aria-hidden="true"
-		class="bg-primary absolute top-[30%] left-1/2 h-[3px] w-12 -translate-x-1/2 sm:w-16 lg:w-20"
-	></span>
-</section>
 
 <section class="bg-sand px-4 py-16 lg:py-24">
 	<div class="mx-auto grid max-w-6xl gap-12 lg:grid-cols-[1fr_1.2fr]">

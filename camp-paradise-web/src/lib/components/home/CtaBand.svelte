@@ -2,16 +2,10 @@
 	import { home } from '$lib/content/site';
 	import { reveal } from '$lib/motion/reveal';
 	import Button from '$lib/components/ui/Button.svelte';
-	import Img from '$lib/components/ui/Img.svelte';
 </script>
 
 <section class="bg-forest relative overflow-hidden py-28 text-white lg:py-40">
-	<div class="absolute inset-0">
-		<Img slug="gallery-05" alt="" sizes="100vw" class="h-full w-full object-cover opacity-30" />
-		<div
-			class="from-forest/70 via-forest/60 to-forest-deep absolute inset-0 bg-gradient-to-b"
-		></div>
-	</div>
+	<div class="from-forest/70 via-forest/60 to-forest-deep absolute inset-0 bg-gradient-to-b"></div>
 
 	<div class="relative z-10 mx-auto max-w-3xl px-6 text-center" use:reveal>
 		<h2 class="text-5xl font-semibold text-balance lg:text-7xl">{home.ctaHeadline}</h2>
