@@ -57,7 +57,72 @@
 	</div>
 </section>
 
-<section class="bg-sand-warm px-4 py-16 lg:py-24">
+<!-- entrance band with floating polaroids -->
+<section class="bg-sand-warm relative">
+	<div class="relative h-[240px] overflow-hidden sm:h-[300px] lg:h-[380px]">
+		<Img
+			slug="gallery-04"
+			alt="The wooden Camp Paradise entrance sign among pine trees"
+			sizes="100vw"
+			class="band-img absolute inset-0 h-[120%] w-full object-cover"
+		/>
+		<div class="from-sand absolute inset-x-0 top-0 h-20 bg-gradient-to-b to-transparent"></div>
+		<div
+			class="from-sand-warm absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t to-transparent"
+		></div>
+		<div
+			class="from-sand-warm/80 absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r to-transparent"
+		></div>
+
+		<div class="absolute inset-0 mx-auto max-w-6xl px-4">
+			<div class="absolute bottom-6 left-4 max-w-xs sm:bottom-10" use:reveal>
+				<p class="text-primary text-xs font-semibold tracking-[0.3em] uppercase">You've arrived</p>
+				<p class="font-display text-ink mt-2 text-2xl font-semibold lg:text-4xl">
+					Where the pavement ends and the pines begin.
+				</p>
+			</div>
+		</div>
+	</div>
+
+	<div class="pointer-events-none relative mx-auto max-w-6xl px-4">
+		<div class="absolute right-6 -bottom-2 flex items-end sm:right-10 lg:right-16">
+			<figure
+				use:reveal={{ y: 30, delay: 0.1 }}
+				class="polaroid relative z-10 w-28 -rotate-6 bg-white p-1.5 shadow-2xl sm:w-40 lg:w-48"
+			>
+				<div class="aspect-square overflow-hidden">
+					<Img
+						slug="gallery-06"
+						alt="A small blue camp cabin with an ATV parked outside"
+						sizes="12rem"
+						class="h-full w-full object-cover"
+					/>
+				</div>
+				<figcaption class="text-ink-soft pt-2 pb-1 text-center text-[10px] font-medium sm:text-xs">
+					the cabins
+				</figcaption>
+			</figure>
+			<figure
+				use:reveal={{ y: 30, delay: 0.25 }}
+				class="polaroid relative -ml-8 w-28 rotate-3 bg-white p-1.5 shadow-2xl sm:-ml-10 sm:w-40 lg:w-48"
+			>
+				<div class="aspect-square overflow-hidden">
+					<Img
+						slug="gallery-13"
+						alt="A fenced children's playground surrounded by pine trees"
+						sizes="12rem"
+						class="h-full w-full object-cover"
+					/>
+				</div>
+				<figcaption class="text-ink-soft pt-2 pb-1 text-center text-[10px] font-medium sm:text-xs">
+					the playground
+				</figcaption>
+			</figure>
+		</div>
+	</div>
+</section>
+
+<section class="bg-sand-warm px-4 pt-32 pb-16 sm:pt-40 lg:pt-48 lg:pb-24">
 	<div class="mx-auto max-w-6xl" use:reveal>
 		<div class="mb-8 flex flex-wrap items-end justify-between gap-4">
 			<div>
@@ -73,26 +138,6 @@
 				Download map
 			</a>
 		</div>
-		<div class="mb-8 grid grid-cols-3 gap-3 lg:gap-5">
-			{#each [{ slug: 'gallery-04', alt: 'The wooden Camp Paradise entrance sign among pine trees', cap: 'Welcome in' }, { slug: 'gallery-06', alt: 'A small blue camp cabin with an ATV parked outside', cap: 'Cabins in the pines' }, { slug: 'gallery-13', alt: 'A fenced children’s playground surrounded by pine trees', cap: 'Room for the kids' }] as p, i (p.slug)}
-				<figure
-					use:reveal={{ delay: i * 0.08 }}
-					class="group relative aspect-[4/3] overflow-hidden rounded-2xl ring-1 ring-black/5"
-				>
-					<Img
-						slug={p.slug}
-						alt={p.alt}
-						sizes="(min-width: 1024px) 22rem, 33vw"
-						class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-					/>
-					<figcaption
-						class="from-forest-deep/85 absolute inset-x-0 bottom-0 bg-gradient-to-t to-transparent p-3 text-xs font-semibold text-white sm:text-sm lg:p-4"
-					>
-						{p.cap}
-					</figcaption>
-				</figure>
-			{/each}
-		</div>
 		<div class="overflow-hidden rounded-3xl shadow-lg ring-1 ring-black/5">
 			<img
 				src="/map.svg"
@@ -103,3 +148,26 @@
 		</div>
 	</div>
 </section>
+
+<style>
+	.polaroid {
+		pointer-events: auto;
+		transform-origin: bottom center;
+	}
+	@supports (animation-timeline: view()) {
+		@media (prefers-reduced-motion: no-preference) {
+			section :global(.band-img) {
+				animation: parallax linear both;
+				animation-timeline: view();
+			}
+		}
+	}
+	@keyframes parallax {
+		from {
+			transform: translateY(-14%);
+		}
+		to {
+			transform: translateY(0);
+		}
+	}
+</style>

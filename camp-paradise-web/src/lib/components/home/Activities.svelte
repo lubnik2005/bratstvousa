@@ -2,7 +2,7 @@
 	import { activities, activitiesNote } from '$lib/content/site';
 	import { reveal } from '$lib/motion/reveal';
 	import { tilt } from '$lib/motion/tilt';
-	import PhotoStrip from '$lib/components/ui/PhotoStrip.svelte';
+	import Img from '$lib/components/ui/Img.svelte';
 </script>
 
 <section class="bg-sand-warm relative py-24 lg:py-32">
@@ -35,41 +35,65 @@
 		<p class="text-ink-soft mt-10 text-center text-lg font-medium" use:reveal>
 			{activitiesNote}
 		</p>
-
-		<PhotoStrip
-			class="mt-14"
-			href="/gallery"
-			photos={[
-				{
-					slug: 'gallery-10',
-					alt: 'Campers playing Spikeball on the grass',
-					caption: 'Spikeball showdowns'
-				},
-				{
-					slug: 'gallery-15',
-					alt: 'An outdoor volleyball court surrounded by forest',
-					caption: 'Volleyball in the forest'
-				},
-				{
-					slug: 'gallery-18',
-					alt: 'Campers playing with a giant beach ball',
-					caption: 'Giant beach ball chaos'
-				}
-			]}
-		/>
-		<p class="mt-12 text-center lg:mt-16">
-			<a
-				href="/gallery"
-				class="text-primary-600 hover:text-primary inline-flex items-center gap-2 font-semibold transition"
-			>
-				See more photos <i class="bi bi-arrow-right"></i>
-			</a>
-		</p>
 	</div>
+
+	<!-- full-bleed photo band -->
+	<div class="band relative mt-20 h-[280px] overflow-hidden sm:h-[360px] lg:mt-28 lg:h-[460px]">
+		<Img
+			slug="gallery-18"
+			alt="Campers playing with a giant beach ball"
+			sizes="100vw"
+			class="band-img absolute inset-0 h-[120%] w-full object-cover object-[center_60%]"
+		/>
+		<div class="from-sand-warm absolute inset-x-0 top-0 h-16 bg-gradient-to-b to-transparent"></div>
+		<div
+			class="from-sand-warm absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t to-transparent"
+		></div>
+		<div
+			class="pointer-events-none absolute inset-0 flex items-end justify-between px-6 pb-8 lg:px-[max(1.5rem,calc((100vw-72rem)/2))]"
+		>
+			<p class="text-xs font-semibold tracking-[0.25em] text-white/80 uppercase drop-shadow">
+				Summer 2025
+			</p>
+			<p
+				class="hidden text-xs font-semibold tracking-[0.25em] text-white/80 uppercase drop-shadow sm:block"
+			>
+				Strawberry Valley, CA
+			</p>
+		</div>
+	</div>
+
+	<p class="mt-10 text-center lg:mt-14" use:reveal>
+		<a
+			href="/gallery"
+			class="bg-forest hover:bg-forest-deep inline-flex items-center gap-3 rounded-full py-3 pr-5 pl-6 text-sm font-semibold text-white shadow-lg transition"
+		>
+			Browse the gallery
+			<span class="bg-primary flex h-7 w-7 items-center justify-center rounded-full text-xs">
+				<i class="bi bi-arrow-right"></i>
+			</span>
+		</a>
+	</p>
 </section>
 
 <style>
 	.activity-card {
 		transform-style: preserve-3d;
+	}
+	@supports (animation-timeline: view()) {
+		@media (prefers-reduced-motion: no-preference) {
+			.band :global(.band-img) {
+				animation: parallax linear both;
+				animation-timeline: view();
+			}
+		}
+	}
+	@keyframes parallax {
+		from {
+			transform: translateY(-14%);
+		}
+		to {
+			transform: translateY(0);
+		}
 	}
 </style>
