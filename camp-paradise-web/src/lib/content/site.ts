@@ -118,7 +118,7 @@ export const facilities: Facility[] = [
 		slug: 'tents',
 		name: 'Tent Camping',
 		blurb: 'Pitch a tent almost anywhere on the property and sleep under the mountain stars.',
-		image: 'gallery-08'
+		image: 'tents'
 	},
 	{
 		slug: 'dining',

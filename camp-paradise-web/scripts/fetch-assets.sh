@@ -52,6 +52,7 @@ declare -a IMAGES=(
 # slug -> file under assets/raw (committed originals, ~2400px, EXIF stripped)
 declare -a LOCAL_IMAGES=(
   "cabins:cabins.jpg"
+  "tents:tents.jpg"
 )
 
 VIDEO_SRC="Retreat.2e757472.mp4"
