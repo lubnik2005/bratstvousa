@@ -8,6 +8,7 @@
 		href: string;
 		icon: string; // bootstrap-icons class name
 		match: (path: string) => boolean;
+		featured?: boolean;
 	}
 
 	const tabs: Tab[] = [
@@ -19,22 +20,23 @@
 			match: (p) => p.startsWith('/facilities')
 		},
 		{
+			label: 'Visit',
+			href: '/location',
+			icon: 'geo-alt-fill',
+			match: (p) => p.startsWith('/location') || p.startsWith('/contact'),
+			featured: true
+		},
+		{
 			label: 'Gallery',
 			href: '/gallery',
 			icon: 'images',
 			match: (p) => p.startsWith('/gallery')
 		},
 		{
-			label: 'Visit',
-			href: '/location',
-			icon: 'geo-alt',
-			match: (p) => p.startsWith('/location') || p.startsWith('/contact')
-		},
-		{
-			label: 'More',
+			label: 'Mission',
 			href: '/mission',
-			icon: 'grid',
-			match: (p) => p.startsWith('/mission') || p.startsWith('/donate')
+			icon: 'book',
+			match: (p) => p.startsWith('/mission')
 		}
 	];
 
@@ -44,11 +46,21 @@
 <nav class="tabbar glass-dark" aria-label="Primary">
 	{#each tabs as tab (tab.href)}
 		{@const active = tab.match(path)}
-		<a href={tab.href} class="tab" class:active aria-current={active ? 'page' : undefined}>
-			<span class="tab-icon">
-				<i class="bi bi-{tab.icon}"></i>
-				{#if active}<span class="tab-pill" aria-hidden="true"></span>{/if}
-			</span>
+		<a
+			href={tab.href}
+			class="tab"
+			class:active
+			class:featured={tab.featured}
+			aria-current={active ? 'page' : undefined}
+		>
+			{#if tab.featured}
+				<span class="fab" aria-hidden="true"><i class="bi bi-{tab.icon}"></i></span>
+			{:else}
+				<span class="tab-icon">
+					<i class="bi bi-{tab.icon}"></i>
+					{#if active}<span class="tab-pill" aria-hidden="true"></span>{/if}
+				</span>
+			{/if}
 			<span class="tab-label">{tab.label}</span>
 		</a>
 	{/each}
@@ -117,7 +129,56 @@
 			transform: scale(1);
 		}
 	}
+	/* Raised center action */
+	.tab.featured {
+		justify-content: flex-end;
+		padding-bottom: 0.55rem;
+		color: rgba(255, 255, 255, 0.85);
+	}
+	.tab.featured.active {
+		color: var(--color-mint-bright, #5be49b);
+	}
+	.tab.featured:active {
+		transform: none;
+	}
+	.fab {
+		position: absolute;
+		top: -1.25rem;
+		left: 50%;
+		display: grid;
+		place-items: center;
+		width: 3.5rem;
+		height: 3.5rem;
+		margin-left: -1.75rem;
+		border-radius: 999px;
+		background: var(--color-primary, #16aa65);
+		color: #fff;
+		font-size: 1.5rem;
+		box-shadow:
+			0 0 0 5px var(--color-forest-deep, #0a2c21),
+			0 10px 24px -6px rgba(22, 170, 101, 0.65);
+		transition:
+			transform 0.25s var(--ease-out-expo, ease),
+			box-shadow 0.25s ease;
+	}
+	.tab.featured {
+		position: relative;
+	}
+	.tab.featured:active .fab {
+		transform: scale(0.92);
+	}
+	.tab.featured.active .fab {
+		box-shadow:
+			0 0 0 5px var(--color-forest-deep, #0a2c21),
+			0 0 0 7px var(--color-mint-bright, #5be49b),
+			0 10px 24px -6px rgba(22, 170, 101, 0.65);
+	}
 	@media (prefers-reduced-motion: reduce) {
+		.fab,
+		.tab.featured:active .fab {
+			transition: none;
+			transform: none;
+		}
 		.tab,
 		.tab:active {
 			transition: none;

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { page } from '$app/stores';
 	import { site } from '$lib/content/site';
 </script>
 
@@ -15,10 +16,12 @@
 		</a>
 
 		<a
-			href="/contact"
-			class="bg-primary shadow-primary/30 rounded-full px-4 py-2 text-sm font-semibold text-white shadow-lg transition active:scale-95"
+			href="/donate"
+			aria-current={$page.url.pathname.startsWith('/donate') ? 'page' : undefined}
+			class="bg-sunset text-ink shadow-sunset/30 inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold shadow-lg transition active:scale-95"
 		>
-			Book
+			<i class="bi bi-heart-fill text-xs" aria-hidden="true"></i>
+			Donate
 		</a>
 	</div>
 </header>
