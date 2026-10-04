@@ -11,8 +11,8 @@
 		featured?: boolean;
 	}
 
+	// Home is reached via the header logo.
 	const tabs: Tab[] = [
-		{ label: 'Home', href: '/', icon: 'house', match: (p) => p === '/' },
 		{
 			label: 'Stay',
 			href: '/facilities',
@@ -22,8 +22,14 @@
 		{
 			label: 'Visit',
 			href: '/location',
-			icon: 'geo-alt-fill',
-			match: (p) => p.startsWith('/location') || p.startsWith('/contact'),
+			icon: 'geo-alt',
+			match: (p) => p.startsWith('/location')
+		},
+		{
+			label: 'Book',
+			href: '/contact',
+			icon: 'calendar-check-fill',
+			match: (p) => p.startsWith('/contact'),
 			featured: true
 		},
 		{
