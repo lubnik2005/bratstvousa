@@ -97,22 +97,22 @@ export const facilities: Facility[] = [
 		blurb:
 			'Three spacious lodge buildings, our main lodge plus two more, with room for large groups and restrooms and showers on site.',
 		image: 'lodging',
-		capacity: '~160 guests'
+		capacity: '~Sleeps 210'
 	},
 	{
 		slug: 'cabins',
 		name: 'Cabins',
 		blurb:
 			'Seven cabins nestled in the pines, each sleeping about 12, with a standalone restroom and shower building nearby.',
-		image: 'gallery-06',
-		capacity: '7 cabins · ~12 each'
+		image: 'cabins',
+		capacity: '~Sleeps 84'
 	},
 	{
 		slug: 'rv',
 		name: 'RV Parking',
-		blurb: 'Sixteen RV slots with full hookups for guests who bring their home on wheels.',
+		blurb: 'Fifteen RV slots with full hookups for guests who bring their home on wheels.',
 		image: 'lodging',
-		capacity: '16 slots · full hookups'
+		capacity: 'Space for 15 RVs'
 	},
 	{
 		slug: 'tents',

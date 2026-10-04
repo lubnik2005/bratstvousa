@@ -3,6 +3,9 @@
 # Downloads the original Camp Paradise media from the live site and produces
 # optimized, responsive assets under static/media and static/video.
 #
+# Images not hosted on the live site are committed under assets/raw and listed
+# in LOCAL_IMAGES; they go through the same optimization pipeline.
+#
 # Requires: curl, magick (ImageMagick), ffmpeg. Run from the app root:
 #   npm run assets
 #
@@ -46,6 +49,11 @@ declare -a IMAGES=(
   "gallery-18:7copy.752e4317.jpg"
 )
 
+# slug -> file under assets/raw (committed originals, ~2400px, EXIF stripped)
+declare -a LOCAL_IMAGES=(
+  "cabins:cabins.jpg"
+)
+
 VIDEO_SRC="Retreat.2e757472.mp4"
 
 download() {
@@ -65,9 +73,15 @@ for entry in "${IMAGES[@]}"; do
   download "$BASE/$file" "$RAW/$slug.orig"
 done
 download "$BASE/$VIDEO_SRC" "$RAW/retreat.orig.mp4"
+for entry in "${LOCAL_IMAGES[@]}"; do
+  slug="${entry%%:*}"
+  file="${entry##*:}"
+  cp "$ROOT/assets/raw/$file" "$RAW/$slug.orig"
+  echo "  local  $file"
+done
 
 echo "==> Optimizing images (avif + webp + jpg, widths 640/1280/1920)"
-for entry in "${IMAGES[@]}"; do
+for entry in "${IMAGES[@]}" "${LOCAL_IMAGES[@]}"; do
   slug="${entry%%:*}"
   src="$RAW/$slug.orig"
   for w in 640 1280 1920; do

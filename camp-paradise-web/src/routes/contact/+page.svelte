@@ -33,7 +33,7 @@
 		<div use:reveal class="space-y-8">
 			<div>
 				<p class="text-primary text-sm font-semibold tracking-[0.2em] uppercase">Reach us</p>
-				<h2 class="text-ink mt-2 text-3xl">Come visit us</h2>
+				<h2 class="text-ink mt-2 text-3xl">Reach out to us</h2>
 				<p class="text-ink-soft mt-3 text-sm">
 					<a
 						href={bratstvo.portalUrl}
