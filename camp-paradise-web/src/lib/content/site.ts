@@ -141,8 +141,7 @@ export const facilities: Facility[] = [
 		name: 'Swimming Pool',
 		blurb:
 			'A full outdoor swimming pool perfect for recreation, cooling off on a summer day, or an impromptu splash.',
-		image: 'drone',
-		capacity: 'Outdoor pool'
+		image: 'drone'
 	},
 	{
 		slug: 'sauna',
