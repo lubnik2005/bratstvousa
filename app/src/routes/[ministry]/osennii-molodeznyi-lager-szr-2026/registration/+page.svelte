@@ -22,6 +22,7 @@
 
 	const CONSENT_SUBMITTED_KEY = 'camp2026_consent_submitted';
 	const RULES_ACK_KEY = 'camp2026_rules_ack';
+	const REGISTRATION_CLOSED = true;
 
 	let didSubmitConsent = false;
 	let didAckRules = false;
@@ -223,273 +224,289 @@
 <div class="container-xxl py-6">
 	<div class="container">
 		<div class="reg-shell mx-auto">
-			<ol class="reg-steps">
-				<li class:active={!form?.registered} class:done={form?.registered}>1. Данные</li>
-				<li class:active={form?.registered}>2. Готово</li>
-			</ol>
+			{#if REGISTRATION_CLOSED}
+				<div class="reg-closed">
+					<h2>Регистрация закрыта</h2>
+					<p>Регистрация на осенний молодежный лагерь СЗР 2026 больше не принимается.</p>
+					<a
+						class="btn btn-outline-primary"
+						href="/youth-ministry/osennii-molodeznyi-lager-szr-2026"
+					>
+						Вернуться на страницу лагеря
+					</a>
+				</div>
+			{:else}
+				<ol class="reg-steps">
+					<li class:active={!form?.registered} class:done={form?.registered}>1. Данные</li>
+					<li class:active={form?.registered}>2. Готово</li>
+				</ol>
 
-			{#if !form?.registered}
-				<!-- STEP 1: registration form -->
-				<form
-					method="post"
-					use:enhance={({ cancel }) => {
-						// Defensive guard: never submit unless both required
-						// acknowledgements are complete (disabled/required checkboxes
-						// alone don't reliably block submission).
-						if (!didSubmitConsent || !didAckRules) {
-							cancel();
-							consentGateError =
-								'Пожалуйста, заполните форму согласия YoungLife и подтвердите правила лагеря.';
-							return;
-						}
-						consentGateError = '';
-						return async ({ update }) => {
-							await update();
-							turnstile?.reset();
-						};
-					}}
-				>
-					<input
-						type="text"
-						name="middle_name"
-						tabindex="-1"
-						autocomplete="off"
-						style="position:absolute;left:-9999px"
-						aria-hidden="true"
-					/>
+				{#if !form?.registered}
+					<!-- STEP 1: registration form -->
+					<form
+						method="post"
+						use:enhance={({ cancel }) => {
+							// Defensive guard: never submit unless both required
+							// acknowledgements are complete (disabled/required checkboxes
+							// alone don't reliably block submission).
+							if (!didSubmitConsent || !didAckRules) {
+								cancel();
+								consentGateError =
+									'Пожалуйста, заполните форму согласия YoungLife и подтвердите правила лагеря.';
+								return;
+							}
+							consentGateError = '';
+							return async ({ update }) => {
+								await update();
+								turnstile?.reset();
+							};
+						}}
+					>
+						<input
+							type="text"
+							name="middle_name"
+							tabindex="-1"
+							autocomplete="off"
+							style="position:absolute;left:-9999px"
+							aria-hidden="true"
+						/>
 
-					<div class="reg-grid">
-						<div class="field">
-							<label class="form-label" for="firstName">Имя</label>
-							<input
-								class="form-control"
-								id="firstName"
-								name="firstName"
-								value={values.firstName ?? ''}
-							/>
-							{#if errors.firstName}<div class="field-error">{errors.firstName}</div>{/if}
+						<div class="reg-grid">
+							<div class="field">
+								<label class="form-label" for="firstName">Имя</label>
+								<input
+									class="form-control"
+									id="firstName"
+									name="firstName"
+									value={values.firstName ?? ''}
+								/>
+								{#if errors.firstName}<div class="field-error">{errors.firstName}</div>{/if}
+							</div>
+							<div class="field">
+								<label class="form-label" for="lastName">Фамилия</label>
+								<input
+									class="form-control"
+									id="lastName"
+									name="lastName"
+									value={values.lastName ?? ''}
+								/>
+								{#if errors.lastName}<div class="field-error">{errors.lastName}</div>{/if}
+							</div>
 						</div>
-						<div class="field">
-							<label class="form-label" for="lastName">Фамилия</label>
-							<input
-								class="form-control"
-								id="lastName"
-								name="lastName"
-								value={values.lastName ?? ''}
-							/>
-							{#if errors.lastName}<div class="field-error">{errors.lastName}</div>{/if}
-						</div>
-					</div>
 
-					<div class="field">
-						<label class="form-label" for="churchInput">Церковь</label>
-						<div class="combo">
-							<input
-								class="form-control"
-								id="churchInput"
-								autocomplete="off"
-								placeholder="Начните вводить название…"
-								value={churchQuery}
-								on:input={onChurchInput}
-								on:focus={() => (churchOpen = true)}
-								on:keydown={onChurchKeydown}
-								role="combobox"
-								aria-expanded={churchOpen}
-								aria-controls="church-listbox"
-							/>
-							{#if churchOpen}
-								<ul class="combo-list" id="church-listbox" role="listbox">
-									{#each churchMatches as c, i (c.id)}
+						<div class="field">
+							<label class="form-label" for="churchInput">Церковь</label>
+							<div class="combo">
+								<input
+									class="form-control"
+									id="churchInput"
+									autocomplete="off"
+									placeholder="Начните вводить название…"
+									value={churchQuery}
+									on:input={onChurchInput}
+									on:focus={() => (churchOpen = true)}
+									on:keydown={onChurchKeydown}
+									role="combobox"
+									aria-expanded={churchOpen}
+									aria-controls="church-listbox"
+								/>
+								{#if churchOpen}
+									<ul class="combo-list" id="church-listbox" role="listbox">
+										{#each churchMatches as c, i (c.id)}
+											<li
+												role="option"
+												aria-selected={churchActive === i}
+												class:active={churchActive === i}
+												on:mousedown|preventDefault={() => pickChurch(c.label, c.id)}
+											>
+												{c.label}
+											</li>
+										{/each}
 										<li
 											role="option"
-											aria-selected={churchActive === i}
-											class:active={churchActive === i}
-											on:mousedown|preventDefault={() => pickChurch(c.label, c.id)}
+											aria-selected={churchActive === churchMatches.length}
+											class="combo-other"
+											class:active={churchActive === churchMatches.length}
+											on:mousedown|preventDefault={pickOther}
 										>
-											{c.label}
+											Другое (ввести своё)
 										</li>
-									{/each}
-									<li
-										role="option"
-										aria-selected={churchActive === churchMatches.length}
-										class="combo-other"
-										class:active={churchActive === churchMatches.length}
-										on:mousedown|preventDefault={pickOther}
-									>
-										Другое (ввести своё)
-									</li>
-								</ul>
-							{/if}
-						</div>
-						<!-- hidden submit values -->
-						<input type="hidden" name="church" value={churchSelected} />
-						<input type="hidden" name="churchId" value={churchIdSelected ?? ''} />
-						{#if churchSelected === 'other'}
-							<input
-								class="form-control mt-2"
-								name="churchOther"
-								placeholder="Название вашей церкви"
-								bind:value={churchOther}
-							/>
-						{/if}
-						{#if errors.church}<div class="field-error">{errors.church}</div>{/if}
-					</div>
-
-					<div class="reg-grid">
-						<div class="field">
-							<label class="form-label" for="email">Email</label>
-							<input
-								class="form-control"
-								id="email"
-								name="email"
-								type="email"
-								value={values.email ?? ''}
-							/>
-							{#if errors.email}<div class="field-error">{errors.email}</div>{/if}
-						</div>
-						<div class="field">
-							<label class="form-label" for="phone">Телефон</label>
-							<input class="form-control" id="phone" name="phone" value={values.phone ?? ''} />
-						</div>
-					</div>
-
-					<div class="field">
-						<label class="form-label" for="leaderId">Ответственный за молодежь</label>
-						<select class="form-select" id="leaderId" name="leaderId">
-							<option value="">— Выберите —</option>
-							{#each data.leaders as leader (leader.id)}
-								<option value={leader.id} selected={String(values.leaderId) === String(leader.id)}>
-									{leader.name}
-								</option>
-							{/each}
-						</select>
-						{#if errors.leaderId}<div class="field-error">{errors.leaderId}</div>{/if}
-						<p class="field-note">
-							Не из нашего региона? Напишите нам на
-							<a href="mailto:youth@bratstvousa.com">youth@bratstvousa.com</a>, чтобы связаться с
-							нами по поводу участия, и выберите <strong>Vadym Neyman</strong> в качестве ответственного.
-						</p>
-					</div>
-
-					<!-- Steps before submitting: external consent form + camp rules -->
-					<div class="prep">
-						<p class="prep-title">Перед отправкой</p>
-
-						<div class="prep-step">
-							<button type="button" class="btn btn-success prep-btn" on:click={openConsentModal}>
-								1) Заполнить форму согласия YoungLife
-							</button>
-							{#if didSubmitConsent}
-								<span class="prep-badge done">Отправлено ✓</span>
-							{/if}
-							<p class="prep-help">
-								Внешняя форма согласия YoungLife. Заполните и отправьте её, затем вернитесь сюда.
-								<br />Примечание: внешняя форма может отображать прошлый год — это нормально,
-								заполните её как есть.
-								{#if embedError}
-									<br />Если форма не открылась,
-									<a href={CONSENT_URL} target="_blank" rel="noopener">откройте по ссылке</a>.
+									</ul>
 								{/if}
+							</div>
+							<!-- hidden submit values -->
+							<input type="hidden" name="church" value={churchSelected} />
+							<input type="hidden" name="churchId" value={churchIdSelected ?? ''} />
+							{#if churchSelected === 'other'}
+								<input
+									class="form-control mt-2"
+									name="churchOther"
+									placeholder="Название вашей церкви"
+									bind:value={churchOther}
+								/>
+							{/if}
+							{#if errors.church}<div class="field-error">{errors.church}</div>{/if}
+						</div>
+
+						<div class="reg-grid">
+							<div class="field">
+								<label class="form-label" for="email">Email</label>
+								<input
+									class="form-control"
+									id="email"
+									name="email"
+									type="email"
+									value={values.email ?? ''}
+								/>
+								{#if errors.email}<div class="field-error">{errors.email}</div>{/if}
+							</div>
+							<div class="field">
+								<label class="form-label" for="phone">Телефон</label>
+								<input class="form-control" id="phone" name="phone" value={values.phone ?? ''} />
+							</div>
+						</div>
+
+						<div class="field">
+							<label class="form-label" for="leaderId">Ответственный за молодежь</label>
+							<select class="form-select" id="leaderId" name="leaderId">
+								<option value="">— Выберите —</option>
+								{#each data.leaders as leader (leader.id)}
+									<option
+										value={leader.id}
+										selected={String(values.leaderId) === String(leader.id)}
+									>
+										{leader.name}
+									</option>
+								{/each}
+							</select>
+							{#if errors.leaderId}<div class="field-error">{errors.leaderId}</div>{/if}
+							<p class="field-note">
+								Не из нашего региона? Напишите нам на
+								<a href="mailto:youth@bratstvousa.com">youth@bratstvousa.com</a>, чтобы связаться с
+								нами по поводу участия, и выберите <strong>Vadym Neyman</strong> в качестве ответственного.
 							</p>
 						</div>
 
-						<div class="prep-step">
-							<button
-								type="button"
-								class="btn btn-outline-secondary prep-btn"
-								on:click={openRulesModal}
-							>
-								2) Прочитать правила лагеря
-							</button>
-							{#if didAckRules}
-								<span class="prep-badge done">Подтверждено ✓</span>
-							{/if}
-							<p class="prep-help">Ознакомьтесь с правилами лагеря и подтвердите прочтение.</p>
+						<!-- Steps before submitting: external consent form + camp rules -->
+						<div class="prep">
+							<p class="prep-title">Перед отправкой</p>
+
+							<div class="prep-step">
+								<button type="button" class="btn btn-success prep-btn" on:click={openConsentModal}>
+									1) Заполнить форму согласия YoungLife
+								</button>
+								{#if didSubmitConsent}
+									<span class="prep-badge done">Отправлено ✓</span>
+								{/if}
+								<p class="prep-help">
+									Внешняя форма согласия YoungLife. Заполните и отправьте её, затем вернитесь сюда.
+									<br />Примечание: внешняя форма может отображать прошлый год — это нормально,
+									заполните её как есть.
+									{#if embedError}
+										<br />Если форма не открылась,
+										<a href={CONSENT_URL} target="_blank" rel="noopener">откройте по ссылке</a>.
+									{/if}
+								</p>
+							</div>
+
+							<div class="prep-step">
+								<button
+									type="button"
+									class="btn btn-outline-secondary prep-btn"
+									on:click={openRulesModal}
+								>
+									2) Прочитать правила лагеря
+								</button>
+								{#if didAckRules}
+									<span class="prep-badge done">Подтверждено ✓</span>
+								{/if}
+								<p class="prep-help">Ознакомьтесь с правилами лагеря и подтвердите прочтение.</p>
+							</div>
+
+							<label class="prep-check">
+								<input
+									type="checkbox"
+									id="consent_form"
+									name="consent_form"
+									required
+									checked={didSubmitConsent}
+									on:click|preventDefault={openConsentModal}
+								/>
+								<span>
+									Я заполнил(а) форму согласия YoungLife (<button
+										type="button"
+										class="btn-link"
+										on:click={openConsentModal}>открыть</button
+									>)
+								</span>
+							</label>
+
+							<label class="prep-check">
+								<input
+									type="checkbox"
+									id="consent_rules"
+									name="consent_rules"
+									required
+									checked={didAckRules}
+									on:click|preventDefault={openRulesModal}
+								/>
+								<span>
+									Я прочитал(а) и согласен(на) с правилами лагеря (<button
+										type="button"
+										class="btn-link"
+										on:click={openRulesModal}>открыть</button
+									>)
+								</span>
+							</label>
 						</div>
 
-						<label class="prep-check">
-							<input
-								type="checkbox"
-								id="consent_form"
-								name="consent_form"
-								required
-								checked={didSubmitConsent}
-								on:click|preventDefault={openConsentModal}
-							/>
-							<span>
-								Я заполнил(а) форму согласия YoungLife (<button
-									type="button"
-									class="btn-link"
-									on:click={openConsentModal}>открыть</button
-								>)
-							</span>
-						</label>
+						{#if consentGateError}
+							<p class="consent-gate-error">{consentGateError}</p>
+						{/if}
 
-						<label class="prep-check">
-							<input
-								type="checkbox"
-								id="consent_rules"
-								name="consent_rules"
-								required
-								checked={didAckRules}
-								on:click|preventDefault={openRulesModal}
-							/>
-							<span>
-								Я прочитал(а) и согласен(на) с правилами лагеря (<button
-									type="button"
-									class="btn-link"
-									on:click={openRulesModal}>открыть</button
-								>)
-							</span>
-						</label>
-					</div>
-
-					{#if consentGateError}
-						<p class="consent-gate-error">{consentGateError}</p>
-					{/if}
-
-					<div class="my-3">
-						<Turnstile bind:this={turnstile} action="camp_2026" />
-					</div>
-
-					<button
-						class="btn btn-primary reg-submit"
-						type="submit"
-						disabled={!didSubmitConsent || !didAckRules}
-					>
-						Отправить заявку
-					</button>
-					<p class="reg-privacy">
-						Отправляя форму, вы соглашаетесь с
-						<a href="/youth-ministry/osennii-molodeznyi-lager-szr-2026/privacy"
-							>политикой конфиденциальности лагеря</a
-						>. Ваши данные никогда не будут проданы.
-					</p>
-				</form>
-			{:else}
-				<!-- STEP 2: submitted -->
-				<div class="reg-done">
-					<div class="reg-check">✓</div>
-					<h2>Заявка отправлена</h2>
-					<p>
-						Спасибо, <strong>{form.name}</strong>! Ваша заявка отправлена ответственному за молодежь
-						на подтверждение.
-					</p>
-
-					{#if form.confirmationCode}
-						<div class="reg-code">
-							<span class="reg-code-label">Ваш регистрационный код</span>
-							<span class="reg-code-value">{form.confirmationCode}</span>
+						<div class="my-3">
+							<Turnstile bind:this={turnstile} action="camp_2026" />
 						</div>
-					{/if}
 
-					<p class="reg-next">
-						Как только заявку одобрят, вы получите ещё одно письмо со ссылкой для завершения
-						регистрации и оплаты. Сохраните код выше — он понадобится при оплате.
-					</p>
+						<button
+							class="btn btn-primary reg-submit"
+							type="submit"
+							disabled={!didSubmitConsent || !didAckRules}
+						>
+							Отправить заявку
+						</button>
+						<p class="reg-privacy">
+							Отправляя форму, вы соглашаетесь с
+							<a href="/youth-ministry/osennii-molodeznyi-lager-szr-2026/privacy"
+								>политикой конфиденциальности лагеря</a
+							>. Ваши данные никогда не будут проданы.
+						</p>
+					</form>
+				{:else}
+					<!-- STEP 2: submitted -->
+					<div class="reg-done">
+						<div class="reg-check">✓</div>
+						<h2>Заявка отправлена</h2>
+						<p>
+							Спасибо, <strong>{form.name}</strong>! Ваша заявка отправлена ответственному за
+							молодежь на подтверждение.
+						</p>
 
-					<p class="reg-next">Спасибо за подтверждение правил и заполнение формы согласия.</p>
-				</div>
+						{#if form.confirmationCode}
+							<div class="reg-code">
+								<span class="reg-code-label">Ваш регистрационный код</span>
+								<span class="reg-code-value">{form.confirmationCode}</span>
+							</div>
+						{/if}
+
+						<p class="reg-next">
+							Как только заявку одобрят, вы получите ещё одно письмо со ссылкой для завершения
+							регистрации и оплаты. Сохраните код выше — он понадобится при оплате.
+						</p>
+
+						<p class="reg-next">Спасибо за подтверждение правил и заполнение формы согласия.</p>
+					</div>
+				{/if}
 			{/if}
 		</div>
 	</div>
@@ -816,6 +833,19 @@
 	}
 	.reg-done h2 {
 		font-family: var(--bs-font-serif, 'Lora'), serif;
+	}
+	.reg-closed {
+		text-align: center;
+		padding: 2rem 0;
+	}
+	.reg-closed h2 {
+		font-family: var(--bs-font-serif, 'Lora'), serif;
+		margin-bottom: 0.75rem;
+	}
+	.reg-closed p {
+		color: var(--bs-ink-muted, #736a5f);
+		margin: 0 auto 1.25rem;
+		max-width: 34rem;
 	}
 
 	/* ---- Prep steps (consent + rules) ---- */

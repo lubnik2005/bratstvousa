@@ -5,7 +5,6 @@
 	let { data } = $props();
 
 	const heroImage = `${data.media_url}upfiles/page/north-west-youth-camp-2025-200.png`;
-	const registerUrl = '/youth-ministry/osennii-molodeznyi-lager-szr-2026/registration';
 	const schedulePdf = `${data.media_url}upfiles/page/szr-camp-2026-schedule.pdf`;
 	const video = {
 		mp4: `${data.media_url}video/szr-camp-2026.mp4`,
@@ -53,7 +52,7 @@
 	<title>Осенний молодежный лагерь СЗР 2026</title>
 	<meta
 		name="description"
-		content="Осенний молодежный лагерь Северо-Западного региона — 15–18 октября 2026, Antelope, Oregon. Регистрация открыта."
+		content="Осенний молодежный лагерь Северо-Западного региона — 15–18 октября 2026, Antelope, Oregon. Регистрация закрыта."
 	/>
 </svelte:head>
 
@@ -66,7 +65,7 @@
 			Четыре дня общения, Слова Божьего и осенних приключений для молодёжи.
 		</p>
 		<div class="camp-hero__actions">
-			<a class="btn btn-light btn-lg" href={registerUrl}>Зарегистрироваться</a>
+			<span class="btn btn-light btn-lg disabled" aria-disabled="true">Регистрация закрыта</span>
 			<span class="camp-hero__date">15–18 октября 2026</span>
 		</div>
 	</div>
@@ -105,7 +104,7 @@
 					Тема лагеря — молитва <em>«{theme.title}»</em>: шесть уроков, по одному прошению за раз, с
 					обсуждением по группам.
 				</p>
-				<p class="text-muted">Места ограничены — рекомендуем зарегистрироваться заранее.</p>
+				<p class="text-muted">Регистрация на лагерь закрыта.</p>
 			</div>
 			<div class="col-lg-6">
 				<figure class="camp-video">
@@ -264,11 +263,11 @@
 
 		<!-- CTA -->
 		<div class="camp-cta">
-			<h2 class="camp-cta__title">Готовы присоединиться?</h2>
+			<h2 class="camp-cta__title">Регистрация закрыта</h2>
 			<p class="camp-cta__text">
-				Заполните короткую форму и оплатите участие — и место будет забронировано за вами.
+				Регистрация на осенний молодежный лагерь СЗР 2026 больше не принимается.
 			</p>
-			<a class="btn btn-primary btn-lg" href={registerUrl}>Зарегистрироваться · $350</a>
+			<span class="btn btn-primary btn-lg disabled" aria-disabled="true">Регистрация закрыта</span>
 		</div>
 	</div>
 </div>

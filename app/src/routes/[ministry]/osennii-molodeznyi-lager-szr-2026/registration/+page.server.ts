@@ -18,6 +18,9 @@ import type { Actions, PageServerLoad } from './$types';
 const EVENT_SLUG = 'osennii-molodeznyi-lager-szr-2026';
 const CAMP_AMOUNT = 350;
 const CAMP_AMOUNT_CENTS = CAMP_AMOUNT * 100;
+const REGISTRATION_CLOSED_MESSAGE = 'Регистрация на лагерь закрыта.';
+
+const isRegistrationClosed = () => true;
 
 const isEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 const clean = (s: FormDataEntryValue | null | undefined) =>
@@ -82,6 +85,10 @@ export const load: PageServerLoad = async ({ locals }) => {
 
 export const actions: Actions = {
 	default: async ({ request, locals, url, platform }) => {
+		if (isRegistrationClosed()) {
+			return fail(410, { form: { message: REGISTRATION_CLOSED_MESSAGE } });
+		}
+
 		const db = locals.db;
 		const fd = await request.formData();
 
