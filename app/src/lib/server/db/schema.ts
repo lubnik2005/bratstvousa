@@ -218,7 +218,7 @@ export type YouthLeader = typeof youthLeaders.$inferSelect;
 //
 // Payment model (Zeffy cash-at-check-in integration):
 //   paymentMethod: ONLINE | CASH | WAIVED | OTHER | null  (method, not state)
-//   paymentStatus: PENDING | DUE | PAID | REVIEW_REQUIRED | REFUNDED | CANCELED
+//   paymentStatus: PENDING | DUE | PAID | PARTIAL | REVIEW_REQUIRED | REFUNDED | CANCELED
 //     (legacy rows may still hold 'unpaid'/'paid' until backfilled)
 // A $0 Zeffy checkout does NOT imply free admission — cashEligible (derived from
 // cash_eligibility_rules at registration time) is authoritative. See spec §2/§6.
@@ -252,6 +252,9 @@ export const campRegistrations = sqliteTable('camp_registrations', {
 	eventPriceCents: integer('event_price_cents'),
 	amountDueCents: integer('amount_due_cents'),
 	amountPaidCents: integer('amount_paid_cents').default(0).notNull(),
+	// Amount the registrant's church covers directly. This is separate from the
+	// attendee's balance and never blocks a paid attendee from checking in.
+	churchBalanceCents: integer('church_balance_cents').default(0).notNull(),
 	stripeSessionId: text('stripe_session_id'),
 	// Human-readable registration code (e.g. "CAMP-7K3QF"), generated at
 	// submission. Given to the registrant to enter in Zeffy so payments can be
