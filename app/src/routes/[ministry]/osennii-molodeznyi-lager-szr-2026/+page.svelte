@@ -1,10 +1,12 @@
 <script lang="ts">
+	import { registrationOpen } from './registration';
 	import { schedule, lessons, theme } from './schedule';
 	import type { Block } from './schedule';
 
 	let { data } = $props();
 
 	const heroImage = `${data.media_url}upfiles/page/north-west-youth-camp-2025-200.png`;
+	const registerUrl = '/youth-ministry/osennii-molodeznyi-lager-szr-2026/registration';
 	const schedulePdf = `${data.media_url}upfiles/page/szr-camp-2026-schedule.pdf`;
 	const video = {
 		mp4: `${data.media_url}video/szr-camp-2026.mp4`,
@@ -52,7 +54,9 @@
 	<title>Осенний молодежный лагерь СЗР 2026</title>
 	<meta
 		name="description"
-		content="Осенний молодежный лагерь Северо-Западного региона — 15–18 октября 2026, Antelope, Oregon. Регистрация закрыта."
+		content={registrationOpen
+			? 'Осенний молодежный лагерь Северо-Западного региона — 15–18 октября 2026, Antelope, Oregon. Регистрация открыта.'
+			: 'Осенний молодежный лагерь Северо-Западного региона — 15–18 октября 2026, Antelope, Oregon. Регистрация закрыта.'}
 	/>
 </svelte:head>
 
@@ -65,7 +69,11 @@
 			Четыре дня общения, Слова Божьего и осенних приключений для молодёжи.
 		</p>
 		<div class="camp-hero__actions">
-			<span class="btn btn-light btn-lg disabled" aria-disabled="true">Регистрация закрыта</span>
+			{#if registrationOpen}
+				<a class="btn btn-light btn-lg" href={registerUrl}>Зарегистрироваться</a>
+			{:else}
+				<span class="btn btn-light btn-lg disabled" aria-disabled="true">Регистрация закрыта</span>
+			{/if}
 			<span class="camp-hero__date">15–18 октября 2026</span>
 		</div>
 	</div>
@@ -104,7 +112,11 @@
 					Тема лагеря — молитва <em>«{theme.title}»</em>: шесть уроков, по одному прошению за раз, с
 					обсуждением по группам.
 				</p>
-				<p class="text-muted">Регистрация на лагерь закрыта.</p>
+				<p class="text-muted">
+					{registrationOpen
+						? 'Места ограничены — рекомендуем зарегистрироваться заранее.'
+						: 'Регистрация на лагерь закрыта.'}
+				</p>
 			</div>
 			<div class="col-lg-6">
 				<figure class="camp-video">
@@ -263,11 +275,20 @@
 
 		<!-- CTA -->
 		<div class="camp-cta">
-			<h2 class="camp-cta__title">Регистрация закрыта</h2>
-			<p class="camp-cta__text">
-				Регистрация на осенний молодежный лагерь СЗР 2026 больше не принимается.
-			</p>
-			<span class="btn btn-primary btn-lg disabled" aria-disabled="true">Регистрация закрыта</span>
+			{#if registrationOpen}
+				<h2 class="camp-cta__title">Готовы присоединиться?</h2>
+				<p class="camp-cta__text">
+					Заполните короткую форму и оплатите участие — и место будет забронировано за вами.
+				</p>
+				<a class="btn btn-primary btn-lg" href={registerUrl}>Зарегистрироваться · $350</a>
+			{:else}
+				<h2 class="camp-cta__title">Регистрация закрыта</h2>
+				<p class="camp-cta__text">
+					Регистрация на осенний молодежный лагерь СЗР 2026 больше не принимается.
+				</p>
+				<span class="btn btn-primary btn-lg disabled" aria-disabled="true">Регистрация закрыта</span
+				>
+			{/if}
 		</div>
 	</div>
 </div>

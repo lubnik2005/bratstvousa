@@ -13,14 +13,12 @@ import {
 	sendLeaderApprovalRequest
 } from '$lib/server/email/camp';
 import { verifyTurnstile, TURNSTILE_ERROR_MESSAGE } from '$lib/server/turnstile';
+import { registrationOpen, registrationClosedMessage } from '../registration';
 import type { Actions, PageServerLoad } from './$types';
 
 const EVENT_SLUG = 'osennii-molodeznyi-lager-szr-2026';
 const CAMP_AMOUNT = 350;
 const CAMP_AMOUNT_CENTS = CAMP_AMOUNT * 100;
-const REGISTRATION_CLOSED_MESSAGE = 'Регистрация на лагерь закрыта.';
-
-const isRegistrationClosed = () => true;
 
 const isEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 const clean = (s: FormDataEntryValue | null | undefined) =>
@@ -85,8 +83,8 @@ export const load: PageServerLoad = async ({ locals }) => {
 
 export const actions: Actions = {
 	default: async ({ request, locals, url, platform }) => {
-		if (isRegistrationClosed()) {
-			return fail(410, { form: { message: REGISTRATION_CLOSED_MESSAGE } });
+		if (!registrationOpen) {
+			return fail(410, { form: { message: registrationClosedMessage } });
 		}
 
 		const db = locals.db;
@@ -180,6 +178,7 @@ export const actions: Actions = {
 		// No rule (or no real churchId) => not eligible, full default price online.
 		let cashEligible = false;
 		let eventPriceCents = CAMP_AMOUNT_CENTS;
+		let churchBalanceCents = 0;
 		if (churchId != null) {
 			try {
 				const rule = (
@@ -203,6 +202,7 @@ export const actions: Actions = {
 					} else {
 						cashEligible = false;
 						eventPriceCents = ruleCents;
+						churchBalanceCents = Math.max(CAMP_AMOUNT_CENTS - ruleCents, 0);
 					}
 				}
 			} catch (err) {
@@ -239,6 +239,7 @@ export const actions: Actions = {
 				eventPriceCents,
 				amountDueCents: eventPriceCents,
 				amountPaidCents: 0,
+				churchBalanceCents,
 				checkinStatus: 'NOT_CHECKED_IN',
 				confirmationCode,
 				approvalToken,

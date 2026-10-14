@@ -2,6 +2,7 @@
 	import { enhance } from '$app/forms';
 	import { onMount } from 'svelte';
 	import Turnstile from '$lib/components/Turnstile.svelte';
+	import { registrationOpen } from '../registration';
 	import type { PageData, ActionData } from './$types';
 
 	let turnstile: Turnstile | undefined;
@@ -22,7 +23,6 @@
 
 	const CONSENT_SUBMITTED_KEY = 'camp2026_consent_submitted';
 	const RULES_ACK_KEY = 'camp2026_rules_ack';
-	const REGISTRATION_CLOSED = true;
 
 	let didSubmitConsent = false;
 	let didAckRules = false;
@@ -224,7 +224,7 @@
 <div class="container-xxl py-6">
 	<div class="container">
 		<div class="reg-shell mx-auto">
-			{#if REGISTRATION_CLOSED}
+			{#if !registrationOpen}
 				<div class="reg-closed">
 					<h2>Регистрация закрыта</h2>
 					<p>Регистрация на осенний молодежный лагерь СЗР 2026 больше не принимается.</p>
