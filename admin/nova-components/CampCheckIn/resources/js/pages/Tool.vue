@@ -105,13 +105,19 @@
 
       <div v-if="registration.decision === 'check_in'" class="mt-6">
         <button class="camp-checkin-button camp-checkin-button--success" :disabled="performing" @click="perform('check_in')">
-          {{ performing ? 'Checking in...' : 'Check In' }}
+          {{ performing ? 'Checking in...' : 'Check In Locally' }}
+        </button>
+        <button v-if="registration.zeffy.ticketId" class="camp-checkin-button camp-checkin-button--secondary ml-3" @click="checkInZeffy">
+          Check In to Zeffy
         </button>
       </div>
       <div v-else-if="registration.decision === 'collect_cash'" class="mt-6">
         <p class="mb-3 text-sm text-amber-700">Confirm cash is physically in hand before continuing.</p>
         <button class="camp-checkin-button camp-checkin-button--cash" :disabled="performing" @click="confirmCash">
           {{ performing ? 'Recording...' : 'Cash Received & Check In' }}
+        </button>
+        <button v-if="registration.zeffy.ticketId" class="camp-checkin-button camp-checkin-button--secondary ml-3" @click="checkInZeffy">
+          Check In to Zeffy
         </button>
       </div>
       <div v-else-if="registration.decision === 'repeat_check_in'" class="mt-6 rounded border border-amber-300 bg-amber-50 p-4 text-amber-950 dark:border-amber-700 dark:bg-amber-950 dark:text-amber-100">
@@ -121,8 +127,12 @@
         <button class="camp-checkin-button camp-checkin-button--cash mt-4" :disabled="performing" @click="confirmRepeatCheckIn">
           {{ performing ? 'Recording...' : 'Check In Again' }}
         </button>
+        <button v-if="registration.zeffy.ticketId" class="camp-checkin-button camp-checkin-button--secondary mt-4 ml-3" @click="checkInZeffy">
+          Check In to Zeffy
+        </button>
       </div>
       <p v-else class="mt-6 text-sm text-gray-500">Open the registration record to resolve this before scanning again.</p>
+      <p v-if="zeffyCheckInMessage" class="mt-4 text-sm font-semibold text-blue-700">{{ zeffyCheckInMessage }}</p>
     </Card>
   </div>
 </template>
@@ -139,6 +149,7 @@ export default {
     manualValue: '',
     performing: false,
     refreshingZeffy: false,
+    zeffyCheckInMessage: '',
     repeatNote: '',
     pendingRequestId: null,
     lookupResult: null,
@@ -208,6 +219,7 @@ export default {
         this.manualValue = ''
         this.repeatNote = ''
         this.pendingRequestId = null
+        this.zeffyCheckInMessage = ''
       } catch (error) {
         this.registration = null
         this.lookupResult = null
@@ -237,6 +249,24 @@ export default {
       if (window.confirm('This attendee is already checked in. Record another admission?')) {
         this.perform('repeat_check_in')
       }
+    },
+
+    checkInZeffy() {
+      const ticketId = this.registration?.zeffy?.ticketId
+      if (!ticketId) return
+
+      const popup = window.open(
+        `https://www.zeffy.com/ticket/${encodeURIComponent(ticketId)}`,
+        'zeffy-check-in',
+        'popup=yes,width=480,height=720',
+      )
+      if (!popup) {
+        this.error = 'Your browser blocked the Zeffy check-in popup. Allow popups for this site and try again.'
+        return
+      }
+
+      popup.focus()
+      this.zeffyCheckInMessage = 'Zeffy check-in opened in a popup. Confirm the result there, then close the popup to continue scanning.'
     },
 
     async perform(action) {
