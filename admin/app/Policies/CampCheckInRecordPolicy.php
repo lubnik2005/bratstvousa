@@ -29,7 +29,7 @@ class CampCheckInRecordPolicy
 
     public function delete(User $user, CampCheckInRecord $checkIn): bool
     {
-        return false;
+        return $this->canUseScanner($user);
     }
 
     private function canUseScanner(User $user): bool
