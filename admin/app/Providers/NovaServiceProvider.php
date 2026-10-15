@@ -82,6 +82,7 @@ class NovaServiceProvider extends NovaApplicationServiceProvider
 
             MenuSection::make('North-West Camps', [
                 MenuItem::resource(\App\Nova\CampRegistration::class),
+                MenuItem::resource(\App\Nova\CampCheckInRecord::class),
                 MenuItem::lens(\App\Nova\CampRegistration::class, \App\Nova\Lenses\CashReconciliation::class)
                     ->canSee(fn ($request) => \App\Nova\CampRegistration::authorizedToViewAny($request)),
                 MenuItem::resource(\App\Nova\CashEligibilityRule::class),

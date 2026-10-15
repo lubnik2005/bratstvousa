@@ -39,6 +39,7 @@ class AppServiceProvider extends ServiceProvider
             \App\Models\Paradise\Reservation::class => \App\Policies\Paradise\ReservationPolicy::class,
             \App\Models\Paradise\Room::class => \App\Policies\Paradise\RoomPolicy::class,
             \App\Models\Paradise\ZeffyPayment::class => \App\Policies\Paradise\ZeffyPaymentPolicy::class,
+            \App\Models\CampCheckInRecord::class => \App\Policies\CampCheckInRecordPolicy::class,
             \App\Models\ZeffyPayment::class => \App\Policies\ZeffyPaymentPolicy::class,
         ];
         foreach ($paradisePolicies as $model => $policy) {
