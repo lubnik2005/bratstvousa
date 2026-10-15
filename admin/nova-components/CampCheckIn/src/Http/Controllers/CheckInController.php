@@ -141,17 +141,24 @@ class CheckInController
     /** @return array<string, mixed> */
     private function zeffyPayload(?CampRegistration $registration, array $candidates, bool $refresh): array
     {
+        $ticketId = collect($candidates)
+            ->first(fn (mixed $value): bool => is_string($value) && preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i', $value) === 1);
         $stored = $registration
             ? ZeffyPayment::query()
                 ->where('zeffy_payment_id', $registration->zeffy_payment_id)
                 ->orWhere('matched_registration_id', $registration->id)
                 ->latest('created_at')
                 ->first()
-            : null;
+            : ($ticketId
+                ? ZeffyPayment::query()
+                    ->where('raw_json', 'like', '%'.$ticketId.'%')
+                    ->latest('created_at')
+                    ->first()
+                : null);
         $paymentId = $registration?->zeffy_payment_id ?: $stored?->zeffy_payment_id;
         $payload = [
             'paymentId' => $paymentId,
-            'ticketId' => $registration?->zeffy_ticket_id,
+            'ticketId' => $registration?->zeffy_ticket_id ?: $ticketId,
             'status' => $stored?->status,
             'amountCents' => $stored?->amount,
             'currency' => $stored?->currency,
