@@ -592,6 +592,23 @@ describe('applyPayment discount-code validation (cash_eligibility_rules)', () =>
 		expect(payload?.faceValueCents).toBe(17500);
 	});
 
+	it('event-wide CASH code -> DUE for a registration from any church', async () => {
+		const ruleId = await seedRule(db, {
+			scopeType: 'event',
+			churchId: null,
+			amountCents: 0,
+			discountCode: 'CASH'
+		});
+		const id = await seedReg(db, { cashEligible: false, churchId: 99 });
+		await applyPayment(db, zeroCheckout('zp-event-cash', 'cash'));
+		const reg = await getReg(id);
+		expect(reg.paymentStatus).toBe('DUE');
+		expect(reg.paymentMethod).toBe('CASH');
+		expect(reg.cashEligible).toBe(true);
+		const cashDue = (await getEvents(id)).find((event) => event.event === 'cash_due');
+		expect((cashDue?.payload as Payload)?.ruleId).toBe(ruleId);
+	});
+
 	it('eligible + wrong/missing code -> still DUE, plus discount_code_mismatch audit', async () => {
 		await seedRule(db, { churchId: 12, discountCode: 'PNW-CASH-2026' });
 		const id = await seedReg(db, { cashEligible: true, churchId: 12 });

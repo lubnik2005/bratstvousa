@@ -35,6 +35,17 @@ class CashEligibilityRule extends Model implements Auditable
         'active' => 'boolean',
     ];
 
+    protected static function booted(): void
+    {
+        static::creating(function (self $rule): void {
+            // D1's PDO adapter cannot bind a nullable FK on insert. Event-wide
+            // rules intentionally omit church_id, which lets SQLite use NULL.
+            if ($rule->scope_type === 'event' && $rule->church_id === null) {
+                unset($rule->attributes['church_id']);
+            }
+        });
+    }
+
     /**
      * The church this rule authorizes for cash payment.
      */
