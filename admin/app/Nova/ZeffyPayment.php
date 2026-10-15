@@ -121,7 +121,8 @@ class ZeffyPayment extends Resource
 
             BelongsTo::make('Registration', 'registration', CampRegistration::class)
                 ->nullable()
-                ->sortable(),
+                ->sortable()
+                ->help('Matched registration for this Zeffy payment. Clear this to unlink the payment and prevent its ticket from resolving in the scanner.'),
 
             Text::make('Zeffy Payment Id', 'zeffy_payment_id')
                 ->onlyOnDetail(),

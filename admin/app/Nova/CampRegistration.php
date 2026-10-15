@@ -266,11 +266,16 @@ class CampRegistration extends Resource
                 ->onlyOnDetail(),
 
             Text::make('Zeffy Payment', 'zeffy_payment_id')
-                ->onlyOnDetail()
+                ->hideFromIndex()
+                ->nullable()
+                ->rules('nullable', 'uuid')
                 ->help('Zeffy payment id linked to this registration (set when payment is reconciled).'),
 
             Text::make('Zeffy Ticket', 'zeffy_ticket_id')
-                ->onlyOnDetail(),
+                ->hideFromIndex()
+                ->nullable()
+                ->rules('nullable', 'uuid')
+                ->help('Primary Zeffy ticket id. Clear it to remove this direct scanner link; this does not unlink a Zeffy Payment record.'),
 
             Text::make('Zeffy Contact', 'zeffy_contact_id')
                 ->onlyOnDetail(),
