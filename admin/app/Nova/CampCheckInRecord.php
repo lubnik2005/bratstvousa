@@ -36,16 +36,6 @@ class CampCheckInRecord extends Resource
         return false;
     }
 
-    public static function authorizedToUpdate(\Illuminate\Http\Request $request, $model): bool
-    {
-        return false;
-    }
-
-    public static function authorizedToDelete(\Illuminate\Http\Request $request, $model): bool
-    {
-        return false;
-    }
-
     public function fields(NovaRequest $request): array
     {
         return [
