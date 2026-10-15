@@ -107,7 +107,7 @@
         <button class="camp-checkin-button camp-checkin-button--success" :disabled="performing" @click="perform('check_in')">
           {{ performing ? 'Checking in...' : 'Check In Locally' }}
         </button>
-        <button v-if="registration.zeffy.ticketId" class="camp-checkin-button camp-checkin-button--secondary ml-3" @click="checkInZeffy">
+        <button v-if="registration.zeffy.ticketId || lookupResult?.zeffy?.ticketId" class="camp-checkin-button camp-checkin-button--secondary ml-3" @click="checkInZeffy">
           Check In to Zeffy
         </button>
       </div>
@@ -116,7 +116,7 @@
         <button class="camp-checkin-button camp-checkin-button--cash" :disabled="performing" @click="confirmCash">
           {{ performing ? 'Recording...' : 'Cash Received & Check In' }}
         </button>
-        <button v-if="registration.zeffy.ticketId" class="camp-checkin-button camp-checkin-button--secondary ml-3" @click="checkInZeffy">
+        <button v-if="registration.zeffy.ticketId || lookupResult?.zeffy?.ticketId" class="camp-checkin-button camp-checkin-button--secondary ml-3" @click="checkInZeffy">
           Check In to Zeffy
         </button>
       </div>
@@ -127,7 +127,7 @@
         <button class="camp-checkin-button camp-checkin-button--cash mt-4" :disabled="performing" @click="confirmRepeatCheckIn">
           {{ performing ? 'Recording...' : 'Check In Again' }}
         </button>
-        <button v-if="registration.zeffy.ticketId" class="camp-checkin-button camp-checkin-button--secondary mt-4 ml-3" @click="checkInZeffy">
+        <button v-if="registration.zeffy.ticketId || lookupResult?.zeffy?.ticketId" class="camp-checkin-button camp-checkin-button--secondary mt-4 ml-3" @click="checkInZeffy">
           Check In to Zeffy
         </button>
       </div>
@@ -252,7 +252,7 @@ export default {
     },
 
     checkInZeffy() {
-      const ticketId = this.registration?.zeffy?.ticketId
+      const ticketId = this.registration?.zeffy?.ticketId || this.lookupResult?.zeffy?.ticketId
       if (!ticketId) return
 
       const popup = window.open(

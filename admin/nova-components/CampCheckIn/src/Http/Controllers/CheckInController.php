@@ -28,11 +28,13 @@ class CheckInController
             Gate::authorize('view', $registration);
         }
 
+        $zeffy = $this->zeffyPayload($registration, $values, $validated['refresh_zeffy'] ?? true);
+
         return response()->json([
             'rawValue' => $input,
             'extractedValues' => $values,
-            'registration' => $registration ? $this->payload($registration, false) : null,
-            'zeffy' => $this->zeffyPayload($registration, $values, $validated['refresh_zeffy'] ?? true),
+            'registration' => $registration ? $this->payload($registration, false, $zeffy) : null,
+            'zeffy' => $zeffy,
             'message' => $registration ? null : 'No camp registration matches this ticket. Zeffy details are shown when available.',
         ]);
     }
@@ -132,7 +134,8 @@ class CheckInController
     }
 
     /** @return array<string, mixed> */
-    private function payload(CampRegistration $registration, bool $refreshZeffy = false): array
+    /** @param array<string, mixed>|null $zeffy */
+    private function payload(CampRegistration $registration, bool $refreshZeffy = false, ?array $zeffy = null): array
     {
         $payment = $registration->payment_status;
         $checkedIn = $registration->checkin_status === 'CHECKED_IN';
@@ -175,7 +178,7 @@ class CheckInController
                     'note' => $checkIn->note,
                 ])
                 ->all(),
-            'zeffy' => $this->zeffyPayload($registration, [], $refreshZeffy),
+            'zeffy' => $zeffy ?? $this->zeffyPayload($registration, [], $refreshZeffy),
             'decision' => $decision,
             'message' => $message,
         ];
