@@ -5,6 +5,20 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
 
+spl_autoload_register(static function (string $class): void {
+    $prefix = 'Bratstvo\\CampCheckIn\\';
+
+    if (! str_starts_with($class, $prefix)) {
+        return;
+    }
+
+    $path = __DIR__.'/../nova-components/CampCheckIn/src/'.str_replace('\\', '/', substr($class, strlen($prefix))).'.php';
+
+    if (is_file($path)) {
+        require $path;
+    }
+});
+
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
