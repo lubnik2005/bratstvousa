@@ -201,7 +201,8 @@ function isRefundedOrDisputed(payment: ZeffyPaymentPayload): boolean {
  *   - refunded/disputed/deleted -> zeffy_payments 'refunded'; reg REFUNDED only if
  *                               this payment is the one linked on the registration
  *                               (refunding a 'duplicate' never un-pays the reg)
- *   - amount  > 0            -> ONLINE / PAID   (amount_paid = amount, due = 0)
+ *   - amount >= required     -> ONLINE / PAID   (amount_paid = amount, due = 0)
+ *   - 0 < amount < required  -> ONLINE / PARTIAL (blocked pending admin review)
  *   - amount == 0 & eligible -> CASH   / DUE    (due = event_price_cents)
  *                               (+ 'discount_code_mismatch' audit if the code on
  *                                the payload differs from the church's rule)
@@ -454,8 +455,9 @@ export async function applyPayment(
 			};
 			auditEvent = 'campaign_mismatch';
 			auditPayload.zeffyAmountCents = amount;
-		} else if (amount > 0) {
-			// Normal paid online checkout.
+		} else if (amount >= priceCents && amount > 0) {
+			// The attendee paid their required Zeffy amount. A discounted attendee
+			// can be paid here while their church balance remains separately tracked.
 			regUpdate = {
 				paymentMethod: 'ONLINE',
 				paymentStatus: 'PAID',
@@ -464,6 +466,16 @@ export async function applyPayment(
 				paidAt: now
 			};
 			auditEvent = 'online_payment';
+		} else if (amount > 0) {
+			// A positive Zeffy payment below the expected attendee rate must not be
+			// treated as admission payment. Staff need to resolve it outside scanning.
+			regUpdate = {
+				paymentMethod: 'ONLINE',
+				paymentStatus: 'PARTIAL',
+				amountPaidCents: amount,
+				amountDueCents: priceCents - amount
+			};
+			auditEvent = 'partial_online_payment';
 		} else {
 			// $0 checkout. Opportunistically compare the discount code on the payload
 			// with the rule for this registrant's church/event. The comparison is

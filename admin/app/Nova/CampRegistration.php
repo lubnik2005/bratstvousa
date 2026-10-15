@@ -37,7 +37,7 @@ class CampRegistration extends Resource
      * @var array
      */
     public static $search = [
-        'id', 'first_name', 'last_name', 'email', 'phone', 'confirmation_code', 'church',
+        'id', 'first_name', 'last_name', 'email', 'phone', 'confirmation_code', 'zeffy_ticket_id', 'church',
     ];
 
     /**
@@ -78,6 +78,7 @@ class CampRegistration extends Resource
         'PENDING' => 'Pending',
         'DUE' => 'Cash due',
         'PAID' => 'Paid',
+        'PARTIAL' => 'Partial payment',
         'REVIEW_REQUIRED' => 'Review required',
         'REFUNDED' => 'Refunded',
         'CANCELED' => 'Canceled',
@@ -157,6 +158,7 @@ class CampRegistration extends Resource
                 'PENDING' => 'warning',
                 'DUE' => 'warning',
                 'PAID' => 'success',
+                'PARTIAL' => 'warning',
                 'REVIEW_REQUIRED' => 'danger',
                 'REFUNDED' => 'info',
                 'CANCELED' => 'info',
@@ -246,6 +248,12 @@ class CampRegistration extends Resource
                 ->sortable()
                 ->rules('nullable', 'integer')
                 ->help('Amount received (stored in cents).'),
+
+            Currency::make('Church Balance', 'church_balance_cents')
+                ->asMinorUnits()
+                ->hideFromIndex()
+                ->rules('nullable', 'integer')
+                ->help('Amount covered directly by the church. This is not an attendee balance and does not block check-in.'),
 
             Text::make('Event', 'event_slug')
                 ->hideFromIndex()

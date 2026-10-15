@@ -54,6 +54,7 @@ function makeDb(): AppDatabase {
 			event_price_cents integer,
 			amount_due_cents integer,
 			amount_paid_cents integer DEFAULT 0 NOT NULL,
+			church_balance_cents integer DEFAULT 0 NOT NULL,
 			stripe_session_id text,
 			confirmation_code text,
 			approval_token text,
@@ -334,6 +335,24 @@ describe('applyPayment decision logic (spec §11)', () => {
 		expect(reg.zeffyPaymentId).toBe('zp-online');
 		const evs = await getEvents(id);
 		expect(evs.map((e) => e.event)).toContain('online_payment');
+	});
+
+	it('underpaid online checkout -> ONLINE / PARTIAL and remains blocked', async () => {
+		const id = await seedReg(db);
+		await applyPayment(db, {
+			id: 'zp-partial',
+			status: 'succeeded',
+			amount: 10000,
+			currency: 'USD',
+			buyer: { email: 'john@example.com' },
+			buyer_questions: [{ answer: 'CAMP-ABC12' }]
+		});
+		const reg = await getReg(id);
+		expect(reg.paymentMethod).toBe('ONLINE');
+		expect(reg.paymentStatus).toBe('PARTIAL');
+		expect(reg.amountPaidCents).toBe(10000);
+		expect(reg.amountDueCents).toBe(7500);
+		expect((await getEvents(id)).map((event) => event.event)).toContain('partial_online_payment');
 	});
 
 	it('authorized $0 cash checkout -> CASH / DUE, due=event price', async () => {

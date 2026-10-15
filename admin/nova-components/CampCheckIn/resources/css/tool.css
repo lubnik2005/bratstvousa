@@ -1,0 +1,15 @@
+.camp-checkin-result {
+  border-left: 4px solid #64748b;
+}
+
+.camp-checkin-result--ready {
+  border-left-color: #16a34a;
+}
+
+.camp-checkin-result--cash {
+  border-left-color: #d97706;
+}
+
+.camp-checkin-result--blocked {
+  border-left-color: #dc2626;
+}

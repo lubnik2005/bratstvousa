@@ -168,6 +168,7 @@ class NovaServiceProvider extends NovaApplicationServiceProvider
             new NovaSettings,
             new \Pktharindu\NovaPermissions\NovaPermissions,
             new NovaDocumentation,
+            new \Bratstvo\CampCheckIn\CampCheckIn,
         ];
     }
 

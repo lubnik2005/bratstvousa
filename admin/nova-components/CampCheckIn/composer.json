@@ -1,0 +1,21 @@
+{
+    "name": "bratstvo/camp-check-in",
+    "description": "Mobile camp check-in scanner for Laravel Nova.",
+    "license": "MIT",
+    "require": {
+        "php": "^8.2",
+        "illuminate/support": "^11.0|^12.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Bratstvo\\CampCheckIn\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Bratstvo\\CampCheckIn\\ToolServiceProvider"
+            ]
+        }
+    }
+}

@@ -20,9 +20,10 @@ WORKDIR /app
 # COMPOSER_AUTH is injected at build time (Nova private repo download key).
 ARG COMPOSER_AUTH
 
-# Copy composer manifests + the vendored l1 path package first for layer caching.
+# Copy composer manifests + local path packages first for layer caching.
 COPY composer.json composer.lock ./
 COPY packages ./packages
+COPY nova-components/CampCheckIn ./nova-components/CampCheckIn
 
 # Install prod deps without running scripts (artisan not yet present / no app code).
 RUN --mount=type=cache,target=/tmp/composer-cache \

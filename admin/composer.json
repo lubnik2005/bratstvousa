@@ -24,7 +24,8 @@
         "renoki-co/l1": "*",
         "resend/resend-laravel": "^1.4",
         "spatie/laravel-medialibrary": "^11.11",
-        "spatie/laravel-settings": "^3.4"
+        "spatie/laravel-settings": "^3.4",
+        "bratstvo/camp-check-in": "@dev"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
@@ -38,6 +39,7 @@
     "autoload": {
         "psr-4": {
             "App\\": "app/",
+            "Bratstvo\\CampCheckIn\\": "nova-components/CampCheckIn/src/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
         }
@@ -103,6 +105,13 @@
         "2": {
             "type": "vcs",
             "url": "https://github.com/lubnik2005/nova-editor-js.git"
+        },
+        "camp-check-in": {
+            "type": "path",
+            "url": "nova-components/CampCheckIn",
+            "options": {
+                "symlink": true
+            }
         }
     }
 }

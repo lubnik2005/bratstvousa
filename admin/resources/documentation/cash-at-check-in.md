@@ -32,13 +32,17 @@ own, so we work around it:
 
 - Login to the admin panel with a role that can **edit camp registrations**.
 - The Zeffy app (or Zeffy check-in page) open for scanning.
-- A phone or laptop with **Camp → Camp Registrations** open.
+- A phone or laptop with **Camp Check-In** open. This mobile-first scanner is
+  available in the Nova sidebar.
 
 ## At the desk: step by step
 
-### 1. Scan the QR in the Zeffy app
+### 1. Scan the QR in Camp Check-In
 
-This confirms the ticket is genuine. It does **not** mean they have paid.
+Tap **Scan ticket**, allow camera access, and point the camera at the Zeffy QR
+code. You can also paste a Zeffy ticket ID or `CAMP-` code. The screen looks up
+the internal registration; it does **not** change any payment or check-in data
+just from scanning.
 
 ### 2. Find the person in Camp Registrations
 
@@ -67,7 +71,9 @@ The **Payment** badge decides what you do:
 | Payment badge | Color | What it means | What you do |
 | --- | --- | --- | --- |
 | **Paid** | green | Paid in full (online, cash already collected, or fee waived) | Press **Check In** |
+| **Paid; church balance remaining** | green | The attendee paid their discounted Zeffy rate; their church covers the shown balance directly | Press **Check In**; do not collect the church balance from the attendee |
 | **Cash due** | yellow | Church is cash-eligible; they used the $0 code; they owe the **Due** amount | Collect cash, then press **Cash Received & Check In** |
+| **Partial payment** | yellow | Zeffy recorded less than the attendee's required rate | Do not admit. An admin must resolve it. |
 | **Review required** | red | Someone used a $0 discount code but their church is **not** cash-eligible | Do **not** admit yet. Collect payment or get a decision — see below |
 | **Pending** | gray | Approved but has not completed Zeffy yet (no ticket) | They should finish Zeffy on their phone, or pay cash and use Cash Received & Check In |
 | **Refunded** / **Canceled** | blue | Payment was refunded or registration canceled | Do not admit without a leader's decision |
@@ -103,7 +109,8 @@ safe to re-run by mistake.
 #### Check In
 
 Use this for people who are already **Paid** (online, cash collected earlier,
-or fee waived). It only changes **Check-in** — it never touches payment.
+fee waived, or paid at the discounted attendee rate). It only changes
+**Check-in** — it never touches payment.
 
 - If the person is not **Paid**, the action refuses and tells you to use
   *Cash Received & Check In* instead.
