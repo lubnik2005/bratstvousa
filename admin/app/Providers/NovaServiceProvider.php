@@ -88,6 +88,7 @@ class NovaServiceProvider extends NovaApplicationServiceProvider
                 MenuItem::resource(\App\Nova\ZeffyPayment::class),
                 MenuItem::resource(\App\Nova\YouthLeader::class),
                 MenuItem::resource(\App\Nova\EmailLog::class),
+                (new \Bratstvo\CampCheckIn\CampCheckIn)->menu($request),
             ])->icon('ticket')->collapsable(),
 
             MenuSection::make('Camp Paradise', [
