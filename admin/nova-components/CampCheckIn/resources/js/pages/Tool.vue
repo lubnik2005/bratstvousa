@@ -53,6 +53,29 @@
         <div><dt class="text-gray-500">Church balance</dt><dd class="font-bold">{{ money(registration.churchBalanceCents) }}</dd></div>
       </dl>
 
+      <div class="mt-6 border-t border-gray-200 pt-5 dark:border-gray-700">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <h3 class="font-bold text-gray-900 dark:text-white">Zeffy Ticket Details</h3>
+          <button class="btn btn-link" :disabled="refreshingZeffy || !registration.zeffy.paymentId" @click="refreshZeffy">
+            {{ refreshingZeffy ? 'Refreshing Zeffy...' : 'Refresh Zeffy' }}
+          </button>
+        </div>
+        <p v-if="!registration.zeffy.paymentId" class="mt-3 text-sm text-gray-500">No Zeffy payment is linked to this registration.</p>
+        <dl v-else class="mt-4 grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
+          <div><dt class="text-gray-500">Ticket ID</dt><dd class="break-all font-bold">{{ registration.zeffy.ticketId || 'Not recorded' }}</dd></div>
+          <div><dt class="text-gray-500">Payment ID</dt><dd class="break-all font-bold">{{ registration.zeffy.paymentId }}</dd></div>
+          <div><dt class="text-gray-500">Stored status</dt><dd class="font-bold">{{ registration.zeffy.status || 'Not recorded' }}</dd></div>
+          <div><dt class="text-gray-500">Stored payment</dt><dd class="font-bold">{{ zeffyAmount(registration.zeffy) }}</dd></div>
+          <div><dt class="text-gray-500">Buyer</dt><dd class="font-bold">{{ registration.zeffy.buyerName || 'Not recorded' }}</dd></div>
+          <div><dt class="text-gray-500">Buyer email</dt><dd class="break-all font-bold">{{ registration.zeffy.buyerEmail || 'Not recorded' }}</dd></div>
+        </dl>
+        <div v-if="registration.zeffy.live" class="mt-4 rounded bg-blue-50 p-4 text-sm text-blue-900 dark:bg-blue-950 dark:text-blue-100">
+          <p class="font-bold">Live Zeffy: {{ registration.zeffy.live.status || 'Unknown status' }} · {{ zeffyAmount(registration.zeffy.live) }}</p>
+          <p v-if="registration.zeffy.live.buyerEmail" class="mt-1">{{ registration.zeffy.live.buyerName || 'Buyer' }} · {{ registration.zeffy.live.buyerEmail }}</p>
+        </div>
+        <p v-else-if="registration.zeffy.liveError" class="mt-4 text-sm text-amber-700">{{ registration.zeffy.liveError }} Stored details are shown above.</p>
+      </div>
+
       <div v-if="registration.decision === 'check_in'" class="mt-6">
         <button class="btn btn-default" :disabled="performing" @click="perform('check_in')">
           {{ performing ? 'Checking in...' : 'Check In' }}
@@ -80,6 +103,7 @@ export default {
     loading: false,
     manualValue: '',
     performing: false,
+    refreshingZeffy: false,
     registration: null,
   }),
 
@@ -133,13 +157,13 @@ export default {
       this.cameraActive = false
     },
 
-    async lookup(value) {
+    async lookup(value, refreshZeffy = true) {
       const ticket = value.trim()
       if (!ticket) return
       this.error = ''
       this.loading = true
       try {
-        const { data } = await Nova.request().get('/nova-vendor/camp-check-in/lookup', { params: { value: ticket } })
+        const { data } = await Nova.request().get('/nova-vendor/camp-check-in/lookup', { params: { value: ticket, refresh_zeffy: refreshZeffy } })
         this.registration = data.registration
         this.manualValue = ''
       } catch (error) {
@@ -147,6 +171,16 @@ export default {
         this.error = error.response?.data?.message || 'Unable to find this ticket.'
       } finally {
         this.loading = false
+      }
+    },
+
+    async refreshZeffy() {
+      if (!this.registration) return
+      this.refreshingZeffy = true
+      try {
+        await this.lookup(this.registration.confirmationCode, true)
+      } finally {
+        this.refreshingZeffy = false
       }
     },
 
@@ -172,6 +206,10 @@ export default {
 
     money(cents) {
       return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(cents / 100)
+    },
+    zeffyAmount(payment) {
+      if (payment.amountCents === null || payment.amountCents === undefined) return 'Not recorded'
+      return new Intl.NumberFormat('en-US', { style: 'currency', currency: payment.currency || 'USD' }).format(payment.amountCents / 100)
     },
   },
 }
