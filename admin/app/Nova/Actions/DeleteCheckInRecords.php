@@ -6,17 +6,15 @@ use App\Models\CampCheckInRecord;
 use App\Services\CampCheckInService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Support\Collection;
-use Laravel\Nova\Actions\Action;
 use Laravel\Nova\Actions\ActionResponse;
+use Laravel\Nova\Actions\DestructiveAction;
 use Laravel\Nova\Fields\ActionFields;
 
-class DeleteCheckInRecords extends Action
+class DeleteCheckInRecords extends DestructiveAction
 {
     use Queueable;
 
     public $name = 'Delete Check-In Records';
-
-    public $destructive = true;
 
     public $confirmText = 'Delete the selected check-in records? This updates the attendee check-in summary but does not change payment or Zeffy data.';
 
