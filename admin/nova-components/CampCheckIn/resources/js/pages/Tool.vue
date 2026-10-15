@@ -140,6 +140,7 @@ export default {
     performing: false,
     refreshingZeffy: false,
     repeatNote: '',
+    pendingRequestId: null,
     lookupResult: null,
     registration: null,
   }),
@@ -206,6 +207,7 @@ export default {
         this.registration = data.registration
         this.manualValue = ''
         this.repeatNote = ''
+        this.pendingRequestId = null
       } catch (error) {
         this.registration = null
         this.lookupResult = null
@@ -240,14 +242,17 @@ export default {
     async perform(action) {
       this.error = ''
       this.performing = true
+      const requestId = this.pendingRequestId || this.requestId()
+      this.pendingRequestId = requestId
       try {
         const { data } = await Nova.request().post(`/nova-vendor/camp-check-in/registrations/${this.registration.id}/perform`, {
           action,
           note: action === 'repeat_check_in' ? this.repeatNote.trim() || null : null,
-          request_id: this.requestId(),
+          request_id: requestId,
         })
         this.registration = data.registration
         this.repeatNote = ''
+        this.pendingRequestId = null
       } catch (error) {
         this.error = error.response?.data?.result?.message || 'Unable to complete this action.'
         if (error.response?.data?.registration) this.registration = error.response.data.registration
