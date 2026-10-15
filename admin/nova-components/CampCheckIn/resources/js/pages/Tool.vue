@@ -10,10 +10,10 @@
     <Card class="mb-6 p-5">
       <div id="camp-check-in-reader" class="overflow-hidden rounded"></div>
       <div class="mt-4 flex flex-wrap gap-3">
-        <button class="btn btn-default" :disabled="cameraActive" @click="startCamera">
+        <button class="camp-checkin-button camp-checkin-button--primary" :disabled="cameraActive" @click="startCamera">
           {{ cameraActive ? 'Camera is scanning' : 'Scan ticket' }}
         </button>
-        <button v-if="cameraActive" class="btn btn-link" @click="stopCamera">Stop camera</button>
+        <button v-if="cameraActive" class="camp-checkin-button camp-checkin-button--secondary" @click="stopCamera">Stop camera</button>
       </div>
       <form class="mt-5 flex gap-3" @submit.prevent="lookup(manualValue)">
         <input
@@ -22,7 +22,7 @@
           placeholder="Paste a Zeffy ticket ID or CAMP code"
           aria-label="Ticket ID or registration code"
         />
-        <button class="btn btn-default" :disabled="loading || !manualValue.trim()">Find</button>
+        <button class="camp-checkin-button camp-checkin-button--primary" :disabled="loading || !manualValue.trim()">Find ticket</button>
       </form>
     </Card>
 
@@ -31,7 +31,7 @@
     <Card v-if="lookupResult" class="mb-6 p-5">
       <div class="flex flex-wrap items-center justify-between gap-3">
         <h2 class="font-bold text-gray-900 dark:text-white">Scanned QR Data</h2>
-        <button class="btn btn-link" :disabled="refreshingZeffy" @click="refreshZeffy">
+        <button class="camp-checkin-button camp-checkin-button--secondary" :disabled="refreshingZeffy" @click="refreshZeffy">
           {{ refreshingZeffy ? 'Refreshing Zeffy...' : 'Refresh Zeffy' }}
         </button>
       </div>
@@ -84,13 +84,13 @@
       </dl>
 
       <div v-if="registration.decision === 'check_in'" class="mt-6">
-        <button class="btn btn-default" :disabled="performing" @click="perform('check_in')">
+        <button class="camp-checkin-button camp-checkin-button--success" :disabled="performing" @click="perform('check_in')">
           {{ performing ? 'Checking in...' : 'Check In' }}
         </button>
       </div>
       <div v-else-if="registration.decision === 'collect_cash'" class="mt-6">
         <p class="mb-3 text-sm text-amber-700">Confirm cash is physically in hand before continuing.</p>
-        <button class="btn btn-default" :disabled="performing" @click="confirmCash">
+        <button class="camp-checkin-button camp-checkin-button--cash" :disabled="performing" @click="confirmCash">
           {{ performing ? 'Recording...' : 'Cash Received & Check In' }}
         </button>
       </div>
@@ -224,3 +224,67 @@ export default {
   },
 }
 </script>
+
+<style scoped>
+.camp-checkin-button {
+  align-items: center;
+  border: 1px solid transparent;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  display: inline-flex;
+  font-size: 0.875rem;
+  font-weight: 700;
+  justify-content: center;
+  line-height: 1.25rem;
+  min-height: 2.5rem;
+  padding: 0.5rem 1rem;
+  transition: background-color 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.camp-checkin-button:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+.camp-checkin-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.camp-checkin-button--primary {
+  background: #2563eb;
+  color: #fff;
+}
+
+.camp-checkin-button--primary:hover:not(:disabled) { background: #1d4ed8; }
+
+.camp-checkin-button--secondary {
+  background: #fff;
+  border-color: #94a3b8;
+  color: #1e293b;
+}
+
+.camp-checkin-button--secondary:hover:not(:disabled) { background: #f1f5f9; }
+
+.camp-checkin-button--success {
+  background: #15803d;
+  color: #fff;
+}
+
+.camp-checkin-button--success:hover:not(:disabled) { background: #166534; }
+
+.camp-checkin-button--cash {
+  background: #b45309;
+  color: #fff;
+}
+
+.camp-checkin-button--cash:hover:not(:disabled) { background: #92400e; }
+
+:global(.dark) .camp-checkin-button--secondary {
+  background: #1e293b;
+  border-color: #64748b;
+  color: #f8fafc;
+}
+
+:global(.dark) .camp-checkin-button--secondary:hover:not(:disabled) { background: #334155; }
+</style>
