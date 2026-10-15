@@ -66,7 +66,7 @@ class CheckInController
         $values = $this->lookupValues($input);
         preg_match('/CAMP-[A-Z0-9]+/i', $input, $code);
 
-        return CampRegistration::query()
+        $registration = CampRegistration::query()
             ->where(function ($query) use ($values, $code): void {
                 $query->whereIn('zeffy_ticket_id', $values)
                     ->orWhereIn('zeffy_payment_id', $values);
@@ -76,6 +76,29 @@ class CheckInController
                 }
             })
             ->first();
+
+        if ($registration) {
+            return $registration;
+        }
+
+        // Nova links manually reconciled payments through matched_registration_id.
+        // Follow that relationship so staff do not have to duplicate Zeffy IDs on
+        // the registration for a ticket to work in the scanner.
+        $ticketId = collect($values)
+            ->first(fn (string $value): bool => preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i', $value) === 1);
+        $payment = ZeffyPayment::query()
+            ->whereNotNull('matched_registration_id')
+            ->where(function ($query) use ($values, $ticketId): void {
+                $query->whereIn('zeffy_payment_id', $values);
+
+                if ($ticketId) {
+                    $query->orWhere('raw_json', 'like', '%'.$ticketId.'%');
+                }
+            })
+            ->latest('created_at')
+            ->first();
+
+        return $payment?->registration;
     }
 
     /** @return array<int, string> */
