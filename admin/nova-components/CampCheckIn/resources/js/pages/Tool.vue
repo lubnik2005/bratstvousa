@@ -163,7 +163,7 @@ export default {
       this.error = ''
       this.loading = true
       try {
-        const { data } = await Nova.request().get('/nova-vendor/camp-check-in/lookup', { params: { value: ticket, refresh_zeffy: refreshZeffy } })
+        const { data } = await Nova.request().get('/nova-vendor/camp-check-in/lookup', { params: { value: ticket, refresh_zeffy: refreshZeffy ? 1 : 0 } })
         this.registration = data.registration
         this.manualValue = ''
       } catch (error) {
