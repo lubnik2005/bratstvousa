@@ -151,6 +151,54 @@ class CampCheckInService
     }
 
     /**
+     * Delete an erroneous admission entry and rebuild the registration's
+     * check-in summary from the remaining immutable history.
+     */
+    public function deleteCheckInRecord(CampCheckInRecord $checkIn): bool
+    {
+        $registration = CampRegistration::find($checkIn->registration_id);
+        $deleted = [
+            'check_in_id' => $checkIn->id,
+            'checked_in_at' => $checkIn->checked_in_at?->toIso8601String(),
+            'checked_in_by' => $checkIn->checked_in_by,
+            'source' => $checkIn->source,
+            'is_repeat' => $checkIn->is_repeat,
+        ];
+
+        try {
+            $checkIn->delete();
+
+            if (! $registration) {
+                return true;
+            }
+
+            $firstRemaining = CampCheckInRecord::query()
+                ->where('registration_id', $registration->id)
+                ->orderBy('checked_in_at')
+                ->first();
+
+            if ($firstRemaining) {
+                $registration->checkin_status = 'CHECKED_IN';
+                $registration->checked_in_at = $firstRemaining->checked_in_at;
+                $registration->checked_in_by = $firstRemaining->checked_in_by;
+            } else {
+                $registration->checkin_status = 'NOT_CHECKED_IN';
+                $registration->checked_in_at = null;
+                $registration->checked_in_by = null;
+            }
+            $registration->save();
+
+            $this->recordEvent($registration->id, 'check_in_record_deleted', null, $this->actorLabel(), $deleted);
+        } catch (\Throwable $e) {
+            Log::error('Camp check-in record deletion failed', ['check_in_id' => $checkIn->id, 'error' => $e->getMessage()]);
+
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * @return array{ok: bool, code: string, message: string}
      */
     private function result(bool $ok, string $code, string $message): array

@@ -2,6 +2,7 @@
 
 namespace App\Nova;
 
+use App\Nova\Actions\DeleteCheckInRecords;
 use App\Nova\Fields\SafeBadge;
 use Laravel\Nova\Actions\ExportAsCsv;
 use Laravel\Nova\Fields\BelongsTo;
@@ -94,6 +95,9 @@ class CampCheckInRecord extends Resource
 
     public function actions(NovaRequest $request): array
     {
-        return [ExportAsCsv::make()];
+        return [
+            ExportAsCsv::make(),
+            DeleteCheckInRecords::make(),
+        ];
     }
 }
