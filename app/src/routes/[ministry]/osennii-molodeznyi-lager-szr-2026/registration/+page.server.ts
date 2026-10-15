@@ -1,5 +1,5 @@
 import { fail } from '@sveltejs/kit';
-import { eq, desc, and, sql } from 'drizzle-orm';
+import { eq, desc, and, isNull, sql } from 'drizzle-orm';
 import {
 	campRegistrations,
 	youthLeaders,
@@ -209,6 +209,29 @@ export const actions: Actions = {
 				// Non-fatal: table may not exist yet in some environments. Falling
 				// back to not-eligible is the safe default.
 				console.warn('cash eligibility lookup failed, defaulting to not-eligible:', err);
+			}
+		}
+		// An event-wide $0 rule allows any church to use the configured Zeffy
+		// cash-at-door code. A church-specific rule remains the higher priority.
+		if (!cashEligible && churchBalanceCents === 0) {
+			try {
+				const rule = (
+					await db
+						.select({ amountCents: cashEligibilityRules.amountCents })
+						.from(cashEligibilityRules)
+						.where(
+							and(
+								eq(cashEligibilityRules.scopeType, 'event'),
+								eq(cashEligibilityRules.eventSlug, EVENT_SLUG),
+								eq(cashEligibilityRules.active, true),
+								isNull(cashEligibilityRules.churchId)
+							)
+						)
+						.limit(1)
+				)[0];
+				if (rule?.amountCents === 0) cashEligible = true;
+			} catch (err) {
+				console.warn('event cash eligibility lookup failed:', err);
 			}
 		}
 

@@ -54,11 +54,11 @@ class CashEligibilityRule extends Resource
             ID::make()->sortable(),
 
             Select::make('Scope', 'scope_type')
-                ->options(['church' => 'Church'])
+                ->options(['church' => 'Church', 'event' => 'Any church at this event'])
                 ->default('church')
                 ->displayUsingLabels()
                 ->rules('required')
-                ->help('Which dimension this rule authorizes. Currently only per-church rules are supported.'),
+                ->help('Church rules apply only to that church. An event rule applies to every church; leave Church blank.'),
 
             \Laravel\Nova\Fields\BelongsTo::make('Church', 'church', Church::class)
                 ->searchable()

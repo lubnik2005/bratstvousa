@@ -1,5 +1,5 @@
 import { createHmac, timingSafeEqual } from 'node:crypto';
-import { and, eq, sql } from 'drizzle-orm';
+import { and, eq, isNull, sql } from 'drizzle-orm';
 import type { AppDatabase } from '$lib/server/db';
 import {
 	campRegistrations,
@@ -477,24 +477,26 @@ export async function applyPayment(
 			};
 			auditEvent = 'partial_online_payment';
 		} else {
-			// $0 checkout. Opportunistically compare the discount code on the payload
-			// with the rule for this registrant's church/event. The comparison is
-			// informational only — cash_eligible remains the authority (spec §22).
+			// A matching event-wide rule authorizes cash for every church. Existing
+			// per-registration cash eligibility remains valid for church-specific rules.
 			const rule = await findRuleFor(db, reg.churchId, reg.eventSlug);
-			const expectedCode = rule?.discountCode ?? null;
+			const eventCashRule = await findEventCashRuleForCode(db, ids.discountCode, reg.eventSlug);
+			const authorizationRule = eventCashRule ?? rule;
+			const expectedCode = authorizationRule?.discountCode ?? null;
 			const codeMatch =
 				ids.discountCode != null && expectedCode != null
 					? ids.discountCode.toUpperCase() === expectedCode.toUpperCase()
 					: null;
 			auditPayload.expectedCode = expectedCode;
 			auditPayload.codeMatch = codeMatch;
-			auditPayload.ruleId = rule?.id ?? null;
+			auditPayload.ruleId = authorizationRule?.id ?? null;
 
-			if (reg.cashEligible) {
+			if (reg.cashEligible || eventCashRule != null) {
 				// Authorized cash-at-check-in: $0 Zeffy checkout, balance still due.
 				regUpdate = {
 					paymentMethod: 'CASH',
 					paymentStatus: 'DUE',
+					cashEligible: true,
 					amountPaidCents: 0,
 					amountDueCents: priceCents
 				};
@@ -613,6 +615,36 @@ async function findRuleFor(
 		return row ?? null;
 	} catch (err) {
 		console.warn('cash_eligibility_rules lookup failed:', err);
+		return null;
+	}
+}
+
+/** Active event-wide cash-at-door rule matching the submitted Zeffy code. */
+async function findEventCashRuleForCode(
+	db: AppDatabase,
+	discountCode: string | null,
+	eventSlug: string
+): Promise<{ id: number; discountCode: string | null } | null> {
+	if (!discountCode) return null;
+	try {
+		const row = (
+			await db
+				.select({ id: cashEligibilityRules.id, discountCode: cashEligibilityRules.discountCode })
+				.from(cashEligibilityRules)
+				.where(
+					and(
+						eq(cashEligibilityRules.scopeType, 'event'),
+						eq(cashEligibilityRules.eventSlug, eventSlug),
+						eq(cashEligibilityRules.active, true),
+						isNull(cashEligibilityRules.churchId),
+						sql`upper(${cashEligibilityRules.discountCode}) = ${discountCode.toUpperCase()}`
+					)
+				)
+				.limit(1)
+		)[0];
+		return row ?? null;
+	} catch (err) {
+		console.warn('event cash eligibility lookup failed:', err);
 		return null;
 	}
 }

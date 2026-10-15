@@ -221,22 +221,25 @@ class ZeffySyncPayments extends Command
                 $auditEvent = 'online_payment';
                 $auditAmount = $amount;
             } else {
-                // $0 checkout. The registration's cash_eligible flag (set at
-                // registration from cash_eligibility_rules) is authoritative; the
-                // discount code on the payload is only an audit/validation signal.
+                // A matching event-wide rule authorizes cash for every church.
+                // Existing per-registration eligibility remains valid for
+                // church-specific rules created before this event-wide option.
                 $rule = $this->findRuleFor($registration);
-                $expectedCode = $rule?->discount_code;
+                $eventCashRule = $this->findEventCashRuleForCode($registration->event_slug, $ids['discountCode']);
+                $authorizationRule = $eventCashRule ?: $rule;
+                $expectedCode = $authorizationRule?->discount_code;
                 $codeMatch = $expectedCode !== null
                     && $ids['discountCode'] !== null
                     && strcasecmp($expectedCode, $ids['discountCode']) === 0;
                 $auditPayload['expected_code'] = $expectedCode;
                 $auditPayload['code_match'] = $codeMatch;
-                $auditPayload['rule_id'] = $rule?->id;
+                $auditPayload['rule_id'] = $authorizationRule?->id;
 
-                if ($registration->cash_eligible) {
+                if ($registration->cash_eligible || $eventCashRule) {
                     // Authorized $0 checkout — cash due at check-in (spec §11).
                     $registration->payment_method = 'CASH';
                     $registration->payment_status = 'DUE';
+                    $registration->cash_eligible = true;
                     $registration->amount_paid_cents = 0;
                     $registration->amount_due_cents = $priceCents;
                     $auditEvent = 'cash_due';
@@ -346,6 +349,26 @@ class ZeffySyncPayments extends Command
                 ->first();
         } catch (\Throwable $e) {
             Log::warning('zeffy:sync rule lookup failed', ['error' => $e->getMessage()]);
+
+            return null;
+        }
+    }
+
+    private function findEventCashRuleForCode(?string $eventSlug, ?string $discountCode): ?CashEligibilityRule
+    {
+        if (! $eventSlug || ! $discountCode) {
+            return null;
+        }
+
+        try {
+            return CashEligibilityRule::where('scope_type', 'event')
+                ->whereNull('church_id')
+                ->where('event_slug', $eventSlug)
+                ->where('active', true)
+                ->whereRaw('upper(discount_code) = ?', [strtoupper($discountCode)])
+                ->first();
+        } catch (\Throwable $e) {
+            Log::warning('zeffy:sync event cash rule lookup failed', ['error' => $e->getMessage()]);
 
             return null;
         }
