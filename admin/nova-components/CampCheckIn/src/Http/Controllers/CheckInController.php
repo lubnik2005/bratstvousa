@@ -20,15 +20,20 @@ class CheckInController
             'refresh_zeffy' => ['nullable', 'boolean'],
         ]);
         $input = trim((string) $validated['value']);
+        $values = $this->lookupValues($input);
         $registration = $this->findRegistration($input);
 
-        if (! $registration) {
-            return response()->json(['message' => 'No camp registration matches this ticket.', 'registration' => null], 404);
+        if ($registration) {
+            Gate::authorize('view', $registration);
         }
 
-        Gate::authorize('view', $registration);
-
-        return response()->json(['registration' => $this->payload($registration, $validated['refresh_zeffy'] ?? true)]);
+        return response()->json([
+            'rawValue' => $input,
+            'extractedValues' => $values,
+            'registration' => $registration ? $this->payload($registration, false) : null,
+            'zeffy' => $this->zeffyPayload($registration, $values, $validated['refresh_zeffy'] ?? true),
+            'message' => $registration ? null : 'No camp registration matches this ticket. Zeffy details are shown when available.',
+        ]);
     }
 
     public function perform(Request $request, CampRegistration $registration, CampCheckInService $service): JsonResponse
@@ -50,12 +55,7 @@ class CheckInController
 
     private function findRegistration(string $input): ?CampRegistration
     {
-        $values = collect([$input, rawurldecode($input)])
-            ->merge($this->urlValues($input))
-            ->filter(fn (mixed $value): bool => is_string($value) && $value !== '')
-            ->map(fn (string $value): string => trim($value))
-            ->unique()
-            ->values();
+        $values = $this->lookupValues($input);
         preg_match('/CAMP-[A-Z0-9]+/i', $input, $code);
 
         return CampRegistration::query()
@@ -68,6 +68,19 @@ class CheckInController
                 }
             })
             ->first();
+    }
+
+    /** @return array<int, string> */
+    private function lookupValues(string $input): array
+    {
+        return collect([$input, rawurldecode($input)])
+            ->merge($this->urlValues($input))
+            ->filter(fn (mixed $value): bool => is_string($value) && $value !== '')
+            ->map(fn (string $value): string => trim($value))
+            ->filter(fn (string $value): bool => mb_strlen($value) <= 255)
+            ->unique()
+            ->values()
+            ->all();
     }
 
     /** @return array<int, string> */
@@ -119,24 +132,26 @@ class CheckInController
             'amountPaidCents' => (int) $registration->amount_paid_cents,
             'amountDueCents' => (int) $registration->amount_due_cents,
             'churchBalanceCents' => (int) $registration->church_balance_cents,
-            'zeffy' => $this->zeffyPayload($registration, $refreshZeffy),
+            'zeffy' => $this->zeffyPayload($registration, [], $refreshZeffy),
             'decision' => $decision,
             'message' => $message,
         ];
     }
 
     /** @return array<string, mixed> */
-    private function zeffyPayload(CampRegistration $registration, bool $refresh): array
+    private function zeffyPayload(?CampRegistration $registration, array $candidates, bool $refresh): array
     {
-        $stored = ZeffyPayment::query()
-            ->where('zeffy_payment_id', $registration->zeffy_payment_id)
-            ->orWhere('matched_registration_id', $registration->id)
-            ->latest('created_at')
-            ->first();
-        $paymentId = $registration->zeffy_payment_id ?: $stored?->zeffy_payment_id;
+        $stored = $registration
+            ? ZeffyPayment::query()
+                ->where('zeffy_payment_id', $registration->zeffy_payment_id)
+                ->orWhere('matched_registration_id', $registration->id)
+                ->latest('created_at')
+                ->first()
+            : null;
+        $paymentId = $registration?->zeffy_payment_id ?: $stored?->zeffy_payment_id;
         $payload = [
             'paymentId' => $paymentId,
-            'ticketId' => $registration->zeffy_ticket_id,
+            'ticketId' => $registration?->zeffy_ticket_id,
             'status' => $stored?->status,
             'amountCents' => $stored?->amount,
             'currency' => $stored?->currency,
@@ -147,7 +162,17 @@ class CheckInController
             'liveError' => null,
         ];
 
-        if (! $refresh || ! $paymentId) {
+        $identifiers = collect([$paymentId])
+            ->merge($candidates)
+            ->filter(fn (mixed $value): bool => is_string($value) && preg_match('/^[A-Za-z0-9_-]{3,255}$/', $value) === 1)
+            ->unique()
+            ->take(5);
+
+        if (! $refresh || $identifiers->isEmpty()) {
+            if ($refresh && $identifiers->isEmpty()) {
+                $payload['liveError'] = 'No Zeffy payment identifier was found in this QR code.';
+            }
+
             return $payload;
         }
 
@@ -159,14 +184,22 @@ class CheckInController
         }
 
         try {
-            $response = Http::withToken($apiKey)
-                ->acceptJson()
-                ->timeout(8)
-                ->get('https://api.zeffy.com/api/v1/payments/'.$paymentId);
+            foreach ($identifiers as $identifier) {
+                $response = Http::withToken($apiKey)
+                    ->acceptJson()
+                    ->timeout(8)
+                    ->get('https://api.zeffy.com/api/v1/payments/'.$identifier);
 
-            if (! $response->successful()) {
-                $payload['liveError'] = 'Zeffy could not refresh this payment right now.';
-                Log::warning('Camp check-in Zeffy refresh failed', ['payment_id' => $paymentId, 'status' => $response->status()]);
+                if ($response->successful()) {
+                    $paymentId = $identifier;
+
+                    break;
+                }
+            }
+
+            if (! isset($response) || ! $response->successful()) {
+                $payload['liveError'] = 'Zeffy did not recognize the identifiers encoded in this QR code.';
+                Log::warning('Camp check-in Zeffy refresh failed', ['identifier_count' => $identifiers->count(), 'status' => $response?->status()]);
 
                 return $payload;
             }

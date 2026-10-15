@@ -28,6 +28,36 @@
 
     <p v-if="error" class="mb-4 text-sm font-semibold text-red-600">{{ error }}</p>
 
+    <Card v-if="lookupResult" class="mb-6 p-5">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <h2 class="font-bold text-gray-900 dark:text-white">Scanned QR Data</h2>
+        <button class="btn btn-link" :disabled="refreshingZeffy" @click="refreshZeffy">
+          {{ refreshingZeffy ? 'Refreshing Zeffy...' : 'Refresh Zeffy' }}
+        </button>
+      </div>
+      <code class="mt-3 block break-all rounded bg-gray-100 p-3 text-xs text-gray-800 dark:bg-gray-800 dark:text-gray-100">{{ lookupResult.rawValue }}</code>
+      <p v-if="lookupResult.extractedValues.length > 1" class="mt-3 break-all text-xs text-gray-500">Extracted values: {{ lookupResult.extractedValues.join(' · ') }}</p>
+      <p v-if="lookupResult.message" class="mt-4 text-sm font-semibold text-amber-700">{{ lookupResult.message }}</p>
+
+      <div class="mt-5 border-t border-gray-200 pt-5 dark:border-gray-700">
+        <h3 class="font-bold text-gray-900 dark:text-white">Zeffy Ticket Details</h3>
+        <p v-if="!lookupResult.zeffy.paymentId && !lookupResult.zeffy.live" class="mt-3 text-sm text-gray-500">No stored Zeffy payment is linked to this scan.</p>
+        <dl class="mt-4 grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
+          <div><dt class="text-gray-500">Ticket ID</dt><dd class="break-all font-bold">{{ lookupResult.zeffy.ticketId || 'Not recorded' }}</dd></div>
+          <div><dt class="text-gray-500">Payment ID</dt><dd class="break-all font-bold">{{ lookupResult.zeffy.paymentId || lookupResult.zeffy.live?.paymentId || 'Not recorded' }}</dd></div>
+          <div><dt class="text-gray-500">Stored status</dt><dd class="font-bold">{{ lookupResult.zeffy.status || 'Not recorded' }}</dd></div>
+          <div><dt class="text-gray-500">Stored payment</dt><dd class="font-bold">{{ zeffyAmount(lookupResult.zeffy) }}</dd></div>
+          <div><dt class="text-gray-500">Buyer</dt><dd class="font-bold">{{ lookupResult.zeffy.buyerName || 'Not recorded' }}</dd></div>
+          <div><dt class="text-gray-500">Buyer email</dt><dd class="break-all font-bold">{{ lookupResult.zeffy.buyerEmail || 'Not recorded' }}</dd></div>
+        </dl>
+        <div v-if="lookupResult.zeffy.live" class="mt-4 rounded bg-blue-50 p-4 text-sm text-blue-900 dark:bg-blue-950 dark:text-blue-100">
+          <p class="font-bold">Live Zeffy: {{ lookupResult.zeffy.live.status || 'Unknown status' }} · {{ zeffyAmount(lookupResult.zeffy.live) }}</p>
+          <p v-if="lookupResult.zeffy.live.buyerEmail" class="mt-1">{{ lookupResult.zeffy.live.buyerName || 'Buyer' }} · {{ lookupResult.zeffy.live.buyerEmail }}</p>
+        </div>
+        <p v-else-if="lookupResult.zeffy.liveError" class="mt-4 text-sm text-amber-700">{{ lookupResult.zeffy.liveError }} Stored details are shown above.</p>
+      </div>
+    </Card>
+
     <Card
       v-if="registration"
       class="camp-checkin-result p-5"
@@ -52,29 +82,6 @@
         <div><dt class="text-gray-500">Attendee due</dt><dd class="font-bold">{{ money(registration.amountDueCents) }}</dd></div>
         <div><dt class="text-gray-500">Church balance</dt><dd class="font-bold">{{ money(registration.churchBalanceCents) }}</dd></div>
       </dl>
-
-      <div class="mt-6 border-t border-gray-200 pt-5 dark:border-gray-700">
-        <div class="flex flex-wrap items-center justify-between gap-3">
-          <h3 class="font-bold text-gray-900 dark:text-white">Zeffy Ticket Details</h3>
-          <button class="btn btn-link" :disabled="refreshingZeffy || !registration.zeffy.paymentId" @click="refreshZeffy">
-            {{ refreshingZeffy ? 'Refreshing Zeffy...' : 'Refresh Zeffy' }}
-          </button>
-        </div>
-        <p v-if="!registration.zeffy.paymentId" class="mt-3 text-sm text-gray-500">No Zeffy payment is linked to this registration.</p>
-        <dl v-else class="mt-4 grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
-          <div><dt class="text-gray-500">Ticket ID</dt><dd class="break-all font-bold">{{ registration.zeffy.ticketId || 'Not recorded' }}</dd></div>
-          <div><dt class="text-gray-500">Payment ID</dt><dd class="break-all font-bold">{{ registration.zeffy.paymentId }}</dd></div>
-          <div><dt class="text-gray-500">Stored status</dt><dd class="font-bold">{{ registration.zeffy.status || 'Not recorded' }}</dd></div>
-          <div><dt class="text-gray-500">Stored payment</dt><dd class="font-bold">{{ zeffyAmount(registration.zeffy) }}</dd></div>
-          <div><dt class="text-gray-500">Buyer</dt><dd class="font-bold">{{ registration.zeffy.buyerName || 'Not recorded' }}</dd></div>
-          <div><dt class="text-gray-500">Buyer email</dt><dd class="break-all font-bold">{{ registration.zeffy.buyerEmail || 'Not recorded' }}</dd></div>
-        </dl>
-        <div v-if="registration.zeffy.live" class="mt-4 rounded bg-blue-50 p-4 text-sm text-blue-900 dark:bg-blue-950 dark:text-blue-100">
-          <p class="font-bold">Live Zeffy: {{ registration.zeffy.live.status || 'Unknown status' }} · {{ zeffyAmount(registration.zeffy.live) }}</p>
-          <p v-if="registration.zeffy.live.buyerEmail" class="mt-1">{{ registration.zeffy.live.buyerName || 'Buyer' }} · {{ registration.zeffy.live.buyerEmail }}</p>
-        </div>
-        <p v-else-if="registration.zeffy.liveError" class="mt-4 text-sm text-amber-700">{{ registration.zeffy.liveError }} Stored details are shown above.</p>
-      </div>
 
       <div v-if="registration.decision === 'check_in'" class="mt-6">
         <button class="btn btn-default" :disabled="performing" @click="perform('check_in')">
@@ -104,6 +111,7 @@ export default {
     manualValue: '',
     performing: false,
     refreshingZeffy: false,
+    lookupResult: null,
     registration: null,
   }),
 
@@ -164,10 +172,12 @@ export default {
       this.loading = true
       try {
         const { data } = await Nova.request().get('/nova-vendor/camp-check-in/lookup', { params: { value: ticket, refresh_zeffy: refreshZeffy ? 1 : 0 } })
+        this.lookupResult = data
         this.registration = data.registration
         this.manualValue = ''
       } catch (error) {
         this.registration = null
+        this.lookupResult = null
         this.error = error.response?.data?.message || 'Unable to find this ticket.'
       } finally {
         this.loading = false
@@ -175,10 +185,10 @@ export default {
     },
 
     async refreshZeffy() {
-      if (!this.registration) return
+      if (!this.lookupResult) return
       this.refreshingZeffy = true
       try {
-        await this.lookup(this.registration.confirmationCode, true)
+        await this.lookup(this.lookupResult.rawValue, true)
       } finally {
         this.refreshingZeffy = false
       }
