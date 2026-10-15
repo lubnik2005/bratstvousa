@@ -98,4 +98,9 @@ class CampRegistration extends Model implements Auditable
     {
         return $this->hasMany(ZeffyPayment::class, 'matched_registration_id');
     }
+
+    public function checkIns(): HasMany
+    {
+        return $this->hasMany(CampCheckInRecord::class, 'registration_id');
+    }
 }

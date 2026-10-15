@@ -336,6 +336,25 @@ export const registrationEvents = sqliteTable('registration_events', {
 
 export type RegistrationEvent = typeof registrationEvents.$inferSelect;
 
+// One immutable row per physical admission, including intentional repeat scans.
+export const campCheckIns = sqliteTable('camp_check_ins', {
+	id: integer('id').primaryKey({ autoIncrement: true }),
+	registrationId: integer('registration_id').notNull(),
+	zeffyTicketId: text('zeffy_ticket_id'),
+	zeffyPaymentId: text('zeffy_payment_id'),
+	checkedInAt: text('checked_in_at').notNull(),
+	checkedInBy: text('checked_in_by').notNull(),
+	source: text('source').notNull(),
+	isRepeat: integer('is_repeat', { mode: 'boolean' }).default(false).notNull(),
+	note: text('note'),
+	requestId: text('request_id').notNull().unique(),
+	createdAt: text('created_at')
+		.default(sql`(datetime('now'))`)
+		.notNull()
+});
+
+export type CampCheckIn = typeof campCheckIns.$inferSelect;
+
 // All Zeffy payments seen (via webhook or the hourly API reconciliation job),
 // keyed by zeffyPaymentId for idempotency across both paths.
 // matchStatus: matched | unmatched | refunded.

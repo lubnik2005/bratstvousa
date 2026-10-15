@@ -83,6 +83,26 @@
         <div><dt class="text-gray-500">Church balance</dt><dd class="font-bold">{{ money(registration.churchBalanceCents) }}</dd></div>
       </dl>
 
+      <div class="mt-6 border-t border-gray-200 pt-5 dark:border-gray-700">
+        <h3 class="font-bold text-gray-900 dark:text-white">Check-In History ({{ registration.checkIns.length }})</h3>
+        <div class="mt-3 overflow-x-auto">
+          <table class="w-full text-left text-sm">
+            <thead class="border-b border-gray-200 text-xs uppercase text-gray-500 dark:border-gray-700">
+              <tr><th class="pb-2 pr-4">Time</th><th class="pb-2 pr-4">Staff</th><th class="pb-2 pr-4">Entry</th><th class="pb-2">Note</th></tr>
+            </thead>
+            <tbody>
+              <tr v-for="checkIn in registration.checkIns" :key="checkIn.id" class="border-b border-gray-100 dark:border-gray-800">
+                <td class="py-3 pr-4 whitespace-nowrap">{{ checkInTime(checkIn.checkedInAt) }}</td>
+                <td class="py-3 pr-4">{{ checkIn.checkedInBy }}</td>
+                <td class="py-3 pr-4 font-semibold">{{ checkIn.isRepeat ? 'Repeat' : 'First entry' }}</td>
+                <td class="py-3">{{ checkIn.note || '—' }}</td>
+              </tr>
+              <tr v-if="!registration.checkIns.length"><td colspan="4" class="py-3 text-gray-500">No check-ins recorded yet.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <div v-if="registration.decision === 'check_in'" class="mt-6">
         <button class="camp-checkin-button camp-checkin-button--success" :disabled="performing" @click="perform('check_in')">
           {{ performing ? 'Checking in...' : 'Check In' }}
@@ -92,6 +112,14 @@
         <p class="mb-3 text-sm text-amber-700">Confirm cash is physically in hand before continuing.</p>
         <button class="camp-checkin-button camp-checkin-button--cash" :disabled="performing" @click="confirmCash">
           {{ performing ? 'Recording...' : 'Cash Received & Check In' }}
+        </button>
+      </div>
+      <div v-else-if="registration.decision === 'repeat_check_in'" class="mt-6 rounded border border-amber-300 bg-amber-50 p-4 text-amber-950 dark:border-amber-700 dark:bg-amber-950 dark:text-amber-100">
+        <p class="font-bold">Already checked in. Confirm a repeat entry only if this attendee is returning.</p>
+        <label class="mt-4 block text-sm font-semibold" for="repeat-check-in-note">Note (optional)</label>
+        <input id="repeat-check-in-note" v-model="repeatNote" class="form-control form-input form-input-bordered mt-1 w-full" maxlength="500" placeholder="Reason for repeat entry" />
+        <button class="camp-checkin-button camp-checkin-button--cash mt-4" :disabled="performing" @click="confirmRepeatCheckIn">
+          {{ performing ? 'Recording...' : 'Check In Again' }}
         </button>
       </div>
       <p v-else class="mt-6 text-sm text-gray-500">Open the registration record to resolve this before scanning again.</p>
@@ -111,6 +139,7 @@ export default {
     manualValue: '',
     performing: false,
     refreshingZeffy: false,
+    repeatNote: '',
     lookupResult: null,
     registration: null,
   }),
@@ -123,6 +152,7 @@ export default {
       return {
         check_in: 'camp-checkin-result--ready',
         collect_cash: 'camp-checkin-result--cash',
+        repeat_check_in: 'camp-checkin-result--cash',
         blocked: 'camp-checkin-result--blocked',
       }[this.registration.decision]
     },
@@ -175,6 +205,7 @@ export default {
         this.lookupResult = data
         this.registration = data.registration
         this.manualValue = ''
+        this.repeatNote = ''
       } catch (error) {
         this.registration = null
         this.lookupResult = null
@@ -200,12 +231,23 @@ export default {
       }
     },
 
+    confirmRepeatCheckIn() {
+      if (window.confirm('This attendee is already checked in. Record another admission?')) {
+        this.perform('repeat_check_in')
+      }
+    },
+
     async perform(action) {
       this.error = ''
       this.performing = true
       try {
-        const { data } = await Nova.request().post(`/nova-vendor/camp-check-in/registrations/${this.registration.id}/perform`, { action })
+        const { data } = await Nova.request().post(`/nova-vendor/camp-check-in/registrations/${this.registration.id}/perform`, {
+          action,
+          note: action === 'repeat_check_in' ? this.repeatNote.trim() || null : null,
+          request_id: this.requestId(),
+        })
         this.registration = data.registration
+        this.repeatNote = ''
       } catch (error) {
         this.error = error.response?.data?.result?.message || 'Unable to complete this action.'
         if (error.response?.data?.registration) this.registration = error.response.data.registration
@@ -220,6 +262,16 @@ export default {
     zeffyAmount(payment) {
       if (payment.amountCents === null || payment.amountCents === undefined) return 'Not recorded'
       return new Intl.NumberFormat('en-US', { style: 'currency', currency: payment.currency || 'USD' }).format(payment.amountCents / 100)
+    },
+    checkInTime(value) {
+      return value ? new Intl.DateTimeFormat('en-US', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(value)) : 'Unknown'
+    },
+    requestId() {
+      if (window.crypto?.randomUUID) return window.crypto.randomUUID()
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (character) => {
+        const random = Math.floor(Math.random() * 16)
+        return (character === 'x' ? random : (random & 0x3) | 0x8).toString(16)
+      })
     },
   },
 }

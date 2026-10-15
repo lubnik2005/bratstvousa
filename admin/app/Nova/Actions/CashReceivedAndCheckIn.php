@@ -6,6 +6,7 @@ use App\Models\CampRegistration;
 use App\Services\CampCheckInService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 use Laravel\Nova\Actions\Action;
 use Laravel\Nova\Actions\ActionResponse;
 use Laravel\Nova\Fields\ActionFields;
@@ -38,7 +39,7 @@ class CashReceivedAndCheckIn extends Action
 
         foreach ($models as $registration) {
             /** @var CampRegistration $registration */
-            $result = app(CampCheckInService::class)->collectCashAndCheckIn($registration, 'nova:cash_received_and_check_in');
+            $result = app(CampCheckInService::class)->collectCashAndCheckIn($registration, 'nova:cash_received_and_check_in', (string) Str::uuid());
             if ($result['ok']) {
                 $done++;
             } else {

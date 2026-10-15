@@ -2,6 +2,7 @@
 
 namespace Bratstvo\CampCheckIn\Http\Controllers;
 
+use App\Models\CampCheckInRecord;
 use App\Models\CampRegistration;
 use App\Models\ZeffyPayment;
 use App\Services\CampCheckInService;
@@ -38,12 +39,19 @@ class CheckInController
 
     public function perform(Request $request, CampRegistration $registration, CampCheckInService $service): JsonResponse
     {
-        $action = $request->validate(['action' => ['required', 'in:check_in,collect_cash']])['action'];
+        $validated = $request->validate([
+            'action' => ['required', 'in:check_in,collect_cash,repeat_check_in'],
+            'note' => ['nullable', 'string', 'max:500'],
+            'request_id' => ['nullable', 'uuid'],
+        ]);
+        $action = $validated['action'];
         Gate::authorize('update', $registration);
 
-        $result = $action === 'check_in'
-            ? $service->checkIn($registration, 'nova:scanner')
-            : $service->collectCashAndCheckIn($registration, 'nova:scanner');
+        $result = match ($action) {
+            'check_in' => $service->checkIn($registration, 'nova:scanner', $validated['request_id'] ?? null),
+            'collect_cash' => $service->collectCashAndCheckIn($registration, 'nova:scanner', $validated['request_id'] ?? null),
+            'repeat_check_in' => $service->repeatCheckIn($registration, 'nova:scanner', $validated['note'] ?? null, $validated['request_id'] ?? null),
+        };
 
         $registration->refresh();
 
@@ -106,7 +114,7 @@ class CheckInController
         $payment = $registration->payment_status;
         $checkedIn = $registration->checkin_status === 'CHECKED_IN';
         $decision = match (true) {
-            $checkedIn => 'blocked',
+            $checkedIn => 'repeat_check_in',
             $payment === 'PAID' => 'check_in',
             $payment === 'DUE' => 'collect_cash',
             default => 'blocked',
@@ -117,7 +125,7 @@ class CheckInController
                 : 'Paid in full. Ready to check in.',
             'collect_cash' => 'Cash is due before check-in.',
             default => $checkedIn
-                ? 'Already checked in. Do not admit again.'
+                ? 'Already checked in. Confirm a repeat entry only if this attendee is returning.'
                 : 'Check-in is blocked. An admin must resolve this payment state.',
         };
 
@@ -132,6 +140,18 @@ class CheckInController
             'amountPaidCents' => (int) $registration->amount_paid_cents,
             'amountDueCents' => (int) $registration->amount_due_cents,
             'churchBalanceCents' => (int) $registration->church_balance_cents,
+            'checkIns' => CampCheckInRecord::query()
+                ->where('registration_id', $registration->id)
+                ->latest('checked_in_at')
+                ->get()
+                ->map(fn (CampCheckInRecord $checkIn): array => [
+                    'id' => $checkIn->id,
+                    'checkedInAt' => $checkIn->checked_in_at?->toIso8601String(),
+                    'checkedInBy' => $checkIn->checked_in_by,
+                    'isRepeat' => $checkIn->is_repeat,
+                    'note' => $checkIn->note,
+                ])
+                ->all(),
             'zeffy' => $this->zeffyPayload($registration, [], $refreshZeffy),
             'decision' => $decision,
             'message' => $message,

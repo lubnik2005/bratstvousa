@@ -2,18 +2,24 @@
 
 namespace App\Services;
 
+use App\Models\CampCheckInRecord;
 use App\Models\CampRegistration;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class CampCheckInService
 {
     /**
      * @return array{ok: bool, code: string, message: string}
      */
-    public function checkIn(CampRegistration $registration, string $source): array
+    public function checkIn(CampRegistration $registration, string $source, ?string $requestId = null): array
     {
+        if ($this->requestAlreadyRecorded($requestId)) {
+            return $this->result(true, 'already_recorded', 'This check-in was already recorded.');
+        }
+
         $registration->refresh();
 
         if ($registration->checkin_status === 'CHECKED_IN') {
@@ -26,8 +32,10 @@ class CampCheckInService
 
         $actor = $this->actorLabel();
         $now = now()->toIso8601String();
+        $checkIn = null;
 
         try {
+            $checkIn = $this->recordCheckIn($registration, $actor, $source, false, null, $requestId, $now);
             $registration->checkin_status = 'CHECKED_IN';
             $registration->checked_in_at = $now;
             $registration->checked_in_by = $actor;
@@ -39,6 +47,7 @@ class CampCheckInService
                 'payment_method' => $registration->payment_method,
             ]);
         } catch (\Throwable $e) {
+            $checkIn?->delete();
             Log::error('Camp check-in failed', ['registration_id' => $registration->id, 'error' => $e->getMessage()]);
 
             return $this->result(false, 'failed', 'Unable to check in this attendee.');
@@ -50,8 +59,12 @@ class CampCheckInService
     /**
      * @return array{ok: bool, code: string, message: string}
      */
-    public function collectCashAndCheckIn(CampRegistration $registration, string $source): array
+    public function collectCashAndCheckIn(CampRegistration $registration, string $source, ?string $requestId = null): array
     {
+        if ($this->requestAlreadyRecorded($requestId)) {
+            return $this->result(true, 'already_recorded', 'This check-in was already recorded.');
+        }
+
         $registration->refresh();
 
         if ($registration->checkin_status === 'CHECKED_IN') {
@@ -66,8 +79,10 @@ class CampCheckInService
         $now = now()->toIso8601String();
         $due = (int) ($registration->amount_due_cents ?? $registration->event_price_cents ?? 0);
         $previousStatus = $registration->payment_status;
+        $checkIn = null;
 
         try {
+            $checkIn = $this->recordCheckIn($registration, $actor, $source, false, null, $requestId, $now);
             // D1 applies this one model save as a single atomic UPDATE.
             $registration->payment_method = 'CASH';
             $registration->payment_status = 'PAID';
@@ -85,6 +100,7 @@ class CampCheckInService
                 'previous_payment_status' => $previousStatus,
             ]);
         } catch (\Throwable $e) {
+            $checkIn?->delete();
             Log::error('Camp cash collection failed', ['registration_id' => $registration->id, 'error' => $e->getMessage()]);
 
             return $this->result(false, 'failed', 'Unable to record cash for this attendee.');
@@ -94,11 +110,79 @@ class CampCheckInService
     }
 
     /**
+     * Record an intentional additional admission without changing the first
+     * check-in summary fields on the registration.
+     *
+     * @return array{ok: bool, code: string, message: string}
+     */
+    public function repeatCheckIn(CampRegistration $registration, string $source, ?string $note, ?string $requestId = null): array
+    {
+        if ($this->requestAlreadyRecorded($requestId)) {
+            return $this->result(true, 'already_recorded', 'This repeat check-in was already recorded.');
+        }
+
+        $registration->refresh();
+
+        if ($registration->checkin_status !== 'CHECKED_IN') {
+            return $this->result(false, 'not_checked_in', 'This attendee has not been checked in yet.');
+        }
+
+        if ($registration->payment_status !== 'PAID') {
+            return $this->result(false, 'payment_not_paid', 'This attendee is not fully paid and cannot check in.');
+        }
+
+        try {
+            $this->recordCheckIn(
+                $registration,
+                $this->actorLabel(),
+                $source,
+                true,
+                $note,
+                $requestId,
+                now()->toIso8601String(),
+            );
+        } catch (\Throwable $e) {
+            Log::error('Repeat camp check-in failed', ['registration_id' => $registration->id, 'error' => $e->getMessage()]);
+
+            return $this->result(false, 'failed', 'Unable to record this repeat check-in.');
+        }
+
+        return $this->result(true, 'repeat_checked_in', 'Repeat check-in recorded.');
+    }
+
+    /**
      * @return array{ok: bool, code: string, message: string}
      */
     private function result(bool $ok, string $code, string $message): array
     {
         return compact('ok', 'code', 'message');
+    }
+
+    private function requestAlreadyRecorded(?string $requestId): bool
+    {
+        return $requestId !== null && CampCheckInRecord::where('request_id', $requestId)->exists();
+    }
+
+    private function recordCheckIn(
+        CampRegistration $registration,
+        string $actor,
+        string $source,
+        bool $isRepeat,
+        ?string $note,
+        ?string $requestId,
+        string $checkedInAt,
+    ): CampCheckInRecord {
+        return CampCheckInRecord::create([
+            'registration_id' => $registration->id,
+            'zeffy_ticket_id' => $registration->zeffy_ticket_id,
+            'zeffy_payment_id' => $registration->zeffy_payment_id,
+            'checked_in_at' => $checkedInAt,
+            'checked_in_by' => $actor,
+            'source' => $source,
+            'is_repeat' => $isRepeat,
+            'note' => $note,
+            'request_id' => $requestId ?: (string) Str::uuid(),
+        ]);
     }
 
     /** @param array<string, mixed> $payload */
