@@ -139,6 +139,8 @@ class CheckInController
     {
         $payment = $registration->payment_status;
         $checkedIn = $registration->checkin_status === 'CHECKED_IN';
+        $cashApprovalMissing = $payment === 'REVIEW_REQUIRED'
+            && strtoupper((string) $registration->zeffy_discount_code) === 'CASH';
         $decision = match (true) {
             $checkedIn => 'repeat_check_in',
             $payment === 'PAID' => 'check_in',
@@ -152,7 +154,9 @@ class CheckInController
             'collect_cash' => 'Cash is due before check-in.',
             default => $checkedIn
                 ? 'Already checked in. Confirm a repeat entry only if this attendee is returning.'
-                : 'Check-in is blocked. An admin must resolve this payment state.',
+                : ($cashApprovalMissing
+                    ? 'Cash-at-door checkout was not approved. An admin must approve this attendee for cash collection before check-in.'
+                    : 'Check-in is blocked. An admin must resolve this payment state.'),
         };
 
         return [
