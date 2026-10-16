@@ -335,6 +335,8 @@ export async function applyPayment(
 				eventPriceCents: number | null;
 				amount: number | null;
 				zeffyPaymentId: string | null;
+				paymentStatus: string;
+				paymentMethod: string | null;
 		  }
 		| undefined;
 	const regCols = {
@@ -345,7 +347,9 @@ export async function applyPayment(
 		feeWaived: campRegistrations.feeWaived,
 		eventPriceCents: campRegistrations.eventPriceCents,
 		amount: campRegistrations.amount,
-		zeffyPaymentId: campRegistrations.zeffyPaymentId
+		zeffyPaymentId: campRegistrations.zeffyPaymentId,
+		paymentStatus: campRegistrations.paymentStatus,
+		paymentMethod: campRegistrations.paymentMethod
 	};
 	if (code) {
 		reg = (
@@ -417,6 +421,22 @@ export async function applyPayment(
 					console.error('duplicate payment notice failed', err);
 				}
 			}
+			return;
+		}
+
+		// A Zeffy webhook can be replayed after staff collected cash. Retain the
+		// local cash receipt rather than resetting the attendee back to Cash Due.
+		if (reg.paymentStatus === 'PAID' && reg.paymentMethod === 'CASH') {
+			await upsertZeffyPayment(db, {
+				zeffyPaymentId,
+				payment,
+				code,
+				buyerEmail,
+				ids,
+				matchedRegistrationId: reg.id,
+				matchStatus: 'matched',
+				now
+			});
 			return;
 		}
 

@@ -155,7 +155,7 @@ class CheckInController
             default => $checkedIn
                 ? 'Already checked in. Confirm a repeat entry only if this attendee is returning.'
                 : ($cashApprovalMissing
-                    ? 'Cash-at-door checkout was not approved. An admin must approve this attendee for cash collection before check-in.'
+                    ? 'Payment review required. This registration is approved, but its $0 CASH checkout was not recognized as cash-at-door. Use Resolve Review → Authorize cash before check-in.'
                     : 'Check-in is blocked. An admin must resolve this payment state.'),
         };
 

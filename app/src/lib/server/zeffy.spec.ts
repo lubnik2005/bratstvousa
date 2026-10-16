@@ -609,6 +609,28 @@ describe('applyPayment discount-code validation (cash_eligibility_rules)', () =>
 		expect((cashDue?.payload as Payload)?.ruleId).toBe(ruleId);
 	});
 
+	it('webhook retry does not undo a cash payment collected at check-in', async () => {
+		await seedRule(db, { churchId: 12, discountCode: 'PNW-CASH-2026' });
+		const id = await seedReg(db, { cashEligible: true, churchId: 12 });
+		const payment = zeroCheckout('zp-cash-retry', 'PNW-CASH-2026');
+		await applyPayment(db, payment);
+		await db
+			.update(campRegistrations)
+			.set({
+				paymentStatus: 'PAID',
+				paymentMethod: 'CASH',
+				amountPaidCents: 17500,
+				amountDueCents: 0
+			})
+			.where(eq(campRegistrations.id, id));
+		await applyPayment(db, payment);
+		const reg = await getReg(id);
+		expect(reg.paymentStatus).toBe('PAID');
+		expect(reg.paymentMethod).toBe('CASH');
+		expect(reg.amountPaidCents).toBe(17500);
+		expect(reg.amountDueCents).toBe(0);
+	});
+
 	it('eligible + wrong/missing code -> still DUE, plus discount_code_mismatch audit', async () => {
 		await seedRule(db, { churchId: 12, discountCode: 'PNW-CASH-2026' });
 		const id = await seedReg(db, { cashEligible: true, churchId: 12 });
