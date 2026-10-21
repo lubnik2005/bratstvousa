@@ -3,7 +3,10 @@
 ############################
 # Stage 1: composer deps
 ############################
-FROM php:8.4-cli-bookworm AS vendor
+FROM php:8.4.27-cli-bookworm AS vendor
+
+# Minimum fixed release for CVE-2026-109618 and CVE-2026-109619.
+RUN php -r 'exit(PHP_VERSION_ID >= 80427 && PHP_VERSION_ID < 80500 ? 0 : 1);'
 
 # System deps for composer + native ext builds
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -69,7 +72,9 @@ RUN npm run build
 ############################
 # Stage 3: runtime (php-fpm + nginx via supervisor)
 ############################
-FROM php:8.4-fpm-bookworm AS runtime
+FROM php:8.4.27-fpm-bookworm AS runtime
+
+RUN php -r 'exit(PHP_VERSION_ID >= 80427 && PHP_VERSION_ID < 80500 ? 0 : 1);'
 
 ENV DEBIAN_FRONTEND=noninteractive \
     TZ=UTC

@@ -7,6 +7,80 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 
+## Production operations
+
+The live admin is at `https://admin.bratstvousa.com`, hosted on `23.92.25.92`.
+With the deployment key configured
+in `~/.ssh/config`, connect using:
+
+```bash
+ssh bratstvo-admin-prod
+```
+
+SSH configuration (the private key stays on your workstation):
+
+```sshconfig
+Host bratstvo-admin-prod
+    HostName 23.92.25.92
+    User root
+    IdentityFile ~/.ssh/id_ed25519_bratstvo_admin
+    IdentitiesOnly yes
+```
+
+If the public key needs installing, use an existing authorized login:
+
+```bash
+ssh-copy-id -i ~/.ssh/id_ed25519_bratstvo_admin.pub root@23.92.25.92
+```
+
+The live Compose stack is in `/root/admin/docker-compose.prod.yml`. It runs
+`bratstvousa-admin:amd64` with `pull_policy: never` and a Cloudflare Tunnel sidecar.
+Images are transferred with `docker save | ssh bratstvo-admin-prod docker load`.
+Keep the live Compose file and its external database/storage volumes intact.
+The repository's Compose file instead defaults to a GHCR image.
+
+After loading a verified image and tagging it `bratstvousa-admin:amd64`, deploy
+and verify it from this directory:
+
+```bash
+ssh bratstvo-admin-prod 'docker compose --project-directory /root/admin -f /root/admin/docker-compose.prod.yml up -d --no-deps --force-recreate --wait app'
+ssh bratstvo-admin-prod 'docker compose --project-directory /root/admin -f /root/admin/docker-compose.prod.yml exec -T app php -v'
+ssh bratstvo-admin-prod 'docker compose --project-directory /root/admin -f /root/admin/docker-compose.prod.yml exec -T app php-fpm -v'
+```
+
+PHP must be **8.4.27 or newer in the 8.4 branch** to include the fixes for
+CVE-2026-109618 and CVE-2026-109619. Rebuild production images with `--pull`;
+restart containers to replace all workers. Native session upload tracking is
+disabled at startup as additional hardening. Updating Composer packages alone
+does not patch PHP.
+
+On 2026-10-21, production was rebuilt on the host using PHP 8.4.27 and the
+existing deployed application files. The build context is retained at
+`/root/admin/php-security-20261021`, and the resulting image is tagged
+`bratstvousa-admin:php-8.4.27-security-20261021` (also `:amd64`). The previous
+image is retained as `bratstvousa-admin:pre-php-security-20261021`; it contains
+vulnerable PHP and is only an emergency rollback artifact. A consistent SQLite
+backup is in the database volume as `plumbing.pre-php-security-20261021.sqlite`.
+
+Development also uses the official PHP 8.4.27 image so it does not depend on
+third-party PHP package release timing. Use container PHP for project commands;
+the workstation's NixOS-managed PHP is updated separately through its system
+configuration.
+
+For the active Sail development image, run from the repository root:
+
+```bash
+docker compose build --pull --no-cache admin
+docker compose up -d --no-deps --force-recreate admin
+docker compose exec admin php -v
+```
+
+To run a PHP command without starting the development web server or database:
+
+```bash
+docker compose run --rm --no-deps admin php artisan test
+```
+
 ## About Laravel
 
 Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
