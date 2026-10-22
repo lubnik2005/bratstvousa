@@ -1,5 +1,5 @@
 # Build Stage
-FROM node:22-alpine AS builder
+FROM node:25-alpine AS builder
 WORKDIR /app
 
 # Install dependencies
@@ -12,7 +12,7 @@ RUN npm run build
 RUN npm prune --production
 
 # Runtime Stage
-FROM node:22-alpine
+FROM node:25-alpine
 WORKDIR /app
 
 # Copy build artifacts and production dependencies
