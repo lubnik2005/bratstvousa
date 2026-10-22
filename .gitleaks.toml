@@ -1,0 +1,13 @@
+[extend]
+useDefault = true
+
+[[rules]]
+id = "resend-api-key"
+description = "Resend API key"
+regex = '''\bre_[A-Za-z0-9_]{20,}\b'''
+
+[[rules]]
+id = "assigned-service-credential"
+description = "Assigned Nova or application service credential"
+regex = '''(?i)(?:nova_(?:license_)?key|resend_(?:api_)?key|cloudflare_api_token)\s*[=:]\s*["']?([a-z0-9_\-]{24,})'''
+secretGroup = 1

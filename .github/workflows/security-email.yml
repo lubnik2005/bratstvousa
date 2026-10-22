@@ -1,0 +1,42 @@
+name: Security email notifications
+
+on:
+  workflow_run:
+    workflows: [Security checks]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: security-email
+  cancel-in-progress: false
+
+jobs:
+  notify:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.head_branch == 'main' &&
+       github.event.workflow_run.head_repository.full_name == github.repository &&
+       github.event.workflow_run.event != 'pull_request')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      # Always use trusted default-branch code. Never check out the triggering SHA.
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: main
+          persist-credentials: false
+      - name: Send transition/reminder notification (or manual delivery test)
+        env:
+          SECURITY_RESEND_API_KEY: ${{ secrets.SECURITY_RESEND_API_KEY }}
+          GH_TOKEN: ${{ github.token }}
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          if [ "$EVENT_NAME" = workflow_dispatch ]; then
+            python3 scripts/security/monitor.py test-email
+          else
+            python3 scripts/security/monitor.py ci
+          fi

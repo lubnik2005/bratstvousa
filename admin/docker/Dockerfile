@@ -72,7 +72,7 @@ RUN npm run build
 ############################
 # Stage 3: runtime (php-fpm + nginx via supervisor)
 ############################
-FROM php:8.4.27-fpm-bookworm AS runtime
+FROM php:8.4.27-fpm-bookworm AS runtime-base
 
 RUN php -r 'exit(PHP_VERSION_ID >= 80427 && PHP_VERSION_ID < 80500 ? 0 : 1);'
 
@@ -89,6 +89,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && docker-php-ext-install -j"$(nproc)" gd zip bcmath exif pcntl opcache intl \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+############################
+# Runtime packages can be scanned without downloading private Nova dependencies.
+############################
+FROM runtime-base AS runtime
 
 WORKDIR /var/www/html
 

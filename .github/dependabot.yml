@@ -1,0 +1,35 @@
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+  - package-ecosystem: docker
+    directories:
+      - /admin/docker
+      - /admin/runtimes/8.4
+      - /app
+    schedule:
+      interval: daily
+    ignore:
+      - dependency-name: php
+        update-types: [version-update:semver-major, version-update:semver-minor]
+  - package-ecosystem: composer
+    directory: /admin
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 5
+  - package-ecosystem: npm
+    directories:
+      - /
+      - /admin
+      - /admin/nova-components/CampCheckIn
+      - /app
+      - /camp-paradise
+      - /camp-paradise-web
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      routine-updates:
+        update-types: [minor, patch]

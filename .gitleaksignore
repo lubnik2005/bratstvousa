@@ -1,0 +1,14 @@
+# Reviewed historical false positives only: public Cognito embed identifiers
+# and browser localStorage names. No live credentials are exempted.
+c309c911bbdc03961be01514bac6f574526000cb:app/src/routes/[ministry]/zimnii-molodeznyi-lager-szr-2026/registration/+page.svelte:generic-api-key:14
+c309c911bbdc03961be01514bac6f574526000cb:app/src/routes/[ministry]/zimnii-molodeznyi-lager-szr-2026/registration/+page.svelte:generic-api-key:18
+4c51deac7e0377341bf8717543e4eae7f5f4a6d2:app/src/routes/[ministry]/north-west-youth-camp-2025/registration/+page.svelte:generic-api-key:21
+4c51deac7e0377341bf8717543e4eae7f5f4a6d2:app/src/routes/[ministry]/north-west-youth-camp-2025/registration/+page.svelte:generic-api-key:26
+03fecb87105abf49abe7988a11691cde62870794:app/src/routes/[ministry]/north-west-youth-camp-2025/registration/+page.svelte:generic-api-key:22
+03fecb87105abf49abe7988a11691cde62870794:app/src/routes/[ministry]/north-west-youth-camp-2025/registration/+page.svelte:generic-api-key:27
+c290fc8246cc0f61fdb0e3d890b84e9519dca7e3:app/src/routes/[ministry]/north-west-youth-camp-2025/registration/+page.svelte:generic-api-key:19
+c290fc8246cc0f61fdb0e3d890b84e9519dca7e3:app/src/routes/[ministry]/north-west-youth-camp-2025/registration/+page.svelte:generic-api-key:25
+a9b86d9c7a81d5e000de6cec6c78e37ef143baeb:app/src/routes/[ministry]/north-west-youth-camp-2025/rules/+page.svelte:generic-api-key:21
+a9b86d9c7a81d5e000de6cec6c78e37ef143baeb:app/src/routes/[ministry]/north-west-youth-camp-2025/rules/+page.svelte:generic-api-key:26
+8eee9c8609caa4c8e45892d5562ad48cd63caf39:app/src/routes/[ministry]/north-west-youth-camp-2025/registration/+page.svelte:generic-api-key:22
+8eee9c8609caa4c8e45892d5562ad48cd63caf39:app/src/routes/[ministry]/north-west-youth-camp-2025/registration/+page.svelte:generic-api-key:27

@@ -1,0 +1,17 @@
+[Unit]
+Description=Bratstvousa production PHP and health security checks
+Wants=network-online.target
+After=network-online.target docker.service
+
+[Service]
+Type=oneshot
+EnvironmentFile=/etc/bratstvo-security.env
+ExecStart=/usr/bin/python3 /opt/bratstvo-security/monitor.py production
+StateDirectory=bratstvo-security
+UMask=0077
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/var/lib/bratstvo-security
+TimeoutStartSec=240

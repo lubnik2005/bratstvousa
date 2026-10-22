@@ -1,0 +1,10 @@
+[Unit]
+Description=Daily production security check with email alerts
+
+[Timer]
+OnCalendar=*-*-* 08:40:00 UTC
+RandomizedDelaySec=15m
+Persistent=true
+
+[Install]
+WantedBy=timers.target
