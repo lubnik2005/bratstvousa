@@ -55,7 +55,7 @@ RUN --mount=type=cache,target=/tmp/composer-cache \
 ############################
 # Stage 2: front-end assets
 ############################
-FROM node:22-bookworm-slim AS assets
+FROM node:25-bookworm-slim AS assets
 
 WORKDIR /app
 
