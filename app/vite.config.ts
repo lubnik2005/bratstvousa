@@ -5,10 +5,15 @@ import { sveltekit } from '@sveltejs/kit/vite';
 export default defineConfig({
 	plugins: [
 		sveltekit(),
-		paraglide({
-			project: './project.inlang',
-			outdir: './src/lib/paraglide'
-		})
+		// Unit tests do not compile translations; the legacy plugin keeps network handles open.
+		...(process.env.VITEST
+			? []
+			: [
+					paraglide({
+						project: './project.inlang',
+						outdir: './src/lib/paraglide'
+					})
+				])
 	],
 
 	test: {
