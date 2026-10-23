@@ -185,3 +185,39 @@ zero findings. No npm manifest has high or critical findings. Remaining low and
 moderate findings are retained for review (primarily the SvelteKit 2/adapter 7
 cookie dependency and the Drizzle Kit esbuild-loader development chain). OS image
 findings remain out of scope for the requested server migration.
+
+### Follow-up release verification
+
+[PR #11](https://github.com/lubnik2005/bratstvousa/pull/11) was merged as
+`31bf396`. Deployment configuration follow-up `7181dfd` also allows the camp
+contact form on its two production custom domains, retaining hostname validation.
+
+| Application | Released artifact | Previous release retained |
+| --- | --- | --- |
+| Admin | `bratstvousa-admin:hardening-1cb12fd` (also `:amd64`) | `bratstvousa-admin:pre-hardening-31bf396` |
+| Main site | Pages `c00d6745-2f7f-423a-a702-9438eefa01f4` | `a7fbea59-705f-4365-b2eb-ab406c006cd5` |
+| Camp registration | Pages `0228a333-64f6-401a-8d22-cccbc7e55d69` | `ce8b2d90-7b86-42d6-8c22-5a125b177020` |
+| Camp website | Pages `1b2b7414-9ca0-4b6e-b665-737129299eaf` | `d50818f2-890a-4a2a-8444-09201aef38f6` |
+
+GitHub application regression checks pass for all five Node builds and licensed
+Laravel tests; Composer and all high/critical npm audit gates pass. Sonar analysis,
+secret scanning and PHP currency checks pass. Only the explicitly out-of-scope
+container OS scans remain red. The source fix also publishes Nova's frontend
+assets during clean builds, and tests now require the login page to actually
+render successfully, not merely return security headers.
+
+The admin was tested in isolated browser staging using a copied plumbing database
+and no scheduler. Authenticated D1-backed resource reads and scanner fake-camera
+start/stop passed with no browser errors. The same checks passed after deployment;
+runtime metadata confirms Laravel 12.70.1 / Saloon 4.5 / Nova 5.10.1. Both D1
+connections and plumbing accept parameterized reads. The new security headers
+are present on HTTPS responses and monitoring passes.
+
+All three Pages builds were tested as previews and deployed with their existing
+production bindings/secrets. Production browser checks cover the main site's
+three locales, camp account/camps/map pages, and camp website contact/mission/
+gallery pages, with no page JavaScript errors. Existing optimized media were
+reused unchanged. No schema migration, image cleanup, disk maintenance, storage
+migration or automated-backup configuration was performed. A consistent release
+rollback snapshot is retained as `plumbing.pre-hardening-31bf396.sqlite` in the
+admin's data volume.
