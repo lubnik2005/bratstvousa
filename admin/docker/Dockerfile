@@ -37,6 +37,7 @@ RUN --mount=type=cache,target=/tmp/composer-cache \
         --no-interaction \
         --no-progress \
         --prefer-dist \
+        --no-plugins \
         --no-scripts \
         --optimize-autoloader
 

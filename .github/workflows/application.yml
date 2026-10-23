@@ -38,7 +38,7 @@ jobs:
           node-version: "22"
           cache: npm
           cache-dependency-path: ${{ matrix.directory }}/package-lock.json
-      - run: npm ci
+      - run: npm ci --ignore-scripts
         working-directory: ${{ matrix.directory }}
       - name: Configure public-only static website defaults
         if: matrix.directory == 'camp-paradise-web'
