@@ -24,6 +24,10 @@ updates:
   - package-ecosystem: composer
     directory: /admin
     registries: [nova]
+    ignore:
+      # TEMPORARY: remove after renewing Nova download entitlement.
+      # Renewal checklist: https://github.com/lubnik2005/bratstvousa/issues/28
+      - dependency-name: laravel/nova
     patterns: ['*']
     multi-ecosystem-group: weekly-maintenance
     allow:
