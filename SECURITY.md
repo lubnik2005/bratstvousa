@@ -35,11 +35,17 @@ them from history; history rewriting is a separate coordinated operation.
 
 - Full Git history secret scan.
 - Supported/latest PHP patch release validation using PHP's official API.
-- Composer lockfile advisories and npm lockfile audits (no dependency scripts).
-- Trivy HIGH/CRITICAL scans of production and development runtime packages,
-  including unfixed findings. Production uses the `runtime-base` Docker target,
-  so private Nova credentials are not needed. This is a runtime package scan,
-  not a scan of the exact manually deployed production image.
+
+`Dependency audits` checks Composer and all six npm lockfiles daily at 08:33 UTC
+and on manual dispatch, without installing dependencies or executing their scripts.
+Audits run outside the PR/push path and share one runner. npm HIGH/CRITICAL
+findings fail the audit; Composer reports advisories at every severity.
+
+`Container audits (manual during migration)` runs only on manual dispatch.
+It retains Trivy HIGH/CRITICAL scans of production and development runtime
+packages, including unfixed findings. Production uses the `runtime-base` target,
+so private Nova credentials are not needed. This is a runtime package scan,
+not a scan of the exact manually deployed production image.
 
 PHP compiled from source can be missed by image CVE databases; the explicit
 upstream release check and deployed-version monitor cover this gap. Upstream or
@@ -48,16 +54,21 @@ dependency advisories remain visible and can cause initially failing checks.
 Dependency remediation may require framework upgrades; this tooling does not
 automatically apply breaking updates.
 
-Dependabot opens Docker, Composer, npm, and Actions update PRs. Routine PHP base
-image updates stay within the current minor branch; Node major upgrades are
-reviewed deliberately rather than automatically proposed. Nova's registry uses
+Dependabot groups routine minor/patch Composer, npm, and Actions updates into
+one cross-ecosystem maintenance PR, checked Mondays at 09:00 UTC. Major upgrades
+are reviewed deliberately and are not proposed as routine version updates.
+Security updates remain enabled independently of the weekly schedule and are
+grouped per ecosystem; they can require additional PRs, including major fixes.
+Docker proposals are paused during the server migration. Nova's registry uses
 the Dependabot secret `NOVA_LICENSE_KEY`. No automatic merging or deployment is enabled.
 
 The separate `Security email notifications` workflow runs trusted `main` code
 only. It never checks out a PR SHA, consumes PR artifacts, or supplies email
 credentials to PR checks. It emails on failure transitions, weekly Monday
 reminders for scheduled failures, and recovery. Manual dispatch sends a test.
-Recent trusted workflow history is used for transition detection. Required
+Security, application, and dependency-audit workflows feed the notifier; manual
+container findings do not send routine email during migration. Recent trusted
+workflow history is used for transition detection. Required
 repository Actions secret: `SECURITY_RESEND_API_KEY` (sending-only Resend key).
 Actions are SHA-pinned, tokens have read-only permissions, and checkout does not
 persist Git credentials. Review workflow changes before merging them.
@@ -67,8 +78,9 @@ persist Git credentials. Review workflow changes before merging them.
 `Application regression checks` builds/type-checks the three public applications,
 builds admin and scanner assets, and runs public-app, camp-authentication and
 Laravel/D1 regression tests. `Application regression gate`, `Secret history` and
-`PHP release currency` are the required main-branch checks. Advisory scans remain
-visible separately, including lower-severity and OS findings.
+`PHP release currency` are the required main-branch checks. SonarCloud remains
+informational. Scheduled dependency advisories and manual container findings
+remain visible separately, including lower-severity and OS findings.
 
 PHP CI needs `NOVA_COMPOSER_AUTH` as an Actions secret and, for Dependabot PRs,
 as a Dependabot secret. Its value is Composer's `http-basic` JSON for
@@ -76,7 +88,7 @@ as a Dependabot secret. Its value is Composer's `http-basic` JSON for
 execution receives no Nova licence credential. No private vendor archive is
 published or saved in the public Actions cache. Untrusted forks do not receive
 this credential and cannot pass the required PHP gate until the change is tested
-on a trusted maintainer branch. Both CI workflows feed the email notifier.
+on a trusted maintainer branch.
 
 Clean admin image builds use a BuildKit secret, not a build argument:
 
