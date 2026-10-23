@@ -1,4 +1,11 @@
 version: 2
+multi-ecosystem-groups:
+  weekly-maintenance:
+    schedule:
+      interval: weekly
+      day: monday
+      time: '09:00'
+      timezone: Etc/UTC
 registries:
   nova:
     type: composer-repository
@@ -8,26 +15,24 @@ registries:
 updates:
   - package-ecosystem: github-actions
     directory: /
-    schedule:
-      interval: weekly
-  - package-ecosystem: docker
-    directories:
-      - /admin/docker
-      - /admin/runtimes/8.4
-      - /app
-    schedule:
-      interval: daily
-    ignore:
-      - dependency-name: php
-        update-types: [version-update:semver-major, version-update:semver-minor]
-      - dependency-name: node
-        update-types: [version-update:semver-major]
+    patterns: ['*']
+    multi-ecosystem-group: weekly-maintenance
+    allow:
+      - dependency-name: '*'
+        update-types: [version-update:semver-minor, version-update:semver-patch]
+  # Docker proposals are paused during the server migration.
   - package-ecosystem: composer
     directory: /admin
     registries: [nova]
-    schedule:
-      interval: daily
-    open-pull-requests-limit: 5
+    patterns: ['*']
+    multi-ecosystem-group: weekly-maintenance
+    allow:
+      - dependency-name: '*'
+        update-types: [version-update:semver-minor, version-update:semver-patch]
+    groups:
+      security-fixes:
+        applies-to: security-updates
+        patterns: ['*']
   - package-ecosystem: npm
     directories:
       - /
@@ -36,9 +41,12 @@ updates:
       - /app
       - /camp-paradise
       - /camp-paradise-web
-    schedule:
-      interval: weekly
-    open-pull-requests-limit: 5
+    patterns: ['*']
+    multi-ecosystem-group: weekly-maintenance
+    allow:
+      - dependency-name: '*'
+        update-types: [version-update:semver-minor, version-update:semver-patch]
     groups:
-      routine-updates:
-        update-types: [minor, patch]
+      security-fixes:
+        applies-to: security-updates
+        patterns: ['*']

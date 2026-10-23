@@ -1,0 +1,38 @@
+name: Dependency audits
+
+on:
+  schedule:
+    - cron: '33 8 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dependency-audit-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  dependencies:
+    name: Dependency advisories
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+      - name: Composer lockfile advisories
+        run: docker run --rm -v "$PWD/admin:/app:ro" composer:2 --no-plugins --no-scripts audit --locked --no-interaction
+      - name: Audit every npm lockfile, even if Composer failed
+        if: ${{ !cancelled() }}
+        run: |
+          status=0
+          for directory in . admin admin/nova-components/CampCheckIn app camp-paradise camp-paradise-web; do
+            printf '\n::group::npm advisories (%s)\n' "$directory"
+            npm --prefix "$directory" audit --package-lock-only --ignore-scripts --audit-level=high || status=1
+            printf '::endgroup::\n'
+          done
+          exit "$status"
