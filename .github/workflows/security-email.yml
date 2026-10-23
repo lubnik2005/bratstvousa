@@ -2,7 +2,7 @@ name: Security email notifications
 
 on:
   workflow_run:
-    workflows: [Security checks, Application regression checks]
+    workflows: [Security checks, Application regression checks, Dependency audits]
     types: [completed]
   workflow_dispatch:
 
@@ -25,7 +25,7 @@ jobs:
     timeout-minutes: 5
     steps:
       # Always use trusted default-branch code. Never check out the triggering SHA.
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: main
           persist-credentials: false
