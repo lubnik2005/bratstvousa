@@ -41,7 +41,7 @@ jobs:
           if [ -n "$TARGET" ]; then args+=(--target "$TARGET"); fi
           docker build --pull --build-arg WWWGROUP=1000 "${args[@]}" -f "$DOCKERFILE" -t security-runtime "$CONTEXT"
       - name: Scan image (including unfixed HIGH/CRITICAL findings)
-        uses: aquasecurity/trivy-action@57a97c7e7821a5776cebc9bb87c984fa69cba8f1 # 0.35.0
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # 0.36.0
         with:
           image-ref: security-runtime
           version: v0.76.1
