@@ -51,7 +51,8 @@ COPY . .
 
 RUN --mount=type=cache,target=/tmp/composer-cache \
     COMPOSER_CACHE_DIR=/tmp/composer-cache \
-    composer dump-autoload --optimize --no-dev
+    composer dump-autoload --optimize --no-dev \
+    && php artisan vendor:publish --tag=nova-assets --force --no-interaction
 
 ############################
 # Stage 2: front-end assets

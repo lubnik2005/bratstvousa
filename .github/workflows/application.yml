@@ -98,6 +98,7 @@ jobs:
           export APP_KEY
           mkdir -p bootstrap/cache storage/framework/views storage/framework/cache/data storage/logs
           php artisan package:discover --no-ansi
+          php artisan vendor:publish --tag=nova-assets --force --no-interaction
           php artisan test
           composer check-platform-reqs
 

@@ -11,6 +11,12 @@ class SecurityHeadersTest extends TestCase
         foreach (['/', '/login'] as $path) {
             $response = $this->get('https://localhost'.$path);
 
+            if ($path === '/login') {
+                $response->assertOk();
+            } else {
+                $response->assertRedirect(route('nova.login'));
+            }
+
             $response->assertHeader('X-Content-Type-Options', 'nosniff');
             $response->assertHeader('X-Frame-Options', 'SAMEORIGIN');
             $response->assertHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
