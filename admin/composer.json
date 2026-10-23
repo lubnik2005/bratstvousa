@@ -16,7 +16,7 @@
         "ebess/advanced-nova-media-library": "^5.0",
         "ferdiunal/nova-settings": "dev-main",
         "laravel/framework": "^12.69",
-        "laravel/nova": "5.10.1",
+        "laravel/nova": "5.11.1",
         "laravel/tinker": "^2.9",
         "league/flysystem-aws-s3-v3": "^3.0",
         "owen-it/laravel-auditing": "^14.0.6",
