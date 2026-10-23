@@ -105,3 +105,47 @@ Keep audits failing for the unresolved findings. Do not blanket-dismiss alerts
 or commit a vulnerability baseline just to get green checks. Any future accepted
 exception needs its exact advisory, deployed applicability evidence, owner and
 expiry/review date; secret scanning and PHP currency checks stay enforced.
+
+## Deployment record — 2026-10-23 UTC
+
+Both remediation PRs were merged and released:
+
+| Release | Source | Active deployment | Rollback retained |
+| --- | --- | --- | --- |
+| Admin, [PR #8](https://github.com/lubnik2005/bratstvousa/pull/8) | `6c40755` | `bratstvousa-admin:deps-6c40755`, also tagged `:amd64` | `bratstvousa-admin:pre-deps-6c40755` |
+| Public app, [PR #9](https://github.com/lubnik2005/bratstvousa/pull/9) | `04c7ff7` | Pages deployment `a7fbea59-705f-4365-b2eb-ab406c006cd5` | Pages deployment `89da4518-e446-4d10-90a5-93b6ae3bd412` |
+
+The admin build reused the installed licensed Nova package and retained deployed
+application code/configuration while installing the merged dependency lockfile
+and rebuilding assets. Old vendor files and old hashed build assets were removed
+before copying their replacements. The build context is retained on the host at
+`/root/admin/deps-6c40755`. A consistent SQLite backup is retained in the data
+volume as `plumbing.pre-deps-6c40755.sqlite`.
+
+Admin release checks passed: PHP-FPM 8.4.27, nginx/FPM configuration, container
+health, authenticated login/dashboard and youth-event/camp-registration resource
+reads, parameterized reads against plumbing and both D1 connections, SQLite
+`quick_check`, and the production security monitor. Installed package versions
+were checked through Composer's runtime metadata, not only the lockfile.
+
+The public app was built in a clean isolated checkout. Build-generated Paraglide
+bindings must exist before type checking a fresh checkout; running the build
+first provides them. The clean build passed 41 unit tests and type checking with
+zero errors (36 warnings). Preview deployment
+`https://2811c079.bratstvousa.pages.dev` was tested before uploading the same
+artifacts to production; the merged app source was verified identical to the
+preview source.
+
+Headless Chromium checks passed on production for Russian/English/Ukrainian
+pages, news, churches, calendar, Bible courses and both camp-registration pages:
+HTTP 200 with no page JavaScript errors. Blank production registrations were
+rejected with Turnstile action status 403; an invalid Zeffy webhook signature
+returned HTTP 400. Production environment secrets remained configured. These
+checks did not submit real registrations, send registration emails, create
+payment records, or apply schema changes. Preview uses the existing production
+D1 binding, so preview validation was limited to reads and rejected submissions.
+
+The remaining Laravel/Saloon, Paraglide, Tailwind, camp-project and OS-package
+findings above still require remediation. A successful deployment does not clear
+those findings. GitHub's dependency graph/alert totals can refresh separately;
+use the merged lockfiles and installed runtime versions to verify this release.
