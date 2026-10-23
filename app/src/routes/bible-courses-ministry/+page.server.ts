@@ -1,5 +1,5 @@
 import { bibleEducationEvents, bibleEducationNewsArticles } from '$lib/server/db/schema';
-import { eq } from 'drizzle-orm/expressions';
+import { eq } from 'drizzle-orm';
 import { getMinistryEvents, getMinistryNewsArticles } from '$lib/server/db/queries';
 import type { PageServerLoad } from './$types';
 

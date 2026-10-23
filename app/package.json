@@ -20,31 +20,37 @@
 		"test:unit": "vitest"
 	},
 	"devDependencies": {
+		"@cloudflare/workers-types": "^5.20261022.1",
 		"@playwright/test": "^1.45.3",
-		"@sveltejs/kit": "^2.12.0",
-		"@sveltejs/vite-plugin-svelte": "^4.0.0",
+		"@sveltejs/kit": "^2.70.3",
+		"@sveltejs/vite-plugin-svelte": "^5.1.1",
 		"@types/better-sqlite3": "^9.6.0",
 		"@types/leaflet": "^1.9.22",
 		"autoprefixer": "^10.4.20",
 		"better-sqlite3": "^13.0.2",
-		"drizzle-kit": "^0.22.0",
+		"drizzle-kit": "^0.31.11",
 		"eslint": "^9.7.0",
 		"eslint-config-prettier": "^9.1.0",
 		"eslint-plugin-svelte": "^2.36.0",
 		"globals": "^15.0.0",
 		"mdsvex": "^0.11.2",
-		"postcss": "^8.4.49",
+		"postcss": "^8.5.23",
 		"prettier": "^3.3.2",
-		"prettier-plugin-svelte": "^3.2.6",
-		"prettier-plugin-tailwindcss": "^0.6.5",
+		"prettier-plugin-svelte": "^4.1.1",
+		"prettier-plugin-tailwindcss": "^0.8.1",
 		"sass-embedded": "^1.83.4",
-		"svelte": "^5.2.11",
+		"svelte": "^5.57.2",
 		"svelte-check": "^4.0.0",
 		"tailwindcss": "^3.4.15",
 		"typescript": "^5.0.0",
 		"typescript-eslint": "^8.0.0",
-		"vite": "^5.4.11",
-		"vitest": "^2.0.4"
+		"vite": "^6.4.5",
+		"vitest": "^4.1.12"
+	},
+	"overrides": {
+		"@lix-js/client": {
+			"sha.js": "^2.4.12"
+		}
 	},
 	"dependencies": {
 		"@editorjs/editorjs": "^2.30.8",
@@ -66,7 +72,7 @@
 		"@tailwindcss/forms": "^0.5.9",
 		"@tailwindcss/typography": "^0.5.15",
 		"bootstrap": "^5.3.3",
-		"drizzle-orm": "^0.33.0",
+		"drizzle-orm": "^0.45.4",
 		"editorjs-html": "^4.0.5",
 		"glightbox": "^3.3.0",
 		"json-schema-to-ts": "^3.1.1",
