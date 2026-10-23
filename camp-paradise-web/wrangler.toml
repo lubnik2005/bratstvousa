@@ -6,7 +6,7 @@ pages_build_output_dir = ".svelte-kit/cloudflare"
 [vars]
 PUBLIC_BOOKING_URL = "https://camp-paradise.pages.dev/"
 PUBLIC_TURNSTILE_SITE_KEY = "0x4AAAAAAEzKpCgc4kC9UW8O"
-TURNSTILE_HOSTNAMES = "camp-paradise-web.pages.dev"
+TURNSTILE_HOSTNAMES = "camp-paradise-web.pages.dev,camp-paradise.org,www.camp-paradise.org"
 
 # Secrets (set via `wrangler pages secret put` or the dashboard):
 #   TURNSTILE_SECRET
