@@ -20,8 +20,7 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /app
 
-# COMPOSER_AUTH is injected at build time (Nova private repo download key).
-ARG COMPOSER_AUTH
+# Nova authentication is mounted only for the install instruction, never an image ARG.
 
 # Copy composer manifests + local path packages first for layer caching.
 COPY composer.json composer.lock ./
@@ -30,6 +29,8 @@ COPY nova-components/CampCheckIn ./nova-components/CampCheckIn
 
 # Install prod deps without running scripts (artisan not yet present / no app code).
 RUN --mount=type=cache,target=/tmp/composer-cache \
+    --mount=type=secret,id=composer_auth,required=true \
+    COMPOSER_AUTH="$(cat /run/secrets/composer_auth)" \
     COMPOSER_CACHE_DIR=/tmp/composer-cache \
     composer install \
         --no-dev \
@@ -49,8 +50,7 @@ COPY . .
 
 RUN --mount=type=cache,target=/tmp/composer-cache \
     COMPOSER_CACHE_DIR=/tmp/composer-cache \
-    composer dump-autoload --optimize --no-dev \
-    && composer run-script post-autoload-dump || true
+    composer dump-autoload --optimize --no-dev
 
 ############################
 # Stage 2: front-end assets

@@ -26,6 +26,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        $middleware->append(\App\Http\Middleware\SecurityHeaders::class);
+
         $middleware->redirectGuestsTo(fn () => route('nova.login'));
 
         // Behind Cloudflare + local nginx reverse proxy. Trust all proxies so

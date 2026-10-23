@@ -1,4 +1,4 @@
-import { and, eq, gt, isNull, sql } from 'drizzle-orm';
+import { and, eq, gt, isNull, lt, sql } from 'drizzle-orm';
 import type { AppDatabase } from '$lib/server/db';
 import { paradiseLoginCodes } from '$lib/server/db/schema';
 import { sendLoginCode } from '$lib/server/email/paradise';
@@ -11,9 +11,8 @@ const MAX_ATTEMPTS = 5;
 const DIGITS = '23456789';
 
 function generateCode(): string {
-	let s = '';
-	for (let i = 0; i < 6; i++) s += DIGITS[Math.floor(Math.random() * DIGITS.length)];
-	return s;
+	// Eight choices divide 256 exactly, so byte modulo introduces no bias.
+	return Array.from(crypto.getRandomValues(new Uint8Array(6)), (byte) => DIGITS[byte % 8]).join('');
 }
 
 const encoder = new TextEncoder();
@@ -41,18 +40,22 @@ export async function issueLoginCode(db: AppDatabase, emailRaw: string): Promise
 		.toISOString()
 		.replace('T', ' ')
 		.slice(0, 19);
-	const recent = await db
-		.select({ id: paradiseLoginCodes.id })
-		.from(paradiseLoginCodes)
-		.where(and(eq(paradiseLoginCodes.email, email), gt(paradiseLoginCodes.createdAt, cutoff)))
-		.limit(1);
-	if (recent.length > 0) return { ok: false, reason: 'rate_limited' };
-
 	const code = generateCode();
 	const codeHash = await hashCode(code);
 	const expiresAt = new Date(Date.now() + CODE_TTL_MS).toISOString().replace('T', ' ').slice(0, 19);
 
-	await db.insert(paradiseLoginCodes).values({ email, codeHash, expiresAt });
+	// One statement makes the rate-limit check and insert atomic on D1/SQLite.
+	const issued = await db.all<{ id: number }>(sql`
+		insert into ${paradiseLoginCodes} (email, code_hash, expires_at)
+		select ${email}, ${codeHash}, ${expiresAt}
+		where not exists (
+			select 1 from ${paradiseLoginCodes}
+			where ${paradiseLoginCodes.email} = ${email}
+			and ${paradiseLoginCodes.createdAt} > ${cutoff}
+		)
+		returning id
+	`);
+	if (issued.length === 0) return { ok: false, reason: 'rate_limited' };
 
 	// A send failure must never surface a 500 to the client (that would both
 	// break the UX and leak that the email path was reached). Log server-side
@@ -99,7 +102,7 @@ export async function verifyLoginCode(
 		return { ok: false, reason: 'too_many_attempts' };
 	}
 
-	if (row.expiresAt < now) {
+	if (row.expiresAt <= now) {
 		await db
 			.update(paradiseLoginCodes)
 			.set({ consumedAt: now })
@@ -111,17 +114,31 @@ export async function verifyLoginCode(
 	if (submittedHash !== row.codeHash) {
 		await db
 			.update(paradiseLoginCodes)
-			.set({ attempts: row.attempts + 1 })
-			.where(eq(paradiseLoginCodes.id, row.id));
+			.set({ attempts: sql`${paradiseLoginCodes.attempts} + 1` })
+			.where(
+				and(
+					eq(paradiseLoginCodes.id, row.id),
+					isNull(paradiseLoginCodes.consumedAt),
+					lt(paradiseLoginCodes.attempts, MAX_ATTEMPTS)
+				)
+			);
 		return { ok: false, reason: 'invalid' };
 	}
 
 	// Success: burn the code so it can't be reused.
-	await db
+	const claimed = await db
 		.update(paradiseLoginCodes)
 		.set({ consumedAt: now })
-		.where(eq(paradiseLoginCodes.id, row.id));
-	return { ok: true };
+		.where(
+			and(
+				eq(paradiseLoginCodes.id, row.id),
+				isNull(paradiseLoginCodes.consumedAt),
+				lt(paradiseLoginCodes.attempts, MAX_ATTEMPTS),
+				gt(paradiseLoginCodes.expiresAt, now)
+			)
+		)
+		.returning({ id: paradiseLoginCodes.id });
+	return claimed.length ? { ok: true } : { ok: false, reason: 'invalid' };
 }
 
 // ---------------------------------------------------------------------------

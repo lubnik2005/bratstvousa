@@ -21,6 +21,7 @@
 	},
 	"devDependencies": {
 		"@cloudflare/workers-types": "^5.20261022.1",
+		"@inlang/paraglide-js": "^2.29.1",
 		"@playwright/test": "^1.45.3",
 		"@sveltejs/kit": "^2.70.3",
 		"@sveltejs/vite-plugin-svelte": "^5.1.1",
@@ -31,7 +32,7 @@
 		"drizzle-kit": "^0.31.11",
 		"eslint": "^9.7.0",
 		"eslint-config-prettier": "^9.1.0",
-		"eslint-plugin-svelte": "^2.36.0",
+		"eslint-plugin-svelte": "^3.23.1",
 		"globals": "^15.0.0",
 		"mdsvex": "^0.11.2",
 		"postcss": "^8.5.23",
@@ -41,16 +42,10 @@
 		"sass-embedded": "^1.83.4",
 		"svelte": "^5.57.2",
 		"svelte-check": "^4.0.0",
-		"tailwindcss": "^3.4.15",
 		"typescript": "^5.0.0",
 		"typescript-eslint": "^8.0.0",
 		"vite": "^6.4.5",
 		"vitest": "^4.1.12"
-	},
-	"overrides": {
-		"@lix-js/client": {
-			"sha.js": "^2.4.12"
-		}
 	},
 	"dependencies": {
 		"@editorjs/editorjs": "^2.30.8",
@@ -61,16 +56,12 @@
 		"@fullcalendar/list": "^6.1.15",
 		"@fullcalendar/timegrid": "^6.1.15",
 		"@fullcalendar/web-component": "^6.1.15",
-		"@inlang/paraglide-sveltekit": "^0.11.1",
 		"@noble/hashes": "^2.2.0",
 		"@oslojs/crypto": "^1.0.1",
 		"@oslojs/encoding": "^1.1.0",
 		"@splidejs/svelte-splide": "^0.2.9",
 		"@sveltejs/adapter-cloudflare": "^7.2.9",
 		"@sveltestrap/sveltestrap": "^6.2.7",
-		"@tailwindcss/container-queries": "^0.1.1",
-		"@tailwindcss/forms": "^0.5.9",
-		"@tailwindcss/typography": "^0.5.15",
 		"bootstrap": "^5.3.3",
 		"drizzle-orm": "^0.45.4",
 		"editorjs-html": "^4.0.5",

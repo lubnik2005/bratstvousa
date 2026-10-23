@@ -19,7 +19,7 @@ class D1Pdo extends PDO
         parent::__construct('sqlite::memory:');
     }
 
-    public function prepare($query, $options = []): PDOStatement|bool
+    public function prepare(string $query, array $options = []): PDOStatement|false
     {
         return new D1PdoStatement(
             $this,
@@ -42,13 +42,13 @@ class D1Pdo extends PDO
         $this->lastInsertIds[$name] = $value;
     }
 
-    public function lastInsertId($name = null): bool|string
+    public function lastInsertId(?string $name = null): string|false
     {
         if ($name === null) {
             $name = 'id';
         }
 
-        return $this->lastInsertIds[$name] ?? false;
+        return isset($this->lastInsertIds[$name]) ? (string) $this->lastInsertIds[$name] : false;
     }
 
     public function beginTransaction(): bool

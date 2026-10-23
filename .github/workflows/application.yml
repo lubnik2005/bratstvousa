@@ -1,0 +1,117 @@
+name: Application regression checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: application-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  node:
+    name: Build and check (${{ matrix.directory }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        directory:
+          [
+            app,
+            camp-paradise,
+            camp-paradise-web,
+            admin,
+            admin/nova-components/CampCheckIn,
+          ]
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: ${{ matrix.directory }}/package-lock.json
+      - run: npm ci
+        working-directory: ${{ matrix.directory }}
+      - name: Configure public-only static website defaults
+        if: matrix.directory == 'camp-paradise-web'
+        run: cp .env.example .env
+        working-directory: camp-paradise-web
+      # Build first: Paraglide generates ignored runtime declarations on clean checkouts.
+      - run: npm run build
+        working-directory: ${{ matrix.directory }}
+      - name: Verify committed scanner assets match their source
+        if: matrix.directory == 'admin/nova-components/CampCheckIn'
+        run: git diff --exit-code -- admin/nova-components/CampCheckIn/dist
+      - run: npm run check --if-present
+        working-directory: ${{ matrix.directory }}
+      - run: npm run test:unit --if-present -- --run
+        working-directory: ${{ matrix.directory }}
+
+  admin:
+    name: Laravel and D1 regression tests
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # v2
+        with:
+          php-version: "8.4"
+          extensions: bcmath, exif, gd, intl, mbstring, pdo_sqlite, zip
+          tools: composer:v2
+          coverage: none
+      - name: Install dependencies using an ephemeral Nova credential
+        working-directory: admin
+        env:
+          COMPOSER_AUTH: ${{ secrets.NOVA_COMPOSER_AUTH }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ -z "$COMPOSER_AUTH" ]; then
+            printf '%s\n' 'NOVA_COMPOSER_AUTH is required for licensed Nova tests.' >&2
+            exit 1
+          fi
+          # shellcheck disable=SC2016
+          COMPOSER_AUTH="$(php -r '$a=json_decode(getenv("COMPOSER_AUTH"),true); $a["github-oauth"]["github.com"]=getenv("GH_TOKEN"); echo json_encode($a);')" \
+            composer install --no-interaction --no-progress --prefer-dist --no-plugins --no-scripts
+      # The private credential is scoped to the install step, not application execution.
+      - name: Discover packages and run offline regression tests
+        working-directory: admin
+        env:
+          APP_ENV: testing
+          DB_CONNECTION: sqlite
+          DB_DATABASE: ":memory:"
+          CACHE_STORE: array
+          SESSION_DRIVER: array
+          MAIL_MAILER: array
+        run: |
+          APP_KEY="base64:$(php -r 'echo base64_encode(random_bytes(32));')"
+          export APP_KEY
+          mkdir -p bootstrap/cache storage/framework/views storage/framework/cache/data storage/logs
+          php artisan package:discover --no-ansi
+          php artisan test
+          composer check-platform-reqs
+
+  gate:
+    name: Application regression gate
+    if: always()
+    needs: [node, admin]
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Require every application check to pass
+        env:
+          NODE_RESULT: ${{ needs.node.result }}
+          ADMIN_RESULT: ${{ needs.admin.result }}
+        run: |
+          test "$NODE_RESULT" = success
+          test "$ADMIN_RESULT" = success
