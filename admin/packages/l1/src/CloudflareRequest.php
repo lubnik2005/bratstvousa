@@ -2,7 +2,6 @@
 
 namespace RenokiCo\L1;
 
-use Saloon\Contracts\Connector;
 use Saloon\Http\Request;
 
 abstract class CloudflareRequest extends Request
@@ -14,7 +13,7 @@ abstract class CloudflareRequest extends Request
         $this->connector = $connector;
     }
 
-    protected function resolveConnector(): Connector
+    protected function resolveConnector(): CloudflareConnector
     {
         return $this->connector;
     }

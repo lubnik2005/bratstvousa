@@ -1,17 +1,19 @@
 import { defineConfig } from 'vitest/config';
-import { paraglide } from '@inlang/paraglide-sveltekit/vite';
+import { paraglideVitePlugin } from '@inlang/paraglide-js';
 import { sveltekit } from '@sveltejs/kit/vite';
 
 export default defineConfig({
 	plugins: [
 		sveltekit(),
-		// Unit tests do not compile translations; the legacy plugin keeps network handles open.
+		// Translation compilation is needed for builds, not the database/email unit suite.
 		...(process.env.VITEST
 			? []
 			: [
-					paraglide({
+					paraglideVitePlugin({
 						project: './project.inlang',
-						outdir: './src/lib/paraglide'
+						outdir: './src/lib/paraglide',
+						emitTsDeclarations: true,
+						strategy: ['url', 'baseLocale']
 					})
 				])
 	],

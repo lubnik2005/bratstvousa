@@ -1,7 +1,9 @@
 .git
 .gitignore
 node_modules
+**/node_modules
 vendor
+**/vendor
 public/build
 public/hot
 public/storage
@@ -12,6 +14,9 @@ storage/framework/sessions/*
 storage/framework/views/*
 database/plumbing.sqlite
 database/database.sqlite
+database/data
+database/**/*.sqlite*
+bootstrap/cache/*.php
 .env
 .env.*
 !.env.production.example

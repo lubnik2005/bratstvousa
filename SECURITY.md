@@ -49,9 +49,9 @@ Dependency remediation may require framework upgrades; this tooling does not
 automatically apply breaking updates.
 
 Dependabot opens Docker, Composer, npm, and Actions update PRs. Routine PHP base
-image updates stay within the current minor branch. Private Composer packages
-can limit Dependabot's ability to resolve an update until registry credentials
-are configured. No automatic merging or deployment is enabled.
+image updates stay within the current minor branch; Node major upgrades are
+reviewed deliberately rather than automatically proposed. Nova's registry uses
+the Dependabot secret `NOVA_LICENSE_KEY`. No automatic merging or deployment is enabled.
 
 The separate `Security email notifications` workflow runs trusted `main` code
 only. It never checks out a PR SHA, consumes PR artifacts, or supplies email
@@ -61,6 +61,34 @@ Recent trusted workflow history is used for transition detection. Required
 repository Actions secret: `SECURITY_RESEND_API_KEY` (sending-only Resend key).
 Actions are SHA-pinned, tokens have read-only permissions, and checkout does not
 persist Git credentials. Review workflow changes before merging them.
+
+### Application regression checks and branch protection
+
+`Application regression checks` builds/type-checks the three public applications,
+builds admin and scanner assets, and runs public-app, camp-authentication and
+Laravel/D1 regression tests. `Application regression gate`, `Secret history` and
+`PHP release currency` are the required main-branch checks. Advisory scans remain
+visible separately, including lower-severity and OS findings.
+
+PHP CI needs `NOVA_COMPOSER_AUTH` as an Actions secret and, for Dependabot PRs,
+as a Dependabot secret. Its value is Composer's `http-basic` JSON for
+`nova.laravel.com`. It is supplied only to the install step; application/test
+execution receives no Nova licence credential. No private vendor archive is
+published or saved in the public Actions cache. Untrusted forks do not receive
+this credential and cannot pass the required PHP gate until the change is tested
+on a trusted maintainer branch. Both CI workflows feed the email notifier.
+
+Clean admin image builds use a BuildKit secret, not a build argument:
+
+```sh
+# Populate COMPOSER_AUTH from your secure credential source, then:
+docker build --secret id=composer_auth,env=COMPOSER_AUTH -f admin/docker/Dockerfile admin
+```
+
+The Docker context excludes local databases, generated config caches and nested
+dependency folders. The admin targets the patched PHP 8.4 branch. The corrected
+Nova account/key can download the pinned 5.10.1 release; newer Nova releases may
+require renewed licence entitlement and are not silently substituted.
 
 ## Email and production monitoring
 

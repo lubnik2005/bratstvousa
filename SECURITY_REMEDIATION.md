@@ -6,14 +6,14 @@ Alert counts are advisory/package occurrences, not distinct exploitable bugs.
 The same dependency appears in multiple lockfiles. Package-manager runtime/dev
 labels are not a production reachability assessment.
 
-| Component | Deployment/use | Findings and disposition |
-| --- | --- | --- |
-| `admin/composer.lock` | Internet-facing Nova admin, PHP-FPM on `23.92.25.92` | Deployed lockfile versions were inspected. AWS SDK/JMESPath, media handling, YAML and PsySH updates stay within existing package majors. Laravel/Nova remain on their existing versions. |
-| `admin/package-lock.json` | Admin asset compilation and local Vite server | Update Axios, PostCSS, Vite and compatible transitive packages. Built assets are verified. Tailwind 3 migration remains separate. Nova's own bundled frontend dependencies are separate from this npm manifest. |
-| `app/package-lock.json` | Svelte application configured for Cloudflare Pages/D1/R2 | Update SvelteKit within v2, Svelte within v5, Drizzle, Vite and Vitest. Verify application compilation and SQLite-backed Zeffy tests. Exact currently deployed Cloudflare dependency versions still require comparison with the deployment build. |
-| Root `package-lock.json` | Shared Handlebars/build tooling; not the admin runtime | Update Handlebars within v4 and compatible dependencies. Do not remove it without confirming all consumers. |
-| `camp-paradise*` lockfiles | Separate Cloudflare applications | Track separately; these packages and their active email changes are not included in this remediation batch. |
-| Docker images | OS packages, native libraries, development headers | Trivy findings remain visible, including vendor-deferred/unfixed findings. These need package-by-package applicability review; image header packages do not imply that the corresponding kernel runs inside the container. |
+| Component                  | Deployment/use                                           | Findings and disposition                                                                                                                                                                                                                          |
+| -------------------------- | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `admin/composer.lock`      | Internet-facing Nova admin, PHP-FPM on `23.92.25.92`     | Deployed lockfile versions were inspected. AWS SDK/JMESPath, media handling, YAML and PsySH updates stay within existing package majors. Laravel/Nova remain on their existing versions.                                                          |
+| `admin/package-lock.json`  | Admin asset compilation and local Vite server            | Update Axios, PostCSS, Vite and compatible transitive packages. Built assets are verified. Tailwind 3 migration remains separate. Nova's own bundled frontend dependencies are separate from this npm manifest.                                   |
+| `app/package-lock.json`    | Svelte application configured for Cloudflare Pages/D1/R2 | Update SvelteKit within v2, Svelte within v5, Drizzle, Vite and Vitest. Verify application compilation and SQLite-backed Zeffy tests. Exact currently deployed Cloudflare dependency versions still require comparison with the deployment build. |
+| Root `package-lock.json`   | Shared Handlebars/build tooling; not the admin runtime   | Update Handlebars within v4 and compatible dependencies. Do not remove it without confirming all consumers.                                                                                                                                       |
+| `camp-paradise*` lockfiles | Separate Cloudflare applications                         | Track separately; these packages and their active email changes are not included in this remediation batch.                                                                                                                                       |
+| Docker images              | OS packages, native libraries, development headers       | Trivy findings remain visible, including vendor-deferred/unfixed findings. These need package-by-package applicability review; image header packages do not imply that the corresponding kernel runs inside the container.                        |
 
 ### Admin dependency batch
 
@@ -110,9 +110,9 @@ expiry/review date; secret scanning and PHP currency checks stay enforced.
 
 Both remediation PRs were merged and released:
 
-| Release | Source | Active deployment | Rollback retained |
-| --- | --- | --- | --- |
-| Admin, [PR #8](https://github.com/lubnik2005/bratstvousa/pull/8) | `6c40755` | `bratstvousa-admin:deps-6c40755`, also tagged `:amd64` | `bratstvousa-admin:pre-deps-6c40755` |
+| Release                                                               | Source    | Active deployment                                       | Rollback retained                                       |
+| --------------------------------------------------------------------- | --------- | ------------------------------------------------------- | ------------------------------------------------------- |
+| Admin, [PR #8](https://github.com/lubnik2005/bratstvousa/pull/8)      | `6c40755` | `bratstvousa-admin:deps-6c40755`, also tagged `:amd64`  | `bratstvousa-admin:pre-deps-6c40755`                    |
 | Public app, [PR #9](https://github.com/lubnik2005/bratstvousa/pull/9) | `04c7ff7` | Pages deployment `a7fbea59-705f-4365-b2eb-ab406c006cd5` | Pages deployment `89da4518-e446-4d10-90a5-93b6ae3bd412` |
 
 The admin build reused the installed licensed Nova package and retained deployed
@@ -149,3 +149,39 @@ The remaining Laravel/Saloon, Paraglide, Tailwind, camp-project and OS-package
 findings above still require remediation. A successful deployment does not clear
 those findings. GitHub's dependency graph/alert totals can refresh separately;
 use the merged lockfiles and installed runtime versions to verify this release.
+
+## Follow-up hardening — 2026-10-23
+
+The next remediation replaces the remaining vulnerable application dependency
+chains, without image cleanup, disk management or backup/storage changes:
+
+- Laravel 12.70.1, Saloon 4.5, Auditing 14 and compatible Nova documentation/settings.
+  L1 now uses Laravel 12 schema APIs and current Saloon response types. Regression
+  tests cover separate SQL bindings/bearer auth, D1 failures, quoted schema names,
+  guest access and secure response headers.
+- Admin HTTPS responses add HSTS, nosniff, framing/referrer controls and a narrow
+  CSP for framing/base URLs. Same-origin camera permission remains enabled for
+  the scanner; inline scripts/editors are not blocked by a speculative full CSP.
+- The main site moves to maintained Paraglide JS 2, retaining Russian default
+  URLs and English/Ukrainian prefixes, with parallel-request locale-isolation
+  tests. Unused Tailwind dependencies/configuration are removed: this site uses
+  Bootstrap/Sass and had no Tailwind directives or CSS entry point.
+- Admin styling moves to Tailwind 4. The scanner switches from obsolete Mix and
+  a missing local Nova devtool dependency to Vite/Vue, retaining versioned Nova
+  assets, external Nova-provided Vue, camera behavior and third-party notices.
+- Both camp applications receive patched framework/dependency versions. Camp
+  login codes use Web Crypto instead of Math.random; tests exercise hashed code
+  storage, normalization/rate limits, expiry, five-attempt lockout, single-use
+  redemption and password verification using isolated SQLite.
+- The static camp site's existing optimized media are fetched unchanged as build
+  inputs. No media is regenerated, removed or migrated. Its public build-time
+  configuration is separate from server secrets.
+- Application build/test/type-check CI and required main-branch checks supplement
+  advisory scanning. Nova credentials are private step-scoped secrets; clean
+  image builds now succeed from licensed downloads without seeding old vendor files.
+
+At validation, Composer has zero advisories; admin and scanner npm manifests have
+zero findings. No npm manifest has high or critical findings. Remaining low and
+moderate findings are retained for review (primarily the SvelteKit 2/adapter 7
+cookie dependency and the Drizzle Kit esbuild-loader development chain). OS image
+findings remain out of scope for the requested server migration.

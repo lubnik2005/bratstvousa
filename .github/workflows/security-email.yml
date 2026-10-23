@@ -2,7 +2,7 @@ name: Security email notifications
 
 on:
   workflow_run:
-    workflows: [Security checks]
+    workflows: [Security checks, Application regression checks]
     types: [completed]
   workflow_dispatch:
 

@@ -10,8 +10,11 @@ use PDOStatement;
 class D1PdoStatement extends PDOStatement
 {
     protected int $fetchMode = PDO::FETCH_ASSOC;
+
     protected array $bindings = [];
+
     protected array $responses = [];
+
     protected int $changes = 0;
 
     public function __construct(
@@ -22,7 +25,7 @@ class D1PdoStatement extends PDOStatement
         //
     }
 
-    public function setFetchMode(int $mode, mixed ...$args): bool
+    public function setFetchMode(int $mode, mixed ...$args): true
     {
         $this->fetchMode = $mode;
 

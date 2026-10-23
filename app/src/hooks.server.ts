@@ -2,9 +2,19 @@ import { sequence } from '@sveltejs/kit/hooks';
 import * as auth from '$lib/server/auth.js';
 import { createDb } from '$lib/server/db';
 import type { Handle } from '@sveltejs/kit';
-import { i18n } from '$lib/i18n';
+import { paraglideMiddleware } from '$lib/paraglide/server';
+import { getTextDirection } from '$lib/paraglide/runtime';
 
-const handleParaglide: Handle = i18n.handle();
+const handleParaglide: Handle = ({ event, resolve }) =>
+	paraglideMiddleware(event.request, ({ request, locale }) =>
+		resolve(
+			{ ...event, request },
+			{
+				transformPageChunk: ({ html }) =>
+					html.replace('%lang%', locale).replace('%dir%', getTextDirection(locale))
+			}
+		)
+	);
 
 const handleDb: Handle = async ({ event, resolve }) => {
 	if (!event.platform?.env?.DB) {
