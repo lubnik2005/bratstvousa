@@ -90,5 +90,5 @@ export const load: PageServerLoad = async ({ locals, url, setHeaders }) => {
 
 	allEvents.sort((a, b) => a.start.localeCompare(b.start));
 
-	return { events: allEvents };
+	return { events: allEvents, rangeStart: startDate, rangeEnd: endDate };
 };

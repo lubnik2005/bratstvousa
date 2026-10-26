@@ -1,6 +1,9 @@
 <script lang="ts">
 	// import MainNav from '$lib/components/MainNav.svelte';
 	import MainNav from '$lib/components/MainNav/Main.svelte';
+	import AppTabs from '$lib/components/AppTabs.svelte';
+	import ConnectionStatus from '$lib/components/ConnectionStatus.svelte';
+	import '$lib/styles/mobile.css';
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
 	export let data;
@@ -25,10 +28,16 @@
 			typeof ResizeObserver !== 'undefined' && navbar ? new ResizeObserver(updateNavOffset) : null;
 		ro?.observe(navbar as Element);
 		window.addEventListener('resize', updateNavOffset);
+		return () => {
+			ro?.disconnect();
+			window.removeEventListener('resize', updateNavOffset);
+		};
 	});
 </script>
 
 <MainNav media_url={data.media_url} />
+<AppTabs />
+<ConnectionStatus />
 
 <main id="main-content" class:home-hero={isHome}>
 	{@render children()}
