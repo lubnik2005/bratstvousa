@@ -1,38 +1,38 @@
-# sv
+# Bratstvo USA Website
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+The public Bratstvo USA website is a SvelteKit application using TypeScript, Drizzle, Cloudflare D1 (SQLite), Paraglide, and Cloudflare R2 for media.
 
-## Creating a project
-
-If you're seeing this, you've probably already done this step. Congrats!
+## Development
 
 ```bash
-# create a new project in the current directory
-npx sv create
-
-# create a new project in my-app
-npx sv create my-app
-```
-
-## Developing
-
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
-
-```bash
+npm install
 npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
 ```
 
-## Building
-
-To create a production version of your app:
+Run quality checks before submitting changes:
 
 ```bash
-npm run build
+npm run format
+npm run lint
+npm run check
+npm run test:unit -- --run
 ```
 
-You can preview the production build with `npm run preview`.
+## Database
 
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+The schema is in `src/lib/server/db/schema.ts`. Development uses local emulated Cloudflare bindings by default. Apply migrations to the local D1 database:
+
+```bash
+npm run db:migrate:local
+```
+
+For a mobile preview with fictional events and churches, start the development server once, then run `node scripts/seed-mobile-preview.mjs`. This seeds only the local Wrangler database and leaves populated tables unchanged.
+
+`npm run dev:remote` connects development to production bindings; do not use it for local demo data.
+
+## Related services
+
+- `../admin` is the Laravel Nova content-admin application.
+- `../camp-paradise` and `../camp-paradise-web` support Camp Paradise.
+
+See `AGENTS.md` for project conventions and available commands.
