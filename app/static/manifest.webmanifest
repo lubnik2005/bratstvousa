@@ -1,0 +1,11 @@
+{
+	"name": "Братство США",
+	"short_name": "Братство",
+	"lang": "ru",
+	"start_url": "/calendar",
+	"scope": "/",
+	"display": "standalone",
+	"background_color": "#f6f2ea",
+	"theme_color": "#354f41",
+	"icons": [{ "src": "/app-icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}

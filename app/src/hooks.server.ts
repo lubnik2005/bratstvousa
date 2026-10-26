@@ -47,6 +47,10 @@ const handleAuth: Handle = async ({ event, resolve }) => {
 
 const handleSecurityHeaders: Handle = async ({ event, resolve }) => {
 	const response = await resolve(event);
+	// Authenticated responses must never enter shared or offline caches.
+	if (event.cookies.get(auth.sessionCookieName)) {
+		response.headers.set('Cache-Control', 'private, no-store');
+	}
 
 	response.headers.set('X-Frame-Options', 'SAMEORIGIN');
 	response.headers.set('X-Content-Type-Options', 'nosniff');
