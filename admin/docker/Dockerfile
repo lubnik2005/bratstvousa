@@ -10,9 +10,9 @@ RUN php -r 'exit(PHP_VERSION_ID >= 80427 && PHP_VERSION_ID < 80500 ? 0 : 1);'
 
 # System deps for composer + native ext builds
 RUN apt-get update && apt-get install -y --no-install-recommends \
-        git unzip libzip-dev libpng-dev libjpeg-dev libfreetype6-dev \
+        git unzip libzip-dev libpng-dev libjpeg-dev libfreetype6-dev libwebp-dev \
         libonig-dev libxml2-dev \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
     && docker-php-ext-install -j"$(nproc)" gd zip bcmath exif pcntl \
     && rm -rf /var/lib/apt/lists/*
 
@@ -83,9 +83,9 @@ ENV DEBIAN_FRONTEND=noninteractive \
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
         nginx supervisor gosu sqlite3 curl \
-        libzip-dev libpng-dev libjpeg-dev libfreetype6-dev libonig-dev libxml2-dev \
+        libzip-dev libpng-dev libjpeg-dev libfreetype6-dev libwebp-dev libonig-dev libxml2-dev \
         libicu-dev ca-certificates \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
     # intl is required by Nova's Currency field (NumberFormatter); the Symfony
     # polyfill throws MethodArgumentValueNotImplementedException without it.
     && docker-php-ext-install -j"$(nproc)" gd zip bcmath exif pcntl opcache intl \
