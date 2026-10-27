@@ -15,6 +15,7 @@
 	// class. (Toggling via classList imperatively caused Svelte to tree-shake
 	// the scoped .nav-transparent styles as "unused".)
 	let scrollY = 0;
+	let openMenu: string | null = null;
 	$: navTransparent = isHome && scrollY <= SCROLL_THRESHOLD;
 
 	onMount(() => {
@@ -93,12 +94,12 @@
 								<button
 									type="button"
 									class="nav-link dropdown-toggle active"
-									data-bs-toggle="dropdown"
-									aria-expanded="false"
+									on:click={() => (openMenu = openMenu === item.title ? null : item.title)}
+									aria-expanded={openMenu === item.title}
 								>
 									{item.title}
 								</button>
-								<div class="dropdown-menu mega-content">
+								<div class="dropdown-menu mega-content" class:show={openMenu === item.title}>
 									<div class="mega-container">
 										<div class="mega-grid">
 											{#each item.children as department}
@@ -123,14 +124,15 @@
 						{:else}
 							<!-- Regular Dropdown -->
 							<div class="nav-item dropdown">
-								<a
-									href={item?.children.length ? '#' : item.href}
+								<button
+									type="button"
 									class="nav-link dropdown-toggle active"
-									data-bs-toggle="dropdown"
+									on:click={() => (openMenu = openMenu === item.title ? null : item.title)}
+									aria-expanded={openMenu === item.title}
 								>
 									{item.title}
-								</a>
-								<div class="dropdown-menu">
+								</button>
+								<div class="dropdown-menu" class:show={openMenu === item.title}>
 									{#each item.children as child}
 										<a href={child.href} class="dropdown-item">{child.title}</a>
 									{/each}

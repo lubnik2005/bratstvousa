@@ -7,7 +7,13 @@ import type { AppDatabase } from '$lib/server/db';
  * table so failed sends can be retried later. Throws on failure so callers
  * can treat it as best-effort.
  */
-export async function sendEmail(db: AppDatabase, to: string, subject: string, html: string) {
+export async function sendEmail(
+	db: AppDatabase,
+	to: string,
+	subject: string,
+	html: string,
+	text?: string
+) {
 	const fromEmail = env.MAIL_FROM ?? 'noreply@bratstvousa.com';
 	const fromName = env.MAIL_FROM_NAME ?? 'Camp Paradise';
 	const apiKey = env.RESEND_API_KEY;
@@ -45,7 +51,8 @@ export async function sendEmail(db: AppDatabase, to: string, subject: string, ht
 				from: `${fromName} <${fromEmail}>`,
 				to: [to],
 				subject,
-				html
+				html,
+				text
 			})
 		});
 

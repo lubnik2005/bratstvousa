@@ -104,7 +104,11 @@ class Reservation extends Resource
                 ->help('Camper account this bed belongs to (shows on their camper page and in the portal).'),
 
             BelongsTo::make('Event', 'event', Event::class)->nullable()->sortable(),
-            BelongsTo::make('Room', 'room', Room::class)->nullable()->hideFromIndex(),
+            BelongsTo::make('Room', 'room', Room::class)
+                ->nullable()
+                ->searchable()
+                ->withSubtitles()
+                ->hideFromIndex(),
             BelongsTo::make('Bed', 'cot', Cot::class)->nullable()->searchable()->hideFromIndex(),
 
             DateTime::make('Held Until', 'held_until')->onlyOnDetail(),

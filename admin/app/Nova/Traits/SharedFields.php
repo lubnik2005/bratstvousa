@@ -5,6 +5,8 @@ namespace App\Nova\Traits;
 use Advoor\NovaEditorJs\NovaEditorJsField;
 use Ebess\AdvancedNovaMediaLibrary\Fields\Files;
 use Ebess\AdvancedNovaMediaLibrary\Fields\Images;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Laravel\Nova\Fields\Boolean;
 use Laravel\Nova\Fields\Date;
 use Laravel\Nova\Fields\File;
@@ -15,6 +17,8 @@ use Laravel\Nova\Fields\Slug;
 use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Fields\Trix;
 use Laravel\Nova\Fields\URL;
+use Spatie\Image\Enums\ImageDriver;
+use Spatie\Image\Image as SpatieImage;
 
 class SharedFields
 {
@@ -61,7 +65,32 @@ class SharedFields
             Slug::make('Slug')->from('title'),
             Text::make('Description'),
             Date::make('Date'),
-            Image::make('Featured Image', 'featured_image', $disk)->path('upfiles/news'),
+            Image::make('Featured Image', 'featured_image', $disk)
+                ->path('upfiles/news')
+                ->store(function ($request, $model, $attribute, $requestAttribute, $disk, $storagePath) {
+                    /** @var UploadedFile $file */
+                    $file = $request->file($requestAttribute);
+                    $path = $file->store($storagePath, $disk);
+                    $thumbnailPath = self::featuredImageThumbnailPath($path);
+                    $temporaryPath = tempnam(sys_get_temp_dir(), 'featured-thumbnail-');
+
+                    try {
+                        SpatieImage::useImageDriver(ImageDriver::Gd)
+                            ->loadFile($file->getRealPath())
+                            ->width(480)
+                            ->format('webp')
+                            ->save($temporaryPath);
+
+                        Storage::disk($disk)->put($thumbnailPath, file_get_contents($temporaryPath), [
+                            'ContentType' => 'image/webp',
+                            'CacheControl' => 'public, max-age=31536000, immutable',
+                        ]);
+                    } finally {
+                        @unlink($temporaryPath);
+                    }
+
+                    return [$attribute => $path];
+                }),
             // Image::make('Thumbnail', 'thumbnail', $disk)->path('/upfiles/page'),
             Trix::make('Content')->withFiles($disk)->path('/upfiles/page')
                 ->fillUsing(function ($request, $model, $attribute, $requestAttribute) {
@@ -86,5 +115,14 @@ class SharedFields
             NovaEditorJsField::make('EditorJS', 'editorjs'),
 
         ];
+    }
+
+    public static function featuredImageThumbnailPath(string $path): string
+    {
+        return sprintf(
+            '%s/thumbnails/%s.webp',
+            dirname($path),
+            pathinfo($path, PATHINFO_FILENAME),
+        );
     }
 }

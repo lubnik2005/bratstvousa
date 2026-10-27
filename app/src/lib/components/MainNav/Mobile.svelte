@@ -1,15 +1,34 @@
 <script lang="ts">
+	import ArrowIcon from '$lib/components/ArrowIcon.svelte';
 	import { menu_items } from './menu_items';
+	import { page } from '$app/stores';
+	import { onMount } from 'svelte';
+	import { afterNavigate } from '$app/navigation';
 	export let media_url;
 
 	let isOpen = false;
 	let activeItem: number | null = null;
 	let activeSubcategory: number | null = null;
-
-	const toggleMenu = () => {
-		isOpen = !isOpen;
-		document.body.style.overflow = isOpen ? 'hidden' : 'auto';
-	};
+	onMount(() => {
+		const open = (): void => {
+			isOpen = true;
+			document.body.style.overflow = 'hidden';
+		};
+		const escape = (event: KeyboardEvent): void => {
+			if (event.key === 'Escape') closeMenu();
+		};
+		window.addEventListener('open-app-menu', open);
+		window.addEventListener('keydown', escape);
+		return () => {
+			window.removeEventListener('open-app-menu', open);
+			window.removeEventListener('keydown', escape);
+			document.body.style.overflow = '';
+		};
+	});
+	$: if ($page.url.searchParams.get('menu') === 'open') isOpen = true;
+	afterNavigate(() => {
+		if ($page.url.searchParams.get('menu') !== 'open') closeMenu();
+	});
 
 	const closeMenu = () => {
 		isOpen = false;
@@ -25,35 +44,16 @@
 	};
 
 	// Close the menu when clicking a link
-	const handleLinkClick = (event: MouseEvent) => {
-		event.preventDefault();
-		const href = (event.currentTarget as HTMLAnchorElement)?.getAttribute('href');
-		if (href) {
-			closeMenu();
-			setTimeout(() => {
-				window.location.href = href;
-			}, 200); // Delay to allow the closing animation
-		}
-	};
+	const handleLinkClick = (): void => closeMenu();
 </script>
 
 <div>
 	<!-- Mobile Header -->
 	<header class="mobile-header d-lg-none">
-		<!-- Logo on the Left -->
-		<a href="/">
-			<img src="{media_url}logo.png" alt="Логотип Братства США" width="58" height="40" />
+		<a class="mobile-home-link" href="/" aria-label="Американское Объединение МСЦ ЕХБ — главная">
+			<img src="{media_url}logo.png" alt="" width="58" height="40" />
+			<span class="mobile-brand-title">Американское Объединение<br />МСЦ ЕХБ</span>
 		</a>
-
-		<!-- Title in the Center -->
-		<h1>Американское Объединение МСЦ ЕХБ</h1>
-
-		<!-- Hamburger Menu on the Right -->
-		<button class="hamburger-menu" aria-label="Открыть меню" on:click={toggleMenu}>
-			<span></span>
-			<span></span>
-			<span></span>
-		</button>
 	</header>
 	<!-- Menu Backdrop -->
 	{#if isOpen}
@@ -62,13 +62,15 @@
 	{/if}
 
 	<!-- Fullscreen Mobile Menu -->
-	<nav class="fullscreen-menu {isOpen ? 'open' : ''}">
+	<nav class="fullscreen-menu {isOpen ? 'open' : ''}" inert={!isOpen} aria-label="Все разделы">
 		<!-- Close Button in Header -->
 		<div class="menu-header">
+			<h2>Все разделы</h2>
 			<button class="close-btn" aria-label="Закрыть меню" on:click={closeMenu}>&times;</button>
 		</div>
 
 		<ul class="list-unstyled p-3">
+			<li><a href="/" class="d-block py-2" on:click={handleLinkClick}>Главная</a></li>
 			{#each menu_items as item, index}
 				<li>
 					{#if item.children}
@@ -130,6 +132,32 @@
 				</li>
 			{/each}
 		</ul>
+		<div class="menu-extras">
+			<section aria-labelledby="menu-contact">
+				<h3 id="menu-contact">На связи</h3>
+				<a href="mailto:info@bratstvousa.com">info@bratstvousa.com <ArrowIcon /></a>
+				<a href="https://www.youtube.com/@bratstvousa" target="_blank" rel="noopener noreferrer"
+					>YouTube Братства <ArrowIcon /></a
+				>
+			</section>
+			<section aria-labelledby="menu-partners">
+				<h3 id="menu-partners">Служения и ресурсы</h3>
+				<a href="https://awakeningmission.org/" target="_blank" rel="noopener noreferrer"
+					>Awakening Mission <ArrowIcon /></a
+				>
+				<a href="https://missionrem.org/" target="_blank" rel="noopener noreferrer"
+					>Mission REM <ArrowIcon /></a
+				>
+				<a href="https://mscmusic.org/" target="_blank" rel="noopener noreferrer"
+					>MSC Music <ArrowIcon /></a
+				>
+				<a href="https://iosifnichita.com/" target="_blank" rel="noopener noreferrer"
+					>Iosif Nichita <ArrowIcon /></a
+				>
+			</section>
+			<a href="/privacy-policy" on:click={handleLinkClick}>Политика конфиденциальности</a>
+			<p class="menu-copyright">© Bratstvo USA. All Rights Reserved.</p>
+		</div>
 	</nav>
 </div>
 
@@ -143,8 +171,7 @@
 		border-bottom: 1px solid var(--bs-rule, #ddd5c8);
 		display: flex;
 		align-items: center;
-		justify-content: space-between;
-		padding: 0 15px;
+		justify-content: center;
 		z-index: 1000;
 	}
 
@@ -153,35 +180,55 @@
 		width: auto;
 	}
 
-	.mobile-header h1 {
+	.mobile-home-link {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 12px;
+		width: 100%;
+		height: 100%;
+		padding: 0 15px;
+		text-decoration: none;
+	}
+
+	.mobile-brand-title {
 		margin: 0;
 		font-family: var(--bs-font-serif, 'Lora', serif);
 		font-size: 1rem;
 		font-weight: 600;
 		color: var(--bs-primary, #5a4a42);
 		text-align: center;
-		flex-grow: 1;
-		padding: 0 0.75rem;
 	}
 
-	/* Hamburger: three quiet ink rules */
-	.hamburger-menu {
-		width: 32px;
-		height: 28px;
-		background: none;
-		border: none;
-		cursor: pointer;
-		padding: 4px 2px;
+	.menu-extras {
+		padding: 0 20px 24px;
+	}
+	.menu-extras section {
+		border-top: 1px solid #ddd5c8;
+		padding-block: 20px 12px;
+	}
+	.menu-extras h3 {
+		font-size: 12px;
+		color: #746b5d;
+		letter-spacing: 0.06em;
+		text-transform: uppercase;
+	}
+	.menu-extras a {
 		display: flex;
-		flex-direction: column;
-		justify-content: space-between;
+		align-items: center;
+		min-height: 44px;
+		font-size: 14px;
+		color: #354f41;
+		text-decoration: none;
 	}
-
-	.hamburger-menu span {
-		display: block;
-		height: 1.5px;
-		width: 100%;
-		background: var(--bs-dark, #2c2b29);
+	.menu-copyright {
+		font-size: 11px;
+		color: #746b5d;
+		margin: 16px 0 0;
+	}
+	.menu-header h2 {
+		margin: 0 auto 0 0;
+		font-size: 20px;
 	}
 
 	.fullscreen-menu {
@@ -189,13 +236,14 @@
 		top: 0;
 		left: 0;
 		width: 100vw;
-		height: 100vh;
+		height: 100dvh;
 		background: var(--bs-paper, #f6f2ea);
 		overflow-y: auto;
 		z-index: 999;
 		transform: translateX(100%);
 		transition: transform 0.3s ease;
 		padding-top: 60px;
+		padding-bottom: calc(90px + env(safe-area-inset-bottom));
 	}
 
 	.fullscreen-menu.open {

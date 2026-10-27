@@ -1,4 +1,5 @@
 <script lang="ts">
+	import ArrowIcon from '$lib/components/ArrowIcon.svelte';
 	import { hasEventContent } from '$lib/helpers';
 
 	export let data;
@@ -36,6 +37,23 @@
 					year: 'numeric'
 				}).format(new Date(value))
 			: '';
+
+	const featuredThumbnailPath = (path: string): string => {
+		const extensionIndex = path.lastIndexOf('.');
+		const directoryIndex = path.lastIndexOf('/');
+		const filename = path.slice(
+			directoryIndex + 1,
+			extensionIndex === -1 ? undefined : extensionIndex
+		);
+
+		return `${path.slice(0, directoryIndex)}/thumbnails/${filename}.webp`;
+	};
+
+	const useOriginalImage = (event: Event): void => {
+		const image = event.currentTarget as HTMLImageElement;
+		image.onerror = null;
+		image.src = image.dataset.original ?? image.src;
+	};
 </script>
 
 <svelte:head>
@@ -45,6 +63,7 @@
 		as="image"
 		href="{data.media_url}img/bratstvo_header_low.webp"
 		type="image/webp"
+		media="(min-width: 992px)"
 	/>
 	<title>Американское Объединение МСЦ ЕХБ</title>
 	<!-- Open Graph Meta Tags -->
@@ -59,14 +78,57 @@
 	<meta name="twitter:card" content="summary_large_image" />
 </svelte:head>
 
-<div class="container-fluid mb-5 p-0">
+<section class="mobile-quick-start">
+	<div class="mobile-masthead">
+		<picture>
+			<source media="(max-width: 991px)" srcset="{data.media_url}img/bratstvo_header_low.webp" />
+			<img
+				width="640"
+				height="360"
+				alt="Общение Братства США"
+				fetchpriority="high"
+				decoding="async"
+			/>
+		</picture>
+		<div>
+			<p class="masthead-eyebrow">Американское Объединение</p>
+			<h1>МСЦ ЕХБ</h1>
+			<p class="masthead-description">
+				«Господь — Пастырь мой; я ни в чём не буду нуждаться»
+				<span class="masthead-cite">Псалом 22:1</span>
+			</p>
+		</div>
+	</div>
+	<div class="mobile-quick-links">
+		<a href="/calendar">События <small>Что впереди <ArrowIcon kind="right" /></small></a>
+		<a href="/churches">Найти церковь <small>Адреса и контакты <ArrowIcon kind="right" /></small></a
+		>
+	</div>
+</section>
+
+<div class="desktop-home-hero container-fluid mb-5 p-0">
 	<div id="header-carousel" class="carousel slide">
 		<div class="carousel-inner">
 			<div class="carousel-item active">
 				<div class="video-wrapper d-none d-lg-block">
-					<video poster="{data.media_url}video/first-frame.webp" autoplay muted loop playsinline>
-						<source src="{data.media_url}video/bg-hero-1280.webm" type="video/webm" />
-						<source src="{data.media_url}video/bg-hero-1280.mp4" type="video/mp4" />
+					<video
+						poster="{data.media_url}video/first-frame.webp"
+						preload="none"
+						autoplay
+						muted
+						loop
+						playsinline
+					>
+						<source
+							src="{data.media_url}video/bg-hero-1280.webm"
+							type="video/webm"
+							media="(min-width: 992px)"
+						/>
+						<source
+							src="{data.media_url}video/bg-hero-1280.mp4"
+							type="video/mp4"
+							media="(min-width: 992px)"
+						/>
 						Your browser does not support the video tag.
 					</video>
 					<!---->
@@ -74,16 +136,6 @@
 					<!--     <source poster="{data.media_url}/video/first-frame.webp" src="{data.media_url}/video/bg_compressed_no_audio.webm" type="video/webm" /> -->
 					<!--     Your browser does not support the video tag. -->
 					<!-- </video> -->
-				</div>
-				<div class="d-lg-none">
-					<div class="image-container">
-						<img
-							fetchpriority="high"
-							loading="eager"
-							src="{data.media_url}img/bratstvo_header.webp"
-							alt="Братство США - главный баннер"
-						/>
-					</div>
 				</div>
 				<div class="carousel-caption">
 					<div class="container">
@@ -163,7 +215,7 @@
 <!-- Carousel End -->
 
 {#if events.length}
-	<section class="container my-6">
+	<section class="home-featured-section container my-6">
 		<div class="featured-event measure-wide mx-auto">
 			<p class="eyebrow">Ближайшее событие</p>
 			<div class="row g-4 align-items-center">
@@ -190,7 +242,9 @@
 					<h2 class="featured-event-title">{events[0].title}</h2>
 					<p class="featured-event-meta">{events[0].dates_description}</p>
 					{#if hasEventContent(events[0])}
-						<a href="/general-event/{events[0].slug}" class="btn-quiet">Подробнее →</a>
+						<a href="/general-event/{events[0].slug}" class="btn-quiet"
+							>Подробнее <ArrowIcon kind="right" /></a
+						>
 					{/if}
 				</div>
 			</div>
@@ -198,7 +252,7 @@
 	</section>
 {/if}
 
-<div class="container my-6">
+<div class="home-content container my-6">
 	<div class="row g-5 g-lg-6">
 		<!-- Upcoming Events -->
 		<div class="col-lg-6">
@@ -221,13 +275,14 @@
 							{/if}
 							{#if hasEventContent(event)}
 								<a href="/general-event/{event.slug}" class="btn-quiet home-event-cta">
-									Подробнее →
+									Подробнее <ArrowIcon kind="right" />
 								</a>
 							{/if}
 						</div>
 					</li>
 				{/each}
 			</ul>
+			<a href="/calendar" class="home-section-link">Все события <ArrowIcon kind="right" /></a>
 		</div>
 
 		<!-- Latest News -->
@@ -242,9 +297,11 @@
 						{#if article.featuredImage}
 							<a href="/news/{article.slug}" class="home-news-figure">
 								<img
-									src="{data.media_url}{article.featuredImage}"
+									src="{data.media_url}{featuredThumbnailPath(article.featuredImage)}"
+									data-original="{data.media_url}{article.featuredImage}"
 									alt={article.title}
 									loading="lazy"
+									on:error={useOriginalImage}
 								/>
 							</a>
 						{/if}
@@ -258,6 +315,10 @@
 					</li>
 				{/each}
 			</ul>
+			{#if !news_articles.length}<p class="text-muted">
+					Здесь появятся последние новости наших церквей.
+				</p>{/if}
+			<a href="/news" class="home-section-link">Все новости <ArrowIcon kind="right" /></a>
 		</div>
 	</div>
 </div>

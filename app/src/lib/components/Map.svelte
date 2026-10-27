@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import 'leaflet/dist/leaflet.css';
 	import type * as Leaflet from 'leaflet';
+	import { onDestroy } from 'svelte';
 	export let churches: Array<Record<string, any>>;
 
 	let map: Leaflet.Map | null = null;
@@ -74,6 +75,7 @@
 			map = null;
 		}
 	}
+	onDestroy(destroyMap);
 </script>
 
 <div id="map" style="height: 600px; width: 100%;"></div>

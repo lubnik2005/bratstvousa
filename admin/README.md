@@ -1,140 +1,95 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Bratstvo Nova Admin
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Laravel Nova administration for Bratstvo USA. Content data is stored in Cloudflare D1, media is stored in Cloudflare R2, and Nova's users, roles, permissions, audits, sessions, and cache live in a local SQLite volume.
 
-## Production operations
+## Production
 
-The live admin is at `https://admin.bratstvousa.com`, hosted on `23.92.25.92`.
-With the deployment key configured
-in `~/.ssh/config`, connect using:
+The live admin is `https://admin.bratstvousa.com`. It runs on `nautilus` in `/home/bruh/bratstvo-admin`.
 
 ```bash
-ssh bratstvo-admin-prod
+ssh nautilus
+cd /home/bruh/bratstvo-admin
+docker compose --env-file .env.compose -f docker-compose.prod.yml ps
+docker compose --env-file .env.compose -f docker-compose.prod.yml logs -f app
 ```
 
-SSH configuration (the private key stays on your workstation):
+The stack has two containers:
 
-```sshconfig
-Host bratstvo-admin-prod
-    HostName 23.92.25.92
-    User root
-    IdentityFile ~/.ssh/id_ed25519_bratstvo_admin
-    IdentitiesOnly yes
-```
+- `app` runs nginx, PHP-FPM, Laravel's scheduler, and Nova.
+- `cloudflared` is the only public ingress. The app has no published host port.
 
-If the public key needs installing, use an existing authorized login:
+Cloudflare Access protects the hostname with email codes. Its `Bratstvo Nova Users` group is reconciled from Nova users when a user is created, changed, or deleted, and every five minutes as a retry mechanism.
+
+### Deployment configuration
+
+Copy `.env.compose.example` to `.env.compose` and select the locally loaded app image and a reviewed, digest-pinned cloudflared image. Always pass `--env-file .env.compose` to production Compose commands: the service's `env_file` does not supply Compose's `${...}` interpolation.
+
+Laravel configuration and credentials go in `.env.production` (based on `.env.production.example`), and the tunnel token goes in `.cloudflared.env` (based on `.cloudflared.env.example`). Restrict these files to mode `0600`.
+
+### Deploy an update
+
+Build the image from the current `admin/` source on Nautilus. The Nova Composer credential is passed as a BuildKit secret, never as an image build argument or committed file.
 
 ```bash
-ssh-copy-id -i ~/.ssh/id_ed25519_bratstvo_admin.pub root@23.92.25.92
+# From the repository's admin/ directory, copy the current source to Nautilus.
+tar --exclude-vcs --exclude=node_modules --exclude=vendor \
+  --exclude=.env --exclude='.env.*' --exclude=.cloudflared.env --exclude=auth.json -cf - . |
+  ssh nautilus 'rm -rf /home/bruh/bratstvo-admin/build-src && \
+  mkdir -p /home/bruh/bratstvo-admin/build-src && \
+  tar -C /home/bruh/bratstvo-admin/build-src -xf -'
+
+# On Nautilus, create a temporary Composer-auth file with mode 0600, then:
+cd /home/bruh/bratstvo-admin/build-src
+DOCKER_BUILDKIT=1 docker build --network=host \
+  --secret id=composer_auth,src=/path/to/composer-auth.json \
+  -t bratstvousa-admin:release-YYYYMMDD \
+  -f docker/Dockerfile .
+rm -f /path/to/composer-auth.json
+
+# Select the image and recreate only the Laravel service.
+cd /home/bruh/bratstvo-admin
+sed -i 's|^ADMIN_IMAGE=.*|ADMIN_IMAGE=bratstvousa-admin:release-YYYYMMDD|' .env.compose
+docker compose --env-file .env.compose -f docker-compose.prod.yml up -d --no-deps --force-recreate --wait app
+docker compose --env-file .env.compose -f docker-compose.prod.yml ps
+docker compose --env-file .env.compose -f docker-compose.prod.yml exec -T app php artisan about --only=environment
 ```
 
-The live Compose stack is in `/root/admin/docker-compose.prod.yml`. It runs
-`bratstvousa-admin:amd64` with `pull_policy: never` and a Cloudflare Tunnel sidecar.
-Images are transferred with `docker save | ssh bratstvo-admin-prod docker load`.
-Keep the live Compose file and its external database/storage volumes intact.
-The repository's Compose file instead defaults to a GHCR image.
+`--network=host` is for the ephemeral build only: Docker's default build network cannot resolve Nautilus's local DNS stub. It does not affect the deployed containers.
 
-After loading a verified image and tagging it `bratstvousa-admin:amd64`, deploy
-and verify it from this directory:
+Do not remove the `bratstvo-admin_plumbing-db` or `bratstvo-admin_storage` volumes; they contain the local persistent state. Roll back by selecting a previous verified image tag in `.env.compose` and recreating only `app`.
+
+### Access and tunnel checks
 
 ```bash
-ssh bratstvo-admin-prod 'docker compose --project-directory /root/admin -f /root/admin/docker-compose.prod.yml up -d --no-deps --force-recreate --wait app'
-ssh bratstvo-admin-prod 'docker compose --project-directory /root/admin -f /root/admin/docker-compose.prod.yml exec -T app php -v'
-ssh bratstvo-admin-prod 'docker compose --project-directory /root/admin -f /root/admin/docker-compose.prod.yml exec -T app php-fpm -v'
+cd /home/bruh/bratstvo-admin
+docker compose --env-file .env.compose -f docker-compose.prod.yml ps
+docker compose --env-file .env.compose -f docker-compose.prod.yml logs --tail=100 cloudflared
+docker compose --env-file .env.compose -f docker-compose.prod.yml exec -T app php artisan cloudflare-access:reconcile
 ```
 
-PHP must be **8.4.27 or newer in the 8.4 branch** to include the fixes for
-CVE-2026-109618 and CVE-2026-109619. Rebuild production images with `--pull`;
-restart containers to replace all workers. Native session upload tracking is
-disabled at startup as additional hardening. Updating Composer packages alone
-does not patch PHP.
+Production secrets remain in `.env.production` and `.cloudflared.env`, both mode `0600`. Do not commit them. The tunnel's Cloudflare route is `admin.bratstvousa.com -> http://app:8080`.
 
-On 2026-10-21, production was rebuilt on the host using PHP 8.4.27 and the
-existing deployed application files. The build context is retained at
-`/root/admin/php-security-20261021`, and the resulting image is tagged
-`bratstvousa-admin:php-8.4.27-security-20261021` (also `:amd64`). The previous
-image is retained as `bratstvousa-admin:pre-php-security-20261021`; it contains
-vulnerable PHP and is only an emergency rollback artifact. A consistent SQLite
-backup is in the database volume as `plumbing.pre-php-security-20261021.sqlite`.
+The `bratstvo-admin-firewall` systemd service restricts app and tunnel egress. Review `deploy/nautilus-firewall.sh` before changing the Compose subnets.
 
-Development also uses the official PHP 8.4.27 image so it does not depend on
-third-party PHP package release timing. Use container PHP for project commands;
-the workstation's NixOS-managed PHP is updated separately through its system
-configuration.
-
-For the active Sail development image, run from the repository root:
+Install the firewall after the Compose networks exist:
 
 ```bash
-docker compose build --pull --no-cache admin
-docker compose up -d --no-deps --force-recreate admin
-docker compose exec admin php -v
+sudo install -m 0755 deploy/nautilus-firewall.sh /usr/local/sbin/bratstvo-admin-firewall
+sudo install -m 0644 deploy/nautilus-firewall.service /etc/systemd/system/bratstvo-admin-firewall.service
+sudo systemctl daemon-reload
+sudo systemctl enable --now bratstvo-admin-firewall.service
 ```
 
-To run a PHP command without starting the development web server or database:
+The script filters forwarded private-network traffic in `DOCKER-USER` and new container-to-host connections in `INPUT`. It preserves established replies and is reapplied when Docker restarts. Verify app-to-D1/R2/email connectivity, tunnel-to-app port 8080, and blocked host/LAN connections after installation.
+
+## Local development
+
+From the repository root:
 
 ```bash
-docker compose run --rm --no-deps admin php artisan test
+docker compose build admin
+docker compose up -d admin
+docker compose exec admin php artisan test
 ```
 
-## About Laravel
-
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
-
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
-
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
-
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
-
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-## Laravel Sponsors
-
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
-
-### Premium Partners
-
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
-
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+For code formatting, run `./vendor/bin/pint`. The project requires PHP 8.4.27 or newer in the 8.4 release line.

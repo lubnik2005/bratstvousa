@@ -229,7 +229,7 @@ describe('extractZeffyIdentifiers', () => {
 			description: 'PNW Youth Camp 2026',
 			discount: { code: 'TESTINGNIK', amount: 35000 },
 			payment_method: { type: 'free', brand: null, last4: null },
-			buyer: { email: 'lubnik2005@gmail.com', first_name: 'Nikita', last_name: 'Lubyanoy' },
+			buyer: { email: 'john@example.com', first_name: 'John', last_name: 'Doe' },
 			buyer_questions: [
 				{ question: 'Регистрационный Код (CAMP-XXXXX)', type: 'text', answer: 'CAMP-R9UEG' }
 			],

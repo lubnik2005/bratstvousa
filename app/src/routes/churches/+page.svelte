@@ -1,36 +1,22 @@
 <script lang="ts">
-	import Header from '$lib/components/Header.svelte';
-	import Map from '$lib/components/Map.svelte';
+	import ArrowIcon from '$lib/components/ArrowIcon.svelte';
+	import { page } from '$app/stores';
+	import { afterNavigate, replaceState } from '$app/navigation';
+	import { regions } from '$lib/calendar';
+	import type { PageData } from './$types';
 
-	interface Region {
-		key: string;
-		label: string;
-	}
-
-	export let data;
-	let selectedRegion = 'all';
-	let searchQuery = '';
-
-	const filterByRegion = (region: string) => {
-		selectedRegion = region;
-	};
-
-	const regions: Region[] = [
-		{ key: 'all', label: 'Все' },
-		{ key: 'central', label: 'Центральный регион' },
-		{ key: 'east', label: 'Восточный регион' },
-		{ key: 'california', label: 'Калифорнийский регион' },
-		{ key: 'north-west', label: 'Северо-Западный регион' }
-	];
-
-	// Combined region + free-text search, applied to both the mobile card grid
-	// and the desktop table.
-	$: filteredChurches = data.churches
-		.filter((church) => selectedRegion === 'all' || church.region === selectedRegion)
-		.filter((church) => {
-			const q = searchQuery.trim().toLowerCase();
-			if (!q) return true;
-			return [
+	export let data: PageData;
+	let selectedRegion = $page.url.searchParams.get('region') || 'all';
+	let searchQuery = $page.url.searchParams.get('q') || '';
+	let showMap = false;
+	let ready = false;
+	afterNavigate(() => {
+		ready = true;
+	});
+	$: filteredChurches = data.churches.filter(
+		(church) =>
+			(selectedRegion === 'all' || church.region === selectedRegion) &&
+			[
 				church.state,
 				church.city,
 				church.name_line_1,
@@ -41,263 +27,228 @@
 				church.contact_last_name
 			]
 				.filter(Boolean)
-				.some((field) => String(field).toLowerCase().includes(q));
-		});
+				.join(' ')
+				.toLocaleLowerCase()
+				.includes(searchQuery.trim().toLocaleLowerCase())
+	);
+	$: if (ready) updateFilters(selectedRegion, searchQuery);
+	function updateFilters(region: string, q: string): void {
+		const url = new URL(window.location.href);
+		if (region !== 'all') url.searchParams.set('region', region);
+		else url.searchParams.delete('region');
+		if (q) url.searchParams.set('q', q);
+		else url.searchParams.delete('q');
+		replaceState(url, $page.state);
+	}
 </script>
 
-<svelte:head>
-	<title>Адреса Домов Молитвы — Американское Объединение МСЦ ЕХБ</title>
-</svelte:head>
+<svelte:head><title>Найти церковь — Братство США</title></svelte:head>
 
-<Header title="Адреса Домов Молитвы" />
-
-<div class="d-lg-none container-xxl py-6">
-	<div class="container">
-		<!-- Church Grid -->
-		<div class="row">
-			<h3>Выбрать Регион</h3>
-			<div class="col-md-12 col-sm-12 mb-3">
-				<select
-					class="form-select"
-					bind:value={selectedRegion}
-					on:change={() => filterByRegion(selectedRegion)}
-				>
-					{#each regions as region}
-						<option value={region.key}>{region.label}</option>
-					{/each}
-				</select>
-			</div>
-			<div class="col-md-12 col-sm-12 mb-4">
-				<input
-					type="search"
-					class="form-control church-search"
-					placeholder="Поиск по городу, штату, названию…"
-					aria-label="Поиск церквей"
-					bind:value={searchQuery}
-				/>
-			</div>
-		</div>
-
-		<div class="row">
-			{#each filteredChurches as church}
-				<div class="col-md-4 col-sm-6">
-					<div class="church-card">
-						<h4>{church.state}, {church.city}</h4>
-						<p>{church.name_line_1} {church.name_line_2}</p>
-						<p>
-							<strong>Адрес:</strong>
-							<a
-								target="_blank"
-								href={`http://maps.google.com/?q=${church.address_line_1 + ' ' + (church.address_line_2 ?? '')}`}
-								>{church.address_line_1}<br />{church.address_line_2}</a
-							>
-						</p>
-						<p><strong>Контакт:</strong> {church.contact_first_name} {church.contact_last_name}</p>
-						<p><strong>Телефон:</strong> <a href="tel:{church.phone}">{church.phone}</a></p>
-						{#if church.website}
-							<p>
-								<a
-									href={church.website}
-									target="_blank"
-									rel="noopener noreferrer"
-									aria-label="Веб-сайт церкви"
-								>
-									<i class="fab fa-globe"></i>
-								</a>
-							</p>
-						{/if}
-						{#if church.youtube}
-							<p>
-								<a
-									href={church.youtube}
-									target="_blank"
-									rel="noopener noreferrer"
-									aria-label="YouTube-канал церкви"
-								>
-									<i class="fab fa-youtube"></i>
-								</a>
-							</p>
-						{/if}
-						{#if church.flickr}
-							<p>
-								<a
-									href={church.flickr}
-									target="_blank"
-									rel="noopener noreferrer"
-									aria-label="Flickr церкви"
-								>
-									<i class="fa-brands fa-flickr"></i>
-								</a>
-							</p>
-						{/if}
-					</div>
+<div class="directory">
+	<header>
+		<p class="kicker">Рядом и по всей стране</p>
+		<h1>Найти церковь</h1>
+		<p class="intro">Адреса домов молитвы и контакты общин.</p>
+	</header>
+	<div class="search-panel">
+		<label for="church-search">Город, штат или название</label>
+		<input
+			id="church-search"
+			type="search"
+			placeholder="Где вы ищете церковь?"
+			bind:value={searchQuery}
+		/>
+		<label for="church-region">Регион</label>
+		<select id="church-region" bind:value={selectedRegion}
+			>{#each regions as region}<option value={region.key}>{region.label}</option>{/each}</select
+		>
+	</div>
+	<div class="results-heading">
+		<span>Найдено: {filteredChurches.length}</span><button on:click={() => (showMap = !showMap)}
+			>{#if showMap}Скрыть карту{:else}Открыть карту <ArrowIcon />{/if}</button
+		>
+	</div>
+	{#if showMap}
+		{#await import('$lib/components/Map.svelte')}<p role="status">
+				Загружаем карту…
+			</p>{:then module}<module.default churches={filteredChurches} />{:catch}<p>
+				Не удалось загрузить карту. Адреса доступны в списке.
+			</p>{/await}
+	{/if}
+	<div class="church-grid">
+		{#each filteredChurches as church (church.id)}
+			<article class="church-card">
+				<p class="location">
+					{church.state}{church.state && church.city ? ' / ' : ''}{church.city}
+				</p>
+				<h2>
+					{church.name_line_1 || 'Дом молитвы'}{church.name_line_2 ? ` ${church.name_line_2}` : ''}
+				</h2>
+				<p class="address">{church.address_line_1}<br />{church.address_line_2}</p>
+				{#if church.contact_first_name || church.contact_last_name}<p class="contact">
+						{church.contact_first_name}
+						{church.contact_last_name}
+					</p>{/if}
+				<div class="actions">
+					<a
+						class="directions"
+						href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent([church.address_line_1, church.address_line_2, church.city, church.state].filter(Boolean).join(', '))}`}
+						target="_blank"
+						rel="noopener noreferrer">Маршрут <ArrowIcon /></a
+					>
+					{#if church.phone}<a href={`tel:${church.phone}`}>Позвонить</a>{/if}
+					{#if church.website}<a href={church.website} target="_blank" rel="noopener noreferrer"
+							>Сайт <ArrowIcon /></a
+						>{/if}
+					{#if church.youtube}<a href={church.youtube} target="_blank" rel="noopener noreferrer"
+							>YouTube <ArrowIcon /></a
+						>{/if}
+					{#if church.flickr}<a href={church.flickr} target="_blank" rel="noopener noreferrer"
+							>Фото <ArrowIcon /></a
+						>{/if}
 				</div>
-			{/each}
-		</div>
-	</div>
-</div>
-
-<div class="d-none d-lg-block container-xxl py-6">
-	<div class="container">
-		<!-- Search -->
-		<div class="row mb-4">
-			<div class="col-12">
-				<input
-					type="search"
-					class="form-control church-search"
-					placeholder="Поиск по городу, штату, названию…"
-					aria-label="Поиск церквей"
-					bind:value={searchQuery}
-				/>
-			</div>
-		</div>
-
-		<!-- Region Filter -->
-		<div class="row mb-4">
-			<div class="col-12">
-				<ul class="nav region-filter">
-					{#each regions as category}
-						<li class="nav-item">
-							<button
-								type="button"
-								class="region-tab {category.key === selectedRegion ? 'active' : ''}"
-								on:click={() => filterByRegion(category.key)}>{category.label}</button
-							>
-						</li>
-					{/each}
-				</ul>
-			</div>
-		</div>
-
-		<div class="row">
-			<table class="churches-table">
-				<thead>
-					<tr>
-						<th scope="col">Штат</th>
-						<th scope="col">Город</th>
-						<th scope="col">Адрес</th>
-						<th scope="col">Название</th>
-						<th scope="col">Контакт</th>
-						<th scope="col">Связь</th>
-					</tr>
-				</thead>
-				<tbody>
-					{#each filteredChurches as church}
-						<tr>
-							<td>{church.state}</td>
-							<td>{church.city}</td>
-							<td>
-								<a
-									target="_blank"
-									href={`http://maps.google.com/?q=${church.address_line_1 + ' ' + (church.address_line_2 ?? '')}`}
-									>{church.address_line_1}<br />{church.address_line_2}</a
-								>
-							</td>
-							<td>{church.name_line_1}<br />{church.name_line_2}</td>
-							<td>{church.contact_last_name}<br />{church.contact_first_name}</td>
-							<td>
-								{#if church.phone}
-									<a href={`tel:${church.phone}`}> {church.phone}</a><br /> <!-- content here -->
-								{/if}
-								{#if church.website}
-									<a target="_blank" href={church.website} aria-label="Веб-сайт церкви">
-										<i class="fa fa-globe"></i>
-									</a>
-								{/if}
-								{#if church.youtube}
-									<a target="_blank" href={church.youtube} aria-label="YouTube-канал церкви">
-										<i class="fab fa-youtube"></i>
-									</a>
-								{/if}
-								{#if church.flickr}
-									<a target="_blank" href={church.flickr} aria-label="Flickr церкви">
-										<i class="fab fa-flickr"></i>
-									</a>
-								{/if}
-							</td>
-						</tr>
-					{/each}
-				</tbody>
-			</table>
-		</div>
-	</div>
-</div>
-<!-- Map -->
-<div class="container-xxl pb-6">
-	<div class="container">
-		<Map churches={data.churches} />
+			</article>
+		{:else}<div class="empty">
+				<h2>Церковь не найдена</h2>
+				<p>Попробуйте название города или другой регион.</p>
+				<button
+					on:click={() => {
+						searchQuery = '';
+						selectedRegion = 'all';
+					}}>Сбросить поиск</button
+				>
+			</div>{/each}
 	</div>
 </div>
 
 <style>
+	.directory {
+		max-width: 1080px;
+		padding: 34px 24px 48px;
+		margin: auto;
+		color: #302f29;
+	}
+	.kicker {
+		font-size: 11px;
+		text-transform: uppercase;
+		letter-spacing: 0.09em;
+		color: #746e61;
+		margin-bottom: 12px;
+	}
+	h1 {
+		font-size: clamp(32px, 7vw, 48px);
+		margin-bottom: 12px;
+	}
+	.intro {
+		color: #746e61;
+		font-size: 14px;
+		margin-bottom: 24px;
+	}
+	.search-panel {
+		padding: 20px;
+		background: #eae6dc;
+		border-radius: 18px;
+		display: grid;
+		gap: 8px;
+	}
+	.search-panel label {
+		font-size: 11px;
+		font-weight: 600;
+		color: #665f52;
+	}
+	input,
+	select {
+		width: 100%;
+		min-height: 48px;
+		background: #fffdf8;
+		padding: 10px 12px;
+		border: 1px solid #d8d1c3;
+		border-radius: 10px;
+		font-size: 16px;
+		color: #302f29;
+	}
+	input {
+		margin-bottom: 6px;
+	}
+	.results-heading {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		margin: 18px 0;
+		font-size: 12px;
+		color: #746e61;
+	}
+	.results-heading button {
+		border: 0;
+		background: transparent;
+		color: #354f41;
+		min-height: 44px;
+	}
+	.church-grid {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 16px;
+	}
 	.church-card {
-		border: 1px solid var(--bs-rule);
-		border-top: 2px solid var(--bs-secondary);
-		padding: 1.25rem;
-		margin-bottom: 1.5rem;
-		height: 100%;
+		background: #fffdf7;
+		border: 1px solid #e0d9cb;
+		border-radius: 16px;
+		padding: 22px;
 	}
-	.church-card h4 {
-		font-family: var(--bs-font-serif);
-		font-size: 1.1rem;
-		color: var(--bs-dark);
+	.location {
+		color: #586b50;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		font-size: 11px;
+		margin-bottom: 10px;
 	}
-	.region-filter {
+	h2 {
+		font-size: 21px;
+		line-height: 1.4;
+		overflow-wrap: anywhere;
+	}
+	.address {
+		font-size: 14px;
+		line-height: 1.6;
+		color: #746e61;
+		margin-block: 12px;
+	}
+	.contact {
+		font-size: 12px;
+		color: #746e61;
+	}
+	.actions {
 		display: flex;
 		flex-wrap: wrap;
-		gap: 1.75rem;
-		border-bottom: 1px solid var(--bs-rule);
-		padding-bottom: 0.25rem;
-		margin-bottom: 0;
+		gap: 8px;
+		margin-top: 18px;
 	}
-	.region-tab {
-		background: none;
-		border: none;
-		border-bottom: 2px solid transparent;
-		padding: 0.5rem 0;
-		font-size: 0.82rem;
-		letter-spacing: 0.06em;
-		text-transform: uppercase;
-		color: var(--bs-ink-muted);
-		cursor: pointer;
-		transition: color 0.2s ease;
+	.actions a {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		padding: 10px 14px;
+		min-height: 44px;
+		border: 1px solid #d8d1c3;
+		border-radius: 10px;
+		font-size: 12px;
+		color: #354f41;
+		text-decoration: none;
 	}
-	.region-tab:hover {
-		color: var(--bs-primary);
+	.actions .directions {
+		background: #354f41;
+		border-color: #354f41;
+		color: #fffdf7;
 	}
-	.region-tab.active {
-		color: var(--bs-primary);
-		border-bottom-color: var(--bs-secondary);
+	.empty {
+		padding: 36px 0;
 	}
-	.churches-table {
-		width: 100%;
-		background: transparent;
-		border-collapse: collapse;
-	}
-	.church-search {
-		border: 1px solid var(--bs-rule);
-		border-radius: 0;
-		background: var(--bs-paper);
-		color: var(--bs-dark);
-	}
-	.church-search:focus {
-		border-color: var(--bs-secondary);
-		box-shadow: none;
-		background: var(--bs-paper);
-	}
-	.churches-table thead th {
-		font-family: var(--bs-font-serif);
-		font-weight: 600;
-		color: var(--bs-dark);
-		border-bottom: 1px solid var(--bs-rule-strong);
-		padding: 0.75rem 0.75rem;
-	}
-	.churches-table tbody td {
-		border-bottom: 1px solid var(--bs-rule);
-		padding: 0.75rem;
-		vertical-align: top;
-	}
-	.churches-table tbody tr:hover {
-		background-color: var(--bs-paper-sunk);
+	@media (max-width: 650px) {
+		.directory {
+			padding: 24px 18px 32px;
+		}
+		.church-grid {
+			grid-template-columns: 1fr;
+		}
 	}
 </style>

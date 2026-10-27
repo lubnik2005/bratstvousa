@@ -1,0 +1,13 @@
+[Unit]
+Description=Bratstvo admin container egress restrictions
+After=docker.service
+Requires=docker.service
+PartOf=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/bratstvo-admin-firewall
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

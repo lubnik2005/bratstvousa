@@ -3,9 +3,11 @@
 namespace App\Providers;
 
 use App\Models\User;
+use App\Services\CloudflareAccessGroup;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Pktharindu\NovaPermissions\Traits\ValidatesPermissions;
+use Throwable;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -55,6 +57,19 @@ class AppServiceProvider extends ServiceProvider
                 return $user->hasPermissionTo($key);
             });
         }
+
+        // Access is a second gate in front of Nova. Reconcile immediately for
+        // user lifecycle changes; the scheduled command repairs transient API
+        // failures without blocking Nova user administration.
+        $syncAccessUsers = function (): void {
+            try {
+                app(CloudflareAccessGroup::class)->reconcile();
+            } catch (Throwable $exception) {
+                report($exception);
+            }
+        };
+        User::saved($syncAccessUsers);
+        User::deleted($syncAccessUsers);
 
         // Re-register the "d1" database driver AFTER renoki-co/l1's service
         // provider so DatabaseManager resolves our subclass. The vendor
