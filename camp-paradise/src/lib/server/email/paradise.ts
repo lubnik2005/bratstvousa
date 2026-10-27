@@ -34,16 +34,23 @@ function layout(title: string, body: string): string {
 
 /** Sent when a camper requests a one-time login code. */
 export async function sendLoginCode(db: AppDatabase, email: string, code: string) {
-	const body = `
-		<p style="font-size:15px;line-height:1.6;margin:0 0 16px">Use this code to sign in to Camp Paradise:</p>
+	// Keep the code first and uninterrupted in both parts for mail clients' code detection.
+	const instructions = 'Use this one-time verification code to sign in to Camp Paradise.';
+	const expiry = 'This code expires in 10 minutes.';
+	const notice =
+		"If you didn't request this code, you can ignore this email. Don't share this code.";
+	const text = [code, '', instructions, expiry, '', notice].join('\n');
+	const html = `<!doctype html><html><body style="margin:0;background:#f4f5f7;font-family:Arial,Helvetica,sans-serif;color:#1c2733">
+<div style="max-width:560px;margin:0 auto;padding:24px">
+	<div style="background:#fff;padding:24px;border:1px solid #e6e8eb;border-radius:12px">
 		<div style="font-size:32px;font-weight:700;letter-spacing:8px;background:#f0fbf6;border:1px solid #c8fad6;color:#007867;border-radius:12px;padding:18px 0;text-align:center;margin:0 0 16px">${escapeHtml(code)}</div>
-		<p style="font-size:14px;line-height:1.6;color:#6b7580;margin:0">This code expires in 10 minutes. If you didn't request it, you can ignore this email.</p>`;
-	return sendEmail(
-		db,
-		email,
-		'Your Camp Paradise sign-in code',
-		layout('Sign in to Camp Paradise', body)
-	);
+		<h1 style="font-size:20px;margin:0 0 16px">Camp Paradise sign-in code</h1>
+		<p style="font-size:15px;line-height:1.6;margin:0 0 16px">${escapeHtml(instructions)} ${escapeHtml(expiry)}</p>
+		<p style="font-size:14px;line-height:1.6;color:#6b7580;margin:0">${escapeHtml(notice)}</p>
+	</div>
+	<p style="color:#8a94a0;font-size:12px;margin:16px 0 0;text-align:center">Camp Paradise registration</p>
+</div></body></html>`;
+	return sendEmail(db, email, 'Your Camp Paradise sign-in code', html, text);
 }
 
 export interface ReservationEmailInfo {
