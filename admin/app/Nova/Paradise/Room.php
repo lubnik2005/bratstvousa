@@ -53,6 +53,16 @@ class Room extends Resource
         return 'Paradise Rooms';
     }
 
+    public function subtitle(): string
+    {
+        return implode(' · ', array_filter([
+            self::$sexes[$this->resource->sex] ?? $this->resource->sex,
+            self::$types[$this->resource->type] ?? $this->resource->type,
+            $this->resource->size !== null ? 'Capacity: '.$this->resource->size : null,
+            $this->resource->location,
+        ], fn ($value) => $value !== null && $value !== ''));
+    }
+
     public function fields(NovaRequest $request): array
     {
         return [
