@@ -1,25 +1,25 @@
 # Production compose for the Laravel Nova admin panel.
 #
-# The runtime image bundles nginx + php-fpm (via supervisor), so this is a
-# single-service stack. Content lives in Cloudflare D1 (remote) and media in
-# Cloudflare R2 (remote); the only local state is the plumbing SQLite DB
+# The runtime image bundles nginx + php-fpm (via supervisor). The stack has an
+# application service plus a tunnel sidecar. Content lives in Cloudflare D1
+# and media in Cloudflare R2; the only local state is the plumbing SQLite DB
 # (Nova users/roles/permissions/audits/sessions) + Laravel storage, both on
 # named volumes so they survive redeploys.
 #
-# Usage on the Linode:
-#   docker compose -f docker-compose.prod.yml pull
-#   docker compose -f docker-compose.prod.yml up -d
+# The app has no host-published port. Cloudflare Tunnel is the only ingress.
+# Set image versions in .env.compose, then use:
+# docker compose --env-file .env.compose -f docker-compose.prod.yml up -d
 
 services:
   app:
-    image: ghcr.io/lubnik2005/bratstvousa-admin:latest
+    image: ${ADMIN_IMAGE:-bratstvousa-admin:amd64}
+    pull_policy: never
     restart: unless-stopped
     env_file:
       - .env.production
-    ports:
-      # Host 127.0.0.1:8080 -> container 8080. Only bound to loopback; the
-      # host nginx (or cloudflared) terminates TLS and proxies to this.
-      - "127.0.0.1:8080:8080"
+    networks:
+      - admin
+      - app-egress
     volumes:
       # Mount ONLY the data subdir, not the whole database/ dir, so the
       # image-shipped migrations (database/migrations-plumbing) are never
@@ -33,6 +33,48 @@ services:
       retries: 3
       start_period: 40s
 
+  cloudflared:
+    image: ${CLOUDFLARED_IMAGE:?Set CLOUDFLARED_IMAGE to a reviewed, digest-pinned cloudflared image}
+    restart: unless-stopped
+    user: "65532:65532"
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    tmpfs:
+      - /tmp:uid=65532,gid=65532,mode=1777,noexec,nosuid,size=16m
+    command: tunnel --no-autoupdate run
+    env_file:
+      - .cloudflared.env
+    networks:
+      - admin
+      - tunnel-egress
+    depends_on:
+      app:
+        condition: service_healthy
+
 volumes:
   plumbing-db:
   storage:
+
+networks:
+  # Private app-to-tunnel network. Outbound traffic uses the dedicated egress
+  # networks below; deploy/nautilus-firewall.sh restricts private destinations.
+  admin:
+    internal: true
+    ipam:
+      config:
+        - subnet: 172.30.0.0/24
+  # The tunnel needs outbound Cloudflare connectivity. Keep it dedicated: do
+  # not attach another service to this network.
+  tunnel-egress:
+    ipam:
+      config:
+        - subnet: 172.31.0.0/24
+  # Laravel must reach D1, R2, Resend, and Zeffy but does not share a network
+  # with the tunnel's external interface.
+  app-egress:
+    ipam:
+      config:
+        - subnet: 172.29.0.0/24

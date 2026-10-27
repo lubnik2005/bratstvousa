@@ -19,3 +19,6 @@ Schedule::command('paradise:release-holds')->hourly()->withoutOverlapping();
 
 // Reconcile Camp Paradise Zeffy ticket payments hourly (safety net for the webhook).
 Schedule::command('zeffy:sync-paradise')->hourly()->withoutOverlapping();
+
+// Repairs a failed immediate sync after Nova user lifecycle changes.
+Schedule::command('cloudflare-access:reconcile')->everyFiveMinutes()->withoutOverlapping();

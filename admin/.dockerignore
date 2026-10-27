@@ -19,6 +19,7 @@ database/**/*.sqlite*
 bootstrap/cache/*.php
 .env
 .env.*
+.cloudflared.env
 !.env.production.example
 auth.json
 runtimes
