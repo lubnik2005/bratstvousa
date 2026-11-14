@@ -60,7 +60,7 @@
 		"@oslojs/crypto": "^1.0.1",
 		"@oslojs/encoding": "^1.1.0",
 		"@splidejs/svelte-splide": "^0.2.9",
-		"@sveltejs/adapter-cloudflare": "^7.2.9",
+		"@sveltejs/adapter-cloudflare": "^7.2.10",
 		"@sveltestrap/sveltestrap": "^6.2.7",
 		"bootstrap": "^5.3.3",
 		"drizzle-orm": "^0.45.4",
